@@ -6,8 +6,17 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 export async function POST(request: Request) {
     try {
-        const body = await request.json();
-        const { priceId } = body;
+        const contentType = request.headers.get("content-type") || "";
+        const isJson = contentType.includes("application/json");
+
+        let priceId: string | null = null;
+        if (isJson) {
+            const body = await request.json();
+            priceId = body?.priceId ?? null;
+        } else {
+            const form = await request.formData();
+            priceId = (form.get("priceId") as string | null) ?? null;
+        }
 
         if (!priceId) {
             return NextResponse.json({ error: 'Missing priceId' }, { status: 400 });
@@ -43,6 +52,15 @@ export async function POST(request: Request) {
                 firmName: rows[0]?.firmName || 'BLONK Firm'
             }
         });
+
+        if (!session.url) {
+            return NextResponse.json({ error: "Stripe session missing URL" }, { status: 500 });
+        }
+
+        // If called via a non-JSON POST (e.g., FormData), do a server redirect to Stripe.
+        if (!isJson) {
+            return NextResponse.redirect(session.url, { status: 303 });
+        }
 
         return NextResponse.json({ url: session.url });
     } catch (error: any) {

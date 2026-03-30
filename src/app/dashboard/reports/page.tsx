@@ -85,24 +85,7 @@ export default function ReportsPage() {
         }
     };
 
-    const downloadReport = (report: any) => {
-        const element = document.createElement("a");
-        const file = new Blob([`Report: ${report.name}\nType: ${report.type}\nGenerated: ${report.date}\nSize: ${report.size}\n\nContents:\n${report.content}`], { type: 'text/plain' });
-        element.href = URL.createObjectURL(file);
-        element.download = `${report.name.replace(/\s+/g, '_')}.txt`;
-        document.body.appendChild(element);
-        element.click();
-    };
-
-    const exportAll = () => {
-        if (history.length === 0) return;
-        const element = document.createElement("a");
-        const file = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json' });
-        element.href = URL.createObjectURL(file);
-        element.download = `BLONK_Reports_Backup_${new Date().toISOString().split('T')[0]}.json`;
-        document.body.appendChild(element);
-        element.click();
-    };
+    const exportHref = "/api/reports/export";
 
     return (
         <div className={styles.reportsContainer}>
@@ -112,7 +95,9 @@ export default function ReportsPage() {
                     <p>Generate and manage detailed oversight documents for your autonomous firm.</p>
                 </div>
                 <div className={styles.headerActions}>
-                    <button className={styles.btnOutline} onClick={exportAll}>Export All</button>
+                    <a className={styles.btnOutline as unknown as string} href={exportHref}>
+                        Export All
+                    </a>
                     <button
                         className={styles.btnPrimary}
                         onClick={() => generateReport("Quick Audit")}
@@ -175,7 +160,9 @@ export default function ReportsPage() {
                                 <td><span className={`${styles.statusPill} ${styles.statusReady}`}>{report.status}</span></td>
                                 <td className={styles.rowActions}>
                                     <button className={styles.rowActionBtn} onClick={() => setSelectedReport(report)}>View</button>
-                                    <button className={styles.rowActionBtn} onClick={() => downloadReport(report)}>Download</button>
+                                    <a className={styles.rowActionBtn as unknown as string} href={`/api/reports/download?id=${encodeURIComponent(report.id)}`}>
+                                        Download
+                                    </a>
                                 </td>
                             </tr>
                         ))}
@@ -218,7 +205,9 @@ export default function ReportsPage() {
                         </div>
                         <div className={styles.modalFooter}>
                             <button className={styles.btnOutline} onClick={() => setSelectedReport(null)}>Close</button>
-                            <button className={styles.btnPrimary} onClick={() => downloadReport(selectedReport)}>Download TXT</button>
+                            <a className={styles.btnPrimary as unknown as string} href={`/api/reports/download?id=${encodeURIComponent(selectedReport.id)}`}>
+                                Download TXT
+                            </a>
                         </div>
                     </div>
                 </div>

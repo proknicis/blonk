@@ -2,6 +2,7 @@
 
 import styles from "./settings.module.css";
 import React, { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function SettingsPage() {
     const [activeTab, setActiveTab] = useState('general');
@@ -18,18 +19,20 @@ export default function SettingsPage() {
         autonomous_discovery: "true",
         real_time_auditing: "true"
     });
+    const router = useRouter();
+    const searchParams = useSearchParams();
 
     useEffect(() => {
-        const query = new URLSearchParams(window.location.search);
-        const success = query.get('success');
-        const sessionId = query.get('sessionId');
+        const success = searchParams.get("success");
+        const sessionId = searchParams.get("sessionId");
 
         if (success === 'true' && sessionId) {
             handleVerification(sessionId);
         } else {
             fetchInitialData();
         }
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams]);
 
     const handleVerification = async (sessionId: string) => {
         try {
@@ -118,20 +121,15 @@ export default function SettingsPage() {
             
             // Only Professional plan currently has a checkout route
             if (plan === 'Professional') {
-                const res = await fetch('/api/stripe/checkout', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        priceId: "price_placeholder_id" // In production this comes from env or DB
-                    })
-                });
-                
-                const data = await res.json();
-                if (data.url) {
-                    window.location.href = data.url;
-                } else {
-                    throw new Error(data.error || "Checkout failed");
+                // Use server-side redirect (form-style POST) to avoid window.location.
+                const form = new FormData();
+                form.set("priceId", "price_placeholder_id");
+                const res = await fetch("/api/stripe/checkout", { method: "POST", body: form });
+                if (!res.redirected) {
+                    const data = await res.json().catch(() => null);
+                    throw new Error(data?.error || "Checkout failed");
                 }
+                router.push(res.url);
                 return;
             }
 

@@ -26,8 +26,6 @@ export default function AdminLoginPage() {
             const data = await res.json();
 
             if (res.ok) {
-                // In a real app we'd use cookies/JWT. For this demo, we'll use localStorage
-                localStorage.setItem("admin_token", "secure_session_" + Date.now());
                 router.push("/admin");
             } else {
                 setError(data.error || "Authentication failed");

@@ -14,10 +14,20 @@ export async function POST(request: Request) {
         await connection.end();
 
         if (rows.length > 0) {
-            return NextResponse.json({
+            const res = NextResponse.json({
                 success: true,
                 user: rows[0]
             });
+
+            res.cookies.set("admin_token", `admin_${rows[0].id}`, {
+                httpOnly: true,
+                sameSite: "lax",
+                secure: process.env.NODE_ENV === "production",
+                path: "/",
+                maxAge: 60 * 60 * 24 * 7,
+            });
+
+            return res;
         } else {
             return NextResponse.json({ error: 'Invalid credentials or insufficient permissions' }, { status: 401 });
         }

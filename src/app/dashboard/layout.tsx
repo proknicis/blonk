@@ -93,35 +93,25 @@ export default function DashboardLayout({
         };
     }, []);
 
-    useEffect(() => {
+    const onShellMouseDownCapture = (e: React.MouseEvent) => {
         if (!showNotifs && !showUserMenu) return;
+        const target = e.target as Node | null;
+        if (!target) return;
 
-        const onMouseDown = (e: MouseEvent) => {
-            const target = e.target as Node | null;
-            if (!target) return;
+        if (showNotifs && notifsAnchorRef.current && !notifsAnchorRef.current.contains(target)) {
+            setShowNotifs(false);
+        }
+        if (showUserMenu && userMenuAnchorRef.current && !userMenuAnchorRef.current.contains(target)) {
+            setShowUserMenu(false);
+        }
+    };
 
-            if (showNotifs && notifsAnchorRef.current && !notifsAnchorRef.current.contains(target)) {
-                setShowNotifs(false);
-            }
-            if (showUserMenu && userMenuAnchorRef.current && !userMenuAnchorRef.current.contains(target)) {
-                setShowUserMenu(false);
-            }
-        };
-
-        const onKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape") {
-                setShowNotifs(false);
-                setShowUserMenu(false);
-            }
-        };
-
-        document.addEventListener("mousedown", onMouseDown);
-        document.addEventListener("keydown", onKeyDown);
-        return () => {
-            document.removeEventListener("mousedown", onMouseDown);
-            document.removeEventListener("keydown", onKeyDown);
-        };
-    }, [showNotifs, showUserMenu]);
+    const onShellKeyDownCapture = (e: React.KeyboardEvent) => {
+        if (e.key === "Escape") {
+            setShowNotifs(false);
+            setShowUserMenu(false);
+        }
+    };
 
     const clearNotifications = async () => {
         try {
@@ -140,7 +130,7 @@ export default function DashboardLayout({
     ];
 
     return (
-        <div className={styles.appShell}>
+        <div className={styles.appShell} onMouseDownCapture={onShellMouseDownCapture} onKeyDownCapture={onShellKeyDownCapture}>
             <div className={styles.noise} />
             <aside className={styles.sidebar}>
                 <div className={styles.sidebarBrand}>
