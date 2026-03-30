@@ -1,0 +1,247 @@
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* STATS GRID: Institutional Metrics */
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+
+.statCard {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.statCard:hover {
+    border-color: #101112;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04);
+}
+
+.statHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.statLabel {
+    font-size: 0.75rem;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #94A3B8;
+}
+
+.statTrend {
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 4px 8px;
+    border-radius: 8px;
+}
+
+.trendPositive {
+    background: #F0FDF4;
+    color: #16A34A;
+}
+
+.trendNegative {
+    background: #FEF2F2;
+    color: #DC2626;
+}
+
+.statValue {
+    font-size: 1.85rem;
+    font-weight: 950;
+    letter-spacing: -0.04em;
+    color: #101112;
+    margin-bottom: 20px;
+}
+
+.statChart {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 48px;
+    margin-top: auto;
+}
+
+.statBar {
+    flex: 1;
+    background: #F1F5F9;
+    border-radius: 2px;
+    transition: height 0.6s ease;
+}
+
+.statBarActive {
+    background: var(--accent-highlight);
+}
+
+/* MAIN GRID: Content Areas */
+.mainGrid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 32px;
+}
+
+.card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 24px;
+    padding: 32px;
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.cardTitle {
+    font-size: 1.25rem;
+    font-weight: 950;
+    letter-spacing: -0.04em;
+    color: #101112;
+}
+
+.cardActions {
+    display: flex;
+    gap: 12px;
+}
+
+/* TABLE: Institutional Ledger */
+.historyTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.historyTable th {
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #94A3B8;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #F1F5F9;
+}
+
+.historyTable td {
+    padding: 20px 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    border-bottom: 1px solid #F8FAFC;
+}
+
+.historyTable tr:last-child td {
+    border-bottom: none;
+}
+
+.statusPill {
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 850;
+    text-transform: uppercase;
+}
+
+.statusSuccess {
+    background: #34D186;
+    color: #000;
+}
+
+.trxId {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: #64748B;
+}
+
+.btnOutline {
+    padding: 10px 18px;
+    border: 1.5px solid #E2E8F0;
+    background: #FFFFFF;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 850;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btnOutline:hover {
+    border-color: #101112;
+    background: #FAFAFA;
+}
+
+/* MISC ITEMS */
+.miniProgress {
+    width: 100%;
+    height: 6px;
+    background: #F1F5F9;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.miniFill {
+    height: 100%;
+    background: var(--accent-highlight);
+    border-radius: 3px;
+    transition: width 0.6s ease;
+}
+
+.breakdownList {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.breakdownItem {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.breakdownIcon {
+    width: 40px;
+    height: 40px;
+    background: #F8FAFC;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 950;
+    font-size: 1.1rem;
+}
+
+.breakdownData {
+    flex: 1;
+}
+
+.breakdownHeader {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.breakdownLabel {
+    font-size: 0.9rem;
+    font-weight: 850;
+}
+
+.breakdownValue {
+    font-weight: 950;
+}
+
+@media (max-width: 1440px) {
+    .statsGrid { grid-template-columns: repeat(2, 1fr); }
+    .mainGrid { grid-template-columns: 1fr; }
+}

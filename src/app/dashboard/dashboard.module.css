@@ -1,0 +1,542 @@
+.appShell {
+    display: flex;
+    height: 100dvh;
+    overflow: hidden;
+    background-color: #FAFAFA;
+    position: relative;
+    width: 100%;
+}
+
+.noise {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.02;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    z-index: 1000;
+}
+
+/* SIDEBAR: Institutional Anchor */
+.sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    background: #0A0A0B;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 20px;
+    height: 100%;
+    overflow-y: auto;
+    z-index: 100;
+    color: #FFFFFF;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebarBrand {
+    margin-bottom: 40px;
+    padding-left: 12px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.85rem;
+    font-weight: 950;
+    letter-spacing: -0.05em;
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+.sidebarNav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.navGroup {
+    margin-bottom: 48px;
+}
+
+.navGroupLabel {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 24px;
+    padding-left: 12px;
+}
+
+.navGroup ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.navLink {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    margin-bottom: 4px;
+    text-decoration: none;
+}
+
+.navLink:hover {
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.navLink svg {
+    width: 18px;
+    height: 18px;
+    color: rgba(255, 255, 255, 0.4);
+    transition: color 0.2s ease;
+}
+
+.navLink:hover svg {
+    color: #FFFFFF;
+}
+
+.navLinkActive {
+    background: rgba(52, 209, 134, 0.1) !important;
+    color: #34D186 !important;
+    box-shadow: none;
+}
+
+.navLinkActive svg {
+    color: #34D186 !important;
+}
+
+/* USAGE MONITOR: Enterprise Style */
+.usageSection {
+    margin-top: auto;
+    padding-top: 32px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.usageCard {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.planBadge {
+    font-size: 0.65rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 4px 10px;
+    background: #34D186;
+    color: #0A0A0B;
+    border-radius: 6px;
+}
+
+.statLabel {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.statValue {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #FFFFFF;
+}
+
+.barContainer {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.barFill {
+    height: 100%;
+    background: #34D186;
+}
+
+.upgradeBtn {
+    width: 100%;
+    margin-top: 20px;
+    height: 44px;
+    background: #34D186;
+    color: #0A0A0B;
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.upgradeBtn:hover {
+    background: #4ade80;
+    transform: translateY(-2px);
+}
+
+/* TOPBAR: Minimalist & Floating */
+.mainContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: 100%;
+    overflow-y: auto;
+    position: relative;
+    z-index: 10;
+}
+
+.topbar {
+    height: 80px;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(250, 250, 250, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.searchInput {
+    width: 400px;
+    height: 44px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 0 16px 0 48px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #101112;
+    transition: all 0.2s ease;
+}
+
+.searchInput:focus {
+    outline: none;
+    border-color: #101112;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.iconBtn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748B;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.iconBtn:hover {
+    color: #101112;
+    border-color: #101112;
+    transform: translateY(-1px);
+}
+
+.userProfile {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-left: 24px;
+    border-left: 1px solid #E2E8F0;
+    cursor: pointer;
+}
+
+.userData {
+    text-align: right;
+}
+
+.userData strong {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 900;
+    color: #101112;
+}
+
+.userData span {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #101112;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+}
+
+/* Page Content Transition */
+.pageContent {
+    padding: 60px 80px;
+    flex: 1;
+}
+
+@keyframes slideUpFade {
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.dropdown, .userDropdown {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    background: #FFFFFF;
+    border-radius: 16px;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    padding: 8px;
+    animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dropdownItem, .userDropdownLink {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #64748B;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.dropdownItem:hover, .userDropdownLink:hover {
+    background: #F8FAFC;
+    color: #101112;
+}
+
+/* Missing dashboard-shell classes used in layouts */
+.topbarActions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.searchWrapper {
+    position: relative;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94A3B8;
+    pointer-events: none;
+}
+
+.dropdownAnchor {
+    position: relative;
+}
+
+.usagePlanTop {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.tierDots {
+    display: flex;
+    gap: 4px;
+}
+
+.tierDot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #34D186;
+}
+
+/* Notifications dropdown */
+.dropdownTitle {
+    padding: 10px 14px 6px 14px;
+    font-size: 0.75rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #94A3B8;
+}
+
+.dropdownEmpty {
+    padding: 14px 14px 6px 14px;
+    font-weight: 800;
+    color: #64748B;
+    font-size: 0.9rem;
+}
+
+.dropdownList {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 6px;
+    max-height: 320px;
+    overflow: auto;
+}
+
+.dropdownList::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dropdownList::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.35);
+    border-radius: 999px;
+}
+
+.notificationItem {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 12px 12px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #101112;
+    transition: background 0.2s ease, transform 0.2s ease;
+    text-decoration: none;
+}
+
+.notificationItem:hover {
+    background: #F8FAFC;
+    transform: translateY(-1px);
+}
+
+.dropdownItemTitle {
+    font-weight: 900;
+    color: #101112;
+}
+
+.dropdownItemBody {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #64748B;
+    line-height: 1.4;
+}
+
+.dropdownFooter {
+    padding: 10px 8px 4px 8px;
+    border-top: 1px solid rgba(226, 232, 240, 0.9);
+    margin-top: 8px;
+}
+
+.dropdownClearBtn {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-weight: 900;
+    font-size: 0.9rem;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    color: #101112;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.dropdownClearBtn:hover:not(:disabled) {
+    border-color: #34D186;
+    background: rgba(52, 209, 134, 0.06);
+}
+
+.dropdownClearBtn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* User dropdown */
+.userDropdownProfile {
+    padding: 12px 16px;
+    border-bottom: 1px solid #E2E8F0;
+    margin: -4px 0 8px 0;
+}
+
+.userDropdownName {
+    font-weight: 950;
+    color: #101112;
+    margin-bottom: 4px;
+}
+
+.userDropdownRole {
+    font-weight: 800;
+    color: #64748B;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+}
+
+.userDropdownEmail {
+    font-weight: 700;
+    color: #94A3B8;
+    font-size: 0.85rem;
+    word-break: break-word;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1100px) {
+    .sidebar {
+        width: 240px;
+    }
+
+    .topbar {
+        padding: 0 24px;
+    }
+
+    .pageContent {
+        padding: 48px 48px;
+    }
+
+    .searchInput {
+        width: 320px;
+    }
+}
+
+@media (max-width: 900px) {
+    .sidebar {
+        display: none;
+    }
+
+    .topbar {
+        padding: 0 16px;
+    }
+
+    .pageContent {
+        padding: 28px 20px;
+    }
+
+    .searchInput {
+        width: 240px;
+    }
+}

@@ -1,0 +1,340 @@
+.wrapper {
+    min-height: 100vh;
+    background-color: #FFFFFF;
+    display: flex;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+}
+
+/* --- Left Column: Institutional Branding --- */
+.leftColumn {
+    min-height: 100vh;
+    min-height: 100dvh;
+    width: 480px;
+    background: #0A0A0B;
+    color: #FFFFFF;
+    position: relative;
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.noise {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    z-index: 1;
+}
+
+.sidebarGlow {
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(52, 209, 134, 0.1) 0%, transparent 70%);
+    filter: blur(60px);
+    z-index: 2;
+}
+
+.logo {
+    font-size: 1.75rem;
+    font-weight: 950;
+    letter-spacing: -0.05em;
+    color: #FFFFFF;
+    text-decoration: none;
+    position: relative;
+    z-index: 10;
+}
+
+.sidebarContent {
+    position: relative;
+    z-index: 10;
+}
+
+.sidebarTitle {
+    font-size: 3rem;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    margin-bottom: 32px;
+}
+
+.sidebarText {
+    font-size: 1.1rem;
+    color: #94A3B8;
+    line-height: 1.6;
+    max-width: 300px;
+}
+
+.visualTag {
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent-highlight);
+    margin-bottom: 24px;
+    display: block;
+}
+
+/* --- Right Column: Multi-Step Flow --- */
+.rightColumn {
+    flex: 1;
+    background: #FFFFFF;
+    padding: 60px 80px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.formContainer {
+    width: 100%;
+    max-width: 520px;
+    margin: auto 0;
+}
+
+.stepWrapper {
+    margin-bottom: 48px;
+}
+
+.stepLabel {
+    font-size: 0.85rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #94A3B8;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.stepIndicator {
+    display: flex;
+    gap: 8px;
+}
+
+.dot {
+    height: 4px;
+    flex: 1;
+    background: #F1F5F9;
+    border-radius: 2px;
+    transition: all 0.4s ease;
+}
+
+.dotActive {
+    background: var(--accent-highlight);
+}
+
+.header {
+    margin-bottom: 48px;
+}
+
+.title {
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    color: #101112;
+    margin-bottom: 16px;
+    line-height: 1.1;
+}
+
+.subtitle {
+    font-size: 1.15rem;
+    color: #64748B;
+    line-height: 1.6;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.inputWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.inputLabel {
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94A3B8;
+}
+
+.input {
+    height: 56px;
+    padding: 0 20px;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #101112;
+    transition: all 0.2s ease;
+}
+
+.input:focus {
+    outline: none;
+    background: #FFFFFF;
+    border-color: var(--accent-highlight);
+    box-shadow: 0 4px 12px rgba(52, 209, 134, 0.1);
+}
+
+/* --- Industry and Goal Cards --- */
+.industryGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.industryCard {
+    padding: 24px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    text-align: left;
+}
+
+.industryCard:hover {
+    border-color: #101112;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.industryCardActive {
+    border-color: var(--accent-highlight);
+    background: #F0FDF4;
+    box-shadow: 0 10px 30px rgba(52, 209, 134, 0.15);
+}
+
+.industryIcon {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 16px;
+    color: #94A3B8;
+}
+
+.industryCardActive .industryIcon {
+    color: var(--accent-highlight);
+}
+
+.industryLabel {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #101112;
+    margin-bottom: 4px;
+}
+
+.submitBtn {
+    width: 100%;
+    margin-top: 16px;
+}
+
+.footer {
+    width: 100%;
+    max-width: 520px;
+    margin-top: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.backBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #64748B;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+}
+
+.backBtn:hover {
+    color: #101112;
+}
+
+/* --- Provisioning & Success --- */
+.provisioningContainer {
+    text-align: center;
+}
+
+.progressBar {
+    width: 100%;
+    height: 8px;
+    background: #F1F5F9;
+    border-radius: 4px;
+    margin: 40px 0 24px;
+    overflow: hidden;
+}
+
+.progressFill {
+    height: 100%;
+    background: var(--accent-highlight);
+    transition: width 0.4s ease;
+}
+
+.successHeader {
+    text-align: center;
+}
+
+.checkmarkCircle {
+    width: 64px;
+    height: 64px;
+    background: #F0FDF4;
+    color: var(--accent-highlight);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 32px;
+}
+
+.successCard {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    padding: 32px;
+    margin-top: 48px;
+}
+
+.successItem {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.successLabel {
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #94A3B8;
+}
+
+.successValue {
+    font-weight: 800;
+    color: #101112;
+}
+
+.statusBadge {
+    background: #34D186;
+    color: #000;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 900;
+}
+
+@media (max-width: 1024px) {
+    .leftSidebar { display: none; }
+    .rightColumn { padding: 40px 24px; }
+}

@@ -1,0 +1,381 @@
+.reportsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.headerTitle h1 {
+    font-size: 2.2rem;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    color: #101112;
+    margin-bottom: 8px;
+}
+
+.headerTitle p {
+    font-size: 1rem;
+    color: #949A97;
+    font-weight: 600;
+}
+
+.headerActions {
+    display: flex;
+    gap: 12px;
+}
+
+.btnPrimary {
+    background: #101112;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+}
+
+.btnPrimary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btnOutline {
+    background: white;
+    border: 1.5px solid #EDEDED;
+    color: #101112;
+    padding: 12px 24px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.btnOutline:hover {
+    border-color: #34D186;
+    background: #F8F9FA;
+}
+
+/* REPORTS GRID */
+.reportsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.reportCard {
+    background: white;
+    border: 1px solid #EDEDED;
+    border-radius: 24px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transition: all 0.3s ease;
+}
+
+.reportCard:hover {
+    border-color: #34D186;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04);
+}
+
+.cardIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cardContent h3 {
+    font-size: 1.1rem;
+    font-weight: 850;
+    margin-bottom: 6px;
+}
+
+.cardContent p {
+    font-size: 0.9rem;
+    color: #949A97;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.cardFooter {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid #F8F9FA;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.lastGenerated {
+    font-size: 0.8rem;
+    color: #949A97;
+    font-weight: 700;
+}
+
+/* RECENT REPORTS LIST */
+.sectionTitle {
+    font-size: 1.25rem;
+    font-weight: 850;
+    margin-bottom: 24px;
+}
+
+.historyTable {
+    width: 100%;
+    background: white;
+    border: 1px solid #EDEDED;
+    border-radius: 24px;
+    overflow: hidden;
+    border-collapse: collapse;
+}
+
+.historyTable th {
+    text-align: left;
+    padding: 20px 24px;
+    background: #F8F9FA;
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #949A97;
+}
+
+.historyTable td {
+    padding: 20px 24px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-bottom: 1px solid #F8F9FA;
+}
+
+.reportName {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.reportName strong {
+    font-weight: 800;
+    color: #101112;
+}
+
+.statusPill {
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+
+.statusReady {
+    background: #E8F9F1;
+    color: #34D186;
+}
+
+.rowActions {
+    display: flex;
+    gap: 16px;
+}
+
+.rowActionBtn {
+    background: transparent;
+    border: none;
+    color: #34D186;
+    font-weight: 850;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 4px 8px;
+    border-radius: 8px;
+}
+
+.rowActionBtn:hover {
+    background: #E8F9F1;
+    transform: translateY(-1px);
+}
+
+.loader {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* MODAL SYSTEM */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(16, 17, 18, 0.4);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 40px;
+    animation: fadeInOverlay 0.3s ease;
+}
+
+.modal {
+    background: white;
+    width: 100%;
+    max-width: 800px;
+    border-radius: 32px;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    animation: slideUpModal 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modalHeader {
+    padding: 32px 40px;
+    border-bottom: 1px solid #EDEDED;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modalHeader h2 {
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
+
+.closeBtn {
+    background: #F8F9FA;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #949A97;
+}
+
+.modalContent {
+    padding: 40px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.reportMeta {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 32px;
+    padding: 16px 24px;
+    background: #F8F9FA;
+    border-radius: 16px;
+}
+
+.reportMeta span {
+    font-size: 0.95rem;
+    color: #505553;
+}
+
+.reportData h3 {
+    font-size: 1.25rem;
+    font-weight: 850;
+    margin-bottom: 16px;
+}
+
+.reportData p {
+    font-size: 1.05rem;
+    color: #6F7371;
+    line-height: 1.6;
+    margin-bottom: 32px;
+}
+
+.summaryBox {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 32px;
+}
+
+.summaryBox div {
+    background: #E8F9F1;
+    padding: 24px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.summaryBox span {
+    font-size: 0.85rem;
+    font-weight: 750;
+    color: #34D186;
+    text-transform: uppercase;
+}
+
+.summaryBox strong {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #101112;
+}
+
+.modalFooter {
+    padding: 32px 40px;
+    border-top: 1px solid #EDEDED;
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+}
+
+@keyframes fadeInOverlay {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUpModal {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

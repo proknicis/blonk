@@ -1,0 +1,142 @@
+.header {
+    text-align: left;
+    margin-bottom: 80px;
+    max-width: 700px;
+}
+
+.title {
+    font-size: 4rem;
+    font-weight: 850;
+    letter-spacing: -0.04em;
+    margin-bottom: 24px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 32px;
+}
+
+.card {
+    background: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.card:hover {
+    transform: translateY(-12px);
+    border-color: var(--accent-primary);
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.08);
+}
+
+.cardPreview {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.miniUi {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.miniBar {
+    height: 12px;
+    border-radius: 6px;
+}
+
+.cardContent {
+    padding: 40px;
+}
+
+.cardContent h3 {
+    font-size: 1.75rem;
+    margin-bottom: 16px;
+}
+
+.cardContent p {
+    font-size: 1.1rem;
+    margin-bottom: 32px;
+}
+
+.outcomePill {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1rem;
+}
+
+.outcomePill strong {
+    color: var(--accent-primary);
+    font-weight: 800;
+}
+
+/* Detail Page */
+.detailHero {
+    margin-bottom: 100px;
+}
+
+.backLink {
+    margin-bottom: 32px;
+    display: block;
+    font-weight: 700;
+    color: var(--accent-primary);
+}
+
+.subtitle {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin: 32px 0;
+    max-width: 800px;
+}
+
+.featureGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    margin-bottom: 120px;
+}
+
+.featureItem h3 {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+}
+
+.faqSection {
+    background: var(--bg-dark);
+    color: white;
+    padding: 80px;
+    border-radius: var(--radius-xl);
+}
+
+.faqSection h2 {
+    font-size: 2.5rem;
+    margin-bottom: 60px;
+}
+
+.faqGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+}
+
+@media (max-width: 1024px) {
+    .title {
+        font-size: 3rem;
+    }
+
+    .grid,
+    .featureGrid,
+    .faqGrid {
+        grid-template-columns: 1fr;
+    }
+}

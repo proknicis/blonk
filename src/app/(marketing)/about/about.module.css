@@ -1,0 +1,101 @@
+.hero {
+    margin-bottom: 120px;
+}
+
+.title {
+    font-size: 5rem;
+    font-weight: 850;
+    letter-spacing: -0.04em;
+    margin-bottom: 24px;
+}
+
+.subtitle {
+    font-size: 1.75rem;
+    color: var(--text-secondary);
+    max-width: 800px;
+    line-height: 1.4;
+}
+
+.section {
+    margin-bottom: 120px;
+    max-width: 800px;
+}
+
+.section h2 {
+    font-size: 2.5rem;
+    margin-bottom: 24px;
+}
+
+.section p {
+    font-size: 1.25rem;
+    line-height: 1.6;
+}
+
+.foundersGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 120px;
+}
+
+.founderCard {
+    background: var(--bg-secondary);
+    padding: 48px;
+    border-radius: var(--radius-xl);
+}
+
+.avatar {
+    width: 120px;
+    height: 120px;
+    background: #E2E4E3;
+    border-radius: var(--radius-lg);
+    margin-bottom: 24px;
+}
+
+.founderCard h3 {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+}
+
+.ctaCard {
+    background: var(--bg-dark);
+    color: white;
+    padding: 80px;
+    border-radius: var(--radius-xl);
+    text-align: center;
+}
+
+.ctaCard h2 {
+    font-size: 3rem;
+    margin-bottom: 24px;
+}
+
+.ctaCard p {
+    font-size: 1.25rem;
+    margin-bottom: 48px;
+    opacity: 0.8;
+}
+
+.ctaActions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+@media (max-width: 1024px) {
+    .title {
+        font-size: 3.5rem;
+    }
+
+    .foundersGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .ctaCard {
+        padding: 40px;
+    }
+
+    .ctaActions {
+        flex-direction: column;
+    }
+}

@@ -1,0 +1,357 @@
+.container {
+    padding: 0;
+    max-width: 800px;
+    animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.header {
+    margin-bottom: 48px;
+}
+
+.header h1 {
+    font-size: 2.2rem;
+    font-weight: 900;
+    margin-bottom: 12px;
+    letter-spacing: -0.04em;
+}
+
+.header p {
+    font-size: 1.1rem;
+    color: #949A97;
+    font-weight: 600;
+}
+
+.section {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 32px;
+    border-radius: 24px;
+    border: 1px solid rgba(237, 237, 237, 0.5);
+    margin-bottom: 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+.section h2 {
+    font-size: 1.35rem;
+    font-weight: 900;
+    margin-bottom: 24px;
+    color: #0F172A;
+    letter-spacing: -0.02em;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.field:last-child {
+    margin-bottom: 0;
+}
+
+.field label {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #6F7371;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.input {
+    height: 52px;
+    background: #F8F9FA;
+    border: 1.5px solid #EDEDED;
+    border-radius: 14px;
+    padding: 0 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #101112;
+    transition: all 0.2s ease;
+}
+
+.input:focus {
+    outline: none;
+    border-color: #34D186;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(52, 209, 134, 0.1);
+}
+
+.toggleField {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid #F8F9FA;
+}
+
+.toggleField:last-child {
+    border-bottom: none;
+}
+
+.toggleInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.toggleInfo strong {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #101112;
+}
+
+.toggleInfo p {
+    font-size: 0.9rem;
+    color: #949A97;
+    font-weight: 600;
+}
+
+/* TOGGLE UI */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 32px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #EDEDED;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 24px;
+    width: 24px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: #34D186;
+}
+
+input:checked+.slider:before {
+    transform: translateX(28px);
+}
+
+.footer {
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+    margin-top: 16px;
+}
+
+.btnPrimary {
+    background: #101112;
+    color: white;
+    padding: 14px 32px;
+    border-radius: 14px;
+    font-weight: 750;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.btnPrimary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* SETTINGS TABS */
+.tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 32px;
+    background: #F8F9FA;
+    padding: 6px;
+    border-radius: 16px;
+    width: fit-content;
+    border: 1px solid #EDEDED;
+}
+
+.tab {
+    padding: 10px 24px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #949A97;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    border: none;
+    background: transparent;
+}
+
+.activeTab {
+    background: white;
+    color: #101112;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* BILLING UI */
+.planGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.planCard {
+    background: white;
+    padding: 32px;
+    border-radius: 28px;
+    border: 1.5px solid #EDEDED;
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.03);
+}
+
+.planCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+    border-color: #CBD5E1;
+}
+
+.selectedPlan {
+    border-color: #34D186;
+    background: linear-gradient(145deg, #F0FDFA 0%, #FFFFFF 100%);
+    box-shadow: 0 12px 40px rgba(52, 209, 134, 0.08);
+}
+
+.planHeader {
+    margin-bottom: 24px;
+}
+
+.planName {
+    font-size: 0.85rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748B;
+}
+
+.planPrice {
+    font-size: 2.25rem;
+    font-weight: 950;
+    margin-top: 8px;
+}
+
+.planPrice span {
+    font-size: 1rem;
+    color: #949A97;
+    font-weight: 600;
+}
+
+.featureList {
+    list-style: none;
+    padding: 0;
+    margin: 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.featureItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+.featureIcon {
+    color: #34D186;
+}
+
+.currentPlanBadge {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    background: #101112;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+/* INVOICE TABLE */
+.billTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.billTable th {
+    text-align: left;
+    padding: 16px;
+    font-size: 0.85rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #94A3B8;
+    border-bottom: 1.5px solid #F1F5F9;
+}
+
+.billTable td {
+    padding: 24px 16px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #334155;
+    border-bottom: 1px solid #F8FAFC;
+}
+
+.statusPill {
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.statusPaid {
+    background: #E8F9F1;
+    color: #2CB876;
+}
+
+.downloadBtn {
+    background: #F8F9FA;
+    border: 1px solid #EDEDED;
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.downloadBtn:hover {
+    background: #F1F5F9;
+    color: #101112;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

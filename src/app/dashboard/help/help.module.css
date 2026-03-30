@@ -1,0 +1,105 @@
+.container {
+    padding: 0;
+    animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.header {
+    margin-bottom: 48px;
+}
+
+.header h1 {
+    font-size: 2.2rem;
+    font-weight: 900;
+    margin-bottom: 12px;
+    letter-spacing: -0.04em;
+}
+
+.header p {
+    font-size: 1.1rem;
+    color: #949A97;
+    font-weight: 600;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+}
+
+.card {
+    background: white;
+    padding: 32px;
+    border-radius: 24px;
+    border: 1px solid #EDEDED;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    border-color: #34D186;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04);
+}
+
+.card h3 {
+    font-size: 1.25rem;
+    font-weight: 850;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.card h3 svg {
+    color: #34D186;
+}
+
+.card p {
+    font-size: 1rem;
+    color: #6F7371;
+    line-height: 1.6;
+    font-weight: 500;
+}
+
+.faqSection {
+    margin-top: 64px;
+}
+
+.faqTitle {
+    font-size: 1.5rem;
+    font-weight: 900;
+    margin-bottom: 32px;
+}
+
+.faqItem {
+    background: white;
+    border: 1px solid #EDEDED;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+}
+
+.faqItem h4 {
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    color: #101112;
+}
+
+.faqItem p {
+    font-size: 0.95rem;
+    color: #6F7371;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
