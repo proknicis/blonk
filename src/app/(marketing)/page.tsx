@@ -18,7 +18,7 @@ export default function HomePage() {
                 <main className={styles.hero}>
                     <div className={styles.big_title_wrapper}>
                         <h1 className={styles.big_title}>
-                            BLONK<span className={styles.title_dot}></span>
+                            BL<span style={{ color: '#34D186' }}>O</span>NK<span className={styles.title_dot}></span>
                         </h1>
                     </div>
 
@@ -128,7 +128,7 @@ export default function HomePage() {
 
             <footer style={{ padding: '80px 24px 40px', background: '#ffffff', borderTop: '1px solid #f0f0f0', width: '100%', maxWidth: 1400, margin: '0 auto' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 32 }}>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 950, letterSpacing: '-0.06em', color: '#000' }}>BLONK<span style={{ display: 'inline-block', width: 6, height: 6, background: '#34D186', marginLeft: 1, borderRadius: 1 }}></span></div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 950, letterSpacing: '-0.06em', color: '#000' }}>BL<span style={{ color: '#34D186' }}>O</span>NK<span style={{ display: 'inline-block', width: 6, height: 6, background: '#34D186', marginLeft: 1, borderRadius: 1 }}></span></div>
                     <div style={{ display: 'flex', gap: 40, flexWrap: 'wrap' }}>
                         <Link href="/privacy" style={{ color: '#666', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600 }}>Privacy Policy</Link>
                         <Link href="/terms" style={{ color: '#666', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600 }}>Terms of Service</Link>

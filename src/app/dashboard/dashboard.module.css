@@ -243,6 +243,8 @@
     background-size: 80px 80px; /* Modular Swiss Grid */
     position: relative;
     z-index: 10;
+    overflow-y: auto; /* Sovereign Scroll Restoration */
+    overflow-x: hidden;
 }
 
 .topbar {
