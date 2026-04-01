@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import { db } from "@/lib/db";
 
 export async function GET() {
     try {
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-        const [rows] = await connection.execute('SELECT id, name, sector, status, n8nWebhookUrl, inputs, requestedBy FROM Workflow');
-        await connection.end();
-        return NextResponse.json(rows);
+        const rows = await db.query('SELECT id, name, sector, status, "n8nWebhookUrl", inputs, "requestedBy" FROM "Workflow"');
+        return NextResponse.json(rows || []);
     } catch (error) {
         console.error('Error fetching admin workflows:', error);
         return NextResponse.json({ error: 'Failed' }, { status: 500 });
@@ -18,12 +16,10 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { id, n8nWebhookUrl } = body;
 
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-        await connection.execute(
-            'UPDATE Workflow SET n8nWebhookUrl = ?, status = ? WHERE id = ?',
+        await db.execute(
+            'UPDATE "Workflow" SET "n8nWebhookUrl" = $1, status = $2 WHERE id = $3',
             [n8nWebhookUrl, n8nWebhookUrl ? 'Active' : 'Pending', id]
         );
-        await connection.end();
 
         return NextResponse.json({ success: true });
     } catch (error) {
@@ -31,6 +27,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Failed' }, { status: 500 });
     }
 }
+
 export async function DELETE(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
@@ -38,9 +35,7 @@ export async function DELETE(request: Request) {
 
         if (!id) return NextResponse.json({ error: 'Missing ID' }, { status: 400 });
 
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-        await connection.execute('DELETE FROM Workflow WHERE id = ?', [id]);
-        await connection.end();
+        await db.execute('DELETE FROM "Workflow" WHERE id = $1', [id]);
 
         return NextResponse.json({ success: true });
     } catch (error) {

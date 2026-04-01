@@ -1,29 +1,29 @@
-import { createConnection } from 'mysql2/promise';
+import { NextResponse } from 'next/server';
+import { db } from "@/lib/db";
 
 /**
  * AI Chat Route
- * Integrated with database to give the AI context about existing workflows
+ * Integrated with sovereign PostgreSQL database to give the AI context about existing workflows
  * and security guardrails to protect internal info.
- * Includes a fallback model for reliability.
+ * Includes a fallback model for reliability via OpenRouter.
  */
 
 export async function POST(req: Request) {
     try {
         const { messages } = await req.json();
 
-        // 1. Fetch all available workflows from the database to give the AI context
+        // 1. Fetch available workflows from the sovereign database to give the AI context
         let workflowsContext = "";
         try {
-            const conn = await createConnection(process.env.DATABASE_URL!);
-            const [rows]: any = await conn.execute('SELECT name, sector, description, savings, complexity FROM WorkflowTemplate WHERE status = "Published"');
+            // Updated to use PostgreSQL double-quoted identifiers
+            const rows = await db.query('SELECT name, sector, complexity FROM "Workflow" WHERE status = \'Published\' LIMIT 10');
             
             if (rows && rows.length > 0) {
                 workflowsContext = "\nHere is the current list of available workflows in our marketplace:\n" + 
-                    rows.map((r: any) => `- ${r.name} (${r.sector}): ${r.description}. Estimated savings: ${r.savings}. Complexity: ${r.complexity}.`).join("\n");
+                    rows.map((r: any) => `- ${r.name} (${r.sector}). Complexity: ${r.complexity}.`).join("\n");
             } else {
                 workflowsContext = "\nThere are currently no workflows published in the marketplace yet.";
             }
-            await conn.end();
         } catch (dbError) {
             console.error("[AI Chat DB Error]", dbError);
             workflowsContext = "\n(System note: Could not retrieve current workflows from the database at this moment.)";
@@ -85,12 +85,13 @@ Need help? Just ask! 🤙`;
             });
         };
 
-        let response = await tryChat("minimax/minimax-m2.5:free");
+        // Primary Model (Premium/Institutional)
+        let response = await tryChat("openai/gpt-4o-mini");
 
-        // If primary model fails (Rate limited, 404, or other error), try fallback
+        // If primary fails, try the free fallback
         if (!response.ok) {
-            console.warn(`[AI Chat] Primary model failed (${response.status}). Trying fallback: OpenRouter Free Router...`);
-            response = await tryChat("openrouter/free");
+            console.warn(`[AI Chat] Primary model failed (${response.status}). Trying fallback: minimax/minimax-m2.5:free...`);
+            response = await tryChat("minimax/minimax-m2.5:free");
         }
 
         if (!response.ok) {

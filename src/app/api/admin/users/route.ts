@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import { db } from "@/lib/db";
 
 export async function GET() {
     try {
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-        const [rows] = await connection.execute('SELECT id, name, email, firmName, role, createdAt FROM User ORDER BY createdAt DESC');
-        await connection.end();
+        const rows = await db.query('SELECT id, name, email, "firmName", "updatedAt" as "createdAt" FROM "User" ORDER BY "updatedAt" DESC');
         return NextResponse.json(rows);
     } catch (error) {
         console.error('Error fetching admin users:', error);
@@ -18,12 +16,11 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { id, role } = body;
 
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-        await connection.execute(
-            'UPDATE User SET role = ? WHERE id = ?',
+        // In Postgres we use double quotes for identifiers and $ placeholders
+        await db.execute(
+            'UPDATE "User" SET plan = $1 WHERE id = $2',
             [role, id]
         );
-        await connection.end();
 
         return NextResponse.json({ success: true });
     } catch (error) {
@@ -39,9 +36,8 @@ export async function DELETE(request: Request) {
 
         if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-        await connection.execute('DELETE FROM User WHERE id = ? AND role != "SuperAdmin"', [id]);
-        await connection.end();
+        // PostgreSQL uses single quotes for strings
+        await db.execute('DELETE FROM "User" WHERE id = $1 AND plan != \'SuperAdmin\'', [id]);
 
         return NextResponse.json({ success: true });
     } catch (error) {

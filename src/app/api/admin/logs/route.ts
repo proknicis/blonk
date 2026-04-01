@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import { db } from "@/lib/db";
 
 export async function GET() {
     try {
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-        const [rows] = await connection.execute(
-            'SELECT * FROM WorkflowLog ORDER BY executedAt DESC LIMIT 20'
+        // Migrated from legacy mysql2 to sovereign PostgreSQL
+        // Renamed executedAt to createdAt as per the refined Postgres schema
+        const rows = await db.query(
+            'SELECT *, "createdAt" as "executedAt" FROM "WorkflowLog" ORDER BY "createdAt" DESC LIMIT 20'
         );
-        await connection.end();
         return NextResponse.json(rows);
     } catch (error) {
         console.error('Error fetching logs:', error);
