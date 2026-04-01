@@ -4,24 +4,27 @@ import React from "react";
 
 async function getAgents() {
     try {
-        const [agentRows]: any = await db.execute('SELECT * FROM Agent');
-        const [workflowRows]: any = await db.execute('SELECT * FROM Workflow');
+        // Migrated from legacy MySQL [rows] destructuring to sovereign PostgreSQL direct query
+        // Using double quotes for identifiers and querying rows directly
+        const agentRows = await db.query('SELECT * FROM "Agent"');
+        const workflowRows = await db.query('SELECT * FROM "Workflow"');
 
         // 1. Standard Agents: Use their DB status ONLY if they have an active loop
-        const realAgents = agentRows.map((a: any) => ({
+        const realAgents = (agentRows || []).map((a: any) => ({
             ...a,
             status: a.n8nWorkflow ? a.status : 'Idle',
-            color: a.n8nWorkflow ? a.color : '#949A97'
+            color: a.n8nWorkflow ? a.color : '#949A97',
+            // Ensure initials exist
+            initials: a.name ? a.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() : 'AG',
+            role: a.role || 'Autonomous Unit'
         }));
 
         // 2. Workflows as Autonomous Agents: Derive status from webhook connectivity
-        const workflowAgents = workflowRows.map((wf: any) => {
+        const workflowAgents = (workflowRows || []).map((wf: any) => {
             const names = wf.name.split(' ');
             const initials = names.length > 1 ? names[0][0] + names[1][0] : names[0][0] + (names[0][1] || '');
             const isOperational = wf.n8nWebhookUrl && wf.n8nWebhookUrl.startsWith('http');
 
-            // Logic: If has URL and status is 'Pending', it's 'Online' (Idle but ready).
-            // If it has a URL and status is anything else (Success/Running), show that.
             let displayStatus = 'Disconnected';
             let color = '#949A97';
 
@@ -70,7 +73,7 @@ export default async function OfficePage() {
                 <div className={styles.officeStats}>
                     <div className={styles.statChip}>
                         <div className={styles.pulseDot} />
-                        {agents.filter((a: any) => a.status === 'Working').length} Agents Operational
+                        {agents.filter((a: any) => a.status === 'Working' || a.status === 'Online').length} Agents Operational
                     </div>
                 </div>
             </div>
@@ -79,9 +82,9 @@ export default async function OfficePage() {
                 {agents.map((agent: any) => (
                     <div
                         key={agent.id}
-                        className={`${styles.workstation} ${agent.status !== 'Idle' ? styles.workstationActive : ''}`}
+                        className={`${styles.workstation} ${agent.status !== 'Idle' && agent.status !== 'Offline' ? styles.workstationActive : ''}`}
                     >
-                        <span className={`${styles.statusChip} ${agent.status === 'Working' ? styles.statusWorking :
+                        <span className={`${styles.statusChip} ${agent.status === 'Working' || agent.status === 'Online' ? styles.statusWorking :
                             agent.status === 'Analyzing' ? styles.statusAnalyzing :
                                 styles.statusIdle
                             }`}>
@@ -89,7 +92,7 @@ export default async function OfficePage() {
                         </span>
 
                         <div className={styles.deskArea}>
-                            <div className={`${styles.monitor} ${agent.status !== 'Idle' ? styles.screenActive : ''}`}>
+                            <div className={`${styles.monitor} ${agent.status !== 'Idle' && agent.status !== 'Offline' ? styles.screenActive : ''}`}>
                                 <div className={styles.screenContent}>
                                     <div className={styles.screenHeader}>
                                         <div className={styles.screenDot} style={{ background: '#FF5F56' }} />
@@ -118,7 +121,7 @@ export default async function OfficePage() {
                                 style={{ background: agent.color }}
                             >
                                 {agent.initials}
-                                {agent.status === 'Working' && <div className={styles.avatarPulse} />}
+                                {(agent.status === 'Working' || agent.status === 'Online') && <div className={styles.avatarPulse} />}
                             </div>
                         </div>
 
