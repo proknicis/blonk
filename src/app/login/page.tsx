@@ -39,15 +39,15 @@ export default function LoginPage() {
         <div className={styles.pageWrapper}>
             {/* --- Left Sidebar: Branding & Security --- */}
             <div className={styles.leftSidebar}>
-                <div className={styles.noise} />
-                <div className={styles.sidebarGlow} />
-                <div className={styles.logo}>BLONK<span className="gradient-text">.</span></div>
+                <Link href="/" className={styles.logo}>
+                    BLONK<span className={styles.logo_dot}></span>
+                </Link>
                 <div className={styles.sidebarContent}>
-                    <h1 className={styles.sidebarTitle}>The Secure Operating Layer.</h1>
-                    <p className={styles.sidebarText}>Welcome back to your high-stakes command center. Access your firm's autonomous administrative infrastructure.</p>
+                    <h1 className={styles.sidebarTitle}>Command<br />Terminal.</h1>
+                    <p className={styles.sidebarText}>Welcome back to your high-stakes administrative infrastructure. Access your firm's specialized autonomous units.</p>
                 </div>
-                <div style={{ position: 'relative', zIndex: 10, fontSize: '0.85rem', fontWeight: 700, opacity: 0.4, letterSpacing: '0.15em' }}>
-                    SECURE SIGN-IN v2.5
+                <div style={{ position: 'relative', marginTop: 'auto', zIndex: 10, fontSize: '0.85rem', fontWeight: 900, color: '#999', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+                    Sovereign v2.5 / Secure
                 </div>
             </div>
 
@@ -55,13 +55,13 @@ export default function LoginPage() {
             <div className={styles.rightContent}>
                 <div className={styles.container}>
                     <div className={styles.header}>
-                        <h2 className={styles.title}>Welcome back.</h2>
-                        <p className={styles.subtitle}>Enter your institutional credentials to securely reach your dashboard.</p>
+                        <h2 className={styles.title}>Identity.</h2>
+                        <p className={styles.subtitle}>Enter your institutional credentials to reach your dashboard.</p>
                     </div>
 
                     {error && (
-                        <div style={{ padding: '16px', background: '#FFF5F5', color: '#E53E3E', borderRadius: '12px', border: '1px solid #FED7D7', fontSize: '0.9rem', fontWeight: 700, marginBottom: 32, display: 'flex', alignItems: 'center', gap: 12 }}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <div style={{ padding: '16px', background: '#FFF5F5', color: '#E53E3E', borderRadius: '12px', border: '1px solid #FED7D7', fontSize: '0.9rem', fontWeight: 800, marginBottom: 32, display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                             {error}
                         </div>
                     )}
@@ -79,10 +79,10 @@ export default function LoginPage() {
                             />
                         </div>
                         <div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
                                 <label className={styles.modernLabel} style={{ marginBottom: 0 }}>Safe-Password</label>
-                                <Link href="/forgot-password" style={{ fontSize: '0.85rem', fontWeight: 800, color: '#94A3B8', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                                    Password Recovery
+                                <Link href="/forgot-password" style={{ fontSize: '0.8rem', fontWeight: 900, color: '#999', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                                    Recovery
                                 </Link>
                             </div>
                             <input
@@ -96,10 +96,10 @@ export default function LoginPage() {
                         </div>
                         <button
                             type="submit"
-                            className={`button-primary ${styles.submitBtn}`}
+                            className={styles.submitBtn}
                             disabled={isLoading}
                         >
-                            {isLoading ? "Verifying Identity..." : "Sign In to Terminal"}
+                            {isLoading ? "Verifying..." : "Initialize Session"}
                         </button>
                     </form>
 

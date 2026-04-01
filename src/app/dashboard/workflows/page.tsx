@@ -49,7 +49,7 @@ export default function WorkflowsPage() {
 
     const handleAddClick = (template: any) => {
         if (isCapacityFull) {
-            showToast("Operational capacity reached. Switch to Professional protocol for more loops.");
+            showToast("Operational capacity reached. Switch to Professional plan for more loops.");
             return;
         }
 
@@ -194,7 +194,7 @@ export default function WorkflowsPage() {
                                     <button
                                         className={styles.btnPrimary}
                                         style={{ background: '#FBBF24', color: '#0F172A', cursor: 'not-allowed', width: '100%' }}
-                                        onClick={() => showToast("Operational capacity reached. Upgrade protocol to add more loops.")}
+                                        onClick={() => showToast("Operational capacity reached. Upgrade plan to add more loops.")}
                                     >
                                         Capacity Locked
                                     </button>

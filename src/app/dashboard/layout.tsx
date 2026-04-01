@@ -190,7 +190,7 @@ export default function DashboardLayout({
                                 <div className={styles.barContainer}><div className={styles.barFill} style={{ width: '84%' }} /></div>
                             </div>
                             <Link href="/dashboard/settings" className={styles.upgradeBtn}>
-                                Elevate Protocol <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                                Upgrade Plan <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
                             </Link>
                         </div>
                     </div>

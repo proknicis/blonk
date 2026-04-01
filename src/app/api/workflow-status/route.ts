@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import { db } from "@/lib/db";
+import { v4 as uuidv4 } from 'uuid';
 
 export async function GET() {
     return NextResponse.json({
@@ -18,35 +19,31 @@ export async function POST(request: Request) {
         const status = body.status || body.state || "received";
         const result = body.result ? (typeof body.result === 'object' ? JSON.stringify(body.result) : body.result) : JSON.stringify(body);
 
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-
-        // 1. Log the execution (Store the whole body in result if result was empty)
-        await connection.execute(
-            'INSERT INTO WorkflowLog (id, workflowName, status, result) VALUES (UUID(), ?, ?, ?)',
-            [workflow, status, result]
+        // 1. Log the execution
+        await db.execute(
+            'INSERT INTO "WorkflowLog" (id, "workflowName", status, result) VALUES ($1, $2, $3, $4)',
+            [uuidv4(), workflow, status, result]
         );
 
         // 2. Update the main workflow stats
         const normalizedStatus = status.toLowerCase();
-        await connection.execute(
-            'UPDATE Workflow SET status = ?, lastRun = CURRENT_TIMESTAMP WHERE name = ?',
+        await db.execute(
+            'UPDATE "Workflow" SET status = $1, "lastRun" = CURRENT_TIMESTAMP WHERE name = $2',
             [status, workflow]
         );
 
         if (normalizedStatus === 'success' || normalizedStatus === 'completed') {
-            await connection.execute(
-                'UPDATE Workflow SET tasksCount = tasksCount + 1 WHERE name = ?',
+            await db.execute(
+                'UPDATE "Workflow" SET "tasksCount" = "tasksCount" + 1 WHERE name = $1',
                 [workflow]
             );
         }
 
         // 3. Create a notification
-        await connection.execute(
-            'INSERT INTO Notification (id, title, message) VALUES (UUID(), ?, ?)',
-            [`Data Received: ${workflow}`, `Status: ${status.toUpperCase()}`]
+        await db.execute(
+            'INSERT INTO "Notification" (id, title, message) VALUES ($1, $2, $3)',
+            [uuidv4(), `Data Received: ${workflow}`, `Status: ${status.toUpperCase()}`]
         );
-
-        await connection.end();
 
         return NextResponse.json({ success: true, message: "Packet received and logged" });
     } catch (error) {

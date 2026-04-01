@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import { db } from "@/lib/db";
+import { v4 as uuidv4 } from 'uuid';
 
 export async function GET() {
     try {
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-        const [rows] = await connection.execute('SELECT * FROM OperationalSetting');
-        await connection.end();
+        const rows = await db.query('SELECT * FROM "OperationalSetting"');
 
         // Convert to keyed object
         const settings = (rows as any[]).reduce((acc, curr) => {
@@ -25,12 +24,11 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { key, value } = body;
 
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-        await connection.execute(
-            'INSERT INTO OperationalSetting (id, \`key\`, value) VALUES (UUID(), ?, ?) ON DUPLICATE KEY UPDATE value = ?',
-            [key, value, value]
+        // PostgreSQL uses ON CONFLICT for upserts
+        await db.execute(
+            'INSERT INTO "OperationalSetting" (id, key, value) VALUES ($1, $2, $3) ON CONFLICT (key) DO UPDATE SET value = $4',
+            [uuidv4(), key, value, value]
         );
-        await connection.end();
 
         return NextResponse.json({ success: true });
     } catch (error) {

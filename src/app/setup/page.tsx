@@ -77,16 +77,13 @@ export default function SetupPage() {
         <div className={styles.wrapper}>
             {/* --- Left Column: Institutional Anchor --- */}
             <div className={styles.leftColumn}>
-                <div className={styles.noise} />
-                <div className={styles.sidebarGlow} />
-                <Link href="/" className={styles.logo}>BLONK<span className="gradient-text">.</span></Link>
+                <Link href="/" className={styles.logo}>
+                    BLONK<span className={styles.logo_dot}></span>
+                </Link>
                 <div className={styles.sidebarContent}>
                     <span className={styles.visualTag}>Strategic Onboarding</span>
-                    <h1 className={styles.sidebarTitle}>Integration Protocol.</h1>
+                    <h1 className={styles.sidebarTitle}>Integration<br />Setup.</h1>
                     <p className={styles.sidebarText}>Establish your sovereign firm instance in minutes. We automate the administrative friction, you focus on the exceptions.</p>
-                </div>
-                <div style={{ position: 'relative', zIndex: 10, fontSize: '0.85rem', fontWeight: 700, opacity: 0.4, letterSpacing: '0.15em' }}>
-                    PROTOCOL v5.22.4
                 </div>
             </div>
 
@@ -95,7 +92,7 @@ export default function SetupPage() {
                 <div className={styles.formContainer}>
                     {step < 4 && !isProvisioning && (
                         <div className={styles.stepWrapper}>
-                            <span className={styles.stepLabel}>Step 0{step} / 03</span>
+                            <span className={styles.stepLabel}>Protocol 0{step} / 03</span>
                             <div className={styles.stepIndicator}>
                                 {[1, 2, 3].map(s => <div key={s} className={`${styles.dot} ${step >= s ? styles.dotActive : ''}`} />)}
                             </div>
@@ -103,8 +100,8 @@ export default function SetupPage() {
                     )}
 
                     {error && (
-                        <div style={{ padding: '16px', background: '#FFF5F5', color: '#E53E3E', borderRadius: '12px', border: '1px solid #FED7D7', fontSize: '0.9rem', fontWeight: 700, marginBottom: 32 }}>
-                            PROTOCOL ERROR: {error}
+                        <div style={{ padding: '16px', background: '#FFF5F5', color: '#E53E3E', borderRadius: '12px', border: '1px solid #FED7D7', fontSize: '0.9rem', fontWeight: 800, marginBottom: 32 }}>
+                            ERROR: {error}
                         </div>
                     )}
 
@@ -112,7 +109,7 @@ export default function SetupPage() {
                         <div className={styles.header}>
                             <h1 className={styles.title}>Access Identity.</h1>
                             <p className={styles.subtitle}>Identify yourself as the firm's strategic administrator.</p>
-                            <form className={styles.form} onSubmit={handleSubmit} style={{ marginTop: '40px' }}>
+                            <form className={styles.form} onSubmit={handleSubmit} style={{ marginTop: '48px' }}>
                                 <div className={styles.inputWrapper}>
                                     <label className={styles.inputLabel}>Credential: Work Email</label>
                                     <input type="email" className={styles.input} placeholder="name@firm.com" required value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
@@ -121,7 +118,7 @@ export default function SetupPage() {
                                     <label className={styles.inputLabel}>Credential: Secure Password</label>
                                     <input type="password" className={styles.input} placeholder="••••••••" required value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} />
                                 </div>
-                                <button type="submit" className={`button-primary ${styles.submitBtn}`}>Next Protocol Step</button>
+                                <button type="submit" className={styles.submitBtn}>Initialize Secure Setup</button>
                             </form>
                         </div>
                     )}
@@ -130,7 +127,7 @@ export default function SetupPage() {
                         <div className={styles.header}>
                             <h1 className={styles.title}>Firm Structure.</h1>
                             <p className={styles.subtitle}>Configure the sovereign environment for your organization.</p>
-                            <form className={styles.form} onSubmit={handleSubmit} style={{ marginTop: '40px' }}>
+                            <form className={styles.form} onSubmit={handleSubmit} style={{ marginTop: '48px' }}>
                                 <div className={styles.inputWrapper}>
                                     <label className={styles.inputLabel}>Institution Name</label>
                                     <input type="text" className={styles.input} placeholder="e.g. Prokopecs & Partners" required value={formData.firmName} onChange={e => setFormData({ ...formData, firmName: e.target.value })} />
@@ -141,12 +138,12 @@ export default function SetupPage() {
                                         {industries.map(ind => (
                                             <div key={ind.id} className={`${styles.industryCard} ${formData.industry === ind.id ? styles.industryCardActive : ''}`} onClick={() => setFormData({ ...formData, industry: ind.id })}>
                                                 <div className={styles.industryIcon}>{ind.icon}</div>
-                                                <span className={styles.industryLabel}>{ind.label}</span>
+                                                <div className={styles.industryLabel}>{ind.label}</div>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
-                                <button type="submit" className={`button-primary ${styles.submitBtn}`} disabled={!formData.firmName || !formData.industry}>Continue Deployment</button>
+                                <button type="submit" className={styles.submitBtn} disabled={!formData.firmName || !formData.industry}>Deploy Configuration</button>
                             </form>
                         </div>
                     )}
@@ -155,20 +152,20 @@ export default function SetupPage() {
                         <div className={styles.header}>
                             <h1 className={styles.title}>Strategic Focus.</h1>
                             <p className={styles.subtitle}>Select the primary directive for your autonomous units.</p>
-                            <div className={styles.form} style={{ marginTop: '40px' }}>
+                            <div className={styles.form} style={{ marginTop: '48px' }}>
                                 {[
-                                    { t: "Automated Intake", d: "Standardize data extraction from high-value institutional docs." },
+                                    { t: "Automated Intake", d: "Standardize extraction from high-value institutional docs." },
                                     { t: "Client GRC Sync", d: "Govern communication and compliance syncs automatically." },
                                     { t: "Operational Speed", d: "Reduce internal friction with autonomous system mapping." }
                                 ].map(goal => (
-                                    <div key={goal.t} className={`${styles.industryCard} ${formData.goal === goal.t ? styles.industryCardActive : ''}`} style={{ display: 'flex', gap: '20px', alignItems: 'center' }} onClick={() => setFormData({ ...formData, goal: goal.t })}>
+                                    <div key={goal.t} className={`${styles.industryCard} ${formData.goal === goal.t ? styles.industryCardActive : ''}`} style={{ display: 'flex', gap: '24px', alignItems: 'center' }} onClick={() => setFormData({ ...formData, goal: goal.t })}>
                                         <div style={{ flex: 1 }}>
                                             <div className={styles.industryLabel}>{goal.t}</div>
-                                            <div style={{ fontSize: '0.9rem', color: '#64748B', fontWeight: 500, marginTop: '4px' }}>{goal.d}</div>
+                                            <div style={{ fontSize: '0.95rem', color: '#666', fontWeight: 600, marginTop: '6px' }}>{goal.d}</div>
                                         </div>
                                     </div>
                                 ))}
-                                <button onClick={handleSubmit} className={`button-primary ${styles.submitBtn}`} disabled={!formData.goal}>Establish System Instance</button>
+                                <button onClick={handleSubmit} className={styles.submitBtn} disabled={!formData.goal}>Establish System Instance</button>
                             </div>
                         </div>
                     )}
@@ -177,34 +174,30 @@ export default function SetupPage() {
                         <div className={styles.provisioningContainer}>
                             <h1 className={styles.title}>System Provisioning.</h1>
                             <div className={styles.progressBar}><div className={styles.progressFill} style={{ width: `${progress}%` }} /></div>
-                            <div style={{ fontSize: '1rem', fontWeight: 800, color: '#101112' }}>{currentTask}</div>
+                            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#111' }}>{currentTask}</div>
                         </div>
                     )}
 
                     {step === 4 && (
-                        <div className={styles.successHeader}>
+                        <div style={{ textAlign: 'center' }}>
                             <div className={styles.checkmarkCircle}>
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12"/></svg>
                             </div>
                             <h1 className={styles.title}>Deployment Success.</h1>
-                            <p className={styles.subtitle}>Your specialized instance for <strong>{formData.firmName}</strong> is now live. All protocols fully operational.</p>
-                            <div className={styles.successCard}>
-                                <div className={styles.successItem}><span className={styles.successLabel}>Sovereign Link</span><span className={styles.statusBadge}>ACTIVE</span></div>
-                                <div className={styles.successItem}><span className={styles.successLabel}>Active Objective</span><span className={styles.successValue}>{formData.goal}</span></div>
-                            </div>
-                            <Link href="/dashboard" className={`button-primary ${styles.submitBtn}`} style={{ display: 'flex', textDecoration: 'none' }}>Access Command Terminal</Link>
+                            <p className={styles.subtitle}>Your specialized instance for <strong>{formData.firmName}</strong> is now live. All systems operational.</p>
+                            <Link href="/dashboard" className={styles.submitBtn} style={{ display: 'flex', textDecoration: 'none', justifyContent: 'center', alignItems: 'center', marginTop: '64px' }}>Access Command Terminal</Link>
+                        </div>
+                    )}
+
+                    {step > 1 && step < 4 && !isProvisioning && (
+                        <div style={{ marginTop: '80px', display: 'flex', justifyContent: 'center' }}>
+                            <button className={styles.backBtn} onClick={() => setStep(step - 1)}>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                                Step Back
+                            </button>
                         </div>
                     )}
                 </div>
-
-                {step > 1 && step < 4 && !isProvisioning && (
-                    <div className={styles.footer}>
-                        <button className={styles.backBtn} onClick={() => setStep(step - 1)}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                            Step Back
-                        </button>
-                    </div>
-                )}
             </div>
         </div>
     );

@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  serverExternalPackages: ["mysql2", "bcryptjs", "stripe"],
+  allowedDevOrigins: ["173.249.12.16", "localhost"],
 };
 
 export default nextConfig;

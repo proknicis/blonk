@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import { db } from "@/lib/db";
 
 export async function GET() {
     try {
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-        const [rows] = await connection.execute('SELECT * FROM Notification ORDER BY createdAt DESC');
-        await connection.end();
+        const rows = await db.query('SELECT * FROM "Notification" ORDER BY "createdAt" DESC');
         return NextResponse.json(rows);
     } catch (error) {
         console.error('Error fetching notifications:', error);
@@ -15,9 +13,7 @@ export async function GET() {
 
 export async function DELETE() {
     try {
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-        await connection.execute('DELETE FROM Notification');
-        await connection.end();
+        await db.execute('DELETE FROM "Notification"');
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error('Error clearing notifications:', error);

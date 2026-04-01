@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import mysql from 'mysql2/promise';
 
+export const dynamic = 'force-dynamic';
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 export async function POST(request: Request) {

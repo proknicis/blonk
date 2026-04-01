@@ -1,17 +1,15 @@
 import { NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import { db } from "@/lib/db";
+import { v4 as uuidv4 } from 'uuid';
 
 export async function GET() {
     try {
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-
         // Fetch marketplace templates (only published ones)
-        const [templates] = await connection.execute('SELECT * FROM WorkflowTemplate WHERE status = "Published" OR status IS NULL');
+        // PostgreSQL uses single quotes for string literals
+        const templates = await db.query('SELECT * FROM "WorkflowTemplate" WHERE status = \'Published\' OR status IS NULL');
 
         // Fetch active/pending workflows for the current user (firm)
-        const [activeWorkflows] = await connection.execute('SELECT name FROM Workflow');
-
-        await connection.end();
+        const activeWorkflows = await db.query('SELECT name FROM "Workflow"');
 
         return NextResponse.json({
             templates,
@@ -28,31 +26,29 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { name, sector, performance, inputs } = body;
 
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-
         // [BACKEND LIMIT ENFORCEMENT]
-        const [existing]: any = await connection.execute('SELECT COUNT(*) as count FROM Workflow');
-        if (existing[0].count >= 1) {
-            await connection.end();
+        const existing = await db.query('SELECT COUNT(*) as count FROM "Workflow"');
+        if (Number(existing[0].count) >= 1) {
             return NextResponse.json(
                 { error: 'Operational capacity exhausted. Professional Tier required.' }, 
                 { status: 403 }
             );
         }
 
-        // When a user adds a workflow from the marketplace, it starts as 'Pending'
-        // and has NO webhook URL until the admin configures it.
-        await connection.execute(
-            'INSERT INTO Workflow (id, name, sector, status, performance, tasksCount, inputs, requestedBy) VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?)',
-            [name, sector, 'Pending', performance || '0', 0, JSON.stringify(inputs || {}), 'Nikolass']
+        // Use JS generated UUID for Postgres insertion consistency
+        const workflowId = uuidv4();
+        const notificationId = uuidv4();
+
+        // PostgreSQL uses $1, $2 for placeholders
+        await db.execute(
+            'INSERT INTO "Workflow" (id, name, sector, status, performance, "tasksCount", inputs, "requestedBy") VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+            [workflowId, name, sector, 'Pending', performance || '0', 0, JSON.stringify(inputs || {}), 'Nikolass']
         );
 
-        await connection.execute(
-            'INSERT INTO Notification (id, title, message) VALUES (UUID(), ?, ?)',
-            ['Workflow Requested', `You have requested "${name}". An admin will configure the backend loop shortly.`]
+        await db.execute(
+            'INSERT INTO "Notification" (id, title, message) VALUES ($1, $2, $3)',
+            [notificationId, 'Workflow Requested', `You have requested "${name}". An admin will configure the backend loop shortly.`]
         );
-
-        await connection.end();
 
         return NextResponse.json({ success: true });
     } catch (error) {

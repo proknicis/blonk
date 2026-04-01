@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import { db } from "@/lib/db";
 
 export async function GET() {
     try {
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-        const [rows]: any = await connection.execute('SELECT * FROM User LIMIT 1');
-        await connection.end();
+        const rows = await db.query('SELECT * FROM "User" LIMIT 1');
         return NextResponse.json(rows[0]);
     } catch (error) {
         console.error('Error fetching settings:', error);
@@ -18,16 +16,15 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { firmName, email, name } = body;
 
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-        await connection.execute(
-            'UPDATE User SET firmName = ?, email = ?, name = ? WHERE id = (SELECT id FROM (SELECT id FROM User LIMIT 1) as t)',
+        // In Postgres we can simplify the UPDATE of a singleton if needed, 
+        // but let's keep it similar to the original logic
+        await db.execute(
+            'UPDATE "User" SET "firmName" = $1, email = $2, name = $3 WHERE id = (SELECT id FROM "User" LIMIT 1)',
             [firmName, email, name]
         );
 
-        const [updatedUser]: any = await connection.execute('SELECT * FROM User LIMIT 1');
-        await connection.end();
-
-        return NextResponse.json(updatedUser[0]);
+        const rows = await db.query('SELECT * FROM "User" LIMIT 1');
+        return NextResponse.json(rows[0]);
     } catch (error) {
         console.error('Error updating settings:', error);
         return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 });

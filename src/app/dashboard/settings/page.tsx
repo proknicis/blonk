@@ -46,7 +46,7 @@ export default function SettingsPage() {
                 setTimeout(() => setSaved(false), 3000);
             }
         } catch (error) {
-            console.error("Stripe verification protocol failure", error);
+            console.error("Stripe verification failure", error);
         } finally {
             fetchInitialData();
         }
@@ -139,9 +139,9 @@ export default function SettingsPage() {
             setSaved(true);
             setTimeout(() => setSaved(false), 2000);
         } catch (error) {
-            console.error("Protocol switch failed", error);
+            console.error("Plan switch failed", error);
             setIsLoading(false);
-            alert("Payment protocol handshake failed. Please verify configuration.");
+            alert("Payment initialization failed. Please verify configuration.");
         }
     };
 
@@ -245,7 +245,7 @@ export default function SettingsPage() {
             ) : (
                 <div className={styles.billingView}>
                     <div className={styles.section}>
-                        <h2>Subscription Protocols</h2>
+                        <h2>Subscription Plans</h2>
                         <div className={styles.planGrid}>
                             <div className={`${styles.planCard} ${currentPlan === 'Starter' ? styles.selectedPlan : ''}`}>
                                 {currentPlan === 'Starter' && <span className={styles.currentPlanBadge}>Active</span>}
@@ -265,7 +265,7 @@ export default function SettingsPage() {
                                 </ul>
                                 {currentPlan !== 'Starter' && (
                                     <button className={styles.btnPrimary} style={{ width: '100%', marginTop: '16px' }} onClick={() => handlePlanSwitch('Starter')}>
-                                        Select Protocol
+                                        Select Plan
                                     </button>
                                 )}
                             </div>

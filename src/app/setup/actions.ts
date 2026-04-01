@@ -12,9 +12,10 @@ export async function registerUser(formData: any) {
             return { error: 'Email and password are required' };
         }
 
+        // Use sovereign DB helper for PostgreSQL compatibility
         // Check for existing user
-        const [rows]: any = await db.execute(
-            'SELECT * FROM User WHERE email = ? LIMIT 1',
+        const rows = await db.query(
+            'SELECT * FROM "User" WHERE email = $1 LIMIT 1',
             [email]
         );
 
@@ -27,8 +28,9 @@ export async function registerUser(formData: any) {
         const displayName = name || email.split('@')[0];
 
         // Insert new user
+        // Postgres uses $N for placeholders, NOW() for current timestamp
         await db.execute(
-            'INSERT INTO User (id, email, password, name, firmName, industry, updatedAt) VALUES (?, ?, ?, ?, ?, ?, NOW())',
+            'INSERT INTO "User" (id, email, password, name, "firmName", industry, "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, NOW())',
             [userId, email, hashedPassword, displayName, firmName, industry]
         );
 

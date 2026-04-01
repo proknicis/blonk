@@ -6,87 +6,77 @@
     font-family: 'Inter', sans-serif;
 }
 
-/* --- Left Column: Institutional Branding --- */
+/* --- Left Column: Institutional Branding (Now White) --- */
 .leftColumn {
     min-height: 100vh;
-    min-height: 100dvh;
-    width: 480px;
-    background: #0A0A0B;
-    color: #FFFFFF;
+    width: 600px;
+    background: #FFFFFF;
+    color: #111111;
     position: relative;
-    padding: 60px;
+    padding: 80px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    overflow: hidden;
+    justify-content: flex-start;
+    border-right: 1px solid #F1F5F9;
     flex-shrink: 0;
 }
 
-.noise {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.03;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    z-index: 1;
-}
-
-.sidebarGlow {
-    position: absolute;
-    top: -100px;
-    right: -100px;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(52, 209, 134, 0.1) 0%, transparent 70%);
-    filter: blur(60px);
-    z-index: 2;
-}
-
 .logo {
-    font-size: 1.75rem;
+    font-size: 1.8rem;
     font-weight: 950;
-    letter-spacing: -0.05em;
-    color: #FFFFFF;
+    letter-spacing: -0.06em;
+    color: #000;
     text-decoration: none;
-    position: relative;
-    z-index: 10;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: baseline;
+    margin-bottom: 120px;
+}
+
+.logo_dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: #34D186;
+    margin-left: 2px;
+    border-radius: 1px;
 }
 
 .sidebarContent {
-    position: relative;
-    z-index: 10;
-}
-
-.sidebarTitle {
-    font-size: 3rem;
-    font-weight: 900;
-    line-height: 1;
-    letter-spacing: -0.05em;
-    margin-bottom: 32px;
-}
-
-.sidebarText {
-    font-size: 1.1rem;
-    color: #94A3B8;
-    line-height: 1.6;
-    max-width: 300px;
+    margin-top: 40px;
 }
 
 .visualTag {
     font-size: 0.85rem;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: var(--accent-highlight);
-    margin-bottom: 24px;
+    letter-spacing: 0.25em;
+    color: #34D186;
+    margin-bottom: 32px;
     display: block;
+}
+
+.sidebarTitle {
+    font-size: 4rem;
+    font-weight: 950;
+    line-height: 0.95;
+    letter-spacing: -0.06em;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+}
+
+.sidebarText {
+    font-size: 1.25rem;
+    color: #555555;
+    line-height: 1.6;
+    max-width: 440px;
 }
 
 /* --- Right Column: Multi-Step Flow --- */
 .rightColumn {
     flex: 1;
     background: #FFFFFF;
-    padding: 60px 80px;
+    padding: 80px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -95,12 +85,12 @@
 
 .formContainer {
     width: 100%;
-    max-width: 520px;
+    max-width: 560px;
     margin: auto 0;
 }
 
 .stepWrapper {
-    margin-bottom: 48px;
+    margin-bottom: 64px;
 }
 
 .stepLabel {
@@ -108,233 +98,210 @@
     font-weight: 950;
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    color: #94A3B8;
-    margin-bottom: 12px;
+    color: #999;
+    margin-bottom: 16px;
     display: block;
 }
 
 .stepIndicator {
     display: flex;
-    gap: 8px;
+    gap: 12px;
 }
 
 .dot {
-    height: 4px;
+    height: 6px;
     flex: 1;
     background: #F1F5F9;
-    border-radius: 2px;
+    border-radius: 3px;
     transition: all 0.4s ease;
 }
 
 .dotActive {
-    background: var(--accent-highlight);
+    background: #34D186;
 }
 
 .header {
-    margin-bottom: 48px;
+    margin-bottom: 64px;
 }
 
 .title {
-    font-size: 3rem;
-    font-weight: 900;
-    letter-spacing: -0.05em;
-    color: #101112;
-    margin-bottom: 16px;
-    line-height: 1.1;
+    font-size: 3.5rem;
+    font-weight: 950;
+    letter-spacing: -0.06em;
+    color: #111;
+    margin-bottom: 24px;
+    line-height: 1.05;
+    text-transform: uppercase;
 }
 
 .subtitle {
-    font-size: 1.15rem;
-    color: #64748B;
+    font-size: 1.25rem;
+    color: #666;
     line-height: 1.6;
 }
 
 .form {
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 40px;
 }
 
 .inputWrapper {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
 }
 
 .inputLabel {
     font-size: 0.85rem;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #94A3B8;
+    letter-spacing: 0.1em;
+    color: #999;
 }
 
 .input {
-    height: 56px;
-    padding: 0 20px;
-    background: #F8FAFC;
-    border: 1px solid #E2E8F0;
-    border-radius: 12px;
-    font-size: 1.05rem;
+    height: 64px;
+    padding: 0 24px;
+    background: #FBFBFB;
+    border: 1px solid #EEEEEE;
+    border-radius: 16px;
+    font-size: 1.1rem;
     font-weight: 600;
-    color: #101112;
-    transition: all 0.2s ease;
+    color: #111;
+    transition: all 0.3s ease;
 }
 
 .input:focus {
     outline: none;
     background: #FFFFFF;
-    border-color: var(--accent-highlight);
-    box-shadow: 0 4px 12px rgba(52, 209, 134, 0.1);
+    border-color: #34D186;
+    box-shadow: 0 10px 30px rgba(52, 209, 134, 0.1);
 }
 
-/* --- Industry and Goal Cards --- */
 .industryGrid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    gap: 20px;
 }
 
 .industryCard {
-    padding: 24px;
+    padding: 32px;
     background: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    border-radius: 16px;
+    border: 1px solid #EEEEEE;
+    border-radius: 20px;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     text-align: left;
 }
 
 .industryCard:hover {
-    border-color: #101112;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    border-color: #111;
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.06);
 }
 
 .industryCardActive {
-    border-color: var(--accent-highlight);
-    background: #F0FDF4;
-    box-shadow: 0 10px 30px rgba(52, 209, 134, 0.15);
+    border-color: #34D186;
+    background: #FFFFFF;
+    box-shadow: 0 20px 40px rgba(52, 209, 134, 0.1);
 }
 
 .industryIcon {
-    width: 32px;
-    height: 32px;
-    margin-bottom: 16px;
-    color: #94A3B8;
+    width: 36px;
+    height: 36px;
+    margin-bottom: 20px;
+    color: #CCC;
 }
 
 .industryCardActive .industryIcon {
-    color: var(--accent-highlight);
+    color: #34D186;
 }
 
 .industryLabel {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: #101112;
-    margin-bottom: 4px;
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: #111;
+    margin-bottom: 8px;
+    letter-spacing: -0.04em;
 }
 
 .submitBtn {
-    width: 100%;
-    margin-top: 16px;
+    height: 72px;
+    font-size: 1.25rem;
+    font-weight: 900;
+    border-radius: 100px;
+    background: #000;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+    margin-top: 24px;
 }
 
-.footer {
-    width: 100%;
-    max-width: 520px;
-    margin-top: 60px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.submitBtn:hover {
+    background: #34D186;
+    color: #000;
+    transform: scale(1.02);
 }
 
 .backBtn {
     display: flex;
     align-items: center;
-    gap: 8px;
-    color: #64748B;
-    font-weight: 700;
-    font-size: 0.9rem;
+    gap: 12px;
+    color: #999;
+    font-weight: 800;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
     transition: color 0.2s;
+    background: none;
+    border: none;
+    cursor: pointer;
 }
 
 .backBtn:hover {
-    color: #101112;
+    color: #000;
 }
 
-/* --- Provisioning & Success --- */
+/* --- Success & Progress --- */
 .provisioningContainer {
     text-align: center;
 }
 
 .progressBar {
     width: 100%;
-    height: 8px;
+    height: 10px;
     background: #F1F5F9;
-    border-radius: 4px;
-    margin: 40px 0 24px;
+    border-radius: 5px;
+    margin: 48px 0 32px;
     overflow: hidden;
 }
 
 .progressFill {
     height: 100%;
-    background: var(--accent-highlight);
+    background: #34D186;
     transition: width 0.4s ease;
 }
 
-.successHeader {
-    text-align: center;
-}
-
 .checkmarkCircle {
-    width: 64px;
-    height: 64px;
+    width: 80px;
+    height: 80px;
     background: #F0FDF4;
-    color: var(--accent-highlight);
+    color: #34D186;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 32px;
+    margin: 0 auto 40px;
 }
 
-.successCard {
-    background: #F8FAFC;
-    border: 1px solid #E2E8F0;
-    border-radius: 20px;
-    padding: 32px;
-    margin-top: 48px;
-}
-
-.successItem {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 24px;
-}
-
-.successLabel {
-    font-size: 0.8rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    color: #94A3B8;
-}
-
-.successValue {
-    font-weight: 800;
-    color: #101112;
-}
-
-.statusBadge {
-    background: #34D186;
-    color: #000;
-    padding: 4px 12px;
-    border-radius: 8px;
-    font-size: 0.75rem;
-    font-weight: 900;
+@media (max-width: 1200px) {
+    .leftColumn { width: 440px; padding: 60px; }
+    .sidebarTitle { font-size: 3rem; }
 }
 
 @media (max-width: 1024px) {
-    .leftSidebar { display: none; }
-    .rightColumn { padding: 40px 24px; }
+    .leftColumn { display: none; }
+    .rightColumn { padding: 60px 40px; }
 }

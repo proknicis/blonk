@@ -1,6 +1,6 @@
 import styles from "./page.module.css";
 import React from "react";
-import mysql from "mysql2/promise";
+import { db } from "@/lib/db";
 import WorkflowList from "./components/WorkflowList";
 import WorkflowLogs from "./components/WorkflowLogs";
 
@@ -42,29 +42,28 @@ interface DashboardData {
 }
 
 async function getDashboardSummary(): Promise<DashboardData> {
-    const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-
     // Fetch data from both tables to unify "Workflows = Agents"
-    const [agentRows] = await connection.execute("SELECT status FROM Agent") as any[];
-    const [workflowRows] = await connection.execute("SELECT status FROM Workflow") as any[];
+    // Postgres returns rows directly from our db.query helper
+    const agentRows = await db.query("SELECT status FROM \"Agent\"") as any[];
+    const workflowRows = await db.query("SELECT status FROM \"Workflow\"") as any[];
 
     // Calculate Uptime
-    const [uptimeSetting] = await connection.execute("SELECT value FROM OperationalSetting WHERE \`key\` = 'system_uptime'") as any[];
-    const uptime = uptimeSetting[0]?.value ? `${uptimeSetting[0].value}%` : "99.98%";
+    const uptimeSettings = await db.query("SELECT value FROM \"OperationalSetting\" WHERE key = 'system_uptime'") as any[];
+    const uptime = uptimeSettings[0]?.value ? `${uptimeSettings[0].value}%` : "99.98%";
 
     // Fetch Chart Data
-    const [chartData] = await connection.execute("SELECT day, revenue, expenses, profit FROM ChartData ORDER BY sequence ASC") as any[];
+    const chartData = await db.query("SELECT day, revenue, expenses, profit FROM \"ChartData\" ORDER BY sequence ASC") as any[];
 
-    // Fetch KPIs
-    const [kpiRows] = await connection.execute("SELECT label, value, \`change\`, positive FROM Kpi") as any[];
+    // Fetch KPIs - "change" is a reserved word in many DBs, using double quotes
+    const kpiRows = await db.query("SELECT label, value, \"change\", positive FROM \"Kpi\"") as any[];
     const kpis = kpiRows.reduce((acc: any, curr: any) => {
         acc[curr.label] = { value: curr.value, change: curr.change, positive: curr.positive };
         return acc;
     }, {});
 
     // Fetch Recent Transactions
-    const [transactions] = await connection.execute("SELECT trxId, date, category, status, amount FROM Transaction ORDER BY createdAt DESC LIMIT 4") as any[];
-    const [allTransactions] = await connection.execute("SELECT status FROM Transaction") as any[];
+    const transactions = await db.query("SELECT \"trxId\", date, category, status, amount FROM \"Transaction\" ORDER BY \"createdAt\" DESC LIMIT 4") as any[];
+    const allTransactions = await db.query("SELECT status FROM \"Transaction\"") as any[];
     const totalTrx = allTransactions.length;
     const successTrx = allTransactions.filter((t: any) => t.status === 'Success').length;
     const successPercentage = totalTrx > 0 ? Math.round((successTrx / totalTrx) * 100) : 94;
@@ -92,12 +91,10 @@ async function getDashboardSummary(): Promise<DashboardData> {
     const totalAgents = agentRows.length + workflowRows.length;
     const activeAgents = combinedStats.Working + combinedStats.Analyzing;
 
-    const [logCountRow] = await connection.execute("SELECT COUNT(*) as total FROM WorkflowLog") as any[];
-    const totalTasks = logCountRow[0]?.total || 0;
+    const logCountRows = await db.query("SELECT COUNT(*) as total FROM \"WorkflowLog\"") as any[];
+    const totalTasks = logCountRows[0]?.total || 0;
 
-    const [topWorkflows] = await connection.execute("SELECT id, name, status, performance, n8nWebhookUrl FROM Workflow LIMIT 3") as any[];
-
-    await connection.end();
+    const topWorkflows = await db.query("SELECT id, name, status, performance, \"n8nWebhookUrl\" FROM \"Workflow\" LIMIT 3") as any[];
 
     return {
         totalAgents,
