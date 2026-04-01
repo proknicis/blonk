@@ -119,6 +119,9 @@ export default function SetupPage() {
                                     <input type="password" className={styles.input} placeholder="••••••••" required value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} />
                                 </div>
                                 <button type="submit" className={styles.submitBtn}>Initialize Secure Setup</button>
+                                <div className={styles.loginPrompt}>
+                                    Already part of the fleet? <Link href="/login" className={styles.loginLink}>Authorize Access</Link>
+                                </div>
                             </form>
                         </div>
                     )}

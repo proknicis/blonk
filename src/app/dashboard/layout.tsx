@@ -14,15 +14,7 @@ type NotificationItem = {
     createdAt?: string;
 };
 
-type UsageData = {
-    activeLoops: number;
-    activeLoopsLimit: number;
-    totalTasks: number;
-    totalTasksLimit: number;
-    proLoopsLimit: number;
-    proTasksLimit: number;
-    plan: string;
-};
+// Institutional Layout Definition
 
 type UserData = { name: string; role: string; email: string };
 
@@ -34,15 +26,6 @@ export default function DashboardLayout({
     const pathname = usePathname();
     const [showNotifs, setShowNotifs] = useState(false);
     const [showUserMenu, setShowUserMenu] = useState(false);
-    const [usageData, setUsageData] = useState<UsageData>({
-        activeLoops: 1,
-        activeLoopsLimit: 1,
-        totalTasks: 42,
-        totalTasksLimit: 50,
-        proLoopsLimit: 10,
-        proTasksLimit: 1000,
-        plan: "Institutional"
-    });
     const [notifications, setNotifications] = useState<NotificationItem[]>([]);
     const [user, setUser] = useState<UserData>({ name: "Prokopecs", role: "Strategic Admin", email: "nikolass@blonk.ai" });
     const [isLoadingHeaderData, setIsLoadingHeaderData] = useState(true);
@@ -51,19 +34,14 @@ export default function DashboardLayout({
     const userMenuAnchorRef = useRef<HTMLDivElement>(null);
 
     const unreadCount = notifications.length;
-    const tierDots = useMemo(() => {
-        const active = Math.max(1, Math.min(3, Math.round((usageData.activeLoops / Math.max(1, usageData.activeLoopsLimit)) * 3)));
-        return [1, 2, 3].map((i) => ({ i, active: i <= active }));
-    }, [usageData.activeLoops, usageData.activeLoopsLimit]);
 
     useEffect(() => {
         let isMounted = true;
 
         (async () => {
             try {
-                const [userRes, usageRes, notifsRes] = await Promise.all([
+                const [userRes, notifsRes] = await Promise.all([
                     fetch("/api/settings"),
-                    fetch("/api/usage"),
                     fetch("/api/notifications"),
                 ]);
 
@@ -76,8 +54,7 @@ export default function DashboardLayout({
                     });
                 }
 
-                const usage = await usageRes.json();
-                if (usage && !usage.error) setUsageData(usage);
+                // Usage tracking removed per user request
 
                 const notifs = await notifsRes.json();
                 if (Array.isArray(notifs)) setNotifications(notifs);
@@ -159,40 +136,6 @@ export default function DashboardLayout({
                         <ul>
                             <li><Link href="/dashboard/settings" className={styles.navLink}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Settings</Link></li>
                         </ul>
-                    </div>
-
-                    <div className={styles.usageSection}>
-                        <div className={styles.usageCard}>
-                            <div className={styles.usagePlanTop}>
-                                <span className={styles.planBadge}>{usageData.plan} Tier</span>
-                                <div className={styles.tierDots} aria-hidden="true">
-                                    {tierDots.map(({ i, active }) => (
-                                        <div
-                                            key={i}
-                                            className={styles.tierDot}
-                                            style={{ opacity: active ? 1 : 0.22 }}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                            <div style={{ marginBottom: 16 }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                                    <span className={styles.statLabel}>Active Units</span>
-                                    <span className={styles.statValue}>{usageData.activeLoops} / {usageData.activeLoopsLimit}</span>
-                                </div>
-                                <div className={styles.barContainer}><div className={styles.barFill} style={{ width: '100%' }} /></div>
-                            </div>
-                            <div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                                    <span className={styles.statLabel}>Task Volume</span>
-                                    <span className={styles.statValue}>{usageData.totalTasks} / {usageData.totalTasksLimit}</span>
-                                </div>
-                                <div className={styles.barContainer}><div className={styles.barFill} style={{ width: '84%' }} /></div>
-                            </div>
-                            <Link href="/dashboard/settings" className={styles.upgradeBtn}>
-                                Upgrade Plan <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
-                            </Link>
-                        </div>
                     </div>
                 </nav>
             </aside>
