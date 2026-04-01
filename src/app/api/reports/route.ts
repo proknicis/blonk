@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import { db } from "@/lib/db";
+import { v4 as uuidv4 } from "uuid";
 
 export async function GET() {
     try {
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-        const [rows] = await connection.execute('SELECT * FROM Report ORDER BY createdAt DESC');
-        await connection.end();
-        return NextResponse.json(rows);
+        const rows = await db.query('SELECT * FROM "Report" ORDER BY "createdAt" DESC');
+        return NextResponse.json(rows || []);
     } catch (error) {
         console.error('Error fetching reports:', error);
         return NextResponse.json({ error: 'Failed to fetch reports' }, { status: 500 });
@@ -18,18 +17,17 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { name, type, date, size, content } = body;
 
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-        await connection.execute(
-            'INSERT INTO Report (id, name, type, date, size, content) VALUES (UUID(), ?, ?, ?, ?, ?)',
-            [name, type, date, size, content]
+        const reportId = uuidv4();
+        await db.execute(
+            'INSERT INTO "Report" (id, name, type, date, size, content) VALUES ($1, $2, $3, $4, $5, $6)',
+            [reportId, name, type, date, size, content]
         );
 
-        const [newReport] = await connection.execute('SELECT * FROM Report ORDER BY createdAt DESC LIMIT 1') as any[];
-        await connection.end();
+        const rows = await db.query('SELECT * FROM "Report" WHERE id = $1', [reportId]);
 
-        return NextResponse.json(newReport[0]);
+        return NextResponse.json(rows[0]);
     } catch (error) {
         console.error('Error creating report:', error);
-        return NextResponse.json({ error: 'Failed to create report' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed' }, { status: 500 });
     }
 }

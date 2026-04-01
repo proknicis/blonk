@@ -4,12 +4,24 @@ let _pool: Pool | null = null;
 
 function getPool(): Pool {
     if (!_pool) {
+        const connectionString = process.env.DATABASE_URL;
+        
+        if (!connectionString) {
+            throw new Error("[Database Initialization Failure] DATABASE_URL environment variable is not defined. Ensure your .env file is loaded and contains the correct institutional credentials.");
+        }
+
         _pool = new Pool({
-            connectionString: process.env.DATABASE_URL,
-            // Add some standard pool settings
+            connectionString: connectionString,
+            // Institutional pool performance configuration
             max: 20,
             idleTimeoutMillis: 30000,
-            connectionTimeoutMillis: 2000,
+            connectionTimeoutMillis: 5000,
+            ssl: false // Use true + CA if using managed/remote database
+        });
+
+        // Add a master error listener to prevent process crashes on dormant reconnect failures
+        _pool.on('error', (err) => {
+            console.error('[Sovereign DB Pool - Uncaught Error]', err);
         });
     }
     return _pool;
@@ -17,24 +29,34 @@ function getPool(): Pool {
 
 export const db = {
     /**
-     * Executes a query and returns the rows
+     * Executes a high-performance query and returns result rows
      */
     query: async <T extends QueryResultRow = any>(sql: string, values?: any[]): Promise<T[]> => {
-        const pool = getPool();
-        const res = await pool.query<T>(sql, values);
-        return res.rows;
+        try {
+            const pool = getPool();
+            const res = await pool.query<T>(sql, values);
+            return res.rows;
+        } catch (error) {
+            console.error('[Sovereign DB Query Trace]', { sql, values, error });
+            throw error;
+        }
     },
 
     /**
-     * Executes a command (INSERT, UPDATE, DELETE) and returns the result metadata
+     * Executes an atomic state mutation (INSERT, UPDATE, DELETE)
      */
     execute: async (sql: string, values?: any[]): Promise<QueryResult> => {
-        const pool = getPool();
-        return pool.query(sql, values);
+        try {
+            const pool = getPool();
+            return await pool.query(sql, values);
+        } catch (error) {
+            console.error('[Sovereign DB Execution Trace]', { sql, values, error });
+            throw error;
+        }
     },
 
     /**
-     * Get a connection from the pool for transactions
+     * Reserves a dedicated client for sequential transactional operations
      */
     getClient: () => getPool().connect(),
 };

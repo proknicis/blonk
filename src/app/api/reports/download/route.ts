@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import mysql from "mysql2/promise";
+import { db } from "@/lib/db";
 
 export async function GET(request: Request) {
     try {
@@ -10,10 +10,8 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: "Missing id" }, { status: 400 });
         }
 
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-        const [rows] = (await connection.execute("SELECT * FROM Report WHERE id = ? LIMIT 1", [id])) as any[];
-        await connection.end();
-
+        const rows = await db.query('SELECT * FROM "Report" WHERE id = $1 LIMIT 1', [id]);
+        
         const report = rows?.[0];
         if (!report) {
             return NextResponse.json({ error: "Report not found" }, { status: 404 });
@@ -33,4 +31,3 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: "Failed to download report" }, { status: 500 });
     }
 }
-

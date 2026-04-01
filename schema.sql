@@ -32,6 +32,24 @@ CREATE TABLE IF NOT EXISTS "Workflow" (
     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- WorkflowTemplate: Marketplace blue-prints
+CREATE TABLE IF NOT EXISTS "WorkflowTemplate" (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(255) UNIQUE NOT NULL,
+    sector VARCHAR(100),
+    description TEXT,
+    savings VARCHAR(100),
+    complexity VARCHAR(100),
+    icon VARCHAR(100),
+    color VARCHAR(100),
+    featured BOOLEAN DEFAULT FALSE,
+    requirements JSONB DEFAULT '[]',
+    "setupGuide" JSONB DEFAULT '[]',
+    "webhookUrl" TEXT,
+    status VARCHAR(50) DEFAULT 'Draft',
+    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Agent: Legacy/Direct autonomous units
 CREATE TABLE IF NOT EXISTS "Agent" (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -63,6 +81,17 @@ CREATE TABLE IF NOT EXISTS "Notification" (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     title VARCHAR(255),
     message TEXT,
+    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Report: Static institutional snapshots
+CREATE TABLE IF NOT EXISTS "Report" (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(255),
+    type VARCHAR(100),
+    date VARCHAR(100),
+    size VARCHAR(100),
+    content TEXT,
     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

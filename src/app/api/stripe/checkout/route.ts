@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import mysql from 'mysql2/promise';
+import { db } from "@/lib/db";
 
 export const dynamic = 'force-dynamic';
 
@@ -24,12 +24,11 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Missing priceId' }, { status: 400 });
         }
 
-        // Get the current user email for customer_email
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-        const [rows]: any = await connection.execute('SELECT email FROM User LIMIT 1');
-        await connection.end();
+        // Get the current user email for customer_email from sovereign PostgreSQL
+        const rows = await db.query('SELECT id, email, "firmName" FROM "User" LIMIT 1');
         
-        const userEmail = rows[0]?.email || 'nikolass@blonk.ai';
+        const user = rows[0];
+        const userEmail = user?.email || 'nikolass@blonk.ai';
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
@@ -49,9 +48,9 @@ export async function POST(request: Request) {
             success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/settings?success=true&sessionId={CHECKOUT_SESSION_ID}`,
             cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/settings?canceled=true`,
             customer_email: userEmail,
-            client_reference_id: rows[0]?.id || 'MASTER_USER',
+            client_reference_id: user?.id || 'MASTER_USER',
             metadata: {
-                firmName: rows[0]?.firmName || 'BLONK Firm'
+                firmName: user?.firmName || 'BLONK Firm'
             }
         });
 

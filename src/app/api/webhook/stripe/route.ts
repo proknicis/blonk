@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import mysql from 'mysql2/promise';
+import { db } from "@/lib/db";
 
 export const dynamic = 'force-dynamic';
 
@@ -24,24 +24,22 @@ export async function POST(request: Request) {
         const session = event.data.object as Stripe.Checkout.Session;
         
         try {
-            const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-            
-            // 1. Update User Plan to Professional
-            await connection.execute(
-                "UPDATE User SET plan = 'Professional' WHERE email = ? LIMIT 1",
+            // 1. Update User Plan to Professional in sovereign PostgreSQL
+            await db.execute(
+                "UPDATE \"User\" SET plan = 'Professional' WHERE email = $1",
                 [session.customer_email]
             );
 
-            // 2. Create an Invoice Record
-            const invoiceId = `INV-${Date.now()}`;
+            // 2. Create an Transaction (Invoice) Record in the sovereign vault
+            const trxId = `INV-${Date.now()}`;
             const amount = session.amount_total ? `$${(session.amount_total / 100).toFixed(2)}` : '$49.00';
+            const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             
-            await connection.execute(
-                "INSERT INTO Invoice (id, invoiceNumber, amount, status, planName) VALUES (UUID(), ?, ?, 'Paid', 'Professional')",
-                [invoiceId, amount]
+            await db.execute(
+                'INSERT INTO "Transaction" ("trxId", date, category, status, amount) VALUES ($1, $2, \'Subscription\', \'Paid\', $3)',
+                [trxId, date, amount]
             );
 
-            await connection.end();
             console.log(`User ${session.customer_email} upgraded to Professional tier.`);
         } catch (error) {
             console.error('Database update failed on webhook:', error);

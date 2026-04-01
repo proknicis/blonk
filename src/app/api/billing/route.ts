@@ -1,21 +1,17 @@
 import { NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import { db } from "@/lib/db";
 
 export async function GET() {
     try {
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
+        // 1. Get User Plan from sovereign PostgreSQL
+        const users = await db.query('SELECT plan FROM "User" LIMIT 1');
         
-        // 1. Get User Plan
-        const [user]: any = await connection.execute('SELECT plan FROM User LIMIT 1');
-        
-        // 2. Get Invoices
-        const [invoices] = await connection.execute('SELECT * FROM Invoice ORDER BY date DESC');
-
-        await connection.end();
+        // 2. Get Ledger Transactions (Invoices) from the sovereign vault
+        const invoices = await db.query('SELECT * FROM "Transaction" ORDER BY "createdAt" DESC');
 
         return NextResponse.json({
-            plan: user[0]?.plan || 'Starter',
-            invoices
+            plan: users[0]?.plan || 'Starter',
+            invoices: invoices || []
         });
     } catch (error) {
         console.error('Error fetching billing data:', error);

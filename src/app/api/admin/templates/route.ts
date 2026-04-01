@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import { db } from "@/lib/db";
+import { v4 as uuidv4 } from "uuid";
 
 export async function GET() {
     try {
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-        const [rows] = await connection.execute('SELECT * FROM WorkflowTemplate ORDER BY createdAt DESC');
-        await connection.end();
-        return NextResponse.json(rows);
+        const rows = await db.query('SELECT * FROM "WorkflowTemplate" ORDER BY "createdAt" DESC');
+        return NextResponse.json(rows || []);
     } catch (error) {
         console.error('Error fetching admin templates:', error);
         return NextResponse.json({ error: 'Failed' }, { status: 500 });
@@ -18,12 +17,24 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { name, sector, description, savings, complexity, icon, color, featured, requirements, setupGuide, webhookUrl, status } = body;
 
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-        await connection.execute(
-            'INSERT INTO WorkflowTemplate (id, name, sector, description, savings, complexity, icon, color, featured, requirements, setupGuide, webhookUrl, status) VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [name, sector, description, savings, complexity, icon, color, featured ? 1 : 0, JSON.stringify(requirements || []), setupGuide || '[]', webhookUrl || '', status || 'Draft']
+        await db.execute(
+            'INSERT INTO "WorkflowTemplate" (id, name, sector, description, savings, complexity, icon, color, featured, requirements, "setupGuide", "webhookUrl", status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)',
+            [
+                uuidv4(), 
+                name, 
+                sector, 
+                description, 
+                savings, 
+                complexity, 
+                icon, 
+                color, 
+                featured ? true : false, 
+                JSON.stringify(requirements || []), 
+                JSON.stringify(setupGuide || []), 
+                webhookUrl || '', 
+                status || 'Draft'
+            ]
         );
-        await connection.end();
 
         return NextResponse.json({ success: true });
     } catch (error) {
@@ -37,12 +48,11 @@ export async function DELETE(request: Request) {
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
 
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-        await connection.execute('DELETE FROM WorkflowTemplate WHERE id = ?', [id]);
-        await connection.end();
+        await db.execute('DELETE FROM "WorkflowTemplate" WHERE id = $1', [id]);
 
         return NextResponse.json({ success: true });
     } catch (error) {
+        console.error('Error deleting template:', error);
         return NextResponse.json({ error: 'Failed' }, { status: 500 });
     }
 }

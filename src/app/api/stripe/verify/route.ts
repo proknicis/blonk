@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import mysql from 'mysql2/promise';
+import { db } from "@/lib/db";
+import { v4 as uuidv4 } from "uuid";
 
 export const dynamic = 'force-dynamic';
 
@@ -19,26 +20,26 @@ export async function GET(request: Request) {
         const session = await stripe.checkout.sessions.retrieve(sessionId);
 
         if (session.payment_status === 'paid') {
-            const connection = await mysql.createConnection(process.env.DATABASE_URL!);
             
-            // 2. Fetch User to confirm upgrade
-            const [user]: any = await connection.execute('SELECT plan FROM User LIMIT 1');
-            const currentPlan = user[0]?.plan;
+            // 2. Fetch User to confirm upgrade from sovereign PostgreSQL
+            const users = await db.query('SELECT plan FROM "User" LIMIT 1');
+            const currentPlan = users[0]?.plan;
 
             if (currentPlan === 'Starter') {
                 // 3. Perform the Atomic Upgrade
-                await connection.execute("UPDATE User SET plan = 'Professional' LIMIT 1");
+                await db.execute("UPDATE \"User\" SET plan = 'Professional'");
                 
-                // 4. Record the Invoice
-                const invId = `INV-${Date.now()}`;
+                // 4. Record the Transaction (Invoice)
+                const trxId = `INV-${Date.now()}`;
                 const amount = session.amount_total ? `$${(session.amount_total/100).toFixed(2)}` : '$49.00';
-                await connection.execute(
-                    "INSERT INTO Invoice (id, invoiceNumber, amount, status, planName) VALUES (UUID(), ?, ?, 'Paid', 'Professional')",
-                    [invId, amount]
+                const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+                await db.execute(
+                    'INSERT INTO "Transaction" ("trxId", date, category, status, amount) VALUES ($1, $2, \'Subscription\', \'Paid\', $3)',
+                    [trxId, date, amount]
                 );
             }
 
-            await connection.end();
             return NextResponse.json({ success: true, plan: 'Professional' });
         }
 

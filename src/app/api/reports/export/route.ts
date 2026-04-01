@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
-import mysql from "mysql2/promise";
+import { db } from "@/lib/db";
 
 export async function GET() {
     try {
-        const connection = await mysql.createConnection(process.env.DATABASE_URL!);
-        const [rows] = (await connection.execute("SELECT * FROM Report ORDER BY createdAt DESC")) as any[];
-        await connection.end();
+        const rows = await db.query('SELECT * FROM "Report" ORDER BY "createdAt" DESC');
 
-        const payload = JSON.stringify(rows, null, 2);
+        const payload = JSON.stringify(rows || [], null, 2);
         const fileName = `BLONK_Reports_Backup_${new Date().toISOString().split("T")[0]}.json`;
 
         return new NextResponse(payload, {
@@ -21,4 +19,3 @@ export async function GET() {
         return NextResponse.json({ error: "Failed to export reports" }, { status: 500 });
     }
 }
-
