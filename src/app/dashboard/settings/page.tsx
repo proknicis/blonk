@@ -119,21 +119,27 @@ export default function SettingsPage() {
         try {
             setIsLoading(true);
             
-            // Only Professional plan currently has a checkout route
-            if (plan === 'Professional') {
-                // Use server-side redirect (form-style POST) to avoid window.location.
-                const form = new FormData();
-                form.set("priceId", "price_placeholder_id");
-                const res = await fetch("/api/stripe/checkout", { method: "POST", body: form });
-                if (!res.redirected) {
-                    const data = await res.json().catch(() => null);
-                    throw new Error(data?.error || "Checkout failed");
+            // Institutional plan triggers the sovereign checkout handshake
+            if (plan === 'Institutional') {
+                // We use a modular POST to initiate the sovereign payment session
+                const res = await fetch("/api/stripe/checkout", { 
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ plan: 'Institutional' })
+                });
+                
+                const data = await res.json().catch(() => null);
+                
+                if (!res.ok || !data?.url) {
+                    throw new Error(data?.error || "Institutional Handshake Failed");
                 }
-                router.push(res.url);
+                
+                // Redirecting to Stripe Sovereign Terminal
+                window.location.href = data.url;
                 return;
             }
 
-            // For Starter (Free), we might just update the DB directly (not implemented here)
+            // For infrastructure or other tiers, reset loading
             setCurrentPlan(plan);
             setIsLoading(false);
             setSaved(true);
@@ -245,56 +251,80 @@ export default function SettingsPage() {
             ) : (
                 <div className={styles.billingView}>
                     <div className={styles.section}>
-                        <h2>Subscription Plans</h2>
+                        <h2>Fleet Subscription</h2>
                         <div className={styles.planGrid}>
-                            <div className={`${styles.planCard} ${currentPlan === 'Starter' ? styles.selectedPlan : ''}`}>
-                                {currentPlan === 'Starter' && <span className={styles.currentPlanBadge}>Active</span>}
-                                <div className={styles.planHeader}>
-                                    <div className={styles.planName}>Starter (Free)</div>
-                                    <div className={styles.planPrice}>$0<span>/mo</span></div>
+                            {/* INSTITUTIONAL PLAN */}
+                            <div className={styles.institutionCard}>
+                                <div className={styles.planLabels}>
+                                    <span className={styles.planLabel}>Institutional</span>
                                 </div>
+                                <div className={styles.planPricing}>
+                                    <span className={styles.planAmount}>$833</span>
+                                    <span className={styles.planPeriod}>/mo</span>
+                                </div>
+                                <p className={styles.planDescription}>
+                                    Deploy a full autonomous workforce module across your critical departmental layers.
+                                </p>
                                 <ul className={styles.featureList}>
                                     <li className={styles.featureItem}>
-                                        <svg className={styles.featureIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                        1 Active Loop
+                                        <svg className={styles.planIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                                        Core Governance Engine
                                     </li>
                                     <li className={styles.featureItem}>
-                                        <svg className={styles.featureIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                        10 Task Requests / mo
+                                        <svg className={styles.planIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                                        Public Sovereign Cloud
+                                    </li>
+                                    <li className={styles.featureItem}>
+                                        <svg className={styles.planIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                                        SOC-2 Ready Audit
+                                    </li>
+                                    <li className={styles.featureItem}>
+                                        <svg className={styles.planIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                                        5 Seat Integrated Vault
                                     </li>
                                 </ul>
-                                {currentPlan !== 'Starter' && (
-                                    <button className={styles.btnPrimary} style={{ width: '100%', marginTop: '16px' }} onClick={() => handlePlanSwitch('Starter')}>
-                                        Select Plan
-                                    </button>
-                                )}
+                                <button 
+                                    className={styles.btnInstitutional}
+                                    onClick={() => handlePlanSwitch('Institutional')}
+                                    disabled={currentPlan === 'Institutional'}
+                                >
+                                    {currentPlan === 'Institutional' ? "Current Directive" : "Select Institutional."}
+                                </button>
                             </div>
 
-                            <div className={`${styles.planCard} ${currentPlan === 'Professional' ? styles.selectedPlan : ''}`}>
-                                {currentPlan === 'Professional' && <span className={styles.currentPlanBadge}>Active</span>}
-                                <div className={styles.planHeader}>
-                                    <div className={styles.planName}>Professional</div>
-                                    <div className={styles.planPrice}>$49<span>/mo</span></div>
+                            {/* INFRASTRUCTURE (ENTERPRISE) PLAN */}
+                            <div className={styles.infrastructureCard}>
+                                <span className={styles.enterpriseBadge}>Enterprise</span>
+                                <div className={styles.planLabels}>
+                                    <span className={styles.planLabel}>Infrastructure</span>
                                 </div>
+                                <div className={styles.planPricing}>
+                                    <span className={styles.planAmount}>Inquire</span>
+                                </div>
+                                <p className={styles.planDescription}>
+                                    The absolute operating layer for Fortune 500 legal and accounting firms.
+                                </p>
                                 <ul className={styles.featureList}>
                                     <li className={styles.featureItem}>
-                                        <svg className={styles.featureIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                        5 Active Loops
+                                        <svg className={styles.planIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                                        Private Sovereign Backbone
                                     </li>
                                     <li className={styles.featureItem}>
-                                        <svg className={styles.featureIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                        500 Task Requests / mo
+                                        <svg className={styles.planIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                                        Unlimited Capacity scaling
                                     </li>
                                     <li className={styles.featureItem}>
-                                        <svg className={styles.featureIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                        Priority Support
+                                        <svg className={styles.planIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                                        Strategic Compliance Sync
+                                    </li>
+                                    <li className={styles.featureItem}>
+                                        <svg className={styles.planIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                                        Dedicated Key Manager
                                     </li>
                                 </ul>
-                                {currentPlan !== 'Professional' && (
-                                    <button className={styles.btnPrimary} style={{ width: '100%', marginTop: '16px', background: '#34D186', color: '#0F172A' }} onClick={() => handlePlanSwitch('Professional')}>
-                                        Unlock Capacity
-                                    </button>
-                                )}
+                                <button className={styles.btnInfrastructure} onClick={() => window.open('mailto:architecture@blonk.ai')}>
+                                    Contact Architecture.
+                                </button>
                             </div>
                         </div>
                     </div>

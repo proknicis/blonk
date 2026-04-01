@@ -205,92 +205,167 @@ input:checked+.slider:before {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-/* BILLING UI */
 .planGrid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
-    margin-bottom: 40px;
+    gap: 40px;
+    margin-bottom: 60px;
 }
 
-.planCard {
-    background: white;
-    padding: 32px;
-    border-radius: 28px;
-    border: 1.5px solid #EDEDED;
-    position: relative;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.03);
+.institutionCard {
+    background: #FFFFFF;
+    border: 1px solid #EAEAEA;
+    border-radius: 40px;
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
 }
 
-.planCard:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
-    border-color: #CBD5E1;
+.infrastructureCard {
+    background: #0A0A0A !important;
+    border: none !important;
+    border-radius: 40px;
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    color: #FFFFFF;
 }
 
-.selectedPlan {
-    border-color: #34D186;
-    background: linear-gradient(145deg, #F0FDFA 0%, #FFFFFF 100%);
-    box-shadow: 0 12px 40px rgba(52, 209, 134, 0.08);
+.planLabels {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-.planHeader {
-    margin-bottom: 24px;
-}
-
-.planName {
-    font-size: 0.85rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #64748B;
-}
-
-.planPrice {
-    font-size: 2.25rem;
+.planLabel {
+    font-size: 0.75rem;
     font-weight: 950;
-    margin-top: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: #94A3B8;
 }
 
-.planPrice span {
-    font-size: 1rem;
-    color: #949A97;
+.infrastructureCard .planLabel {
+    color: #475569;
+}
+
+.planPricing {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.planAmount {
+    font-size: 4rem;
+    font-weight: 950;
+    letter-spacing: -0.06em;
+    color: #0A0A0A;
+}
+
+.infrastructureCard .planAmount {
+    color: #FFFFFF;
+}
+
+.planPeriod {
+    font-size: 0.85rem;
+    font-weight: 950;
+    color: #0A0A0A;
+    font-style: italic;
+}
+
+.planDescription {
+    font-size: 1.15rem;
+    line-height: 1.6;
+    color: #64748B;
     font-weight: 600;
 }
 
+.infrastructureCard .planDescription {
+    color: #94A3B8;
+}
+
 .featureList {
-    list-style: none;
-    padding: 0;
-    margin: 24px 0;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 20px;
+    padding: 0;
+    margin: 40px 0;
+    border-top: 1px solid #F1F5F9;
+    padding-top: 40px;
+}
+
+.infrastructureCard .featureList {
+    border-color: #1E293B;
 }
 
 .featureItem {
     display: flex;
     align-items: center;
-    gap: 12px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #475569;
+    gap: 16px;
+    font-size: 1rem;
+    font-weight: 900;
+    color: #0A0A0A;
 }
 
-.featureIcon {
-    color: #34D186;
+.infrastructureCard .featureItem {
+    color: #FFFFFF;
 }
 
-.currentPlanBadge {
+.enterpriseBadge {
     position: absolute;
-    top: 24px;
-    right: 24px;
-    background: #101112;
-    color: white;
-    padding: 6px 14px;
-    border-radius: 10px;
+    top: 40px;
+    right: 40px;
+    background: #34D186;
+    color: #0A0A0A;
     font-size: 0.75rem;
-    font-weight: 800;
+    font-weight: 950;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.btnInstitutional {
+    background: #0A0A0A;
+    color: #FFFFFF;
+    height: 72px;
+    border-radius: 100px;
+    border: none;
+    font-size: 1.1rem;
+    font-weight: 950;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btnInfrastructure {
+    background: #FFFFFF;
+    color: #0A0A0A;
+    height: 72px;
+    border-radius: 100px;
+    border: none;
+    font-size: 1.1rem;
+    font-weight: 950;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btnInfrastructure:hover {
+    background: #34D186;
+    transform: scale(1.02);
+}
+
+.btnInstitutional:hover {
+    background: #34D186;
+    color: #0A0A0A;
+    transform: scale(1.02);
+}
+
+.planIcon {
+    width: 24px;
+    height: 24px;
+    color: #34D186;
 }
 
 /* INVOICE TABLE */
