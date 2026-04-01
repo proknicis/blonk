@@ -112,7 +112,7 @@ export default function DashboardLayout({
             <aside className={styles.sidebar}>
                 <div className={styles.sidebarBrand}>
                     <Link href="/" className={styles.logo}>
-                        BL<span style={{ color: '#34D186' }}>O</span>NK<span className="gradient-text">.</span>
+                        BLONK<span className="gradient-text">.</span>
                     </Link>
                 </div>
 

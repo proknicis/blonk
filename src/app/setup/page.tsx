@@ -78,7 +78,7 @@ export default function SetupPage() {
             {/* --- Left Column: Institutional Anchor --- */}
             <div className={styles.leftColumn}>
                 <Link href="/" className={styles.logo}>
-                    BL<span style={{ color: '#34D186' }}>O</span>NK<span className={styles.logo_dot}></span>
+                    BLONK<span className={styles.logo_dot}></span>
                 </Link>
                 <div className={styles.sidebarContent}>
                     <span className={styles.visualTag}>Strategic Onboarding</span>
