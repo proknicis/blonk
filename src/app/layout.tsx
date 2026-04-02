@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   description: "Automate repetitive admin for accounting, law, HR, and insurance with BLONK. The premium workflow platform for modern firms.",
 };
 
+import { AuthProvider } from "@/components/auth-provider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -25,7 +27,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

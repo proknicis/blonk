@@ -3,6 +3,9 @@ import React from "react";
 import { db } from "@/lib/db";
 import WorkflowList from "./components/WorkflowList";
 import WorkflowLogs from "./components/WorkflowLogs";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 
 interface DashboardData {
     totalAgents: number;
@@ -142,6 +145,9 @@ async function getDashboardSummary(): Promise<DashboardData> {
 }
 
 export default async function DashboardPage() {
+    const session = await getServerSession(authOptions);
+    if (!session) redirect("/login");
+
     const data = await getDashboardSummary();
 
     return (
