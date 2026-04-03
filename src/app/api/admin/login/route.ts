@@ -1,24 +1,33 @@
 import { NextResponse } from 'next/server';
 import { db } from "@/lib/db";
+import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
     try {
         const { email, password } = await request.json();
 
-        // In Postgres we use single quotes for string literals and double quotes for table names
-        // Note: SuperAdmin check moved to plan column or logic if applicable
+        // 1. Fetch administrative user from PostgreSQL
         const rows = await db.query(
-            'SELECT id, name, plan FROM "User" WHERE email = $1 AND password = $2 AND plan = \'SuperAdmin\'',
-            [email, password]
-        );
+            'SELECT id, name, plan, password FROM "User" WHERE email = $1 AND plan = \'SuperAdmin\' LIMIT 1',
+            [email]
+        ) as any[];
 
         if (rows.length > 0) {
             const user = rows[0];
+
+            // 2. Cryptographic identity verification
+            const isPasswordValid = await bcrypt.compare(password, user.password);
+
+            if (!isPasswordValid) {
+                return NextResponse.json({ error: 'Administrative credential failure' }, { status: 401 });
+            }
+
             const res = NextResponse.json({
                 success: true,
-                user: user
+                user: { id: user.id, name: user.name }
             });
 
+            // 3. Establish sovereign session token
             res.cookies.set("admin_token", `admin_${user.id}`, {
                 httpOnly: true,
                 sameSite: "lax",
@@ -29,7 +38,7 @@ export async function POST(request: Request) {
 
             return res;
         } else {
-            return NextResponse.json({ error: 'Invalid credentials or insufficient permissions' }, { status: 401 });
+            return NextResponse.json({ error: 'Unauthorized Administrative Access' }, { status: 401 });
         }
     } catch (error) {
         console.error('Admin login error:', error);

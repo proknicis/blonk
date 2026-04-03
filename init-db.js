@@ -1,205 +1,101 @@
-const mysql = require('mysql2/promise');
+const { Client } = require('pg');
+const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
-async function setupDatabase() {
-    const connection = await mysql.createConnection(process.env.DATABASE_URL);
+// BLONK | SOVEREIGN DATABASE INITIALIZATION (PostgreSQL)
+// This script initializes the institutional ledger with the master admin credentials.
 
-    console.log('Connected to MySQL. Syncing schema...');
+async function setupDatabase() {
+    const client = new Client({
+        connectionString: process.env.DATABASE_URL,
+    });
+
+    console.log('🏛️ Connecting to PostgreSQL Fleet Gateway...');
 
     try {
-        // Drop existing tables to start completely fresh
-        await connection.execute('DROP TABLE IF EXISTS Invoice');
-        await connection.execute('DROP TABLE IF EXISTS WorkflowLog');
-        await connection.execute('DROP TABLE IF EXISTS OperationalSetting');
-        await connection.execute('DROP TABLE IF EXISTS Notification');
-        await connection.execute('DROP TABLE IF EXISTS Transaction');
-        await connection.execute('DROP TABLE IF EXISTS ChartData');
-        await connection.execute('DROP TABLE IF EXISTS Kpi');
-        await connection.execute('DROP TABLE IF EXISTS Workflow');
-        await connection.execute('DROP TABLE IF EXISTS WorkflowTemplate');
-        await connection.execute('DROP TABLE IF EXISTS Agent');
-        await connection.execute('DROP TABLE IF EXISTS Report');
-        await connection.execute('DROP TABLE IF EXISTS User');
+        await client.connect();
+        
+        // 1. CLEAR STALE ASSETS
+        console.log('🧹 Purging legacy institutional logs...');
+        const dropTables = [
+            '"WorkflowLog"', '"OperationalSetting"', '"Notification"', 
+            '"Transaction"', '"ChartData"', '"Kpi"', '"Workflow"', 
+            '"WorkflowTemplate"', '"Agent"', '"Report"', '"User"'
+        ];
+        
+        for (const table of dropTables) {
+            await client.query(`DROP TABLE IF EXISTS ${table} CASCADE`);
+        }
 
-        // 1. User Table
-        await connection.execute(`
-            CREATE TABLE User (
-                id VARCHAR(191) PRIMARY KEY,
-                name VARCHAR(191),
-                email VARCHAR(191) UNIQUE NOT NULL,
-                password VARCHAR(191) NOT NULL,
-                firmName VARCHAR(191),
-                industry VARCHAR(191),
-                role VARCHAR(191) DEFAULT 'User',
-                plan VARCHAR(191) DEFAULT 'Starter',
-                createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        // 2. PROVISION SOVEREIGN IDENTITY (USER TABLE)
+        console.log('🧬 Provisioning User Identity Protocol...');
+        await client.query(`
+            CREATE TABLE "User" (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                name VARCHAR(255),
+                email VARCHAR(255) UNIQUE NOT NULL,
+                password TEXT NOT NULL,
+                "firmName" VARCHAR(255),
+                industry VARCHAR(255),
+                plan VARCHAR(50) DEFAULT 'Starter',
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
 
-        // 2. Invoice Table
-        await connection.execute(`
-            CREATE TABLE Invoice (
-                id VARCHAR(191) PRIMARY KEY,
-                invoiceNumber VARCHAR(191) UNIQUE NOT NULL,
-                amount VARCHAR(191) NOT NULL,
-                status VARCHAR(191) DEFAULT 'Paid',
-                planName VARCHAR(191) NOT NULL,
-                date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        // 3. PROVISION OPERATIONAL METADATA
+        console.log('⚙️ Initializing System Parameters...');
+        await client.query(`
+            CREATE TABLE "OperationalSetting" (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                key VARCHAR(100) UNIQUE NOT NULL,
+                value TEXT NOT NULL
             )
         `);
 
-        // 2. Operational Settings
-        await connection.execute(`
-            CREATE TABLE OperationalSetting (
-                id VARCHAR(191) PRIMARY KEY,
-                \`key\` VARCHAR(191) UNIQUE NOT NULL,
-                value VARCHAR(191) NOT NULL
+        // 4. PROVISION FINANCIAL ANALYTICS
+        await client.query(`
+            CREATE TABLE "Kpi" (
+                label VARCHAR(100) PRIMARY KEY,
+                value VARCHAR(100) NOT NULL,
+                change VARCHAR(100),
+                positive BOOLEAN
             )
         `);
 
-        // 3. Workflow Marketplace Templates
-        await connection.execute(`
-            CREATE TABLE WorkflowTemplate (
-                id VARCHAR(191) PRIMARY KEY,
-                name VARCHAR(191) NOT NULL,
-                sector VARCHAR(191) NOT NULL,
-                description TEXT,
-                savings VARCHAR(191),
-                complexity VARCHAR(50),
-                icon VARCHAR(50),
-                color VARCHAR(50),
-                featured BOOLEAN DEFAULT FALSE,
-                createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            )
-        `);
+        // 5. MASTER SEEDING (AUTHENTICATION)
+        console.log('🔑 Establishing Master Admin Handshake...');
+        
+        // Hash the admin password for institutional security
+        const adminEmail = 'admin@blonk.ai';
+        const adminPasswordRaw = 'blonkadmin2026';
+        const hashedAdminPassword = await bcrypt.hash(adminPasswordRaw, 10);
 
-        // 4. Workflow Instances (User's active loops)
-        await connection.execute(`
-            CREATE TABLE Workflow (
-                id VARCHAR(191) PRIMARY KEY,
-                name VARCHAR(191) NOT NULL,
-                sector VARCHAR(191) NOT NULL,
-                status VARCHAR(191) DEFAULT 'Pending',
-                performance VARCHAR(191) DEFAULT '0',
-                lastRun TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                tasksCount INT DEFAULT 0,
-                n8nWebhookUrl TEXT,
-                createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            )
-        `);
-
-        // 5. Workflow Execution Logs
-        await connection.execute(`
-            CREATE TABLE WorkflowLog (
-                id VARCHAR(191) PRIMARY KEY,
-                workflowName VARCHAR(191) NOT NULL,
-                status VARCHAR(191) NOT NULL,
-                result TEXT,
-                executedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-
-        // 6. Agents
-        await connection.execute(`
-            CREATE TABLE Agent (
-                id VARCHAR(191) PRIMARY KEY,
-                name VARCHAR(191) NOT NULL,
-                role VARCHAR(191) NOT NULL,
-                status VARCHAR(191) NOT NULL,
-                initials VARCHAR(10) NOT NULL,
-                color VARCHAR(50) NOT NULL,
-                n8nWorkflow VARCHAR(191),
-                updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            )
-        `);
-
-        // 7. KPIs & Financials
-        await connection.execute(`
-            CREATE TABLE Kpi (
-                id VARCHAR(191) PRIMARY KEY,
-                label VARCHAR(191) NOT NULL,
-                value VARCHAR(191) NOT NULL,
-                \`change\` VARCHAR(191),
-                positive BOOLEAN,
-                updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            )
-        `);
-
-        await connection.execute(`
-            CREATE TABLE Transaction (
-                id VARCHAR(191) PRIMARY KEY,
-                trxId VARCHAR(191) NOT NULL,
-                date VARCHAR(191) NOT NULL,
-                category VARCHAR(191) NOT NULL,
-                status VARCHAR(191) NOT NULL,
-                amount VARCHAR(191) NOT NULL,
-                createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-
-        // 8. Communications
-        await connection.execute(`
-            CREATE TABLE Notification (
-                id VARCHAR(191) PRIMARY KEY,
-                title VARCHAR(191) NOT NULL,
-                message VARCHAR(191) NOT NULL,
-                isRead BOOLEAN DEFAULT FALSE,
-                createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            )
-        `);
-
-        // 9. Chart Data
-        await connection.execute(`
-            CREATE TABLE ChartData (
-                id VARCHAR(191) PRIMARY KEY,
-                day VARCHAR(10) NOT NULL,
-                revenue INT NOT NULL,
-                expenses INT NOT NULL,
-                profit INT NOT NULL,
-                sequence INT NOT NULL,
-                updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            )
-        `);
-
-        // SEEDING ESSENTIALS ONLY
-        console.log('Seeding system accounts...');
-
-        // Master Admin Access
-        await connection.execute(
-            'INSERT INTO User (id, name, email, password, firmName, industry, role, plan) VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?)',
-            ['Platform Owner', 'admin@blonk.ai', 'blonkadmin2026', 'BLONK HQ', 'SaaS', 'SuperAdmin', 'Starter']
+        await client.query(
+            'INSERT INTO "User" (name, email, password, "firmName", industry, plan) VALUES ($1, $2, $3, $4, $5, $6)',
+            ['Platform Owner', adminEmail, hashedAdminPassword, 'BLONK HQ', 'SaaS', 'SuperAdmin']
         );
 
-        // Core Invoices
-        await connection.execute(
-            'INSERT INTO Invoice (id, invoiceNumber, amount, status, planName, date) VALUES (UUID(), ?, ?, ?, ?, ?)',
-            ['INV-2024-001', '$0.00', 'Paid', 'Starter', '2024-03-01 10:00:00']
-        );
-        await connection.execute(
-            'INSERT INTO Invoice (id, invoiceNumber, amount, status, planName, date) VALUES (UUID(), ?, ?, ?, ?, ?)',
-            ['INV-2024-002', '$0.00', 'Paid', 'Starter', '2024-02-01 10:00:00']
-        );
-        await connection.execute(
-            'INSERT INTO Invoice (id, invoiceNumber, amount, status, planName, date) VALUES (UUID(), ?, ?, ?, ?, ?)',
-            ['INV-2024-003', '$0.00', 'Paid', 'Starter', '2024-01-01 10:00:00']
-        );
-
-        // Core System Settings
-        await connection.execute(
-            'INSERT INTO OperationalSetting (id, \`key\`, value) VALUES (UUID(), ?, ?)',
+        // 6. SYSTEM STATUS SEEDING
+        await client.query(
+            'INSERT INTO "OperationalSetting" (key, value) VALUES ($1, $2)',
             ['system_uptime', '100.00']
         );
 
-        console.log('Production-ready database initialized (Wiped clean of mock data).');
+        await client.query(`
+            INSERT INTO "Kpi" (label, value, change, positive) VALUES 
+            ('Total Revenue', '$124,500', '+12.4%', true),
+            ('Growth Rate', '22.8%', '+4.2%', true),
+            ('System Stability', '99.98%', 'Stable', true)
+        `);
+
+        console.log('✨ BLONK Sovereign Fleet Initialized Successfully (PostgreSQL).');
+        console.log('Credential: ' + adminEmail);
 
     } catch (err) {
-        console.error('Database Sync Failed:', err);
+        console.error('❌ Database Sync Failure:', err);
     } finally {
-        await connection.end();
+        await client.end();
     }
 }
 
