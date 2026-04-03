@@ -23,7 +23,7 @@ export default function BuilderPage() {
         name: "",
         category: "General",
         description: "",
-        icon: "⚡",
+        icon: "Zap", // System default icon
         complexity: "Low",
         savings: "",
         inputs: [] as { name: string, type: string, required: boolean, placeholder: string, example: string, help: string }[],
@@ -194,16 +194,16 @@ export default function BuilderPage() {
 
                                 <div className={styles.formRow}>
                                     <div className={styles.formGroup}>
-                                        <label className={styles.label}>Icon Emoji</label>
-                                        <input className={styles.input} value={formData.icon} onChange={e => setFormData({...formData, icon: e.target.value})} />
-                                    </div>
-                                    <div className={styles.formGroup}>
                                         <label className={styles.label}>Complexity</label>
                                         <select className={styles.select} value={formData.complexity} onChange={e => setFormData({...formData, complexity: e.target.value})}>
                                             <option>Low</option>
                                             <option>Medium</option>
                                             <option>High</option>
                                         </select>
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Marketplace Focus</label>
+                                        <div style={{ display: 'flex', alignItems: 'center', height: '100%', paddingLeft: '4px', fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>Standard Sovereign Protocol</div>
                                     </div>
                                 </div>
 
@@ -350,7 +350,9 @@ export default function BuilderPage() {
                         {/* STEP 5: PUBLISH */}
                         {currentStep === 5 && (
                             <div style={{ display: "flex", flexDirection: "column", gap: "24px", alignItems: "center", justifyContent: "center", minHeight: "300px", textAlign: "center" }}>
-                                <div style={{ width: "64px", height: "64px", background: "#DCFCE7", color: "#16A34A", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "32px", marginBottom: "16px" }}>⚡</div>
+                                <div style={{ width: "64px", height: "64px", background: "#DCFCE7", color: "#16A34A", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "32px", marginBottom: "16px" }}>
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                                </div>
                                 <h3 style={{ margin: 0, fontSize: "1.5rem", color: "#0F172A" }}>Ready to Publish</h3>
                                 <p style={{ color: "#64748B", maxWidth: "400px", margin: "16px 0 32px" }}>By publishing this loop to the Marketplace, all clients on the platform will be able to review, configure, and rapidly deploy this automated process.</p>
                                 
