@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
 // BLONK | UNIVERSAL SOVEREIGN DATABASE INITIALIZATION (PostgreSQL)
-// This script provisions the complete institutional architecture.
+// This script provisions the complete institutional architecture for the entire fleet.
 
 async function setupDatabase() {
     const client = new Client({
@@ -16,7 +16,7 @@ async function setupDatabase() {
         await client.connect();
         
         // 1. CLEAR STALE ASSETS (Institutional Purge)
-        console.log('Purging legacy relations...');
+        console.log('🧹 Purging legacy relations...');
         const dropTables = [
             '"WorkflowLog"', '"OperationalSetting"', '"Notification"', 
             '"Transaction"', '"ChartData"', '"Kpi"', '"Workflow"', 
@@ -38,7 +38,8 @@ async function setupDatabase() {
                 "firmName" VARCHAR(255),
                 industry VARCHAR(255),
                 plan VARCHAR(50) DEFAULT 'Starter',
-                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
 
@@ -51,7 +52,8 @@ async function setupDatabase() {
                 amount VARCHAR(100) NOT NULL,
                 status VARCHAR(50) DEFAULT 'Paid',
                 "planName" VARCHAR(100),
-                "date" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                "date" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
             CREATE TABLE "Transaction" (
                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -78,7 +80,10 @@ async function setupDatabase() {
                 color VARCHAR(50) DEFAULT '#F8F9FA',
                 requirements JSONB DEFAULT '[]',
                 "setupGuide" TEXT,
-                status VARCHAR(50) DEFAULT 'Published'
+                status VARCHAR(50) DEFAULT 'Published',
+                "webhookUrl" TEXT,
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
             CREATE TABLE "Workflow" (
                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -87,8 +92,12 @@ async function setupDatabase() {
                 status VARCHAR(50) DEFAULT 'Active',
                 performance VARCHAR(50) DEFAULT '0',
                 "tasksCount" INT DEFAULT 0,
+                "n8nWebhookUrl" TEXT,
                 inputs JSONB DEFAULT '{}',
-                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                "requestedBy" VARCHAR(255),
+                "lastRun" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
             CREATE TABLE "Agent" (
                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -97,7 +106,8 @@ async function setupDatabase() {
                 status VARCHAR(50) DEFAULT 'Online',
                 initials VARCHAR(10),
                 color VARCHAR(50),
-                "n8nWorkflow" TEXT
+                "n8nWorkflow" TEXT,
+                "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
             CREATE TABLE "WorkflowLog" (
                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -139,7 +149,7 @@ async function setupDatabase() {
             );
         `);
 
-        // 6. MASTER SEEDING
+        // 6. MASTER SEEDING (Sovereign Credentials)
         console.log('🔑 Establishing Sovereign Identity Seed...');
         const adminEmail = 'admin@blonk.ai';
         const hashedPw = await bcrypt.hash('blonkadmin2026', 10);
@@ -149,7 +159,7 @@ async function setupDatabase() {
             ['Platform Owner', adminEmail, hashedPw, 'BLONK HQ', 'SaaS', 'SuperAdmin']
         );
 
-        // Core Status Seed
+        // Core System Status Seed
         await client.query(`
             INSERT INTO "OperationalSetting" (key, value) VALUES ('system_uptime', '100.00');
             INSERT INTO "Kpi" (label, value, change, positive) VALUES 
