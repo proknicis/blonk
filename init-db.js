@@ -30,6 +30,18 @@ async function setupDatabase() {
         // 2. IDENTITY SECTOR
         console.log('🧬 Provisioning Identity Protocols...');
         await client.query(`
+            DROP TABLE IF EXISTS "ChartData" CASCADE;
+            DROP TABLE IF EXISTS "Notification" CASCADE;
+            DROP TABLE IF EXISTS "Kpi" CASCADE;
+            DROP TABLE IF EXISTS "OperationalSetting" CASCADE;
+            DROP TABLE IF EXISTS "WorkflowLog" CASCADE;
+            DROP TABLE IF EXISTS "Agent" CASCADE;
+            DROP TABLE IF EXISTS "Workflow" CASCADE;
+            DROP TABLE IF EXISTS "WorkflowTemplate" CASCADE;
+            DROP TABLE IF EXISTS "Transaction" CASCADE;
+            DROP TABLE IF EXISTS "Invoice" CASCADE;
+            DROP TABLE IF EXISTS "User" CASCADE;
+
             CREATE TABLE "User" (
                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                 name VARCHAR(255),

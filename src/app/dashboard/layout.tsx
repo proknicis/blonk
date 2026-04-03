@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "./dashboard.module.css";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { signOut } from "next-auth/react";
 import AiChat from "../components/AiChat";
 
 type NotificationItem = {
@@ -250,6 +251,19 @@ export default function DashboardLayout({
                                         </svg>
                                         Reports
                                     </Link>
+                                    <div className={styles.userDropdownDivider}></div>
+                                    <button
+                                        className={`${styles.userDropdownLink} ${styles.logoutBtn}`}
+                                        role="menuitem"
+                                        onClick={() => signOut({ callbackUrl: '/' })}
+                                    >
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+                                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                            <polyline points="16 17 21 12 16 7"></polyline>
+                                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                                        </svg>
+                                        Terminate Session
+                                    </button>
                                 </div>
                             )}
                         </div>
