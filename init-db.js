@@ -107,6 +107,7 @@ async function setupDatabase() {
                 initials VARCHAR(10),
                 color VARCHAR(50),
                 "n8nWorkflow" TEXT,
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
             CREATE TABLE "WorkflowLog" (
@@ -114,7 +115,8 @@ async function setupDatabase() {
                 "workflowName" VARCHAR(255) NOT NULL,
                 status VARCHAR(50) NOT NULL,
                 result TEXT,
-                "executedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                "executedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
 
@@ -124,13 +126,17 @@ async function setupDatabase() {
             CREATE TABLE "OperationalSetting" (
                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                 key VARCHAR(100) UNIQUE NOT NULL,
-                value TEXT NOT NULL
+                value TEXT NOT NULL,
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
             CREATE TABLE "Kpi" (
                 label VARCHAR(100) PRIMARY KEY,
                 value VARCHAR(100) NOT NULL,
                 change VARCHAR(100),
-                positive BOOLEAN
+                positive BOOLEAN,
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
             CREATE TABLE "Notification" (
                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -145,7 +151,9 @@ async function setupDatabase() {
                 revenue INT NOT NULL,
                 expenses INT NOT NULL,
                 profit INT NOT NULL,
-                sequence INT NOT NULL
+                sequence INT NOT NULL,
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
 
