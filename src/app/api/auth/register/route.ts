@@ -14,9 +14,9 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
         }
 
-        // Check for existing user
-        const [rows]: any = await db.execute(
-            'SELECT * FROM User WHERE email = ? LIMIT 1',
+        // Check for existing user (PostgreSQL Syntax)
+        const rows = await db.query(
+            'SELECT id FROM "User" WHERE email = $1 LIMIT 1',
             [email]
         );
 
@@ -27,10 +27,10 @@ export async function POST(request: Request) {
         const hashedPassword = await bcrypt.hash(password, 10);
         const userId = uuidv4();
 
-        // Insert new user
+        // Insert new user (PostgreSQL Syntax)
         await db.execute(
-            'INSERT INTO User (id, email, password, name, firmName, industry, updatedAt) VALUES (?, ?, ?, ?, ?, ?, NOW())',
-            [userId, email, hashedPassword, name || email.split('@')[0], firmName, industry]
+            'INSERT INTO "User" (id, email, password, name, "firmName", industry, plan) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+            [userId, email, hashedPassword, name || email.split('@')[0], firmName || '', industry || '', 'Starter']
         );
 
         return NextResponse.json({

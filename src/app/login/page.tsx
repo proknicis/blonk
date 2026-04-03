@@ -1,90 +1,160 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import styles from "./login.module.css";
-import React from "react";
 import { signIn } from "next-auth/react";
+import styles from "./auth.module.css";
+import React from "react";
 
-export default function LoginPage() {
+export default function AuthPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const [mode, setMode] = useState<"login" | "register">("login");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
-    const [formData, setFormData] = useState({ email: "", password: "" });
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: ""
+    });
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    // Check if redirecting from an error or with a specific mode
+    useEffect(() => {
+        const errorType = searchParams.get("error");
+        if (errorType === "CredentialsSignin") {
+            setError("Identity verification failed. Please check your credentials.");
+        }
+    }, [searchParams]);
+
+    const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         setError("");
 
         try {
-            const result = await signIn("credentials", {
-                email: formData.email,
-                password: formData.password,
-                redirect: false,
-            });
+            if (mode === "login") {
+                const result = await signIn("credentials", {
+                    email: formData.email,
+                    password: formData.password,
+                    redirect: false,
+                });
 
-            if (result?.error) throw new Error("Identity verification failed. Please check your credentials.");
+                if (result?.error) throw new Error("Invalid credentials. Access denied.");
+                
+                // Intelligent routing handled by redirect in dashboard normally,
+                // but we can do a quick check or just push to dashboard.
+                router.push("/dashboard");
+            } else {
+                // Registration Logic
+                if (formData.password !== formData.confirmPassword) {
+                    throw new Error("Passwords do not match.");
+                }
 
-            router.push('/dashboard');
+                const res = await fetch("/api/auth/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        email: formData.email,
+                        password: formData.password,
+                        name: formData.name
+                    }),
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || "Establishment failure.");
+
+                // Auto-login after registration
+                await signIn("credentials", {
+                    email: formData.email,
+                    password: formData.password,
+                    callbackUrl: "/setup" // New users always go to setup first
+                });
+            }
         } catch (err: any) {
             setError(err.message);
-        } finally {
             setIsLoading(false);
         }
     };
 
     return (
         <div className={styles.pageWrapper}>
-            {/* --- Left Sidebar: Branding & Security --- */}
+            {/* --- Left Sidebar: Sovereign Branding --- */}
             <div className={styles.leftSidebar}>
                 <Link href="/" className={styles.logo}>
                     BLONK<span className={styles.logo_dot}></span>
                 </Link>
                 <div className={styles.sidebarContent}>
                     <h1 className={styles.sidebarTitle}>Command<br />Terminal.</h1>
-                    <p className={styles.sidebarText}>Welcome back to your high-stakes administrative infrastructure. Access your firm's specialized autonomous units.</p>
+                    <p className={styles.sidebarText}>Establish your institutional identity and access high-stakes autonomous infrastructure for your firm.</p>
                 </div>
-                <div style={{ position: 'relative', marginTop: 'auto', zIndex: 10, fontSize: '0.85rem', fontWeight: 900, color: '#999', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
-                    Sovereign v2.5 / Secure
+                <div style={{ position: 'relative', marginTop: 'auto', zIndex: 10, fontSize: '0.75rem', fontWeight: 900, color: '#444', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+                    Sovereign Fleet v3.1 / Secure
                 </div>
             </div>
 
-            {/* --- Right Content: Form Area --- */}
+            {/* --- Right Content: Auth Form Area --- */}
             <div className={styles.rightContent}>
                 <div className={styles.container}>
                     <div className={styles.header}>
-                        <h2 className={styles.title}>Identity.</h2>
-                        <p className={styles.subtitle}>Enter your institutional credentials to reach your dashboard.</p>
+                        <h2 className={styles.title}>{mode === "login" ? "Identity." : "Integrate."}</h2>
+                        <p className={styles.subtitle}>
+                            {mode === "login" ? "Enter your safe-credentials to reach your dashboard." : "Create your institutional profile to start automating."}
+                        </p>
+                    </div>
+
+                    <div className={styles.authTabs}>
+                        <div 
+                            className={`${styles.tab} ${mode === "login" ? styles.activeTab : ""}`}
+                            onClick={() => setMode("login")}
+                        >
+                            Sign In
+                        </div>
+                        <div 
+                            className={`${styles.tab} ${mode === "register" ? styles.activeTab : ""}`}
+                            onClick={() => setMode("register")}
+                        >
+                            Register
+                        </div>
                     </div>
 
                     {error && (
-                        <div style={{ padding: '16px', background: '#FFF5F5', color: '#E53E3E', borderRadius: '12px', border: '1px solid #FED7D7', fontSize: '0.9rem', fontWeight: 800, marginBottom: 32, display: 'flex', alignItems: 'center', gap: 12 }}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                            {error}
+                        <div className={styles.errorMsg}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                {error}
+                            </div>
                         </div>
                     )}
 
-                    <form className={styles.form} onSubmit={handleSubmit}>
-                        <div>
-                            <label className={styles.modernLabel}>Institutional Email</label>
+                    <form className={styles.form} onSubmit={handleAuth}>
+                        {mode === "register" && (
+                            <div className={styles.formGroup}>
+                                <label className={styles.modernLabel}>Full Name</label>
+                                <input
+                                    type="text"
+                                    className={styles.modernInput}
+                                    placeholder="Institutional Operator"
+                                    required
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                />
+                            </div>
+                        )}
+                        <div className={styles.formGroup}>
+                            <label className={styles.modernLabel}>Fleet Email</label>
                             <input
                                 type="email"
                                 className={styles.modernInput}
-                                placeholder="name@firm.com"
+                                placeholder="name@firm.ai"
                                 required
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             />
                         </div>
-                        <div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-                                <label className={styles.modernLabel} style={{ marginBottom: 0 }}>Safe-Password</label>
-                                <Link href="/forgot-password" style={{ fontSize: '0.8rem', fontWeight: 900, color: '#999', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                                    Recovery
-                                </Link>
-                            </div>
+                        <div className={styles.formGroup}>
+                            <label className={styles.modernLabel}>Safe-Password</label>
                             <input
                                 type="password"
                                 className={styles.modernInput}
@@ -94,33 +164,47 @@ export default function LoginPage() {
                                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                             />
                         </div>
+                        {mode === "register" && (
+                            <div className={styles.formGroup}>
+                                <label className={styles.modernLabel}>Verify Password</label>
+                                <input
+                                    type="password"
+                                    className={styles.modernInput}
+                                    placeholder="••••••••"
+                                    required
+                                    value={formData.confirmPassword}
+                                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                                />
+                            </div>
+                        )}
+
                         <button
                             type="submit"
                             className={styles.submitBtn}
                             disabled={isLoading}
                         >
-                            {isLoading ? "Verifying..." : "Initialize Session"}
+                            {isLoading ? "Synchronizing..." : mode === "login" ? "Initialize Session" : "Establish Integration"}
                         </button>
                     </form>
 
                     <div className={styles.divider}>
                         <div className={styles.dividerLine}></div>
-                        <span>OR</span>
+                        <span>AUTONOMOUS AUTH</span>
                         <div className={styles.dividerLine}></div>
                     </div>
 
                     <button className={styles.googleBtn} onClick={() => signIn('google', { callbackUrl: '/dashboard' })}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                             <path d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.83z" fill="#FBBC05"/>
                             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.83c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
                         </svg>
-                        Sovereign Google Sync
+                        Google Identity Pulse
                     </button>
 
-                    <div className={styles.footer}>
-                        <p>No account yet? <Link href="/setup">Establish Integration</Link></p>
+                    <div style={{ marginTop: 40, textAlign: 'center', fontSize: '0.85rem', color: '#666' }}>
+                        By establishing access, you agree to the <Link href="/terms" style={{ color: '#aaa', textDecoration: 'none', fontWeight: 700 }}>Institutional Protocols</Link>.
                     </div>
                 </div>
             </div>

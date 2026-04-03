@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSession, signIn } from "next-auth/react";
 import styles from "./setup.module.css";
-import { registerUser } from "./actions";
+import { completeSetup } from "./actions";
 import React from "react";
-import { signIn } from "next-auth/react";
 
 export default function SetupPage() {
     const router = useRouter();
+    const { data: session, status } = useSession();
     const [step, setStep] = useState(1);
     const [isProvisioning, setIsProvisioning] = useState(false);
     const [progress, setProgress] = useState(0);
@@ -22,6 +23,14 @@ export default function SetupPage() {
         industry: "",
         goal: ""
     });
+
+    // Auto-fill from session if available
+    useEffect(() => {
+        if (session?.user?.email) {
+            setFormData(prev => ({ ...prev, email: session.user?.email || "" }));
+            if (step === 1) setStep(2); // Skip Step 1 if already authenticated
+        }
+    }, [session, status]);
 
     const tasks = [
         "Establishing Secure Handshake...",
@@ -43,7 +52,7 @@ export default function SetupPage() {
                     clearInterval(interval);
                     setTimeout(() => setStep(4), 500);
                 }
-            }, 30);
+            }, 25);
             return () => clearInterval(interval);
         }
     }, [isProvisioning]);
@@ -60,14 +69,28 @@ export default function SetupPage() {
         if (step < 3) return setStep(step + 1);
 
         setIsProvisioning(true);
+        setError("");
+        
         try {
-            const result = await registerUser({
+            const result = await completeSetup({
                 email: formData.email,
                 password: formData.password,
                 firmName: formData.firmName,
-                industry: formData.industry
+                industry: formData.industry,
+                goal: formData.goal
             });
+            
             if (result.error) throw new Error(result.error);
+
+            // If it was a new registration, we might need a manual sign-in,
+            // but for now the user is either existing (Google) or needs auto-login.
+            if (!session) {
+                await signIn("credentials", {
+                    email: formData.email,
+                    password: formData.password,
+                    redirect: false
+                });
+            }
         } catch (err: any) {
             setError(err.message);
             setIsProvisioning(false);
@@ -82,9 +105,12 @@ export default function SetupPage() {
                     BLONK<span className={styles.logo_dot}></span>
                 </Link>
                 <div className={styles.sidebarContent}>
-                    <span className={styles.visualTag}>Strategic Onboarding</span>
-                    <h1 className={styles.sidebarTitle}>Integration<br />Setup.</h1>
+                    <span className={styles.visualTag}>Sovereign Handshaking</span>
+                    <h1 className={styles.sidebarTitle}>Integration<br />Provisioning.</h1>
                     <p className={styles.sidebarText}>Establish your sovereign firm instance in minutes. We automate the administrative friction, you focus on the exceptions.</p>
+                </div>
+                <div style={{ marginTop: 'auto', fontSize: '0.75rem', fontWeight: 900, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.2em' }}>
+                    SECURE PROTOCOL / {formData.email?.toUpperCase() || "IDENTITY PENDING"}
                 </div>
             </div>
 
@@ -93,7 +119,7 @@ export default function SetupPage() {
                 <div className={styles.formContainer}>
                     {step < 4 && !isProvisioning && (
                         <div className={styles.stepWrapper}>
-                            <span className={styles.stepLabel}>Protocol 0{step} / 03</span>
+                            <span className={styles.stepLabel}>Step 0{step} / 03</span>
                             <div className={styles.stepIndicator}>
                                 {[1, 2, 3].map(s => <div key={s} className={`${styles.dot} ${step >= s ? styles.dotActive : ''}`} />)}
                             </div>
@@ -101,8 +127,8 @@ export default function SetupPage() {
                     )}
 
                     {error && (
-                        <div style={{ padding: '16px', background: '#FFF5F5', color: '#E53E3E', borderRadius: '12px', border: '1px solid #FED7D7', fontSize: '0.9rem', fontWeight: 800, marginBottom: 32 }}>
-                            ERROR: {error}
+                        <div style={{ padding: '16px', background: 'rgba(239, 68, 68, 0.05)', color: '#EF4444', borderRadius: '12px', border: '1px solid rgba(239, 68, 68, 0.1)', fontSize: '0.85rem', fontWeight: 800, marginBottom: 32 }}>
+                            {error}
                         </div>
                     )}
 
@@ -110,13 +136,13 @@ export default function SetupPage() {
                         <div className={styles.header}>
                             <h1 className={styles.title}>Access Identity.</h1>
                             <p className={styles.subtitle}>Identify yourself as the firm's strategic administrator.</p>
-                            <form className={styles.form} onSubmit={handleSubmit} style={{ marginTop: '48px' }}>
+                            <form className={styles.form} onSubmit={handleSubmit} style={{ marginTop: '40px' }}>
                                 <div className={styles.inputWrapper}>
-                                    <label className={styles.inputLabel}>Credential: Work Email</label>
+                                    <label className={styles.inputLabel}>Work Email</label>
                                     <input type="email" className={styles.input} placeholder="name@firm.com" required value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
                                 </div>
                                 <div className={styles.inputWrapper}>
-                                    <label className={styles.inputLabel}>Credential: Secure Password</label>
+                                    <label className={styles.inputLabel}>Safe-Password</label>
                                     <input type="password" className={styles.input} placeholder="••••••••" required value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} />
                                 </div>
                                 <button type="submit" className={styles.submitBtn}>Initialize Secure Setup</button>
@@ -127,34 +153,30 @@ export default function SetupPage() {
                                     <div className={styles.dividerLine}></div>
                                 </div>
 
-                                <button type="button" className={styles.googleBtn} onClick={() => signIn('google', { callbackUrl: '/dashboard' })}>
+                                <button type="button" className={styles.googleBtn} onClick={() => signIn('google', { callbackUrl: '/setup' })}>
                                     <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                                         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                                         <path d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.83z" fill="#FBBC05"/>
                                         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.83c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
                                     </svg>
-                                    Sovereign Google Sync
+                                    Google Sync Handshake
                                 </button>
-
-                                <div className={styles.loginPrompt}>
-                                    Already part of the fleet? <Link href="/login" className={styles.loginLink}>Authorize Access</Link>
-                                </div>
                             </form>
                         </div>
                     )}
 
                     {step === 2 && (
                         <div className={styles.header}>
-                            <h1 className={styles.title}>Firm Structure.</h1>
-                            <p className={styles.subtitle}>Configure the sovereign environment for your organization.</p>
-                            <form className={styles.form} onSubmit={handleSubmit} style={{ marginTop: '48px' }}>
+                            <h1 className={styles.title}>Firm Context.</h1>
+                            <p className={styles.subtitle}>Configuring the environment for your institution.</p>
+                            <form className={styles.form} onSubmit={handleSubmit} style={{ marginTop: '40px' }}>
                                 <div className={styles.inputWrapper}>
-                                    <label className={styles.inputLabel}>Institution Name</label>
-                                    <input type="text" className={styles.input} placeholder="e.g. Prokopecs & Partners" required value={formData.firmName} onChange={e => setFormData({ ...formData, firmName: e.target.value })} />
+                                    <label className={styles.inputLabel}>Institutional Name</label>
+                                    <input type="text" className={styles.input} placeholder="e.g. Prokopecs Legal Group" required value={formData.firmName} onChange={e => setFormData({ ...formData, firmName: e.target.value })} />
                                 </div>
                                 <div className={styles.inputWrapper}>
-                                    <label className={styles.inputLabel}>Primary Sector Context</label>
+                                    <label className={styles.inputLabel}>Sector Objective</label>
                                     <div className={styles.industryGrid}>
                                         {industries.map(ind => (
                                             <div key={ind.id} className={`${styles.industryCard} ${formData.industry === ind.id ? styles.industryCardActive : ''}`} onClick={() => setFormData({ ...formData, industry: ind.id })}>
@@ -171,50 +193,51 @@ export default function SetupPage() {
 
                     {step === 3 && !isProvisioning && (
                         <div className={styles.header}>
-                            <h1 className={styles.title}>Strategic Focus.</h1>
-                            <p className={styles.subtitle}>Select the primary directive for your autonomous units.</p>
-                            <div className={styles.form} style={{ marginTop: '48px' }}>
+                            <h1 className={styles.title}>Strategic Directives.</h1>
+                            <p className={styles.subtitle}>Select the primary focus for your autonomous fleet.</p>
+                            <div className={styles.form} style={{ marginTop: '40px' }}>
                                 {[
-                                    { t: "Automated Intake", d: "Standardize extraction from high-value institutional docs." },
-                                    { t: "Client GRC Sync", d: "Govern communication and compliance syncs automatically." },
-                                    { t: "Operational Speed", d: "Reduce internal friction with autonomous system mapping." }
+                                    { t: "Institutional Intake", d: "Standardize extraction from high-value legal/financial docs." },
+                                    { t: "Autonomous Communication", d: "Govern stakeholder engagement via intelligent units." },
+                                    { t: "Operational Scaling", d: "Reduce internal friction with sovereign workflow mappings." }
                                 ].map(goal => (
-                                    <div key={goal.t} className={`${styles.industryCard} ${formData.goal === goal.t ? styles.industryCardActive : ''}`} style={{ display: 'flex', gap: '24px', alignItems: 'center' }} onClick={() => setFormData({ ...formData, goal: goal.t })}>
+                                    <div key={goal.t} className={`${styles.industryCard} ${formData.goal === goal.t ? styles.industryCardActive : ''}`} style={{ display: 'flex', gap: '20px', alignItems: 'center', textAlign: 'left' }} onClick={() => setFormData({ ...formData, goal: goal.t })}>
                                         <div style={{ flex: 1 }}>
-                                            <div className={styles.industryLabel}>{goal.t}</div>
-                                            <div style={{ fontSize: '0.95rem', color: '#666', fontWeight: 600, marginTop: '6px' }}>{goal.d}</div>
+                                            <div className={styles.industryLabel} style={{ fontSize: '1rem' }}>{goal.t}</div>
+                                            <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 600, marginTop: '4px' }}>{goal.d}</div>
                                         </div>
                                     </div>
                                 ))}
-                                <button onClick={handleSubmit} className={styles.submitBtn} disabled={!formData.goal}>Establish System Instance</button>
+                                <button onClick={handleSubmit} className={styles.submitBtn} disabled={!formData.goal}>Establish System Ledger</button>
                             </div>
                         </div>
                     )}
 
                     {isProvisioning && step !== 4 && (
                         <div className={styles.provisioningContainer}>
-                            <h1 className={styles.title}>System Provisioning.</h1>
+                            <h1 className={styles.title}>Fleet Provisioning.</h1>
+                            <p style={{ color: '#64748B', fontWeight: 600, marginBottom: 32 }}>Deploying your firm's high-stakes autonomous infrastructure...</p>
                             <div className={styles.progressBar}><div className={styles.progressFill} style={{ width: `${progress}%` }} /></div>
-                            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#111' }}>{currentTask}</div>
+                            <div style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A', letterSpacing: '0.05em' }}>{currentTask}</div>
                         </div>
                     )}
 
                     {step === 4 && (
                         <div style={{ textAlign: 'center' }}>
                             <div className={styles.checkmarkCircle}>
-                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12"/></svg>
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12"/></svg>
                             </div>
                             <h1 className={styles.title}>Deployment Success.</h1>
-                            <p className={styles.subtitle}>Your specialized instance for <strong>{formData.firmName}</strong> is now live. All systems operational.</p>
-                            <Link href="/dashboard" className={styles.submitBtn} style={{ display: 'flex', textDecoration: 'none', justifyContent: 'center', alignItems: 'center', marginTop: '64px' }}>Access Command Terminal</Link>
+                            <p className={styles.subtitle}>Your specialized instance for <strong>{formData.firmName}</strong> is now live on the Sovereign Fleet.</p>
+                            <Link href="/dashboard" className={styles.submitBtn} style={{ display: 'flex', textDecoration: 'none', justifyContent: 'center', alignItems: 'center', marginTop: '48px' }}>Access Command Terminal</Link>
                         </div>
                     )}
 
-                    {step > 1 && step < 4 && !isProvisioning && (
-                        <div style={{ marginTop: '80px', display: 'flex', justifyContent: 'center' }}>
+                    {step > 1 && step < 4 && !isProvisioning && !session && (
+                        <div style={{ marginTop: '48px', display: 'flex', justifyContent: 'center' }}>
                             <button className={styles.backBtn} onClick={() => setStep(step - 1)}>
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                                Step Back
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                                Protocol Reversion
                             </button>
                         </div>
                     )}

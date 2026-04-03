@@ -148,6 +148,14 @@ export default async function DashboardPage() {
     const session = await getServerSession(authOptions);
     if (!session) redirect("/login");
 
+    // Intelligent Onboarding Guard: Redirect to setup if profile is incomplete
+    const userEmail = session.user?.email;
+    const [userRecord] = await db.query('SELECT "firmName", industry FROM "User" WHERE email = $1', [userEmail]) as any[];
+    
+    if (!userRecord?.firmName || userRecord.firmName === 'Google Individual' || !userRecord.industry) {
+        redirect("/setup");
+    }
+
     const data = await getDashboardSummary();
 
     return (
