@@ -91,6 +91,7 @@ async function setupDatabase() {
                 complexity VARCHAR(50),
                 icon VARCHAR(50),
                 color VARCHAR(50) DEFAULT '#F8F9FA',
+                featured BOOLEAN DEFAULT FALSE,
                 requirements JSONB DEFAULT '[]',
                 "setupGuide" TEXT,
                 status VARCHAR(50) DEFAULT 'Published',
