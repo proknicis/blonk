@@ -229,22 +229,29 @@ export default function AdminControlPage() {
                             {configStep === 2 && (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
                                     <div>
-                                        <label style={{ display: 'block', fontWeight: 900, marginBottom: '14px', fontSize: '0.7rem', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>n8n Backend Endpoint</label>
-                                        <input 
-                                            className={styles.searchInput} 
-                                            style={{ padding: '20px', borderRadius: '20px', background: '#F8FAFC', border: '2px solid #E2E8F0', transition: 'all 0.3s', fontSize: '1rem', fontWeight: 600 }}
-                                            value={configWorkflow.n8nWebhookUrl || ""}
-                                            onChange={(e) => setConfigWorkflow({...configWorkflow, n8nWebhookUrl: e.target.value})}
-                                            placeholder="Paste the production webhook URL..."
-                                        />
+                                        <label style={{ display: 'block', fontWeight: 900, marginBottom: '14px', fontSize: '0.7rem', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Sovereign Loop Identity</label>
+                                        <div style={{ display: 'flex', gap: '12px' }}>
+                                            <div style={{ flex: 1, padding: '20px', borderRadius: '20px', background: '#F8FAFC', border: '2px solid #E2E8F0', fontSize: '1.25rem', fontWeight: 750, color: '#0F172A', fontFamily: 'monospace' }}>
+                                                {configWorkflow.id}
+                                            </div>
+                                            <button 
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(configWorkflow.id);
+                                                    alert("ID Copied!");
+                                                }}
+                                                style={{ padding: '0 24px', borderRadius: '16px', background: '#0F172A', color: 'white', fontWeight: 800, border: 'none', cursor: 'pointer' }}
+                                            >
+                                                COPY
+                                            </button>
+                                        </div>
                                     </div>
                                     
-                                    <div style={{ background: '#F0F9FF', padding: '24px', borderRadius: '24px', border: '1px solid #BAE6FD', display: 'flex', gap: '16px' }}>
-                                        <div style={{ width: '40px', height: '40px', background: '#BAE6FD', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0369A1" strokeWidth="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                    <div style={{ background: '#F0FDF4', padding: '24px', borderRadius: '24px', border: '1px solid #BBF7D0', display: 'flex', gap: '16px' }}>
+                                        <div style={{ width: '40px', height: '40px', background: '#BBF7D0', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#166534" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                         </div>
-                                        <div style={{ fontSize: '0.9rem', color: '#0369A1', lineHeight: '1.6', fontWeight: 600 }}>
-                                            Deployment Note: Ensure the n8n workflow is set to <strong>Active</strong> before linking. The site will begin polling for performance metrics immediately after calibration.
+                                        <div style={{ fontSize: '0.9rem', color: '#166534', lineHeight: '1.6', fontWeight: 600 }}>
+                                            Deployment Note: This loop is now in <strong>Autonomous Mode</strong>. Use this ID in your n8n workflows. No webhook URL is required.
                                         </div>
                                     </div>
                                 </div>
@@ -255,8 +262,8 @@ export default function AdminControlPage() {
                                     <div style={{ width: '96px', height: '96px', background: '#ECFDF5', color: '#34D186', borderRadius: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 32px' }}>
                                         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                     </div>
-                                    <h4 style={{ margin: 0, fontSize: '1.75rem', color: '#0F172A', fontWeight: 950, letterSpacing: '-0.03em' }}>Node Ready</h4>
-                                    <p style={{ fontSize: '1rem', color: '#64748B', maxWidth: '340px', margin: '16px auto 0', lineHeight: '1.6', fontWeight: 600 }}>The loop is calibrated and ready for production transmission. Activating will notify the client.</p>
+                                    <h4 style={{ margin: 0, fontSize: '1.75rem', color: '#0F172A', fontWeight: 950, letterSpacing: '-0.03em' }}>Node Authorized</h4>
+                                    <p style={{ fontSize: '1rem', color: '#64748B', maxWidth: '340px', margin: '16px auto 0', lineHeight: '1.6', fontWeight: 600 }}>The loop is ready for autonomous production. Finalizing will notify the client and activate tracking.</p>
                                 </div>
                             )}
                         </div>
@@ -275,9 +282,9 @@ export default function AdminControlPage() {
                                 style={{ background: configStep === 3 ? '#34D186' : '#0F172A', minWidth: '160px', borderRadius: '16px', fontWeight: 850, padding: '14px 28px', transition: 'all 0.3s', fontSize: '0.9rem' }}
                                 onClick={() => {
                                     if (configStep < 3) setConfigStep(prev => prev + 1);
-                                    else updateWebhook(configWorkflow.id, configWorkflow.n8nWebhookUrl);
+                                    else updateWebhook(configWorkflow.id, ""); // No URL needed
                                 }}
-                                disabled={savingId === configWorkflow.id || (configStep === 2 && !configWorkflow.n8nWebhookUrl)}
+                                disabled={savingId === configWorkflow.id}
                             >
                                 {savingId === configWorkflow.id ? "Syncing..." : (configStep === 3 ? 'Finalize & Activate' : 'Next Step')}
                             </button>
