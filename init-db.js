@@ -50,6 +50,7 @@ async function setupDatabase() {
                 "firmName" VARCHAR(255),
                 industry VARCHAR(255),
                 plan VARCHAR(50) DEFAULT 'Starter',
+                "onboardingStatus" VARCHAR(50) DEFAULT 'PENDING',
                 "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
