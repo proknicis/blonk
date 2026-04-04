@@ -55,10 +55,10 @@ export default function AdminLayout({
                 </nav>
 
                 <div className={styles.navGroup} style={{ marginTop: 'auto' }}>
-                    <Link href="/api/admin/logout" className={styles.navLink} style={{ width: '100%', textAlign: 'left' }}>
+                    <a href="/api/admin/logout" className={styles.navLink} style={{ width: '100%', textAlign: 'left', textDecoration: 'none' }}>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF5252" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                         <span style={{ color: '#FF5252' }}>Logout</span>
-                    </Link>
+                    </a>
                 </div>
             </aside>
 

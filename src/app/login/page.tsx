@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import styles from "./auth.module.css";
 import React from "react";
 
 export default function AuthPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { status } = useSession();
     const [mode, setMode] = useState<"login" | "register">("login");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
@@ -19,6 +20,13 @@ export default function AuthPage() {
         password: "",
         confirmPassword: ""
     });
+
+    // Redirection Guard: If already authenticated, proceed to terminal
+    useEffect(() => {
+        if (status === "authenticated") {
+            router.push("/dashboard");
+        }
+    }, [status, router]);
 
     // Check if redirecting from an error or with a specific mode
     useEffect(() => {
