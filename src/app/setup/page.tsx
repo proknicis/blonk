@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession, signIn } from "next-auth/react";
@@ -8,7 +8,7 @@ import styles from "./setup.module.css";
 import { completeSetup } from "./actions";
 import React from "react";
 
-export default function SetupPage() {
+function SetupContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { data: session, status } = useSession();
@@ -254,6 +254,14 @@ export default function SetupPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function SetupPage() {
+    return (
+        <Suspense fallback={<div className={styles.wrapper}><p style={{ color: 'white', padding: 40 }}>Initializing institutional provisioning engine...</p></div>}>
+            <SetupContent />
+        </Suspense>
     );
 }
 
