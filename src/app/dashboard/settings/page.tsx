@@ -1,10 +1,10 @@
 "use client";
 
 import styles from "./settings.module.css";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function SettingsPage() {
+function SettingsContent() {
     const [activeTab, setActiveTab] = useState('general');
     const [saved, setSaved] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -368,4 +368,10 @@ export default function SettingsPage() {
     );
 }
 
-
+export default function SettingsPage() {
+    return (
+        <Suspense fallback={<div className={styles.container}><p>Initializing sovereign control panel...</p></div>}>
+            <SettingsContent />
+        </Suspense>
+    );
+}
