@@ -107,8 +107,7 @@ export default function WorkflowsPage() {
         const matchesSearch = wf.name.toLowerCase().includes(search.toLowerCase()) ||
             (wf.description && wf.description.toLowerCase().includes(search.toLowerCase()));
         const matchesCategory = selectedCategory === "All" || wf.sector === selectedCategory;
-        const isNotActive = !activeWorkflowNames.includes(wf.name);
-        return matchesSearch && matchesCategory && isNotActive;
+        return matchesSearch && matchesCategory;
     });
 
     return (

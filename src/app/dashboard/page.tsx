@@ -49,7 +49,7 @@ async function getDashboardSummary(userEmail: string): Promise<DashboardData> {
     const workflowRows = await db.query(`
         SELECT id, name, status, performance, "tasksCount", "lastRun" 
         FROM "Workflow" 
-        WHERE LOWER("requestedBy") = LOWER($1) OR "requestedBy" = 'Nikolass'
+        WHERE LOWER("requestedBy") = LOWER($1)
     `, [emailRef]) as any[];
     
     console.log(`[FleetSync] Dashboard requested for ${emailRef}. Found ${workflowRows.length} units.`);
