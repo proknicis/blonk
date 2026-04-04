@@ -3,6 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
+import { v4 as uuidv4 } from "uuid";
 
 export const authOptions: NextAuthOptions = {
     providers: [
@@ -52,8 +53,8 @@ export const authOptions: NextAuthOptions = {
                 const existing = await db.query('SELECT id FROM "User" WHERE email = $1', [email]) as any[];
                 if (existing.length === 0) {
                     await db.query(
-                        'INSERT INTO "User" (email, name, "firmName", plan, password) VALUES ($1, $2, $3, $4, $5)',
-                        [email, user.name, 'Google Individual', 'Starter', 'oauth_google_protected_' + Math.random().toString(36)]
+                        'INSERT INTO "User" (id, email, name, "firmName", plan, password) VALUES ($1, $2, $3, $4, $5, $6)',
+                        [uuidv4(), email, user.name, 'Google Individual', 'Starter', 'oauth_google_protected_' + Math.random().toString(36)]
                     );
                 }
             }

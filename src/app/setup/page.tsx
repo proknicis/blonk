@@ -134,11 +134,11 @@ export default function SetupPage() {
 
                     {step === 1 && (
                         <div className={styles.header}>
-                            <h1 className={styles.title}>{session ? "Identity Confirmed." : "Access Identity."}</h1>
+                            <h1 className={styles.title}>{session ? "Identity Confirmed." : "Authentication credentials required for initial setup."}</h1>
                             <p className={styles.subtitle}>
                                 {session 
                                     ? `Operator identified as ${session.user?.email}. Proceed to firm context.` 
-                                    : "Identify yourself as the firm's strategic administrator."}
+                                    : "Identify yourself as the firm's strategic administrator to initialize the server fleet."}
                             </p>
                             <form className={styles.form} onSubmit={handleSubmit} style={{ marginTop: '40px' }}>
                                 {!session ? (
