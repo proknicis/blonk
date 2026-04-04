@@ -39,14 +39,25 @@ export async function POST(request: Request) {
                 [status, workflowName]
             );
         }
-
-        const normalizedStatus = status.toLowerCase();
-        if (normalizedStatus === 'success' || normalizedStatus === 'completed') {
-            if (workflowId) {
-                await db.execute('UPDATE "Workflow" SET "tasksCount" = "tasksCount" + 1 WHERE id = $1', [workflowId]);
-            } else {
-                await db.execute('UPDATE "Workflow" SET "tasksCount" = "tasksCount" + 1 WHERE name = $1', [workflowName]);
-            }
+            await db.query(`
+                UPDATE "Workflow" 
+                SET status = $1, 
+                    performance = $2, 
+                    "tasksCount" = "tasksCount" + $3, 
+                    "lastRun" = CURRENT_TIMESTAMP 
+                WHERE id = $4
+            `, [status, performance, status.toLowerCase() === 'success' ? 1 : 0, workflowId]);
+        } 
+        // Case 2: Name-Based fallback
+        else if (workflowName) {
+            await db.query(`
+                UPDATE "Workflow" 
+                SET status = $1, 
+                    performance = $2, 
+                    "tasksCount" = "tasksCount" + $3, 
+                    "lastRun" = CURRENT_TIMESTAMP 
+                WHERE name = $4
+            `, [status, performance, status.toLowerCase() === 'success' ? 1 : 0, workflowName]);
         }
 
         // 3. Create a notification
