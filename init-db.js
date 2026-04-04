@@ -109,6 +109,7 @@ async function setupDatabase() {
                 "n8nWebhookUrl" TEXT,
                 inputs JSONB DEFAULT '{}',
                 "requestedBy" VARCHAR(255),
+                "userId" UUID,
                 "lastRun" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -127,6 +128,7 @@ async function setupDatabase() {
             CREATE TABLE "WorkflowLog" (
                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                 "workflowName" VARCHAR(255) NOT NULL,
+                "workflowId" UUID,
                 status VARCHAR(50) NOT NULL,
                 result TEXT,
                 "executedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

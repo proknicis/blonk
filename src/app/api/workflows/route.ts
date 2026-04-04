@@ -1,15 +1,19 @@
 import { NextResponse } from 'next/server';
 import { db } from "@/lib/db";
 import { v4 as uuidv4 } from 'uuid';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../auth/[...nextauth]/route";
 
 export async function GET() {
     try {
+        const session = await getServerSession(authOptions);
+        if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
         // Fetch marketplace templates (only published ones)
-        // PostgreSQL uses single quotes for string literals
         const templates = await db.query('SELECT * FROM "WorkflowTemplate" WHERE status = \'Published\' OR status IS NULL');
 
         // Fetch active/pending workflows for the current user (firm)
-        const activeWorkflows = await db.query('SELECT name FROM "Workflow"');
+        const activeWorkflows = await db.query('SELECT name FROM "Workflow" WHERE "requestedBy" = $1', [session.user.email.toLowerCase()]);
 
         return NextResponse.json({
             templates,
@@ -23,17 +27,11 @@ export async function GET() {
 
 export async function POST(request: Request) {
     try {
+        const session = await getServerSession(authOptions);
+        if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
         const body = await request.json();
         const { name, sector, performance, inputs } = body;
-
-        // [BACKEND LIMIT ENFORCEMENT]
-        const existing = await db.query('SELECT COUNT(*) as count FROM "Workflow"');
-        if (Number(existing[0].count) >= 1) {
-            return NextResponse.json(
-                { error: 'Operational capacity exhausted. Professional Tier required.' }, 
-                { status: 403 }
-            );
-        }
 
         // Use JS generated UUID for Postgres insertion consistency
         const workflowId = uuidv4();
@@ -42,7 +40,7 @@ export async function POST(request: Request) {
         // PostgreSQL uses $1, $2 for placeholders
         await db.execute(
             'INSERT INTO "Workflow" (id, name, sector, status, performance, "tasksCount", inputs, "requestedBy") VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-            [workflowId, name, sector, 'Pending', performance || '0', 0, JSON.stringify(inputs || {}), 'Nikolass']
+            [workflowId, name, sector, 'Pending', performance || '0', 0, JSON.stringify(inputs || {}), session.user.email.toLowerCase()]
         );
 
         await db.execute(
@@ -50,7 +48,7 @@ export async function POST(request: Request) {
             [notificationId, 'Workflow Requested', `You have requested "${name}". An admin will configure the backend loop shortly.`]
         );
 
-        return NextResponse.json({ success: true });
+        return NextResponse.json({ success: true, id: workflowId });
     } catch (error) {
         console.error('Error requesting workflow:', error);
         return NextResponse.json({ error: 'Failed' }, { status: 500 });

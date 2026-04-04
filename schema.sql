@@ -22,13 +22,14 @@ CREATE TABLE IF NOT EXISTS "User" (
 -- Workflow: Active autonomous loops
 CREATE TABLE IF NOT EXISTS "Workflow" (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name VARCHAR(255) UNIQUE NOT NULL,
+    name VARCHAR(255) NOT NULL,
     sector VARCHAR(100),
     status VARCHAR(50) DEFAULT 'Pending',
     performance VARCHAR(50) DEFAULT '0',
     "tasksCount" INTEGER DEFAULT 0,
     inputs JSONB DEFAULT '{}',
     "requestedBy" VARCHAR(255),
+    "userId" UUID,
     "lastRun" TIMESTAMP,
     "n8nWebhookUrl" TEXT,
     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -73,6 +74,7 @@ CREATE TABLE IF NOT EXISTS "OperationalSetting" (
 CREATE TABLE IF NOT EXISTS "WorkflowLog" (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     "workflowName" VARCHAR(255),
+    "workflowId" UUID,
     status VARCHAR(50),
     result JSONB DEFAULT '{}',
     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP

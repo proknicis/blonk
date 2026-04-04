@@ -24,6 +24,7 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                         action: `Triggered ${wf.name}`,
                         source: 'BLONK_Dashboard',
                         workflowName: wf.name,
+                        workflowId: wf.id,
                         timestamp: new Date().toISOString()
                     }
                 })
