@@ -2,12 +2,16 @@ import { db } from "@/lib/db";
 import styles from "./office.module.css";
 import React from "react";
 
-async function getAgents() {
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
+
+async function getAgents(userEmail: string) {
     try {
-        // Migrated from legacy MySQL [rows] destructuring to sovereign PostgreSQL direct query
-        // Using double quotes for identifiers and querying rows directly
-        const agentRows = await db.query('SELECT * FROM "Agent"');
-        const workflowRows = await db.query('SELECT * FROM "Workflow"');
+        const emailRef = userEmail.toLowerCase();
+        // Filter both agents and workflows by the authenticated user
+        const agentRows = await db.query('SELECT * FROM "Agent" WHERE LOWER("requestedBy") = LOWER($1)', [emailRef]);
+        const workflowRows = await db.query('SELECT * FROM "Workflow" WHERE LOWER("requestedBy") = LOWER($1)', [emailRef]);
 
         // 1. Standard Agents: Use their DB status ONLY if they have an active loop
         const realAgents = (agentRows || []).map((a: any) => ({
@@ -65,7 +69,10 @@ async function getAgents() {
 }
 
 export default async function OfficePage() {
-    const agents = await getAgents();
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) redirect("/login");
+
+    const agents = await getAgents(session.user.email);
 
     return (
         <div className={styles.officeContainer}>
