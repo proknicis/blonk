@@ -113,7 +113,7 @@ export default function DashboardLayout({
             <aside className={styles.sidebar}>
                 <div className={styles.sidebarBrand}>
                     <Link href="/" className={styles.logo}>
-                        BLONK<span className="gradient-text">.</span>
+                        BLONK<span className={styles.logoDot}>.</span><span className={styles.logoSquare}></span>
                     </Link>
                 </div>
 

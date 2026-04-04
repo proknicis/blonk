@@ -47,12 +47,12 @@ interface DashboardData {
 async function getDashboardSummary(userEmail: string): Promise<DashboardData> {
     const emailRef = userEmail.toLowerCase();
     
-    // 1. Fetch Core Operational State (Filtered by Owner)
-    const agentRows = await db.query("SELECT status, \"n8nWorkflow\" FROM \"Agent\"") as any[]; // Agents are currently global or shared
-    const workflowRows = await db.query("SELECT status, \"n8nWebhookUrl\" FROM \"Workflow\" WHERE \"requestedBy\" = $1", [emailRef]) as any[];
+    // 1. Fetch Core Operational State (Filtered by Owner - Case Insensitive)
+    const agentRows = await db.query("SELECT status, \"n8nWorkflow\" FROM \"Agent\"") as any[]; 
+    const workflowRows = await db.query("SELECT status, \"n8nWebhookUrl\" FROM \"Workflow\" WHERE LOWER(\"requestedBy\") = LOWER($1)", [emailRef]) as any[];
     
     // Total tasks = sum of tasksCount in user's workflows
-    const taskSumRows = await db.query("SELECT SUM(\"tasksCount\") as total FROM \"Workflow\" WHERE \"requestedBy\" = $1", [emailRef]) as any[];
+    const taskSumRows = await db.query("SELECT SUM(\"tasksCount\") as total FROM \"Workflow\" WHERE LOWER(\"requestedBy\") = LOWER($1)", [emailRef]) as any[];
     const totalTasks = parseInt(taskSumRows[0]?.total || "0");
 
     // 2. Aggregate Ledger Metrics (Real-Time)
@@ -124,7 +124,7 @@ async function getDashboardSummary(userEmail: string): Promise<DashboardData> {
     const totalAgents = agentRows.length + workflowRows.length;
     const activeAgents = combinedStats.Working + combinedStats.Analyzing;
 
-    const topWorkflows = await db.query("SELECT id, name, status, performance, \"tasksCount\", \"lastRun\" FROM \"Workflow\" WHERE \"requestedBy\" = $1 LIMIT 3", [emailRef]) as any[];
+    const topWorkflows = await db.query("SELECT id, name, status, performance, \"tasksCount\", \"lastRun\" FROM \"Workflow\" WHERE LOWER(\"requestedBy\") = LOWER($1) LIMIT 10", [emailRef]) as any[];
 
     return {
         totalAgents,

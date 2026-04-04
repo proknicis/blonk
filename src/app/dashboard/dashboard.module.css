@@ -49,18 +49,23 @@
     color: #0A0A0A;
     text-decoration: none;
     display: flex;
-    align-items: center;
-    gap: 4px;
+    align-items: baseline;
+    gap: 0;
 }
 
-/* The Signature Emerald Square Dot */
-.logo::after {
-    content: "";
-    width: 10px;
-    height: 10px;
+.logoDot {
+    color: #34D186;
+    margin-right: 6px;
+    font-weight: 950;
+}
+
+.logoSquare {
+    width: 12px;
+    height: 12px;
     background: #34D186;
     display: inline-block;
-    margin-top: 10px;
+    border-radius: 2px;
+    transform: translateY(-2px);
 }
 
 .sidebarNav {
