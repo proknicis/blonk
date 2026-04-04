@@ -192,12 +192,7 @@ async function setupDatabase() {
             ('System Stability', '99.98%', 'Stable', true);
         `);
 
-        // Initial Agent Seed
-        await client.query(`
-            INSERT INTO "Agent" (name, role, status, initials, color) VALUES 
-            ('Sovereign AI', 'Security Oversight', 'Online', 'SA', '#0F172A'),
-            ('Billie Agent', 'Invoicing Handshake', 'Syncing', 'BA', '#3B82F6')
-        `);
+        // Initial Agent Seed (Clean Slate)
 
         console.log('✨ BLONK Universal Fleet Initialized Successfully (PostgreSQL).');
 
