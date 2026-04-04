@@ -24,16 +24,22 @@ async function getAgents() {
             const names = (wf.name || 'Loop').split(' ');
             const initials = names.length > 1 ? names[0][0] + names[1][0] : names[0][0] + (names[0][1] || 'L');
             
-            // In the new ID-only mode, we are always "operational" as long as the loop exists
-            let displayStatus = wf.status || 'Passive';
-            let color = '#FFB038'; // Default Pending/Analyzing
+            const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+            const lastUpdate = wf.lastRun ? new Date(wf.lastRun) : null;
+            const isStale = lastUpdate && lastUpdate < tenMinutesAgo;
 
+            let displayStatus = wf.status || 'Passive';
+            let color = '#FFB038'; // Default
+
+            // If it was Active but hasn't reported for 10 mins -> Standby
             if (wf.status === 'Active' || wf.status === 'Success' || wf.status === 'Completed') {
-                displayStatus = 'Online';
-                color = '#34D186';
-            } else if (wf.status === 'Error' || wf.status === 'Failed') {
-                displayStatus = 'Error';
-                color = '#FF5252';
+                if (isStale) {
+                    displayStatus = 'Standby';
+                    color = '#94A3B8'; // Gray/Standby
+                } else {
+                    displayStatus = 'Online';
+                    color = '#34D186';
+                }
             } else if (wf.status === 'Pending') {
                 displayStatus = 'Awaiting Node';
                 color = '#FFB038';
@@ -46,7 +52,7 @@ async function getAgents() {
                 status: displayStatus,
                 initials: initials.toUpperCase(),
                 color: color,
-                n8nWorkflow: 'Cloud Autonomous Sync',
+                n8nWorkflow: isStale ? 'Sync Dormant' : 'Cloud Autonomous Sync',
                 lastRun: wf.lastRun
             };
         });

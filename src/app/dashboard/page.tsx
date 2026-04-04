@@ -124,7 +124,7 @@ async function getDashboardSummary(userEmail: string): Promise<DashboardData> {
     const totalAgents = agentRows.length + workflowRows.length;
     const activeAgents = combinedStats.Working + combinedStats.Analyzing;
 
-    const topWorkflows = await db.query("SELECT id, name, status, performance, \"n8nWebhookUrl\" FROM \"Workflow\" WHERE \"requestedBy\" = $1 LIMIT 3", [emailRef]) as any[];
+    const topWorkflows = await db.query("SELECT id, name, status, performance, \"tasksCount\", \"lastRun\" FROM \"Workflow\" WHERE \"requestedBy\" = $1 LIMIT 3", [emailRef]) as any[];
 
     return {
         totalAgents,

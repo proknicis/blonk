@@ -236,7 +236,17 @@ export default function AdminControlPage() {
                                             </div>
                                             <button 
                                                 onClick={() => {
-                                                    navigator.clipboard.writeText(configWorkflow.id);
+                                                    const text = configWorkflow.id;
+                                                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                                                        navigator.clipboard.writeText(text);
+                                                    } else {
+                                                        const textArea = document.createElement("textarea");
+                                                        textArea.value = text;
+                                                        document.body.appendChild(textArea);
+                                                        textArea.select();
+                                                        document.execCommand("copy");
+                                                        document.body.removeChild(textArea);
+                                                    }
                                                     alert("ID Copied!");
                                                 }}
                                                 style={{ padding: '0 24px', borderRadius: '16px', background: '#0F172A', color: 'white', fontWeight: 800, border: 'none', cursor: 'pointer' }}
