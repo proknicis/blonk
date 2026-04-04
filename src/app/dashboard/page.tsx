@@ -163,98 +163,65 @@ export default async function DashboardPage() {
             <div className={styles.statsGrid}>
                 <div className={styles.statCard}>
                     <div className={styles.statHeader}>
-                        <span className={styles.statLabel}>Institutional Revenue</span>
-                        <span className={`${styles.statTrend} ${data.kpis['Total Revenue']?.positive ? styles.trendPositive : styles.trendNegative}`}>
-                            {data.kpis['Total Revenue']?.change || "0%"}
-                        </span>
+                        <span className={styles.statLabel}>Fleet Efficiency</span>
+                        <span className={`${styles.statTrend} ${styles.trendPositive}`}>+100.0%</span>
                     </div>
-                    <div className={styles.statValue}>{data.kpis['Total Revenue']?.value || "$0.00"}</div>
+                    <div className={styles.statValue}>{data.activeAgents} Units ACTIVE</div>
                     <div className={styles.statChart}>
-                        {data.chartData.length > 0 ? data.chartData.map((d, i) => (
-                            <div key={i} className={styles.statBar} style={{ height: `${(d.revenue / 200) * 100}%` }}></div>
-                        )) : (
-                            <div style={{ fontSize: '0.7rem', color: '#94A3B8' }}>System Idle</div>
-                        )}
+                        <div className={styles.statBarActive} style={{ height: '80%', width: '10%' }}></div>
                     </div>
                 </div>
 
                 <div className={styles.statCard}>
                     <div className={styles.statHeader}>
-                        <span className={styles.statLabel}>Operational Expenses</span>
-                        <span className={`${styles.statTrend} ${!data.kpis['Total Expenses']?.positive ? styles.trendPositive : styles.trendNegative}`}>
-                            {data.kpis['Total Expenses']?.change || "0%"}
-                        </span>
+                        <span className={styles.statLabel}>Total Operations</span>
                     </div>
-                    <div className={styles.statValue}>{data.kpis['Total Expenses']?.value || "$0.00"}</div>
+                    <div className={styles.statValue}>{data.totalTasks} Done</div>
                     <div className={styles.statChart}>
-                        {data.chartData.length > 0 ? data.chartData.map((d, i) => (
-                            <div key={i} className={styles.statBar} style={{ height: `${(d.expenses / 150) * 100}%` }}></div>
-                        )) : (
-                            <div style={{ fontSize: '0.7rem', color: '#94A3B8' }}>System Idle</div>
-                        )}
-                    </div>
-                </div>
-
-                <div className={styles.statCard}>
-                    <div className={styles.statHeader}>
-                        <span className={styles.statLabel}>Net High-Stakes Profit</span>
-                        <span className={`${styles.statTrend} ${data.kpis['New Profit']?.positive ? styles.trendPositive : styles.trendNegative}`}>
-                            {data.kpis['New Profit']?.change || "0%"}
-                        </span>
-                    </div>
-                    <div className={styles.statValue}>{data.kpis['New Profit']?.value || "$0.00"}</div>
-                    <div className={styles.statChart}>
-                        {data.chartData.length > 0 ? data.chartData.map((d, i) => (
-                            <div key={i} className={styles.statBar} style={{ height: `${(d.profit / 150) * 100}%` }}></div>
-                        )) : (
-                            <div style={{ fontSize: '0.7rem', color: '#94A3B8' }}>System Idle</div>
-                        )}
-                    </div>
-                </div>
-
-                <div className={styles.statCard}>
-                    <div className={styles.statHeader}>
-                        <span className={styles.statLabel}>Autonomous Throughput</span>
-                        <span className={`${styles.statTrend} ${styles.trendPositive}`}>+12%</span>
-                    </div>
-                    <div className={styles.statValue}>{data.totalTasks} Assets Processed</div>
-                    <div className={styles.statChart}>
-                        {[60, 72, 84, 95].map((h, i) => (
-                            <div key={i} className={`${styles.statBar} ${styles.statBarActive}`} style={{ height: `${h}%` }}></div>
+                        {[40, 60, 80, 100].map((h, i) => (
+                            <div key={i} className={styles.statBar} style={{ height: `${h}%` }}></div>
                         ))}
+                    </div>
+                </div>
+
+                <div className={styles.statCard}>
+                    <div className={styles.statHeader}>
+                        <span className={styles.statLabel}>Success Precision</span>
+                    </div>
+                    <div className={styles.statValue}>{data.successRate.percentage}% Accuracy</div>
+                    <div className={styles.statChart}>
+                        <div className={styles.statBarActive} style={{ height: `${data.successRate.percentage}%` }}></div>
+                    </div>
+                </div>
+
+                <div className={styles.statCard}>
+                    <div className={styles.statHeader}>
+                        <span className={styles.statLabel}>System Uptime</span>
+                    </div>
+                    <div className={styles.statValue}>{data.uptime}</div>
+                    <div className={styles.statChart}>
+                        <div className={styles.statBarActive} style={{ height: '99%' }}></div>
                     </div>
                 </div>
             </div>
 
-            <div className={styles.mainGrid}>
+            <div className={styles.mainGrid} style={{ gridTemplateColumns: '2fr 1fr' }}>
                 <div className={styles.card}>
                     <div className={styles.cardHeader}>
-                        <h2 className={styles.cardTitle}>Live Operational Assets</h2>
-                        <div className={styles.cardActions}>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#34D186', background: 'rgba(52, 209, 134, 0.05)', padding: '4px 10px', borderRadius: '6px', border: '1px solid rgba(52, 209, 134, 0.1)' }}>
-                                {data.activeAgents} Units ACTIVE
-                            </div>
-                        </div>
+                        <h2 className={styles.cardTitle}>Live Loop Assets</h2>
                     </div>
                     <WorkflowList workflows={data.topWorkflows} />
                 </div>
 
                 <div className={styles.card}>
                     <div className={styles.cardHeader}>
-                        <h2 className={styles.cardTitle}>Strategic Objectives</h2>
+                        <h2 className={styles.cardTitle}>Sync Health</h2>
                     </div>
                     <div className={styles.breakdownList}>
-                        <div style={{ padding: '24px', background: '#F8FAFC', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                                <span style={{ fontSize: '0.9rem', fontWeight: 800 }}>Integration Efficiency</span>
-                                <span style={{ fontSize: '0.9rem', color: '#34D186', fontWeight: 900 }}>82.4%</span>
-                            </div>
-                            <div className={styles.miniProgress}><div className={styles.miniFill} style={{ width: '82.4%' }} /></div>
-                        </div>
-                        <div style={{ padding: '24px', background: '#F8FAFC', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                                <span style={{ fontSize: '0.9rem', fontWeight: 800 }}>Digital Fleet Utilization</span>
-                                <span style={{ fontSize: '0.9rem', color: '#101112', fontWeight: 900 }}>{data.activeAgents} / {data.totalWorkflows}</span>
+                        <div style={{ padding: '20px', background: '#F8FAFC', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                <span style={{ fontSize: '0.85rem', fontWeight: 800 }}>Fleet Utilization</span>
+                                <span style={{ fontSize: '0.85rem', color: '#101112', fontWeight: 900 }}>{data.activeAgents} / {data.totalWorkflows}</span>
                             </div>
                             <div className={styles.miniProgress}><div className={styles.miniFill} style={{ width: `${(data.activeAgents / (data.totalWorkflows || 1)) * 100}%` }} /></div>
                         </div>
@@ -263,40 +230,6 @@ export default async function DashboardPage() {
             </div>
 
             <WorkflowLogs />
-
-            <div className={styles.card} style={{ marginTop: '24px' }}>
-                <div className={styles.cardHeader}>
-                    <h2 className={styles.cardTitle}>Sovereign System Ledger</h2>
-                    <button className={styles.btnOutline}>Initiate Full Audit</button>
-                </div>
-                <table className={styles.historyTable}>
-                    <thead>
-                        <tr>
-                            <th>Operation ID</th>
-                            <th>Execution Time</th>
-                            <th>Strategic Context</th>
-                            <th>Status</th>
-                            <th>Impact</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {data.recentTransactions.map((trx, i) => (
-                            <tr key={i}>
-                                <td className={styles.trxId}>{trx.trxId}</td>
-                                <td>{trx.date}</td>
-                                <td>{trx.category}</td>
-                                <td><span className={`${styles.statusPill} ${styles.statusSuccess}`}>{trx.status}</span></td>
-                                <td style={{ fontWeight: '950', color: '#101112' }}>{trx.amount}</td>
-                            </tr>
-                        ))}
-                        {data.recentTransactions.length === 0 && (
-                            <tr>
-                                <td colSpan={5} style={{ textAlign: 'center', padding: '60px', color: '#94A3B8', fontWeight: 800 }}>No operations recorded in ledger.</td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
         </div>
     );
 }
