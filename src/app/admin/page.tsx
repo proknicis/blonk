@@ -178,12 +178,23 @@ export default function AdminControlPage() {
                                     </div>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                         {configWorkflow.inputs ? (
-                                            Object.entries(JSON.parse(configWorkflow.inputs)).map(([key, val]: any) => (
-                                                <div key={key} style={{ background: '#F8FAFC', padding: '20px', borderRadius: '20px', border: '1px solid #E2E8F0' }}>
-                                                    <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 900, color: '#94A3B8', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{key}</label>
-                                                    <div style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0F172A', fontFamily: 'monospace', wordBreak: 'break-all', background: 'white', padding: '12px 16px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>{val}</div>
-                                                </div>
-                                            ))
+                                            (() => {
+                                                let data = {};
+                                                try {
+                                                    data = typeof configWorkflow.inputs === 'string' 
+                                                        ? JSON.parse(configWorkflow.inputs) 
+                                                        : configWorkflow.inputs;
+                                                    // Handle double-stringification if present
+                                                    if (typeof data === 'string') data = JSON.parse(data);
+                                                } catch (e) { data = {}; }
+                                                
+                                                return Object.entries(data || {}).map(([key, val]: any) => (
+                                                    <div key={key} style={{ background: '#F8FAFC', padding: '20px', borderRadius: '20px', border: '1px solid #E2E8F0' }}>
+                                                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 900, color: '#94A3B8', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{key}</label>
+                                                        <div style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0F172A', fontFamily: 'monospace', wordBreak: 'break-all', background: 'white', padding: '12px 16px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>{String(val)}</div>
+                                                    </div>
+                                                ));
+                                            })()
                                         ) : (
                                             <div style={{ textAlign: 'center', padding: '40px', border: '2px dashed #F1F5F9', borderRadius: '24px' }}>
                                                 <p style={{ fontSize: '0.95rem', color: '#94A3B8', fontWeight: 600, margin: 0 }}>No custom data provided for this instance.</p>
