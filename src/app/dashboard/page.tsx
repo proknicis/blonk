@@ -113,7 +113,7 @@ async function getDashboardSummary(userEmail: string): Promise<DashboardData> {
     });
 
     workflowRows.forEach((w: any) => {
-        const isOperational = w.n8nWebhookUrl && w.n8nWebhookUrl.startsWith('http');
+        const isOperational = w.status === 'Active' || w.status === 'Success' || w.status === 'Completed';
         if (isOperational) {
             combinedStats.Working++;
         } else {

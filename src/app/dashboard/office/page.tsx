@@ -19,36 +19,34 @@ async function getAgents() {
             role: a.role || 'Autonomous Unit'
         }));
 
-        // 2. Workflows as Autonomous Agents: Derive status from webhook connectivity
+        // 2. Workflows as Autonomous Agents: Derive status from database state (ID-based)
         const workflowAgents = (workflowRows || []).map((wf: any) => {
-            const names = wf.name.split(' ');
-            const initials = names.length > 1 ? names[0][0] + names[1][0] : names[0][0] + (names[0][1] || '');
-            const isOperational = wf.n8nWebhookUrl && wf.n8nWebhookUrl.startsWith('http');
+            const names = (wf.name || 'Loop').split(' ');
+            const initials = names.length > 1 ? names[0][0] + names[1][0] : names[0][0] + (names[0][1] || 'L');
+            
+            // In the new ID-only mode, we are always "operational" as long as the loop exists
+            let displayStatus = wf.status || 'Passive';
+            let color = '#FFB038'; // Default Pending/Analyzing
 
-            let displayStatus = 'Disconnected';
-            let color = '#949A97';
-
-            if (isOperational) {
-                if (wf.status === 'Pending') {
-                    displayStatus = 'Online';
-                    color = '#34D186';
-                } else {
-                    displayStatus = wf.status;
-                    color = wf.status === 'error' ? '#FF5252' : '#34D186';
-                }
-            } else {
-                displayStatus = 'Offline';
-                color = '#FFB038'; // Analyzing/Offline
+            if (wf.status === 'Active' || wf.status === 'Success' || wf.status === 'Completed') {
+                displayStatus = 'Online';
+                color = '#34D186';
+            } else if (wf.status === 'Error' || wf.status === 'Failed') {
+                displayStatus = 'Error';
+                color = '#FF5252';
+            } else if (wf.status === 'Pending') {
+                displayStatus = 'Awaiting Node';
+                color = '#FFB038';
             }
 
             return {
                 id: wf.id,
                 name: wf.name,
-                role: `${wf.sector} Automation`,
+                role: `${wf.sector || 'General'} Automation`,
                 status: displayStatus,
                 initials: initials.toUpperCase(),
                 color: color,
-                n8nWorkflow: isOperational ? 'Active Loop' : 'No backend linked',
+                n8nWorkflow: 'Cloud Autonomous Sync',
                 lastRun: wf.lastRun
             };
         });
