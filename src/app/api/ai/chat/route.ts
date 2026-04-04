@@ -69,7 +69,7 @@ Need help? Just ask! 🤙`;
             return fetch("https://openrouter.ai/api/v1/chat/completions", {
                 method: "POST",
                 headers: {
-                    "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+                    "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
                     "HTTP-Referer": "https://blonk.ai",
                     "X-Title": "BLONK AI",
                     "Content-Type": "application/json"

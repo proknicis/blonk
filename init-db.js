@@ -171,6 +171,16 @@ async function setupDatabase() {
                 "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+            CREATE TABLE "Report" (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                title VARCHAR(255) NOT NULL,
+                type VARCHAR(100) DEFAULT 'General',
+                status VARCHAR(50) DEFAULT 'Draft',
+                result TEXT,
+                "requestedBy" VARCHAR(255),
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
         `);
 
         // 6. MASTER SEEDING (Sovereign Credentials)
