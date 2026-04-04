@@ -86,7 +86,19 @@ export default function AdminControlPage() {
                                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                                             </div>
                                             <div>
-                                                <div style={{ fontWeight: 850, color: '#0F172A', fontSize: '0.95rem' }}>{wf.name}</div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <div style={{ fontWeight: 850, color: '#0F172A', fontSize: '0.95rem' }}>{wf.name}</div>
+                                                    <button 
+                                                        onClick={() => {
+                                                            navigator.clipboard.writeText(wf.id);
+                                                            alert("Loop ID copied to clipboard!");
+                                                        }}
+                                                        style={{ background: '#F1F5F9', border: 'none', borderRadius: '4px', padding: '2px 6px', fontSize: '0.6rem', fontWeight: 900, color: '#94A3B8', cursor: 'pointer' }}
+                                                        title="Copy ID for n8n"
+                                                    >
+                                                        #{wf.id.substring(0, 8)}
+                                                    </button>
+                                                </div>
                                                 <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{wf.sector}</div>
                                             </div>
                                         </div>
