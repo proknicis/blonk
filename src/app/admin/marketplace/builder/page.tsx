@@ -105,7 +105,7 @@ export default function BuilderPage() {
                     color: "#F8F9FA",
                     featured: true,
                     requirements: formData.inputs,
-                    setupGuide: JSON.stringify(formData.guide),
+                    setupGuide: formData.guide,
                     webhookUrl: formData.webhookUrl,
                     status: formData.status
                 })

@@ -53,20 +53,23 @@ export default function WorkflowsPage() {
             return;
         }
 
-        let reqs = [];
-        let guide = [];
-        try {
-            if (template.requirements) {
-                reqs = typeof template.requirements === 'string' ? JSON.parse(template.requirements) : template.requirements;
+        const robustParse = (val: any) => {
+            if (!val) return [];
+            if (Array.isArray(val)) return val;
+            if (typeof val === 'string') {
+                try {
+                    const parsed = JSON.parse(val);
+                    if (typeof parsed === 'string') return robustParse(parsed);
+                    return Array.isArray(parsed) ? parsed : [];
+                } catch (e) { return []; }
             }
-            if (template.setupGuide) {
-                guide = typeof template.setupGuide === 'string' ? JSON.parse(template.setupGuide) : template.setupGuide;
-            }
-        } catch (e) {
-            console.error("Error parsing requirements", e);
-        }
+            return [];
+        };
 
-        if ((reqs && reqs.length > 0) || (guide && guide.length > 0)) {
+        const reqs = robustParse(template.requirements);
+        const guide = robustParse(template.setupGuide);
+
+        if (reqs.length > 0 || guide.length > 0) {
             setConfigureTemplate({ ...template, parsedReqs: reqs, parsedGuide: guide });
             setTemplateInputs({});
         } else {
