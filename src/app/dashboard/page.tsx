@@ -113,7 +113,8 @@ async function getDashboardSummary(userEmail: string): Promise<DashboardData> {
     });
 
     workflowRows.forEach((w: any) => {
-        const isOperational = w.status === 'Active' || w.status === 'Success' || w.status === 'Completed';
+        const s = (w.status || 'passive').toLowerCase();
+        const isOperational = s === 'active' || s === 'success' || s === 'completed';
         if (isOperational) {
             combinedStats.Working++;
         } else {
