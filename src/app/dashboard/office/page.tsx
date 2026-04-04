@@ -9,8 +9,8 @@ import { redirect } from "next/navigation";
 async function getAgents(userEmail: string) {
     try {
         const emailRef = userEmail.toLowerCase();
-        // Filter both agents and workflows by the authenticated user
-        const agentRows = await db.query('SELECT * FROM "Agent" WHERE LOWER("requestedBy") = LOWER($1)', [emailRef]);
+        // Agent table is global/system-wide, Workflow is user-scoped
+        const agentRows = await db.query('SELECT * FROM "Agent"');
         const workflowRows = await db.query('SELECT * FROM "Workflow" WHERE LOWER("requestedBy") = LOWER($1)', [emailRef]);
 
         // 1. Standard Agents: Use their DB status ONLY if they have an active loop
