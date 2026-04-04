@@ -74,31 +74,40 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                                             document.execCommand("copy");
                                             document.body.removeChild(textArea);
                                         }
-                                        alert("Loop ID copied to clipboard! Paste this into your n8n 'workflowId' field.");
+                                        alert("Loop ID copied to clipboard!");
                                     }}
-                                    style={{ background: '#F1F5F9', border: 'none', borderRadius: '4px', padding: '2px 6px', fontSize: '0.65rem', fontWeight: 900, color: '#94A3B8', cursor: 'pointer' }}
+                                    style={{ background: '#F1F5F9', border: 'none', borderRadius: '4px', padding: '6px 8px', fontSize: '0.65rem', fontWeight: 900, color: '#94A3B8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
                                     title="Copy Unique ID for n8n"
                                 >
-                                    #{wf.id?.substring(0, 8) || '...'} 📋
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                    #{wf.id?.substring(0, 8) || '...'}
                                 </button>
                             </div>
-                            <div style={{ display: 'flex', gap: '12px' }}>
-                                <span style={{ fontSize: '0.8rem', color: '#64748B' }}>Throughput: {wf.performance || '0'} loops/hr</span>
+                            <div style={{ display: 'flex', gap: '16px', marginTop: '4px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                                    <span style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 900 }}>{wf.performance?.replace(/loops\/hr/gi, '') || '0'} OPS/HR</span>
+                                </div>
                                 {wf.tasksCount !== undefined && (
-                                    <span style={{ fontSize: '0.8rem', color: '#34D186', fontWeight: 800 }}>Total Done: {wf.tasksCount}</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                        <span style={{ fontSize: '0.7rem', color: '#34D186', fontWeight: 900 }}>TOTAL DONE: {wf.tasksCount}</span>
+                                    </div>
                                 )}
                             </div>
                         </div>
                         <div className={styles.workflowStatus}>
                             <button
                                 className={styles.runBtn}
-                                onClick={() => wf.n8nWebhookUrl ? runWorkflow(wf) : alert(`This loop is in fully autonomous mode (ID: ${wf.id}). Use this ID in n8n for updates!`)}
+                                onClick={() => wf.n8nWebhookUrl ? runWorkflow(wf) : alert(`This loop is in fully autonomous mode (ID: ${wf.id}).`)}
                                 disabled={runningId === wf.id}
                                 title={wf.n8nWebhookUrl ? "Run Autonomous Loop" : "ID Linked - Autonomous Sync Active"}
                             >
-                                {runningId === wf.id ? "..." : (wf.n8nWebhookUrl ? "▶" : "🆔")}
+                                {runningId === wf.id ? "..." : (
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                )}
                             </button>
-                            <span className={`${styles.statusPill} ${statusClass}`}>
+                            <span className={`${styles.statusPill} ${statusClass}`} style={{ fontSize: '0.65rem', padding: '4px 12px' }}>
                                 {displayStatus}
                             </span>
                         </div>

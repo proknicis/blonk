@@ -15,10 +15,10 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { name, sector, description, savings, complexity, icon, color, featured, requirements, setupGuide, webhookUrl, status } = body;
+        const { name, sector, description, savings, complexity, icon, color, featured, requirements, setupGuide, status } = body;
 
         await db.execute(
-            'INSERT INTO "WorkflowTemplate" (id, name, sector, description, savings, complexity, icon, color, featured, requirements, "setupGuide", "webhookUrl", status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)',
+            'INSERT INTO "WorkflowTemplate" (id, name, sector, description, savings, complexity, icon, color, featured, requirements, "setupGuide", status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)',
             [
                 uuidv4(), 
                 name, 
@@ -27,10 +27,10 @@ export async function POST(request: Request) {
                 savings || '', 
                 complexity || 'Low', 
                 icon || 'Zap', 
-                !!featured, 
+                color || '#F1F5F9',
+                !!featured,
                 requirements || [], 
                 setupGuide || [], 
-                webhookUrl || '', 
                 status || 'Draft'
             ]
         );

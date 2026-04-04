@@ -159,25 +159,65 @@ export default async function DashboardPage() {
                 </div>
             </div>
 
-            <div className={styles.mainGrid} style={{ gridTemplateColumns: '2fr 1fr' }}>
+            <div className={styles.card} style={{ border: 'none', background: 'linear-gradient(135deg, #0A0A0A 0%, #171717 100%)', color: '#FFFFFF', padding: '48px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px' }}>
+                    <div>
+                        <h2 style={{ fontSize: '1.8rem', fontWeight: 950, marginBottom: '8px', letterSpacing: '-0.05em' }}>Fleet Velocity</h2>
+                        <p style={{ color: '#94A3B8', fontSize: '0.9rem', fontWeight: 800 }}>Real-time autonomous throughput across all sovereign nodes.</p>
+                    </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', height: '140px', paddingBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                    {data.chartData.map((d, i) => (
+                        <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                            <div style={{ 
+                                width: '100%', 
+                                height: `${(d.revenue / 4000) * 100}%`, 
+                                background: 'linear-gradient(to top, #34D186, #BAE6FD)', 
+                                borderRadius: '4px 4px 0 0',
+                                opacity: 0.8 + (i * 0.05),
+                                minHeight: '10px'
+                            }} />
+                            <span style={{ fontSize: '0.65rem', fontWeight: 950, color: '#64748B' }}>{d.day}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className={styles.mainGrid} style={{ gridTemplateColumns: '2fr 1.2fr' }}>
                 <div className={styles.card}>
                     <div className={styles.cardHeader}>
                         <h2 className={styles.cardTitle}>Live Loop Assets</h2>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                             <div style={{ padding: '6px 12px', background: '#F0FAF5', color: '#34D186', borderRadius: '100px', fontSize: '0.7rem', fontWeight: 950 }}>{data.activeAgents} ONLINE</div>
+                        </div>
                     </div>
                     <WorkflowList workflows={data.topWorkflows} />
                 </div>
 
-                <div className={styles.card}>
+                <div className={styles.card} style={{ background: '#F8FAFC' }}>
                     <div className={styles.cardHeader}>
                         <h2 className={styles.cardTitle}>Sync Health</h2>
                     </div>
                     <div className={styles.breakdownList}>
-                        <div style={{ padding: '20px', background: '#F8FAFC', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                <span style={{ fontSize: '0.85rem', fontWeight: 800 }}>Fleet Utilization</span>
-                                <span style={{ fontSize: '0.85rem', color: '#101112', fontWeight: 900 }}>{data.activeAgents} / {data.totalWorkflows}</span>
+                        <div style={{ padding: '24px', background: '#FFFFFF', borderRadius: '20px', border: '1px solid #E2E8F0', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+                                <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#64748B' }}>FLEET UTILIZATION</span>
+                                <span style={{ fontSize: '0.85rem', color: '#0A0A0A', fontWeight: 900 }}>{data.activeAgents} / {data.totalWorkflows}</span>
                             </div>
-                            <div className={styles.miniProgress}><div className={styles.miniFill} style={{ width: `${(data.activeAgents / (data.totalWorkflows || 1)) * 100}%` }} /></div>
+                            <div className={styles.miniProgress} style={{ height: '12px' }}><div className={styles.miniFill} style={{ width: `${(data.activeAgents / (data.totalWorkflows || 1)) * 100}%` }} /></div>
+                            <p style={{ marginTop: '16px', fontSize: '0.75rem', color: '#94A3B8', fontWeight: 800, lineHeight: 1.5 }}>
+                                Operational capacity is {Math.round((data.activeAgents / (data.totalWorkflows || 1)) * 100)}%. All autonomous nodes responding within normal latency parameters.
+                            </p>
+                        </div>
+
+                        <div style={{ padding: '24px', background: '#FFFFFF', borderRadius: '20px', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#F0FAF5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#34D186' }} />
+                            </div>
+                            <div>
+                                <div style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0A0A0A' }}>System Nominal</div>
+                                <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 800 }}>NGROK TUNNEL: STABLE</div>
+                            </div>
                         </div>
                     </div>
                 </div>

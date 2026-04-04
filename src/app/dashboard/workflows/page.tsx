@@ -193,24 +193,12 @@ export default function WorkflowsPage() {
                             </div>
 
                              <div className={styles.cardFooter}>
-                                {isCapacityFull ? (
-                                    <button
-                                        className={styles.btnPrimary}
-                                        style={{ background: '#FBBF24', color: '#0F172A', cursor: 'not-allowed', width: '100%' }}
-                                        onClick={() => showToast("Operational capacity reached. Upgrade plan to add more loops.")}
-                                    >
-                                        Capacity Locked
-                                    </button>
-                                ) : (
-                                    <button className={styles.btnPrimary} onClick={() => handleAddClick(wf)}>
+                                    <button className={styles.btnPrimary} style={{ width: '100%' }} onClick={() => handleAddClick(wf)}>
                                         Add to Firm
                                     </button>
-                                )}
-                                {!isCapacityFull && (
-                                    <button className={styles.btnSecondary}>
+                                    <button className={styles.btnSecondary} style={{ width: '100%' }}>
                                         Preview
                                     </button>
-                                )}
                             </div>
                         </div>
                     ))}
