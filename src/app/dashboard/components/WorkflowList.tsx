@@ -48,10 +48,22 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
     return (
         <div className={styles.workflowList}>
             {workflows.map((wf, i) => (
-                <div key={i} className={styles.workflowItem}>
+                <div key={i} className={styles.workflowItem} style={{ marginBottom: '16px', borderBottom: '1px solid #F1F5F9', paddingBottom: '16px' }}>
                     <div className={styles.workflowInfo}>
-                        <strong>{wf.name}</strong>
-                        <span>Throughput: {wf.performance} loops/hr</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <strong>{wf.name}</strong>
+                            <button 
+                                onClick={() => {
+                                    navigator.clipboard.writeText(wf.id);
+                                    alert("Loop ID copied to clipboard! Paste this into your n8n 'workflowId' field.");
+                                }}
+                                style={{ background: '#F1F5F9', border: 'none', borderRadius: '4px', padding: '2px 6px', fontSize: '0.65rem', fontWeight: 900, color: '#94A3B8', cursor: 'pointer' }}
+                                title="Copy Unique ID for n8n"
+                            >
+                                #{wf.id.substring(0, 8)} 📋
+                            </button>
+                        </div>
+                        <span style={{ fontSize: '0.8rem', color: '#64748B' }}>Throughput: {wf.performance} loops/hr</span>
                     </div>
                     <div className={styles.workflowStatus}>
                         <button

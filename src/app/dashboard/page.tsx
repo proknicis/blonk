@@ -44,20 +44,23 @@ interface DashboardData {
     }>;
 }
 
-async function getDashboardSummary(): Promise<DashboardData> {
-    // 1. Fetch Core Operational State
-    const agentRows = await db.query("SELECT status FROM \"Agent\"") as any[];
-    const workflowRows = await db.query("SELECT status FROM \"Workflow\"") as any[];
-    const logCountRows = await db.query("SELECT COUNT(*) as total FROM \"WorkflowLog\"") as any[];
-    const totalTasks = parseInt(logCountRows[0]?.total || "0");
+async function getDashboardSummary(userEmail: string): Promise<DashboardData> {
+    const emailRef = userEmail.toLowerCase();
+    
+    // 1. Fetch Core Operational State (Filtered by Owner)
+    const agentRows = await db.query("SELECT status, \"n8nWorkflow\" FROM \"Agent\"") as any[]; // Agents are currently global or shared
+    const workflowRows = await db.query("SELECT status, \"n8nWebhookUrl\" FROM \"Workflow\" WHERE \"requestedBy\" = $1", [emailRef]) as any[];
+    
+    // Total tasks = sum of tasksCount in user's workflows
+    const taskSumRows = await db.query("SELECT SUM(\"tasksCount\") as total FROM \"Workflow\" WHERE \"requestedBy\" = $1", [emailRef]) as any[];
+    const totalTasks = parseInt(taskSumRows[0]?.total || "0");
 
     // 2. Aggregate Ledger Metrics (Real-Time)
-    // We parse the string 'amount' (e.g. '$50,000') into numeric for aggregation
     const revenueRows = await db.query(`
         SELECT SUM(CAST(REPLACE(REPLACE(amount, '$', ''), ',', '') AS DECIMAL)) as total 
         FROM "Transaction" 
         WHERE status = 'Success' AND (category ILIKE '%payment%' OR category ILIKE '%revenue%')
-    `) as any[];
+    `) as any[]; // Transactions are currently global institutional records
     const totalRevValue = parseFloat(revenueRows[0]?.total || "0");
 
     const expenseRows = await db.query(`
@@ -65,15 +68,15 @@ async function getDashboardSummary(): Promise<DashboardData> {
         FROM "Transaction" 
         WHERE (category ILIKE '%expense%' OR category ILIKE '%cost%' OR category ILIKE '%fee%')
     `) as any[];
-    const totalExpValue = parseFloat(expenseRows[0]?.total || "3600.00"); // Base cloud overhead
+    const totalExpValue = parseFloat(expenseRows[0]?.total || "3600.00");
 
     const netProfitValue = totalRevValue - totalExpValue;
 
-    // 3. Format KPIs for High-Stakes Display
+    // 3. Format KPIs
     const kpis: Record<string, { value: string, change: string, positive: boolean }> = {
         'Total Revenue': { 
             value: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(totalRevValue),
-            change: "+12.4%", // Logic for historical change could be added with a more complex ledger query
+            change: "+12.4%", 
             positive: true 
         },
         'Total Expenses': { 
@@ -91,9 +94,7 @@ async function getDashboardSummary(): Promise<DashboardData> {
     // 4. Auxiliary Data
     const uptimeSettings = await db.query("SELECT value FROM \"OperationalSetting\" WHERE key = 'system_uptime'") as any[];
     const uptime = uptimeSettings[0]?.value ? `${uptimeSettings[0].value}%` : "99.98%";
-
     const chartData = await db.query("SELECT day, revenue, expenses, profit FROM \"ChartData\" ORDER BY sequence ASC") as any[];
-    
     const transactions = await db.query("SELECT \"trxId\", date, category, status, amount FROM \"Transaction\" ORDER BY \"createdAt\" DESC LIMIT 4") as any[];
     const allTransactions = await db.query("SELECT status FROM \"Transaction\"") as any[];
     const totalTrx = allTransactions.length;
@@ -123,7 +124,7 @@ async function getDashboardSummary(): Promise<DashboardData> {
     const totalAgents = agentRows.length + workflowRows.length;
     const activeAgents = combinedStats.Working + combinedStats.Analyzing;
 
-    const topWorkflows = await db.query("SELECT id, name, status, performance, \"n8nWebhookUrl\" FROM \"Workflow\" LIMIT 3") as any[];
+    const topWorkflows = await db.query("SELECT id, name, status, performance, \"n8nWebhookUrl\" FROM \"Workflow\" WHERE \"requestedBy\" = $1 LIMIT 3", [emailRef]) as any[];
 
     return {
         totalAgents,
@@ -146,17 +147,16 @@ async function getDashboardSummary(): Promise<DashboardData> {
 
 export default async function DashboardPage() {
     const session = await getServerSession(authOptions);
-    if (!session) redirect("/login");
+    if (!session?.user?.email) redirect("/login");
 
-    // Intelligent Onboarding Guard: Redirect to setup if profile is incomplete
-    const userEmail = session.user?.email;
-    const [userRecord] = await db.query('SELECT "onboardingStatus" FROM "User" WHERE email = $1', [userEmail]) as any[];
+    const userEmail = session.user.email;
+    const [userRecord] = await db.query('SELECT "onboardingStatus" FROM "User" WHERE email = $1', [userEmail.toLowerCase()]) as any[];
     
     if (userRecord?.onboardingStatus !== 'COMPLETED') {
         redirect("/setup");
     }
 
-    const data = await getDashboardSummary();
+    const data = await getDashboardSummary(userEmail);
 
     return (
         <div className={styles.dashboard}>
