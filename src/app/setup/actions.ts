@@ -6,7 +6,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 export async function completeSetup(formData: any) {
     try {
-        const { email, password, name, firmName, industry } = formData;
+        const { password, name, firmName, industry } = formData;
+        const email = formData.email?.toLowerCase();
 
         if (!email) {
             return { error: 'Institutional email is required' };

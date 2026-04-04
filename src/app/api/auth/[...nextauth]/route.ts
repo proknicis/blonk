@@ -18,10 +18,11 @@ export const authOptions: NextAuthOptions = {
             },
             async authorize(credentials) {
                 if (!credentials?.email || !credentials?.password) return null;
+                const email = credentials.email.toLowerCase();
 
                 const rows = await db.query(
                     'SELECT id, email, name, "firmName", password FROM "User" WHERE email = $1 LIMIT 1',
-                    [credentials.email],
+                    [email],
                 ) as any[];
 
                 const user = rows?.[0];
@@ -47,11 +48,12 @@ export const authOptions: NextAuthOptions = {
             }
             // If OAuth signup, ensure the user exists in our DB
             if (account?.provider === 'google' && user?.email) {
-                const existing = await db.query('SELECT id FROM "User" WHERE email = $1', [user.email]) as any[];
+                const email = user.email.toLowerCase();
+                const existing = await db.query('SELECT id FROM "User" WHERE email = $1', [email]) as any[];
                 if (existing.length === 0) {
                     await db.query(
                         'INSERT INTO "User" (email, name, "firmName", plan, password) VALUES ($1, $2, $3, $4, $5)',
-                        [user.email, user.name, 'Google Individual', 'Starter', 'oauth_google_protected_' + Math.random().toString(36)]
+                        [email, user.name, 'Google Individual', 'Starter', 'oauth_google_protected_' + Math.random().toString(36)]
                     );
                 }
             }

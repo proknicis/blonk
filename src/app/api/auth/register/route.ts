@@ -8,7 +8,8 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { email, password, name, firmName, industry } = body;
+        const email = body.email?.toLowerCase();
+        const { password, name, firmName, industry } = body;
 
         if (!email || !password) {
             return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
