@@ -54,7 +54,17 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                             <strong>{wf.name}</strong>
                             <button 
                                 onClick={() => {
-                                    navigator.clipboard.writeText(wf.id);
+                                    const text = wf.id;
+                                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                                        navigator.clipboard.writeText(text);
+                                    } else {
+                                        const textArea = document.createElement("textarea");
+                                        textArea.value = text;
+                                        document.body.appendChild(textArea);
+                                        textArea.select();
+                                        document.execCommand("copy");
+                                        document.body.removeChild(textArea);
+                                    }
                                     alert("Loop ID copied to clipboard! Paste this into your n8n 'workflowId' field.");
                                 }}
                                 style={{ background: '#F1F5F9', border: 'none', borderRadius: '4px', padding: '2px 6px', fontSize: '0.65rem', fontWeight: 900, color: '#94A3B8', cursor: 'pointer' }}
