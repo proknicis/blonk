@@ -24,10 +24,8 @@ interface DashboardData {
     }>;
     uptime: string;
     chartData: Array<{
-        day: string;
-        revenue: number;
-        expenses: number;
-        profit: number;
+        name: string;
+        data: number[];
     }>;
     kpis: Record<string, { value: string, change: string, positive: boolean }>;
     successRate: {
@@ -69,17 +67,34 @@ async function getDashboardSummary(userEmail: string): Promise<DashboardData> {
         }
     });
 
-    const successRate = 98; // Targeted precision
+    // 3. Temporal Fleet Velocity (Last 24 Hours Metrics)
+    const velocityRows = await db.query(`
+        SELECT 
+            "workflowId", 
+            "workflowName",
+            DATE_TRUNC('hour', "executedAt") as hour, 
+            COUNT(*) as ops
+        FROM "WorkflowLog" 
+        WHERE "executedAt" > CURRENT_TIMESTAMP - INTERVAL '24 hours'
+        GROUP BY "workflowId", "workflowName", hour
+        ORDER BY hour ASC
+    `) as any[];
+
+    // Map velocity to individual loop trajectories
+    const fleetPaths: Record<string, { name: string, data: number[] }> = {};
+    velocityRows.forEach(row => {
+        const id = row.workflowId || 'unknown';
+        if (!fleetPaths[id]) {
+            fleetPaths[id] = { name: row.workflowName || 'ID: ' + id.substring(0, 4), data: new Array(24).fill(0) };
+        }
+        const hourIdx = new Date(row.hour).getHours();
+        fleetPaths[id].data[hourIdx] = parseInt(row.ops);
+    });
+
+    const successRateValue = 98;
     const uptime = "100.00%";
 
-    // 3. System Visuals (Mocked for branding excellence)
-    const chartData = [
-        { day: 'Mon', revenue: 4000, expenses: 2400, profit: 1600 },
-        { day: 'Tue', revenue: 3000, expenses: 1398, profit: 1602 },
-        { day: 'Wed', revenue: 2000, expenses: 9800, profit: -7800 },
-        { day: 'Thu', revenue: 2780, expenses: 3908, profit: -1128 },
-    ];
-
+    // 4. Final Aggregation
     return {
         totalAgents: workflowRows.length,
         activeAgents: activeUnits,
@@ -88,10 +103,10 @@ async function getDashboardSummary(userEmail: string): Promise<DashboardData> {
         agentStats: { Working: activeUnits, Analyzing: 0, Idle: 0 },
         topWorkflows: workflowRows.slice(0, 10),
         uptime,
-        chartData,
+        chartData: Object.values(fleetPaths),
         kpis: {},
         successRate: {
-            percentage: successRate,
+            percentage: successRateValue,
             total: totalTasksDone * 10,
             success: totalTasksDone * 9
         },
@@ -163,23 +178,54 @@ export default async function DashboardPage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px' }}>
                     <div>
                         <h2 style={{ fontSize: '1.8rem', fontWeight: 950, marginBottom: '8px', letterSpacing: '-0.05em' }}>Fleet Velocity</h2>
-                        <p style={{ color: '#94A3B8', fontSize: '0.9rem', fontWeight: 800 }}>Real-time autonomous throughput across all sovereign nodes.</p>
+                        <p style={{ color: '#94A3B8', fontSize: '0.9rem', fontWeight: 800 }}>Sovereign performance trajectory tracking (24h Window).</p>
+                    </div>
+                    <div style={{ display: 'flex', gap: '16px' }}>
+                        {data.chartData.slice(0, 3).map((line, i) => (
+                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: i === 0 ? '#34D186' : '#38BDF8' }} />
+                                <span style={{ fontSize: '0.65rem', fontWeight: 950, color: '#94A3B8' }}>{line.name.toUpperCase()}</span>
+                            </div>
+                        ))}
                     </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', height: '140px', paddingBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                    {data.chartData.map((d, i) => (
-                        <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-                            <div style={{ 
-                                width: '100%', 
-                                height: `${(d.revenue / 4000) * 100}%`, 
-                                background: 'linear-gradient(to top, #34D186, #BAE6FD)', 
-                                borderRadius: '4px 4px 0 0',
-                                opacity: 0.8 + (i * 0.05),
-                                minHeight: '10px'
-                            }} />
-                            <span style={{ fontSize: '0.65rem', fontWeight: 950, color: '#64748B' }}>{d.day}</span>
-                        </div>
-                    ))}
+                
+                <div style={{ position: 'relative', height: '160px', width: '100%', marginBottom: '24px' }}>
+                    <svg width="100%" height="100%" viewBox="0 0 1000 160" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+                        {/* Grid Lines */}
+                        <line x1="0" y1="0" x2="1000" y2="0" stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+                        <line x1="0" y1="80" x2="1000" y2="80" stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+                        <line x1="0" y1="160" x2="1000" y2="160" stroke="rgba(255,255,255,0.1)" strokeWidth="2" />
+
+                        {data.chartData.map((line, idx) => {
+                            const max = Math.max(...line.data, 5);
+                            const points = line.data.map((val, i) => {
+                                const x = (i / 23) * 1000;
+                                const y = 160 - (val / max) * 140;
+                                return `${x},${y}`;
+                            }).join(' ');
+
+                            return (
+                                <path 
+                                    key={idx} 
+                                    d={`M ${points}`} 
+                                    fill="none" 
+                                    stroke={idx === 0 ? '#34D186' : '#38BDF8'} 
+                                    strokeWidth="3" 
+                                    strokeLinecap="round" 
+                                    strokeLinejoin="round"
+                                    opacity={0.8 - (idx * 0.2)}
+                                />
+                            );
+                        })}
+                    </svg>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#475569', fontSize: '0.65rem', fontWeight: 950 }}>
+                    <span>00:00</span>
+                    <span>06:00</span>
+                    <span>12:00</span>
+                    <span>18:00</span>
+                    <span>23:59</span>
                 </div>
             </div>
 
