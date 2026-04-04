@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { signIn, useSession } from "next-auth/react";
 import styles from "./auth.module.css";
 import React from "react";
 
-export default function AuthPage() {
+function AuthContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { status } = useSession();
@@ -217,5 +217,13 @@ export default function AuthPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function AuthPage() {
+    return (
+        <Suspense fallback={<div className={styles.pageWrapper}><p style={{ color: 'white', padding: 40 }}>Initializing institutional authentication gateway...</p></div>}>
+            <AuthContent />
+        </Suspense>
     );
 }
