@@ -18,6 +18,7 @@ export async function POST(request: Request) {
         const workflowId = body.workflowId || body.id;
         const workflowName = body.workflow || body.workflowName || body.name || "Unknown Loop";
         const status = body.status || body.state || "received";
+        const performance = body.performance || "0";
         const result = body.result ? (typeof body.result === 'object' ? JSON.stringify(body.result) : body.result) : JSON.stringify(body);
 
         // 1. Log the execution with ID link if available
@@ -26,19 +27,11 @@ export async function POST(request: Request) {
             [uuidv4(), workflowName, workflowId || null, status, result]
         );
 
-        // 2. Update the main workflow stats
+        // 2. Update the main workflow stats using high-precision query
+        // We use CURRENT_TIMESTAMP to ensure the standby check always has fresh server time
+        const isSuccess = status.toLowerCase() === 'success' || status.toLowerCase() === 'completed';
+
         if (workflowId) {
-            await db.execute(
-                'UPDATE "Workflow" SET status = $1, "lastRun" = CURRENT_TIMESTAMP WHERE id = $2',
-                [status, workflowId]
-            );
-        } else {
-            // Fallback to name (less secure in multi-tenant environments)
-            await db.execute(
-                'UPDATE "Workflow" SET status = $1, "lastRun" = CURRENT_TIMESTAMP WHERE name = $2',
-                [status, workflowName]
-            );
-        }
             await db.query(`
                 UPDATE "Workflow" 
                 SET status = $1, 
@@ -46,10 +39,8 @@ export async function POST(request: Request) {
                     "tasksCount" = "tasksCount" + $3, 
                     "lastRun" = CURRENT_TIMESTAMP 
                 WHERE id = $4
-            `, [status, performance, status.toLowerCase() === 'success' ? 1 : 0, workflowId]);
-        } 
-        // Case 2: Name-Based fallback
-        else if (workflowName) {
+            `, [status, performance, isSuccess ? 1 : 0, workflowId]);
+        } else if (workflowName !== "Unknown Loop") {
             await db.query(`
                 UPDATE "Workflow" 
                 SET status = $1, 
@@ -57,18 +48,18 @@ export async function POST(request: Request) {
                     "tasksCount" = "tasksCount" + $3, 
                     "lastRun" = CURRENT_TIMESTAMP 
                 WHERE name = $4
-            `, [status, performance, status.toLowerCase() === 'success' ? 1 : 0, workflowName]);
+            `, [status, performance, isSuccess ? 1 : 0, workflowName]);
         }
 
         // 3. Create a notification
         await db.execute(
             'INSERT INTO "Notification" (id, title, message) VALUES ($1, $2, $3)',
-            [uuidv4(), `Loop Updated: ${workflowName}`, `Status changed to ${status.toUpperCase()}`]
+            [uuidv4(), `Loop Sync: ${workflowName}`, `Operation ${status.toUpperCase()} finalized.`]
         );
 
-        return NextResponse.json({ success: true, message: "Packet received and logged" });
+        return NextResponse.json({ success: true, message: "Packet received and fleet metrics updated" });
     } catch (error) {
         console.error('Webhook error:', error);
-        return NextResponse.json({ error: 'System error' }, { status: 500 });
+        return NextResponse.json({ error: 'System error during fleet sync' }, { status: 500 });
     }
 }
