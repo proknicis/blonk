@@ -150,9 +150,9 @@ export default async function DashboardPage() {
 
     // Intelligent Onboarding Guard: Redirect to setup if profile is incomplete
     const userEmail = session.user?.email;
-    const [userRecord] = await db.query('SELECT "firmName", industry FROM "User" WHERE email = $1', [userEmail]) as any[];
+    const [userRecord] = await db.query('SELECT "onboardingStatus" FROM "User" WHERE email = $1', [userEmail]) as any[];
     
-    if (!userRecord?.firmName || userRecord.firmName === 'Google Individual' || !userRecord.industry) {
+    if (userRecord?.onboardingStatus !== 'COMPLETED') {
         redirect("/setup");
     }
 
