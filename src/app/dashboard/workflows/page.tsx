@@ -48,11 +48,6 @@ export default function WorkflowsPage() {
     };
 
     const handleAddClick = (template: any) => {
-        if (isCapacityFull) {
-            showToast("Operational capacity reached. Switch to Professional plan for more loops.");
-            return;
-        }
-
         const robustParse = (val: any) => {
             if (!val) return [];
             if (Array.isArray(val)) return val;
