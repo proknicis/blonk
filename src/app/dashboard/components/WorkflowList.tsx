@@ -78,14 +78,14 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                     <div className={styles.workflowStatus}>
                         <button
                             className={styles.runBtn}
-                            onClick={() => runWorkflow(wf)}
+                            onClick={() => wf.n8nWebhookUrl ? runWorkflow(wf) : alert(`This loop is in fully autonomous mode (ID: ${wf.id}). Use this ID in n8n for updates!`)}
                             disabled={runningId === wf.id}
-                            title={wf.n8nWebhookUrl ? "Run Autonomous Loop" : "Webhook not configured"}
+                            title={wf.n8nWebhookUrl ? "Run Autonomous Loop" : "ID Linked - Autonomous Sync Active"}
                         >
-                            {runningId === wf.id ? "..." : (wf.n8nWebhookUrl ? "▶" : "⚠")}
+                            {runningId === wf.id ? "..." : (wf.n8nWebhookUrl ? "▶" : "🆔")}
                         </button>
-                        <span className={`${styles.statusPill} ${wf.status === 'Active' ? styles.statusSuccess : styles.statusPaused}`}>
-                            {wf.status}
+                        <span className={`${styles.statusPill} ${wf.status === 'Active' || wf.status === 'Success' ? styles.statusSuccess : styles.statusPaused}`}>
+                            {wf.status || 'Passive'}
                         </span>
                     </div>
                 </div>
