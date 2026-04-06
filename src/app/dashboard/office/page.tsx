@@ -104,29 +104,26 @@ export default async function OfficePage() {
                         </span>
 
                         <div className={styles.deskArea}>
-                            <div className={`${styles.monitor} ${agent.status !== 'Idle' && agent.status !== 'Offline' ? styles.screenActive : ''}`}>
-                                <div className={styles.screenContent}>
-                                    <div className={styles.screenHeader}>
-                                        <div className={styles.screenDot} style={{ background: '#FF5F56' }} />
-                                        <div className={styles.screenDot} style={{ background: '#FFBD2E' }} />
-                                        <div className={styles.screenDot} style={{ background: '#27C93F' }} />
+                                <div className={`${styles.monitor} ${['Online', 'Working', 'Analyzing', 'Analyzing Node'].includes(agent.status) ? styles.screenActive : ''}`}>
+                                    <div className={styles.screenContent}>
+                                        <div className={styles.waveformContainer}>
+                                            {[1, 2, 3, 4, 5].map(i => (
+                                                <div 
+                                                    key={i} 
+                                                    className={styles.waveBar} 
+                                                    style={{ 
+                                                        animationDelay: `${i * 0.15}s`,
+                                                        height: `${Math.random() * 50 + 20}%` 
+                                                    }} 
+                                                />
+                                            ))}
+                                        </div>
+                                        <div className={styles.telemetryStream}>
+                                            {agent.status} :: NODE-{agent.id?.substring(0, 4).toUpperCase() || 'SYS'}-ACTIVE
+                                        </div>
                                     </div>
-                                    <div className={styles.codeLines}>
-                                        {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                                            <div
-                                                key={i}
-                                                className={styles.codeLine}
-                                                style={{
-                                                    width: `${Math.random() * 50 + 30}%`,
-                                                    animationDelay: `${i * 0.15}s`,
-                                                    opacity: Math.random() * 0.5 + 0.3
-                                                }}
-                                            />
-                                        ))}
-                                    </div>
+                                    <div className={styles.monitorBase} />
                                 </div>
-                                <div className={styles.monitorBase} />
-                            </div>
 
                             <div
                                 className={styles.agentAvatar}

@@ -114,6 +114,8 @@ async function getDashboardSummary(userEmail: string): Promise<DashboardData> {
     };
 }
 
+import FleetVelocityChart from "./components/FleetVelocityChart";
+
 export default async function DashboardPage() {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) redirect("/login");
@@ -133,101 +135,57 @@ export default async function DashboardPage() {
                 <div className={styles.statCard}>
                     <div className={styles.statHeader}>
                         <span className={styles.statLabel}>Fleet Efficiency</span>
-                        <span className={`${styles.statTrend} ${styles.trendPositive}`}>+100.0%</span>
+                        <span className={`${styles.statTrend} ${styles.trendPositive}`}>+12% Gain</span>
                     </div>
-                    <div className={styles.statValue}>{data.activeAgents} Units ACTIVE</div>
-                    <div className={styles.statChart}>
-                        <div className={styles.statBarActive} style={{ height: '80%', width: '10%' }}></div>
-                    </div>
+                    <div className={styles.statValue}>{data.activeAgents} ACTIVE</div>
+                    <p style={{ color: '#64748B', fontSize: '0.85rem', fontWeight: 800, margin: 0 }}>Operational units responsive.</p>
                 </div>
 
                 <div className={styles.statCard}>
                     <div className={styles.statHeader}>
                         <span className={styles.statLabel}>Total Operations</span>
+                        <div style={{ width: '8px', height: '8px', background: '#34D186', borderRadius: '50%' }} />
                     </div>
-                    <div className={styles.statValue}>{data.totalTasks} Done</div>
-                    <div className={styles.statChart}>
-                        {[40, 60, 80, 100].map((h, i) => (
-                            <div key={i} className={styles.statBar} style={{ height: `${h}%` }}></div>
-                        ))}
-                    </div>
+                    <div className={styles.statValue}>{data.totalTasks.toLocaleString()}</div>
+                    <p style={{ color: '#64748B', fontSize: '0.85rem', fontWeight: 800, margin: 0 }}>Autonomous tasks completed.</p>
                 </div>
 
                 <div className={styles.statCard}>
                     <div className={styles.statHeader}>
-                        <span className={styles.statLabel}>Success Precision</span>
+                        <span className={styles.statLabel}>Success Rate</span>
+                        <span className={`${styles.statTrend} ${styles.trendPositive}`}>{data.successRate.percentage}%</span>
                     </div>
-                    <div className={styles.statValue}>{data.successRate.percentage}% Accuracy</div>
-                    <div className={styles.statChart}>
-                        <div className={styles.statBarActive} style={{ height: `${data.successRate.percentage}%` }}></div>
-                    </div>
+                    <div className={styles.statValue}>PRECISION</div>
+                    <p style={{ color: '#64748B', fontSize: '0.85rem', fontWeight: 800, margin: 0 }}>Zero-leakage execution.</p>
                 </div>
 
                 <div className={styles.statCard}>
                     <div className={styles.statHeader}>
-                        <span className={styles.statLabel}>System Uptime</span>
+                        <span className={styles.statLabel}>Firm Health</span>
+                        <div style={{ width: '8px', height: '8px', background: '#34D186', borderRadius: '50%' }} />
                     </div>
                     <div className={styles.statValue}>{data.uptime}</div>
-                    <div className={styles.statChart}>
-                        <div className={styles.statBarActive} style={{ height: '99%' }}></div>
-                    </div>
+                    <p style={{ color: '#64748B', fontSize: '0.85rem', fontWeight: 800, margin: 0 }}>System-wide stability.</p>
                 </div>
             </div>
 
-            <div className={styles.card} style={{ border: '1px solid #EAEAEA', background: '#FFFFFF', padding: '40px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px' }}>
-                    <div>
-                        <h2 style={{ fontSize: '1.5rem', fontWeight: 950, color: '#0A0A0A', marginBottom: '8px', letterSpacing: '-0.05em' }}>Fleet Velocity</h2>
-                        <p style={{ color: '#94A3B8', fontSize: '0.85rem', fontWeight: 800 }}>Sovereign performance trajectory tracking (24h Window).</p>
-                    </div>
-                    <div style={{ display: 'flex', gap: '16px' }}>
-                        {data.chartData.slice(0, 3).map((line, i) => (
-                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: i === 0 ? '#34D186' : '#38BDF8' }} />
-                                <span style={{ fontSize: '0.65rem', fontWeight: 950, color: '#0A0A0A' }}>{line.name.toUpperCase()}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-                
-                <div style={{ position: 'relative', height: '160px', width: '100%', marginBottom: '24px' }}>
-                    <svg width="100%" height="100%" viewBox="0 0 1000 160" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
-                        {/* Grid Lines */}
-                        <line x1="0" y1="0" x2="1000" y2="0" stroke="rgba(0,0,0,0.03)" strokeWidth="1" />
-                        <line x1="0" y1="80" x2="1000" y2="80" stroke="rgba(0,0,0,0.03)" strokeWidth="1" />
-                        <line x1="0" y1="160" x2="1000" y2="160" stroke="rgba(0,0,0,0.05)" strokeWidth="2" />
-
-                        {data.chartData.map((line, idx) => {
-                            const max = Math.max(...line.data, 5);
-                            const points = line.data.map((val, i) => {
-                                const x = (i / 23) * 1000;
-                                const y = 160 - (val / max) * 140;
-                                return `${x},${y}`;
-                            }).join(' ');
-
-                            return (
-                                <path 
-                                    key={idx} 
-                                    d={`M ${points}`} 
-                                    fill="none" 
-                                    stroke={idx === 0 ? '#34D186' : '#38BDF8'} 
-                                    strokeWidth="4" 
-                                    strokeLinecap="round" 
-                                    strokeLinejoin="round"
-                                    opacity={0.9 - (idx * 0.2)}
-                                />
-                            );
-                        })}
-                    </svg>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94A3B8', fontSize: '0.65rem', fontWeight: 950 }}>
-                    <span>00:00</span>
-                    <span>06:00</span>
-                    <span>12:00</span>
-                    <span>18:00</span>
-                    <span>23:59</span>
+            <div className={styles.growthMatrix}>
+                <h2 className={styles.growthTitle}>
+                    <div style={{ width: '4px', height: '24px', background: '#34D186', borderRadius: '2px' }} />
+                    Autonomous Growth Matrix
+                </h2>
+                <div className={styles.growthGrid}>
+                    {Array.from({ length: 48 }).map((_, i) => (
+                        <div 
+                            key={i} 
+                            className={`${styles.growthNode} ${(i < 12 || (i > 20 && i < 28)) ? styles.growthNodeActive : ''}`}
+                            style={{ animationDelay: `${i * 0.05}s` }}
+                        />
+                    ))}
                 </div>
             </div>
+
+            <FleetVelocityChart initialData={data.chartData} />
 
             <div className={styles.mainGrid} style={{ gridTemplateColumns: '2fr 1.2fr' }}>
                 <div className={styles.card}>

@@ -16,10 +16,22 @@ export async function POST(request: Request) {
 
         // High-precision ID matching (multi-tenant safe)
         const workflowId = body.workflowId || body.id;
-        const workflowName = body.workflow || body.workflowName || body.name || "Unknown Loop";
+        let workflowName = body.workflow || body.workflowName || body.name || "Unknown Loop";
         const status = body.status || body.state || "received";
         const performance = body.performance || "0";
         const result = body.result ? (typeof body.result === 'object' ? JSON.stringify(body.result) : body.result) : JSON.stringify(body);
+
+        // Resolve "Unknown Loop" identity if ID is available
+        if ((workflowName === "Unknown Loop" || !workflowName) && workflowId) {
+            try {
+                const existing = await db.query('SELECT name FROM "Workflow" WHERE id = $1', [workflowId]);
+                if (existing && existing.length > 0) {
+                    workflowName = existing[0].name;
+                }
+            } catch (err) {
+                console.error("Identity lookup failed", err);
+            }
+        }
 
         // 1. Log the execution with ID link if available
         await db.execute(

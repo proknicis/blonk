@@ -2,6 +2,7 @@
 
 import styles from "./reports.module.css";
 import React, { useState, useEffect } from "react";
+import ModalPortal from "@/app/components/ModalPortal";
 
 export default function ReportsPage() {
     const [isGenerating, setIsGenerating] = useState(false);
@@ -171,46 +172,48 @@ export default function ReportsPage() {
             </div>
 
             {selectedReport && (
-                <div className={styles.modalOverlay} onClick={() => setSelectedReport(null)}>
-                    <div className={styles.modal} onClick={e => e.stopPropagation()}>
-                        <div className={styles.modalHeader}>
-                            <h2>{selectedReport.name}</h2>
-                            <button className={styles.closeBtn} onClick={() => setSelectedReport(null)}>&times;</button>
-                        </div>
-                        <div className={styles.modalContent}>
-                            <div className={styles.reportMeta}>
-                                <span><strong>Type:</strong> {selectedReport.type}</span>
-                                <span><strong>Date:</strong> {selectedReport.date}</span>
-                                <span><strong>Size:</strong> {selectedReport.size}</span>
+                <ModalPortal>
+                    <div className={styles.modalOverlay} onClick={() => setSelectedReport(null)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(12px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div className={styles.modal} onClick={e => e.stopPropagation()}>
+                            <div className={styles.modalHeader}>
+                                <h2>{selectedReport.name}</h2>
+                                <button className={styles.closeBtn} onClick={() => setSelectedReport(null)}>&times;</button>
                             </div>
-                            <div className={styles.reportData}>
-                                <h3>Operational Metrics Summary</h3>
-                                <p>{selectedReport.content}</p>
+                            <div className={styles.modalContent}>
+                                <div className={styles.reportMeta}>
+                                    <span><strong>Type:</strong> {selectedReport.type}</span>
+                                    <span><strong>Date:</strong> {selectedReport.date}</span>
+                                    <span><strong>Size:</strong> {selectedReport.size}</span>
+                                </div>
+                                <div className={styles.reportData}>
+                                    <h3>Operational Metrics Summary</h3>
+                                    <p>{selectedReport.content}</p>
 
-                                <div className={styles.summaryBox}>
-                                    <div>
-                                        <span>Total Loops</span>
-                                        <strong>1,248,390</strong>
-                                    </div>
-                                    <div>
-                                        <span>Success Rate</span>
-                                        <strong>99.4%</strong>
-                                    </div>
-                                    <div>
-                                        <span>Efficiency Gain</span>
-                                        <strong>+12%</strong>
+                                    <div className={styles.summaryBox}>
+                                        <div>
+                                            <span>Total Loops</span>
+                                            <strong>1,248,390</strong>
+                                        </div>
+                                        <div>
+                                            <span>Success Rate</span>
+                                            <strong>99.4%</strong>
+                                        </div>
+                                        <div>
+                                            <span>Efficiency Gain</span>
+                                            <strong>+12%</strong>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className={styles.modalFooter}>
-                            <button className={styles.btnOutline} onClick={() => setSelectedReport(null)}>Close</button>
-                            <a className={styles.btnPrimary as unknown as string} href={`/api/reports/download?id=${encodeURIComponent(selectedReport.id)}`}>
-                                Download TXT
-                            </a>
+                            <div className={styles.modalFooter}>
+                                <button className={styles.btnOutline} onClick={() => setSelectedReport(null)}>Close</button>
+                                <a className={styles.btnPrimary as unknown as string} href={`/api/reports/download?id=${encodeURIComponent(selectedReport.id)}`}>
+                                    Download TXT
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </ModalPortal>
             )}
         </div>
     );
