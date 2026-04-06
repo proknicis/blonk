@@ -174,17 +174,17 @@ export default async function DashboardPage() {
                 </div>
             </div>
 
-            <div className={styles.card} style={{ border: 'none', background: 'linear-gradient(135deg, #0A0A0A 0%, #171717 100%)', color: '#FFFFFF', padding: '48px' }}>
+            <div className={styles.card} style={{ border: '1px solid #EAEAEA', background: '#FFFFFF', padding: '40px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px' }}>
                     <div>
-                        <h2 style={{ fontSize: '1.8rem', fontWeight: 950, marginBottom: '8px', letterSpacing: '-0.05em' }}>Fleet Velocity</h2>
-                        <p style={{ color: '#94A3B8', fontSize: '0.9rem', fontWeight: 800 }}>Sovereign performance trajectory tracking (24h Window).</p>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: 950, color: '#0A0A0A', marginBottom: '8px', letterSpacing: '-0.05em' }}>Fleet Velocity</h2>
+                        <p style={{ color: '#94A3B8', fontSize: '0.85rem', fontWeight: 800 }}>Sovereign performance trajectory tracking (24h Window).</p>
                     </div>
                     <div style={{ display: 'flex', gap: '16px' }}>
                         {data.chartData.slice(0, 3).map((line, i) => (
                             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: i === 0 ? '#34D186' : '#38BDF8' }} />
-                                <span style={{ fontSize: '0.65rem', fontWeight: 950, color: '#94A3B8' }}>{line.name.toUpperCase()}</span>
+                                <span style={{ fontSize: '0.65rem', fontWeight: 950, color: '#0A0A0A' }}>{line.name.toUpperCase()}</span>
                             </div>
                         ))}
                     </div>
@@ -193,9 +193,9 @@ export default async function DashboardPage() {
                 <div style={{ position: 'relative', height: '160px', width: '100%', marginBottom: '24px' }}>
                     <svg width="100%" height="100%" viewBox="0 0 1000 160" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
                         {/* Grid Lines */}
-                        <line x1="0" y1="0" x2="1000" y2="0" stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
-                        <line x1="0" y1="80" x2="1000" y2="80" stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
-                        <line x1="0" y1="160" x2="1000" y2="160" stroke="rgba(255,255,255,0.1)" strokeWidth="2" />
+                        <line x1="0" y1="0" x2="1000" y2="0" stroke="rgba(0,0,0,0.03)" strokeWidth="1" />
+                        <line x1="0" y1="80" x2="1000" y2="80" stroke="rgba(0,0,0,0.03)" strokeWidth="1" />
+                        <line x1="0" y1="160" x2="1000" y2="160" stroke="rgba(0,0,0,0.05)" strokeWidth="2" />
 
                         {data.chartData.map((line, idx) => {
                             const max = Math.max(...line.data, 5);
@@ -211,16 +211,16 @@ export default async function DashboardPage() {
                                     d={`M ${points}`} 
                                     fill="none" 
                                     stroke={idx === 0 ? '#34D186' : '#38BDF8'} 
-                                    strokeWidth="3" 
+                                    strokeWidth="4" 
                                     strokeLinecap="round" 
                                     strokeLinejoin="round"
-                                    opacity={0.8 - (idx * 0.2)}
+                                    opacity={0.9 - (idx * 0.2)}
                                 />
                             );
                         })}
                     </svg>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#475569', fontSize: '0.65rem', fontWeight: 950 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94A3B8', fontSize: '0.65rem', fontWeight: 950 }}>
                     <span>00:00</span>
                     <span>06:00</span>
                     <span>12:00</span>
