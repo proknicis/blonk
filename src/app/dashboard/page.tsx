@@ -67,7 +67,7 @@ async function getDashboardSummary(userEmail: string): Promise<DashboardData> {
         }
     });
 
-    // 3. Temporal Fleet Velocity (Last 24 Hours Metrics)
+    // 3. Temporal Fleet Velocity (Last 24 Hours Metrics) - SOVEREIGN ISOLATION
     const velocityRows = await db.query(`
         SELECT 
             "workflowId", 
@@ -76,9 +76,10 @@ async function getDashboardSummary(userEmail: string): Promise<DashboardData> {
             COUNT(*) as ops
         FROM "WorkflowLog" 
         WHERE "executedAt" > CURRENT_TIMESTAMP - INTERVAL '24 hours'
+        AND "workflowId" IN (SELECT id FROM "Workflow" WHERE LOWER("requestedBy") = LOWER($1))
         GROUP BY "workflowId", "workflowName", hour
         ORDER BY hour ASC
-    `) as any[];
+    `, [emailRef]) as any[];
 
     // Map velocity to individual loop trajectories
     const fleetPaths: Record<string, { name: string, data: number[] }> = {};
@@ -166,22 +167,6 @@ export default async function DashboardPage() {
                     </div>
                     <div className={styles.statValue}>{data.uptime}</div>
                     <p style={{ color: '#64748B', fontSize: '0.85rem', fontWeight: 800, margin: 0 }}>System-wide stability.</p>
-                </div>
-            </div>
-
-            <div className={styles.growthMatrix}>
-                <h2 className={styles.growthTitle}>
-                    <div style={{ width: '4px', height: '24px', background: '#34D186', borderRadius: '2px' }} />
-                    Autonomous Growth Matrix
-                </h2>
-                <div className={styles.growthGrid}>
-                    {Array.from({ length: 48 }).map((_, i) => (
-                        <div 
-                            key={i} 
-                            className={`${styles.growthNode} ${(i < 12 || (i > 20 && i < 28)) ? styles.growthNodeActive : ''}`}
-                            style={{ animationDelay: `${i * 0.05}s` }}
-                        />
-                    ))}
                 </div>
             </div>
 
