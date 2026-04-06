@@ -66,8 +66,8 @@ export const authOptions: NextAuthOptions = {
 
                     // 2. Create the User anchored to the team as OWNER
                     await db.query(
-                        'INSERT INTO "User" (id, email, name, role, "teamId", plan, password) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-                        [userId, email, user.name, 'OWNER', teamId, 'Starter', 'oauth_google_' + uuidv4()]
+                        'INSERT INTO "User" (id, email, name, role, "teamId", plan, password, "onboardingStatus") VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+                        [userId, email, user.name, 'OWNER', teamId, 'Starter', 'oauth_google_' + uuidv4(), 'COMPLETED']
                     );
 
                     // 3. Set ownerId back on Team

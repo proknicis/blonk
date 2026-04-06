@@ -117,16 +117,18 @@ export default async function DashboardPage() {
     if (!session?.user) redirect("/login");
 
     const userId = (session.user as any).id;
-    const teamId = (session.user as any).teamId;
-    if (!teamId) redirect("/setup");
+    const sessionTeamId = (session.user as any).teamId;
 
-    const [userRecord] = await db.query('SELECT "onboardingStatus" FROM "User" WHERE id = $1', [userId]) as any[];
+    const [userRecord] = await db.query('SELECT "onboardingStatus", "teamId" FROM "User" WHERE id = $1', [userId]) as any[];
     
-    if (userRecord?.onboardingStatus !== 'COMPLETED') {
+    const finalTeamId = sessionTeamId || userRecord?.teamId;
+
+    // Only redirect if they are truly NOT onboarded (no team, no completed status)
+    if (userRecord?.onboardingStatus !== 'COMPLETED' && !finalTeamId) {
         redirect("/setup");
     }
 
-    const data = await getDashboardSummary(teamId);
+    const data = await getDashboardSummary(finalTeamId);
 
     return (
         <div className={styles.dashboard}>

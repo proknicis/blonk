@@ -22,7 +22,9 @@ function SettingsContent() {
     
     // Team State
     const [members, setMembers] = useState<any[]>([]);
+    const [inviteName, setInviteName] = useState("");
     const [inviteEmail, setInviteEmail] = useState("");
+    const [invitePassword, setInvitePassword] = useState("");
     const [inviteRole, setInviteRole] = useState("MEMBER");
     const [inviting, setInviting] = useState(false);
 
@@ -53,23 +55,31 @@ function SettingsContent() {
     };
 
     const handleInvite = async () => {
-        if (!inviteEmail) return;
+        if (!inviteEmail || !invitePassword) return;
         try {
             setInviting(true);
             const res = await fetch('/api/team', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: inviteEmail, role: inviteRole })
+                body: JSON.stringify({ 
+                    email: inviteEmail, 
+                    password: invitePassword, 
+                    name: inviteName,
+                    role: inviteRole 
+                })
             });
             const data = await res.json();
             if (data.success) {
-                alert("Invitation signal successfully dispatched.");
+                alert("Sovereign Co-Pilot account successfully provisioned.");
                 setInviteEmail("");
+                setInvitePassword("");
+                setInviteName("");
+                fetchTeamData(); // Refresh member pulse
             } else {
-                alert(data.error || "Invitation pulse failure");
+                alert(data.error || "Personnel provisioning failure");
             }
         } catch (error) {
-            console.error("Invite failure", error);
+            console.error("Provisioning failure", error);
         } finally {
             setInviting(false);
         }

@@ -231,8 +231,8 @@ async function setupDatabase() {
         const hashedPw = await bcrypt.hash('blonkadmin2026', 10);
 
         const userRes = await client.query(
-            'INSERT INTO "User" (name, email, password, role, "teamId", plan) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-            ['Platform Owner', adminEmail, hashedPw, 'OWNER', teamId, 'SuperAdmin']
+            'INSERT INTO "User" (name, email, password, role, "teamId", plan, "onboardingStatus") VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+            ['Platform Owner', adminEmail, hashedPw, 'OWNER', teamId, 'SuperAdmin', 'COMPLETED']
         );
         const userId = userRes.rows[0].id;
 

@@ -22,6 +22,8 @@ export async function GET() {
     }
 }
 
+import bcrypt from "bcryptjs";
+
 export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -29,28 +31,44 @@ export async function POST(req: Request) {
     const teamId = (session.user as any).teamId;
     const userRole = (session.user as any).role;
 
+    // Direct Provisioning requires Institutional Authority (OWNER/ADMIN)
     if (userRole !== 'OWNER' && userRole !== 'ADMIN') {
         return NextResponse.json({ error: "Insufficient Directive Authority" }, { status: 403 });
     }
 
     try {
         const body = await req.json();
-        const { email, role } = body;
+        const { email, password, role, name } = body;
 
-        if (!email) return NextResponse.json({ error: "Target email required" }, { status: 400 });
+        if (!email) return NextResponse.json({ error: "Identity email required" }, { status: 400 });
 
-        // Generate invitation signal
-        const token = uuidv4();
-        await db.query(
-            'INSERT INTO "TeamInvitation" ("teamId", email, token, role) VALUES ($1, $2, $3, $4)',
-            [teamId, email.toLowerCase(), token, role || 'MEMBER']
-        );
+        const emailRef = email.toLowerCase();
 
-        // NOTE: In a production environment, this would trigger a professional email dispatch.
-        console.log(`[SOVEREIGN INVITE] Signal generated for ${email}: ${token}`);
+        // 1. Check if user already exists
+        const existing = await db.query('SELECT id FROM "User" WHERE LOWER(email) = LOWER($1)', [emailRef]) as any[];
+        if (existing.length > 0) {
+            return NextResponse.json({ error: "Operator identity already registered in fleet." }, { status: 400 });
+        }
 
-        return NextResponse.json({ success: true, message: "Invitation signal successfully dispatched." });
+        if (password) {
+            // DIRECT PROVISIONING: Create the User account now
+            const hashedPw = await bcrypt.hash(password, 10);
+            await db.query(
+                'INSERT INTO "User" (name, email, password, role, "teamId", "onboardingStatus") VALUES ($1, $2, $3, $4, $5, $6)',
+                [name || 'Co-Pilot Operator', emailRef, hashedPw, role || 'MEMBER', teamId, 'COMPLETED']
+            );
+            return NextResponse.json({ success: true, message: "Sovereign Co-Pilot account successfully provisioned." });
+        } else {
+            // INVITATION SIGNAL: (Legacy Fallback)
+            const token = uuidv4();
+            await db.query(
+                'INSERT INTO "TeamInvitation" ("teamId", email, token, role) VALUES ($1, $2, $3, $4)',
+                [teamId, emailRef, token, role || 'MEMBER']
+            );
+            return NextResponse.json({ success: true, message: "Invitation signal dispatched." });
+        }
     } catch (error) {
-        return NextResponse.json({ error: "Invitation pulse failure" }, { status: 500 });
+        console.error("Direct Prospecting failure", error);
+        return NextResponse.json({ error: "Personnel provisioning failure" }, { status: 500 });
     }
 }
