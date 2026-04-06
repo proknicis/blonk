@@ -333,46 +333,55 @@
 .userProfile {
     display: flex;
     align-items: center;
-    gap: 20px;
-    padding: 8px 8px 8px 24px;
-    border-left: 1px solid #EAEAEA;
+    gap: 16px;
+    padding: 4px 4px 4px 20px;
+    border-left: 2px solid #F1F5F9;
     cursor: pointer;
     background: none;
     border-top: none;
     border-right: none;
     border-bottom: none;
+    transition: background 0.3s ease;
+}
+
+.userProfile:hover {
+    background: #FAFAFA;
+    border-radius: 16px;
 }
 
 .userData {
     text-align: right;
+    display: flex;
+    flex-direction: column;
 }
 
 .userData strong {
-    display: block;
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 950;
     color: #0A0A0A;
+    letter-spacing: -0.02em;
 }
 
 .userData span {
-    font-size: 0.75rem;
-    font-weight: 900;
-    color: #949A97;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #94A3B8;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
 }
 
 .avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 16px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
     background: #0A0A0A;
     color: #FFFFFF;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 950;
-    font-size: 1.1rem;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(10, 10, 10, 0.1);
 }
 
 /* DROPDOWNS: Institutional Precision */
@@ -460,39 +469,73 @@
 }
 
 /* User Dropdown Profile */
+.userDropdown {
+    width: 340px;
+    padding: 8px;
+    background: #FFFFFF;
+    border-radius: 28px;
+    border: 1px solid #EAEAEA;
+    box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.12);
+}
+
 .userDropdownProfile {
-    padding: 24px 20px;
+    padding: 32px 24px;
     border-bottom: 1px solid #F1F5F9;
+    margin-bottom: 8px;
 }
 
 .userDropdownName {
-    font-size: 1.1rem;
+    font-size: 1.25rem;
     font-weight: 950;
     color: #0A0A0A;
     margin-bottom: 4px;
+    letter-spacing: -0.04em;
+}
+
+.userDropdownRole {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #64748B;
+    margin-bottom: 2px;
+}
+
+.userDropdownEmail {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #94A3B8;
 }
 
 .userDropdownLink {
-    padding: 14px 20px;
-    border-radius: 12px;
-    font-weight: 800;
-    color: #64748B;
+    padding: 16px 20px;
+    border-radius: 18px;
+    font-weight: 900;
+    color: #0A0A0A;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
     text-decoration: none;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    font-size: 0.95rem;
+}
+
+.userDropdownLink svg {
+    color: #94A3B8;
+    transition: color 0.3s ease;
 }
 
 .userDropdownLink:hover {
     background: #F8F9FA;
+    transform: translateX(4px);
+}
+
+.userDropdownLink:hover svg {
     color: #0A0A0A;
 }
 
 .userDropdownDivider {
     height: 1px;
     background: #F1F5F9;
-    margin: 8px 12px;
+    margin: 8px 16px;
 }
 
 .logoutBtn {
@@ -502,11 +545,13 @@
     border: none;
     cursor: pointer;
     font-family: inherit;
+    color: #64748B !important;
 }
 
 .logoutBtn:hover {
     background: rgba(239, 68, 68, 0.05) !important;
     color: #EF4444 !important;
+    transform: translateX(0) !important;
 }
 
 .logoutBtn:hover svg {

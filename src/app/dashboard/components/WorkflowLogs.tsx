@@ -119,7 +119,7 @@ export default function WorkflowLogs() {
                             <tr>
                                 <td colSpan={4} style={{ textAlign: 'center', padding: '80px', color: '#94A3B8' }}>
                                     <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'center' }}>
-                                        <div className={styles.pulseDot} style={{ width: 48, height: 48, background: '#F1F5F9' }}>
+                                        <div className={styles.pulseDot} style={{ width: 48, height: 48, background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
                                         </div>
                                     </div>

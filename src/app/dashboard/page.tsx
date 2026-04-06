@@ -255,16 +255,6 @@ export default async function DashboardPage() {
                                 Operational capacity is {Math.round((data.activeAgents / (data.totalWorkflows || 1)) * 100)}%. All autonomous nodes responding within normal latency parameters.
                             </p>
                         </div>
-
-                        <div style={{ padding: '24px', background: '#FFFFFF', borderRadius: '20px', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#F0FAF5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#34D186' }} />
-                            </div>
-                            <div>
-                                <div style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0A0A0A' }}>System Nominal</div>
-                                <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 800 }}>NGROK TUNNEL: STABLE</div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
