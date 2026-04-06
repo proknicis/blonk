@@ -28,16 +28,17 @@ async function getAgents(userEmail: string) {
             const names = (wf.name || 'Loop').split(' ');
             const initials = names.length > 1 ? names[0][0] + names[1][0] : names[0][0] + (names[0][1] || 'L');
             
-            const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+            // Institutional Threshold: 1 Hour (60 minutes) for Loop Stasis
+            const sixtyMinutesAgo = new Date(Date.now() - 60 * 60 * 1000);
             const lastUpdate = wf.lastRun ? new Date(wf.lastRun) : null;
-            const isStale = lastUpdate && lastUpdate < tenMinutesAgo;
+            const isStale = lastUpdate && lastUpdate < sixtyMinutesAgo;
 
-            let displayStatus = wf.status || 'Passive';
-            let color = '#FFB038'; // Default
+            let displayStatus = wf.status || 'Active';
+            let color = '#34D186'; // Default Online Green
 
-            // If it was Active but hasn't reported for 10 mins -> Standby
-            if (wf.status === 'Active' || wf.status === 'Success' || wf.status === 'Completed') {
-                if (isStale) {
+            // Logic: Published is our baseline 'Live' state
+            if (wf.status === 'Active' || wf.status === 'Success' || wf.status === 'Completed' || wf.status === 'Published') {
+                if (isStale && wf.status !== 'Published') {
                     displayStatus = 'Standby';
                     color = '#94A3B8'; // Gray/Standby
                 } else {
@@ -45,7 +46,7 @@ async function getAgents(userEmail: string) {
                     color = '#34D186';
                 }
             } else if (wf.status === 'Pending') {
-                displayStatus = 'Awaiting Node';
+                displayStatus = 'Initializing';
                 color = '#FFB038';
             }
 
@@ -83,8 +84,8 @@ export default async function OfficePage() {
                 </div>
                 <div className={styles.officeStats}>
                     <div className={styles.statChip}>
-                        <div className={styles.pulseDot} />
-                        {agents.filter((a: any) => a.status === 'Working' || a.status === 'Online').length} Agents Operational
+                        <div className={styles.pulseDot} style={{ background: '#34D186' }} />
+                        {agents.filter((a: any) => ['Online', 'Working', 'Analyzing', 'Standby', 'Initializing', 'Awaiting Node'].includes(a.status)).length} Loop Units Deployed
                     </div>
                 </div>
             </div>

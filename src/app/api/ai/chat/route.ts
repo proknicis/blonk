@@ -81,17 +81,19 @@ Need help? Just ask! 🤙`;
                         ...messages
                     ],
                     stream: true,
+                    include_reasoning: true
                 })
             });
         };
 
-        // Primary Model (Premium/Institutional)
-        let response = await tryChat("openai/gpt-4o-mini");
+        // Primary Model (Premium/Institutional with Reasoning Capability)
+        // Using Gemini 2.0 Flash Thinking for high-speed reasoning tokens
+        let response = await tryChat("google/gemini-2.0-flash-thinking-exp:free");
 
-        // If primary fails, try the free fallback
+        // If primary fails, try the standard fallback
         if (!response.ok) {
-            console.warn(`[AI Chat] Primary model failed (${response.status}). Trying fallback: minimax/minimax-m2.5:free...`);
-            response = await tryChat("minimax/minimax-m2.5:free");
+            console.warn(`[AI Chat] Primary reasoning model failed (${response.status}). Trying fallback: openai/gpt-4o-mini...`);
+            response = await tryChat("openai/gpt-4o-mini");
         }
 
         if (!response.ok) {
@@ -114,6 +116,8 @@ Need help? Just ask! 🤙`;
                     return;
                 }
 
+                let hasSentReasoningEnd = false;
+
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
@@ -128,8 +132,22 @@ Need help? Just ask! 🤙`;
                         if (trimmed.startsWith("data: ")) {
                             try {
                                 const data = JSON.parse(trimmed.slice(6));
-                                const content = data.choices?.[0]?.delta?.content;
+                                const delta = data.choices?.[0]?.delta;
+                                
+                                // 1. Check for Reasoning Tokens (OpenRouter reasoning field)
+                                const reasoning = delta?.reasoning || delta?.reasoning_content;
+                                if (reasoning) {
+                                    controller.enqueue(encoder.encode(`THINKING:${reasoning}`));
+                                    continue;
+                                }
+
+                                // 2. Handle standard content tokens
+                                const content = delta?.content;
                                 if (content) {
+                                    // If we are moving from reasoning to content, signal the end once
+                                    if (delta?.content && !hasSentReasoningEnd) {
+                                        // Some models don't have distinct reasoning tokens, but if they do, we separate them
+                                    }
                                     controller.enqueue(encoder.encode(content));
                                 }
                             } catch (e) {

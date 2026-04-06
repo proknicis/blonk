@@ -7,6 +7,7 @@ type Message = {
     id: string;
     role: "user" | "assistant";
     content: string;
+    reasoning?: string;
 };
 
 const SUGGESTED = [
@@ -76,17 +77,36 @@ export default function AiChat() {
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
-                    const chunk = decoder.decode(value, { stream: true });
+                    const rawChunk = decoder.decode(value, { stream: true });
                     
-                    if (!assistantMessageAdded && (chunk || done)) {
-                        setMessages(prev => [...prev, { id: assistantId, role: "assistant", content: chunk }]);
-                        assistantMessageAdded = true;
-                    } else if (assistantMessageAdded) {
-                        setMessages(prev =>
-                            prev.map(m => m.id === assistantId ? { ...m, content: m.content + chunk } : m)
-                        );
+                    // OpenRouter Reasoning Protocol: Split chunk in case multiple tokens arrived
+                    const chunks = rawChunk.split(/THINKING:|(?=THINKING:)/).filter(Boolean);
+
+                    for (let chunk of chunks) {
+                        const isReasoning = chunk.startsWith("THINKING:") || rawChunk.startsWith("THINKING:");
+                        const cleanToken = chunk.replace("THINKING:", "");
+
+                        if (isReasoning) {
+                            if (!assistantMessageAdded) {
+                                setMessages(prev => [...prev, { id: assistantId, role: "assistant", content: "", reasoning: cleanToken }]);
+                                assistantMessageAdded = true;
+                            } else {
+                                setMessages(prev =>
+                                    prev.map(m => m.id === assistantId ? { ...m, reasoning: (m.reasoning || "") + cleanToken } : m)
+                                );
+                            }
+                        } else {
+                            if (!assistantMessageAdded) {
+                                setMessages(prev => [...prev, { id: assistantId, role: "assistant", content: chunk, reasoning: "" }]);
+                                assistantMessageAdded = true;
+                            } else {
+                                setMessages(prev =>
+                                    prev.map(m => m.id === assistantId ? { ...m, content: m.content + chunk } : m)
+                                );
+                            }
+                            assistantContent += chunk;
+                        }
                     }
-                    assistantContent += chunk;
                 }
             }
 
@@ -171,10 +191,18 @@ export default function AiChat() {
                                 {msg.role === "assistant" && (
                                     <div className={styles.msgAvatar}>AI</div>
                                 )}
-                                <div
-                                    className={styles.bubble}
-                                    dangerouslySetInnerHTML={{ __html: renderContent(msg.content) }}
-                                />
+                                <div className={styles.bubble}>
+                                    {msg.reasoning && (
+                                        <div className={styles.reasoningBlock}>
+                                            <div className={styles.reasoningHeader}>
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                                                Strategic Thinking Process
+                                            </div>
+                                            <div className={styles.reasoningContent} dangerouslySetInnerHTML={{ __html: renderContent(msg.reasoning) }} />
+                                        </div>
+                                    )}
+                                    <div dangerouslySetInnerHTML={{ __html: renderContent(msg.content) }} />
+                                </div>
                             </div>
                         ))}
 

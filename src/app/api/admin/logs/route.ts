@@ -15,9 +15,10 @@ export async function GET() {
             `SELECT l.*, l."createdAt" as "executedAt" 
              FROM "WorkflowLog" l 
              LEFT JOIN "Workflow" w ON l."workflowId" = w.id 
-             WHERE LOWER(w."requestedBy") = LOWER($1) 
-                OR (l."workflowId" IS NULL AND l."workflowName" IN (SELECT name FROM "Workflow" WHERE LOWER("requestedBy") = LOWER($1)))
-             ORDER BY l."createdAt" DESC LIMIT 30`,
+             WHERE (LOWER(w."requestedBy") = LOWER($1) 
+                OR (l."workflowId" IS NULL AND l."workflowName" IN (SELECT name FROM "Workflow" WHERE LOWER("requestedBy") = LOWER($1))))
+               AND l."createdAt" >= NOW() - INTERVAL '12 hours'
+             ORDER BY l."createdAt" DESC`,
             [emailRef]
         );
         return NextResponse.json(rows);

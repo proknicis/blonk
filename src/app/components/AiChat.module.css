@@ -311,3 +311,38 @@
     from { opacity: 0.2; transform: translateY(0); }
     to { opacity: 1; transform: translateY(-4px); }
 }
+
+/* Reasoning Logic Display */
+.reasoningBlock {
+    background: #F1F5F9;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    border-left: 3px solid #34D186;
+    animation: fadeIn 0.4s ease;
+}
+
+.reasoningHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    color: #34D186;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+.reasoningContent {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: #64748B;
+    font-weight: 600;
+    font-style: italic;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

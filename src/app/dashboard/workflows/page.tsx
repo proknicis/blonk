@@ -114,7 +114,7 @@ export default function WorkflowsPage() {
         <div className={styles.workflowsContainer}>
             <section className={styles.hero}>
                 <div className={styles.heroContent}>
-                    <h1>Automate Everything<span style={{ color: '#34D186' }}>.</span></h1>
+                    <h1>Automate Everything<span className={styles.heroDot}>.</span></h1>
                     <p>Select specialized document loops for your firm. Once added, our team will link the autonomous backend to your environment.</p>
                     <div className={styles.heroStats} style={{ marginTop: '32px' }}>
                         <div className={styles.heroStat}>
@@ -187,10 +187,10 @@ export default function WorkflowsPage() {
                             </div>
 
                              <div className={styles.cardFooter}>
-                                    <button className={styles.btnPrimary} style={{ width: '100%' }} onClick={() => handleAddClick(wf)}>
+                                    <button className={styles.btnPrimary} onClick={() => handleAddClick(wf)}>
                                         Add to Firm
                                     </button>
-                                    <button className={styles.btnSecondary} style={{ width: '100%' }}>
+                                    <button className={styles.btnSecondary}>
                                         Preview
                                     </button>
                             </div>
@@ -210,15 +210,15 @@ export default function WorkflowsPage() {
             )}
 
             {configureTemplate && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
-                    <div style={{ background: '#ffffff', borderRadius: '16px', padding: '32px', width: '100%', maxWidth: '500px', boxShadow: '0 24px 80px rgba(0,0,0,0.2)', border: '1px solid #E2E8F0' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-                            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: configureTemplate.color || '#F8F9FA', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(12px)' }}>
+                    <div style={{ background: '#ffffff', borderRadius: '40px', padding: '48px', width: '100%', maxWidth: '600px', boxShadow: '0 40px 100px rgba(0,0,0,0.3)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '32px' }}>
+                            <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: '#F1F5F9', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px' }}>
                                 {configureTemplate.icon || '⚙️'}
                             </div>
                             <div>
-                                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>Configure Workflow</h2>
-                                <p style={{ fontSize: '0.85rem', color: '#64748B', margin: 0 }}>Provide necessary requirements for {configureTemplate.name}</p>
+                                <h2 style={{ fontSize: '1.75rem', fontWeight: 950, margin: 0, letterSpacing: '-0.04em', color: '#0F172A' }}>Configure Asset</h2>
+                                <p style={{ fontSize: '0.95rem', color: '#64748B', margin: 0, fontWeight: 600 }}>Finalize parameters for institutional deployment.</p>
                             </div>
                         </div>
 
