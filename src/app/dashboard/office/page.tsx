@@ -6,12 +6,11 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 
-async function getAgents(userEmail: string) {
+async function getAgents(teamId: string) {
     try {
-        const emailRef = userEmail.toLowerCase();
-        // Agent table is global/system-wide, Workflow is user-scoped
-        const agentRows = await db.query('SELECT * FROM "Agent"');
-        const workflowRows = await db.query('SELECT * FROM "Workflow" WHERE LOWER("requestedBy") = LOWER($1)', [emailRef]);
+        // Agent table and Workflow are now team-scoped
+        const agentRows = await db.query('SELECT * FROM "Agent" WHERE "teamId" = $1', [teamId]);
+        const workflowRows = await db.query('SELECT * FROM "Workflow" WHERE "teamId" = $1', [teamId]);
 
         // 1. Standard Agents: Use their DB status ONLY if they have an active loop
         const realAgents = (agentRows || []).map((a: any) => ({
@@ -58,7 +57,9 @@ async function getAgents(userEmail: string) {
                 initials: initials.toUpperCase(),
                 color: color,
                 n8nWorkflow: isStale ? 'Sync Dormant' : 'Cloud Autonomous Sync',
-                lastRun: wf.lastRun
+                lastRun: wf.lastRun,
+                performance: wf.performance,
+                tasksCount: wf.tasksCount
             };
         });
 
@@ -71,9 +72,12 @@ async function getAgents(userEmail: string) {
 
 export default async function OfficePage() {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) redirect("/login");
+    if (!session?.user) redirect("/login");
 
-    const agents = await getAgents(session.user.email);
+    const teamId = (session.user as any).teamId;
+    if (!teamId) redirect("/setup");
+
+    const agents = await getAgents(teamId);
 
     return (
         <div className={styles.officeContainer}>
@@ -134,20 +138,39 @@ export default async function OfficePage() {
                             </div>
                         </div>
 
-                        <div className={styles.info}>
-                            <h3>{agent.name}</h3>
-                            <p className={styles.agentRole}>{agent.role}</p>
-                            {agent.n8nWorkflow && (
-                                <div className={styles.workflowTag}>
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 2v20M2 12h20L12 22 2 12z" /></svg>
-                                    {agent.n8nWorkflow}
+                        <div className={styles.info} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            <div style={{ textAlign: 'center' }}>
+                                <h3 style={{ fontSize: '1.4rem', fontWeight: 950, color: '#0A0A0A', letterSpacing: '-0.04em', marginBottom: '4px' }}>{agent.name}</h3>
+                                <div style={{ fontSize: '0.65rem', fontWeight: 950, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{agent.role}</div>
+                            </div>
+
+                            <div style={{ 
+                                display: 'grid', 
+                                gridTemplateColumns: 'repeat(3, 1fr)', 
+                                gap: '8px',
+                                padding: '16px',
+                                background: '#F8FAFC',
+                                borderRadius: '16px',
+                                border: '1px solid #E2E8F0'
+                            }}>
+                                <div style={{ textAlign: 'center' }}>
+                                    <div style={{ fontSize: '0.55rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>TPS</div>
+                                    <div style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0A0A0A' }}>{agent.performance?.replace(/loops\/hr/gi, '') || '0'}</div>
                                 </div>
-                            )}
-                            {agent.lastRun && (
-                                <p style={{ fontSize: '0.65rem', color: '#94A3B8', marginTop: '4px' }}>
-                                    Last Activity: {new Date(agent.lastRun).toLocaleTimeString()}
-                                </p>
-                            )}
+                                <div style={{ textAlign: 'center' }}>
+                                    <div style={{ fontSize: '0.55rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>YIELD</div>
+                                    <div style={{ fontSize: '0.85rem', fontWeight: 950, color: '#34D186' }}>{agent.tasksCount || '0'}</div>
+                                </div>
+                                <div style={{ textAlign: 'center' }}>
+                                    <div style={{ fontSize: '0.55rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>UPTIME</div>
+                                    <div style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0A0A0A' }}>100%</div>
+                                </div>
+                            </div>
+
+                            <button className={styles.runBtn} style={{ width: '100%', borderRadius: '14px', height: '48px', fontSize: '0.85rem', fontWeight: 950, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                                View Signal
+                            </button>
                         </div>
                     </div>
                 ))}

@@ -19,6 +19,13 @@ function SettingsContent() {
         autonomous_discovery: "true",
         real_time_auditing: "true"
     });
+    
+    // Team State
+    const [members, setMembers] = useState<any[]>([]);
+    const [inviteEmail, setInviteEmail] = useState("");
+    const [inviteRole, setInviteRole] = useState("MEMBER");
+    const [inviting, setInviting] = useState(false);
+
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -30,9 +37,43 @@ function SettingsContent() {
             handleVerification(sessionId);
         } else {
             fetchInitialData();
+            fetchTeamData();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchParams]);
+
+    const fetchTeamData = async () => {
+        try {
+            const res = await fetch('/api/team');
+            const data = await res.json();
+            if (data.members) setMembers(data.members);
+        } catch (error) {
+            console.error("Team fetch failure", error);
+        }
+    };
+
+    const handleInvite = async () => {
+        if (!inviteEmail) return;
+        try {
+            setInviting(true);
+            const res = await fetch('/api/team', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: inviteEmail, role: inviteRole })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert("Invitation signal successfully dispatched.");
+                setInviteEmail("");
+            } else {
+                alert(data.error || "Invitation pulse failure");
+            }
+        } catch (error) {
+            console.error("Invite failure", error);
+        } finally {
+            setInviting(false);
+        }
+    };
 
     const handleVerification = async (sessionId: string) => {
         try {
@@ -170,6 +211,12 @@ function SettingsContent() {
                     Firm Identity
                 </button>
                 <button 
+                    className={`${styles.tab} ${activeTab === 'team' ? styles.activeTab : ''}`}
+                    onClick={() => setActiveTab('team')}
+                >
+                    Team Management
+                </button>
+                <button 
                     className={`${styles.tab} ${activeTab === 'billing' ? styles.activeTab : ''}`}
                     onClick={() => setActiveTab('billing')}
                 >
@@ -177,7 +224,7 @@ function SettingsContent() {
                 </button>
             </div>
 
-            {activeTab === 'general' ? (
+            {activeTab === 'general' && (
                 <>
                     <div className={styles.section}>
                         <h2>Identity & Access</h2>
@@ -248,7 +295,66 @@ function SettingsContent() {
                         </button>
                     </div>
                 </>
-            ) : (
+            )}
+
+            {activeTab === 'team' && (
+                <div className={styles.teamView}>
+                    <div className={styles.section}>
+                        <h2>Team Management</h2>
+                        <div style={{ display: 'flex', gap: '16px', marginBottom: '32px' }}>
+                            <input
+                                type="email"
+                                className={styles.input}
+                                placeholder="name@firm.com"
+                                value={inviteEmail}
+                                onChange={(e) => setInviteEmail(e.target.value)}
+                                style={{ maxWidth: '300px' }}
+                            />
+                            <select 
+                                className={styles.input} 
+                                value={inviteRole}
+                                onChange={(e) => setInviteRole(e.target.value)}
+                                style={{ maxWidth: '150px' }}
+                            >
+                                <option value="ADMIN">Admin</option>
+                                <option value="MEMBER">Member</option>
+                            </select>
+                            <button 
+                                className={styles.btnPrimary} 
+                                onClick={handleInvite}
+                                disabled={inviting}
+                            >
+                                {inviting ? "Pulse..." : "Invite Member"}
+                            </button>
+                        </div>
+
+                        <table className={styles.billTable}>
+                            <thead>
+                                <tr>
+                                    <th>Operator Name</th>
+                                    <th>Identity Email</th>
+                                    <th>Direct Role</th>
+                                    <th style={{ textAlign: 'right' }}>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {members.map((member) => (
+                                    <tr key={member.id}>
+                                        <td style={{ fontWeight: 950, color: '#0A0A0A' }}>{member.name || 'Anonymous Operator'}</td>
+                                        <td>{member.email}</td>
+                                        <td><span className={styles.planLabel} style={{ fontSize: '0.65rem' }}>{member.role}</span></td>
+                                        <td style={{ textAlign: 'right' }}>
+                                            <span className={`${styles.statusPill} ${styles.statusActive}`}>Live Connection</span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 'billing' && (
                 <div className={styles.billingView}>
                     <div className={styles.section}>
                         <h2>Fleet Subscription</h2>
@@ -338,7 +444,7 @@ function SettingsContent() {
                                     <th>Date</th>
                                     <th>Amount</th>
                                     <th>Status</th>
-                                    <th>Action</th>
+                                    <th style={{ textAlign: 'right' }}>Action</th>
                                 </tr>
                             </thead>
                             <tbody>

@@ -57,10 +57,24 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                 const statusClass = (isOnline && !isStale) ? styles.statusSuccess : styles.statusPaused;
 
                 return (
-                    <div key={i} className={styles.workflowItem} style={{ marginBottom: '16px', borderBottom: '1px solid #F1F5F9', paddingBottom: '16px' }}>
-                        <div className={styles.workflowInfo}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <strong>{wf.name}</strong>
+                    <div key={i} className={styles.workflowItem} style={{ 
+                        background: '#FFFFFF',
+                        border: '1px solid #EAEAEA',
+                        borderRadius: '20px',
+                        padding: '24px',
+                        marginBottom: '16px',
+                        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '20px'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div className={styles.workflowInfo}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
+                                    <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: isOnline ? '#34D186' : '#94A3B8' }} />
+                                    <strong style={{ fontSize: '1.25rem', fontWeight: 950, letterSpacing: '-0.04em', color: '#0A0A0A' }}>{wf.name}</strong>
+                                    <span style={{ fontSize: '0.65rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Autonomous Loop</span>
+                                </div>
                                 <button 
                                     onClick={() => {
                                         const text = wf.id;
@@ -76,40 +90,54 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                                         }
                                         alert("Loop ID copied to clipboard!");
                                     }}
-                                    style={{ background: '#F1F5F9', border: 'none', borderRadius: '4px', padding: '6px 8px', fontSize: '0.65rem', fontWeight: 900, color: '#94A3B8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
-                                    title="Copy Unique ID for n8n"
+                                    style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '100px', padding: '6px 14px', fontSize: '0.65rem', fontFamily: 'JetBrains Mono', fontWeight: 800, color: '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                                 >
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                    #{wf.id?.substring(0, 8) || '...'}
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                    {wf.id?.substring(0, 8) || '...'}
                                 </button>
                             </div>
-                            <div style={{ display: 'flex', gap: '16px', marginTop: '4px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-                                    <span style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 900 }}>{wf.performance?.replace(/loops\/hr/gi, '') || '0'} OPS/HR</span>
-                                </div>
-                                {wf.tasksCount !== undefined && (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                                        <span style={{ fontSize: '0.7rem', color: '#34D186', fontWeight: 900 }}>TOTAL DONE: {wf.tasksCount}</span>
+                            
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ textAlign: 'right' }}>
+                                    <div style={{ fontSize: '0.7rem', fontWeight: 950, color: isOnline ? '#34D186' : '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                                        {displayStatus}
                                     </div>
-                                )}
+                                    <div style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748B' }}>Live Status</div>
+                                </div>
+                                <button
+                                    className={styles.runBtn}
+                                    onClick={() => wf.n8nWebhookUrl ? runWorkflow(wf) : alert(`This loop is in fully autonomous mode.`)}
+                                    disabled={runningId === wf.id}
+                                    style={{ width: '48px', height: '48px', borderRadius: '14px' }}
+                                >
+                                    {runningId === wf.id ? "..." : (
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                    )}
+                                </button>
                             </div>
                         </div>
-                        <div className={styles.workflowStatus}>
-                            <button
-                                className={styles.runBtn}
-                                onClick={() => wf.n8nWebhookUrl ? runWorkflow(wf) : alert(`This loop is in fully autonomous mode (ID: ${wf.id}).`)}
-                                disabled={runningId === wf.id}
-                                title={wf.n8nWebhookUrl ? "Run Autonomous Loop" : "ID Linked - Autonomous Sync Active"}
-                            >
-                                {runningId === wf.id ? "..." : (
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                                )}
-                            </button>
-                            <span className={`${styles.statusPill} ${statusClass}`} style={{ fontSize: '0.65rem', padding: '4px 12px' }}>
-                                {displayStatus}
-                            </span>
+
+                        <div style={{ 
+                            display: 'grid', 
+                            gridTemplateColumns: 'repeat(3, 1fr)', 
+                            gap: '12px',
+                            padding: '16px',
+                            background: '#F8FAFC',
+                            borderRadius: '16px',
+                            border: '1px solid #E2E8F0'
+                        }}>
+                            <div>
+                                <div style={{ fontSize: '0.6rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Throughput</div>
+                                <div style={{ fontSize: '0.95rem', fontWeight: 950, color: '#0A0A0A' }}>{wf.performance?.replace(/loops\/hr/gi, '') || '0'} <span style={{ opacity: 0.4 }}>OPS/HR</span></div>
+                            </div>
+                            <div>
+                                <div style={{ fontSize: '0.6rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Autonomous Yield</div>
+                                <div style={{ fontSize: '0.95rem', fontWeight: 950, color: '#34D186' }}>{wf.tasksCount || '0'} <span style={{ opacity: 0.4 }}>DONE</span></div>
+                            </div>
+                            <div>
+                                <div style={{ fontSize: '0.6rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Uptime Reliability</div>
+                                <div style={{ fontSize: '0.95rem', fontWeight: 950, color: '#0A0A0A' }}>100%</div>
+                            </div>
                         </div>
                     </div>
                 );

@@ -22,7 +22,7 @@ export const authOptions: NextAuthOptions = {
                 const email = credentials.email.toLowerCase();
 
                 const rows = await db.query(
-                    'SELECT id, email, name, "firmName", password FROM "User" WHERE email = $1 LIMIT 1',
+                    'SELECT id, email, name, role, "teamId", password FROM "User" WHERE LOWER(email) = LOWER($1) LIMIT 1',
                     [email],
                 ) as any[];
 
@@ -36,7 +36,8 @@ export const authOptions: NextAuthOptions = {
                     id: user.id,
                     email: user.email,
                     name: user.name,
-                    firmName: user.firmName,
+                    role: user.role,
+                    teamId: user.teamId,
                 };
             }
         })
@@ -45,17 +46,40 @@ export const authOptions: NextAuthOptions = {
         async jwt({ token, user, account }) {
             if (user) {
                 token.id = user.id;
-                token.firmName = (user as any).firmName;
+                token.role = (user as any).role;
+                token.teamId = (user as any).teamId;
             }
             // If OAuth signup, ensure the user exists in our DB
             if (account?.provider === 'google' && user?.email) {
                 const email = user.email.toLowerCase();
-                const existing = await db.query('SELECT id FROM "User" WHERE email = $1', [email]) as any[];
+                const existing = await db.query('SELECT id, "teamId", role FROM "User" WHERE LOWER(email) = LOWER($1)', [email]) as any[];
+                
                 if (existing.length === 0) {
+                    const userId = uuidv4();
+                    
+                    // 1. Create a Sovereign Team for the new user
+                    const teamRes = await db.query(
+                        'INSERT INTO "Team" (name, "firmName") VALUES ($1, $2) RETURNING id',
+                        [`${user.name}'s Command`, 'Institutional Unit']
+                    ) as any[];
+                    const teamId = teamRes[0].id;
+
+                    // 2. Create the User anchored to the team as OWNER
                     await db.query(
-                        'INSERT INTO "User" (id, email, name, "firmName", plan, password) VALUES ($1, $2, $3, $4, $5, $6)',
-                        [uuidv4(), email, user.name, 'Google Individual', 'Starter', 'oauth_google_protected_' + Math.random().toString(36)]
+                        'INSERT INTO "User" (id, email, name, role, "teamId", plan, password) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+                        [userId, email, user.name, 'OWNER', teamId, 'Starter', 'oauth_google_' + uuidv4()]
                     );
+
+                    // 3. Set ownerId back on Team
+                    await db.query('UPDATE "Team" SET "ownerId" = $1 WHERE id = $2', [userId, teamId]);
+
+                    token.id = userId;
+                    token.teamId = teamId;
+                    token.role = 'OWNER';
+                } else {
+                    token.id = existing[0].id;
+                    token.teamId = existing[0].teamId;
+                    token.role = existing[0].role;
                 }
             }
             return token;
@@ -63,7 +87,8 @@ export const authOptions: NextAuthOptions = {
         async session({ session, token }) {
             if (token && session.user) {
                 (session.user as any).id = token.id;
-                (session.user as any).firmName = token.firmName;
+                (session.user as any).teamId = token.teamId;
+                (session.user as any).role = token.role;
             }
             return session;
         }

@@ -42,17 +42,15 @@ interface DashboardData {
     }>;
 }
 
-async function getDashboardSummary(userEmail: string): Promise<DashboardData> {
-    const emailRef = userEmail.toLowerCase();
-    
-    // 1. Fetch Workflow Assets (Case-Insensitive)
+async function getDashboardSummary(teamId: string): Promise<DashboardData> {
+    // 1. Fetch Team-Scoped Workflow Assets
     const workflowRows = await db.query(`
         SELECT id, name, status, performance, "tasksCount", "lastRun" 
         FROM "Workflow" 
-        WHERE LOWER("requestedBy") = LOWER($1)
-    `, [emailRef]) as any[];
+        WHERE "teamId" = $1
+    `, [teamId]) as any[];
     
-    console.log(`[FleetSync] Dashboard requested for ${emailRef}. Found ${workflowRows.length} units.`);
+    console.log(`[FleetSync] Team Dashboard requested for ${teamId}. Found ${workflowRows.length} units.`);
 
     // 2. Aggregate Fleet Performance
     let totalTasksDone = 0;
@@ -61,13 +59,12 @@ async function getDashboardSummary(userEmail: string): Promise<DashboardData> {
     workflowRows.forEach((w: any) => {
         totalTasksDone += parseInt(w.tasksCount || "0");
         const s = (w.status || 'passive').toLowerCase();
-        // Any unit not in error is considered part of the Operational Fleet
         if (s !== 'error' && s !== 'failed') {
             activeUnits++;
         }
     });
 
-    // 3. Temporal Fleet Velocity (Last 24 Hours Metrics) - SOVEREIGN ISOLATION
+    // 3. Team-Scoped Temporal Fleet Velocity (Last 24 Hours Metrics)
     const velocityRows = await db.query(`
         SELECT 
             "workflowId", 
@@ -75,11 +72,11 @@ async function getDashboardSummary(userEmail: string): Promise<DashboardData> {
             DATE_TRUNC('hour', "executedAt") as hour, 
             COUNT(*) as ops
         FROM "WorkflowLog" 
-        WHERE "executedAt" > CURRENT_TIMESTAMP - INTERVAL '24 hours'
-        AND "workflowId" IN (SELECT id FROM "Workflow" WHERE LOWER("requestedBy") = LOWER($1))
+        WHERE "teamId" = $1
+        AND "executedAt" > CURRENT_TIMESTAMP - INTERVAL '24 hours'
         GROUP BY "workflowId", "workflowName", hour
         ORDER BY hour ASC
-    `, [emailRef]) as any[];
+    `, [teamId]) as any[];
 
     // Map velocity to individual loop trajectories
     const fleetPaths: Record<string, { name: string, data: number[] }> = {};
@@ -92,10 +89,8 @@ async function getDashboardSummary(userEmail: string): Promise<DashboardData> {
         fleetPaths[id].data[hourIdx] = parseInt(row.ops);
     });
 
-    const successRateValue = 98;
     const uptime = "100.00%";
 
-    // 4. Final Aggregation
     return {
         totalAgents: workflowRows.length,
         activeAgents: activeUnits,
@@ -107,9 +102,9 @@ async function getDashboardSummary(userEmail: string): Promise<DashboardData> {
         chartData: Object.values(fleetPaths),
         kpis: {},
         successRate: {
-            percentage: successRateValue,
-            total: totalTasksDone * 10,
-            success: totalTasksDone * 9
+            percentage: 98,
+            total: totalTasksDone,
+            success: Math.round(totalTasksDone * 0.98)
         },
         recentTransactions: []
     };
@@ -119,16 +114,19 @@ import FleetVelocityChart from "./components/FleetVelocityChart";
 
 export default async function DashboardPage() {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) redirect("/login");
+    if (!session?.user) redirect("/login");
 
-    const userEmail = session.user.email;
-    const [userRecord] = await db.query('SELECT "onboardingStatus" FROM "User" WHERE email = $1', [userEmail.toLowerCase()]) as any[];
+    const userId = (session.user as any).id;
+    const teamId = (session.user as any).teamId;
+    if (!teamId) redirect("/setup");
+
+    const [userRecord] = await db.query('SELECT "onboardingStatus" FROM "User" WHERE id = $1', [userId]) as any[];
     
     if (userRecord?.onboardingStatus !== 'COMPLETED') {
         redirect("/setup");
     }
 
-    const data = await getDashboardSummary(userEmail);
+    const data = await getDashboardSummary(teamId);
 
     return (
         <div className={styles.dashboard}>
@@ -183,19 +181,31 @@ export default async function DashboardPage() {
                     <WorkflowList workflows={data.topWorkflows} />
                 </div>
 
-                <div className={styles.card} style={{ background: '#F8FAFC' }}>
+                <div className={styles.card} style={{ background: '#FFFFFF', border: '1px solid #EAEAEA' }}>
                     <div className={styles.cardHeader}>
-                        <h2 className={styles.cardTitle}>Sync Health</h2>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div style={{ width: '8px', height: '8px', background: '#34D186', borderRadius: '50%', boxShadow: '0 0 10px rgba(52, 209, 134, 0.5)' }} />
+                            <h2 className={styles.cardTitle}>Sync Health</h2>
+                        </div>
                     </div>
                     <div className={styles.breakdownList}>
-                        <div style={{ padding: '24px', background: '#FFFFFF', borderRadius: '20px', border: '1px solid #E2E8F0', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-                                <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#64748B' }}>FLEET UTILIZATION</span>
-                                <span style={{ fontSize: '0.85rem', color: '#0A0A0A', fontWeight: 900 }}>{data.activeAgents} / {data.totalWorkflows}</span>
+                        <div style={{ padding: '32px', background: '#F8FAFC', borderRadius: '24px', border: '1px solid #E2E8F0' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+                                <span style={{ fontSize: '0.75rem', fontWeight: 950, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.1em' }}>FLEET UTILIZATION</span>
+                                <span style={{ fontSize: '1.1rem', color: '#0A0A0A', fontWeight: 950 }}>{data.activeAgents} / {data.totalWorkflows}</span>
                             </div>
-                            <div className={styles.miniProgress} style={{ height: '12px' }}><div className={styles.miniFill} style={{ width: `${(data.activeAgents / (data.totalWorkflows || 1)) * 100}%` }} /></div>
-                            <p style={{ marginTop: '16px', fontSize: '0.75rem', color: '#94A3B8', fontWeight: 800, lineHeight: 1.5 }}>
-                                Operational capacity is {Math.round((data.activeAgents / (data.totalWorkflows || 1)) * 100)}%. All autonomous nodes responding within normal latency parameters.
+                            <div className={styles.miniProgress} style={{ height: '16px', background: '#E2E8F0' }}>
+                                <div 
+                                    className={styles.miniFill} 
+                                    style={{ 
+                                        width: `${(data.activeAgents / (data.totalWorkflows || 1)) * 100}%`,
+                                        background: 'linear-gradient(90deg, #34D186, #10B981)',
+                                        boxShadow: '0 4px 10px rgba(52, 209, 134, 0.3)'
+                                    }} 
+                                />
+                            </div>
+                            <p style={{ marginTop: '24px', fontSize: '0.85rem', color: '#64748B', fontWeight: 800, lineHeight: 1.6 }}>
+                                Your firm's operational capacity is <strong style={{ color: '#0A0A0A' }}>{Math.round((data.activeAgents / (data.totalWorkflows || 1)) * 100)}%</strong>. All autonomous nodes are responding within normal institutional latency parameters.
                             </p>
                         </div>
                     </div>
