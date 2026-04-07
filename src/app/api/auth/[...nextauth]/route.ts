@@ -49,37 +49,38 @@ export const authOptions: NextAuthOptions = {
                 token.role = (user as any).role;
                 token.teamId = (user as any).teamId;
             }
-            // If OAuth signup, ensure the user exists in our DB
-            if (account?.provider === 'google' && user?.email) {
-                const email = user.email.toLowerCase();
-                const existing = await db.query('SELECT id, "teamId", role FROM "User" WHERE LOWER(email) = LOWER($1)', [email]) as any[];
-                
-                if (existing.length === 0) {
-                    const userId = uuidv4();
-                    
-                    // 1. Create a Sovereign Team for the new user
-                    const teamRes = await db.query(
-                        'INSERT INTO "Team" (name, "firmName") VALUES ($1, $2) RETURNING id',
-                        [`${user.name}'s Command`, 'Institutional Unit']
+            // Institutional Identity Pillar: Ensure OAuth users are anchored to DB UUIDs
+            if (account?.provider === 'google' || (token.email && !token.teamId)) {
+                const email = (user?.email || token.email || '').toLowerCase();
+                if (email) {
+                    const existing = await db.query(
+                        'SELECT id, "teamId", role, "onboardingStatus" FROM "User" WHERE LOWER(email) = LOWER($1) LIMIT 1', 
+                        [email]
                     ) as any[];
-                    const teamId = teamRes[0].id;
+                    
+                    if (existing.length === 0 && user) {
+                        const userId = uuidv4();
+                        const teamRes = await db.query(
+                            'INSERT INTO "Team" (name, "firmName") VALUES ($1, $2) RETURNING id',
+                            [`${user.name || 'Operator'}'s Command`, 'Legacy Firm Hub']
+                        ) as any[];
+                        const teamId = teamRes[0].id;
 
-                    // 2. Create the User anchored to the team as OWNER
-                    await db.query(
-                        'INSERT INTO "User" (id, email, name, role, "teamId", plan, password, "onboardingStatus") VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-                        [userId, email, user.name, 'OWNER', teamId, 'Starter', 'oauth_google_' + uuidv4(), 'COMPLETED']
-                    );
+                        await db.query(
+                            'INSERT INTO "User" (id, email, name, role, "teamId", plan, password, "onboardingStatus") VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+                            [userId, email, user.name, 'OWNER', teamId, 'Starter', 'oauth_' + uuidv4(), 'COMPLETED']
+                        );
 
-                    // 3. Set ownerId back on Team
-                    await db.query('UPDATE "Team" SET "ownerId" = $1 WHERE id = $2', [userId, teamId]);
-
-                    token.id = userId;
-                    token.teamId = teamId;
-                    token.role = 'OWNER';
-                } else {
-                    token.id = existing[0].id;
-                    token.teamId = existing[0].teamId;
-                    token.role = existing[0].role;
+                        await db.query('UPDATE "Team" SET "ownerId" = $1 WHERE id = $2', [userId, teamId]);
+                        
+                        token.id = userId;
+                        token.teamId = teamId;
+                        token.role = 'OWNER';
+                    } else if (existing.length > 0) {
+                        token.id = existing[0].id;
+                        token.teamId = existing[0].teamId;
+                        token.role = existing[0].role;
+                    }
                 }
             }
             return token;
