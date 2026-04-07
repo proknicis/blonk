@@ -77,7 +77,7 @@ function AuthContent() {
                 await signIn("credentials", {
                     email: formData.email,
                     password: formData.password,
-                    callbackUrl: "/setup" // New users always go to setup first
+                    callbackUrl: "/dashboard" // Centralized routing: let the dashboard decide if setup is needed
                 });
             }
         } catch (err: any) {
