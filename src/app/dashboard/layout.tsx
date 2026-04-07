@@ -55,8 +55,6 @@ export default function DashboardLayout({
                     });
                 }
 
-                // Usage tracking removed per user request
-
                 const notifs = await notifsRes.json();
                 if (Array.isArray(notifs)) setNotifications(notifs);
             } catch (error) {
@@ -110,6 +108,17 @@ export default function DashboardLayout({
 
     const navItems = allNavItems.filter(item => item.roles.includes(user.role || 'MEMBER'));
 
+    const getModuleTitle = (path: string) => {
+        if (path === '/dashboard') return 'Fleet Overview';
+        if (path === '/dashboard/office') return 'Mission Control';
+        if (path === '/dashboard/team') return 'Strategic Personnel';
+        if (path === '/dashboard/workflows') return 'Marketplace';
+        if (path === '/dashboard/reports') return 'Intelligence Reports';
+        if (path === '/dashboard/settings') return 'System Control';
+        if (path === '/dashboard/help') return 'Support Hub';
+        return 'Command Console';
+    };
+
     return (
         <div className={styles.appShell} onMouseDownCapture={onShellMouseDownCapture} onKeyDownCapture={onShellKeyDownCapture}>
             <div className={styles.noise} />
@@ -148,9 +157,7 @@ export default function DashboardLayout({
                 <header className={styles.topbar}>
                     <div className={styles.topbarContext}>
                         <h1 className={styles.pageTitle}>
-                            {pathname === '/dashboard' ? 'Fleet Overview' :
-                             pathname === '/dashboard/settings' ? 'System Control' :
-                             navItems.find(item => item.href === pathname)?.name || 'Dashboard'}
+                            {getModuleTitle(pathname)}
                         </h1>
                     </div>
                     <div className={styles.topbarActions}>
@@ -158,7 +165,6 @@ export default function DashboardLayout({
                             <button 
                                 className={styles.createWorkflowBtn} 
                                 onClick={() => {
-                                    // This event will be caught by the Team page modal
                                     window.dispatchEvent(new CustomEvent('OPEN_INVITE_MODAL'));
                                 }}
                                 style={{ background: '#34D186', color: '#0A0A0A' }}

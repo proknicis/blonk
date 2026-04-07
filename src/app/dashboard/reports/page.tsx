@@ -90,25 +90,6 @@ export default function ReportsPage() {
 
     return (
         <div className={styles.reportsContainer}>
-            <div className={styles.header}>
-                <div className={styles.headerTitle}>
-                    <h1>Reports & Analytics</h1>
-                    <p>Generate and manage detailed oversight documents for your autonomous firm.</p>
-                </div>
-                <div className={styles.headerActions}>
-                    <a className={styles.btnOutline as unknown as string} href={exportHref}>
-                        Export All
-                    </a>
-                    <button
-                        className={styles.btnPrimary}
-                        onClick={() => generateReport("Quick Audit")}
-                        disabled={isGenerating}
-                    >
-                        {isGenerating ? <div className={styles.loader} /> : "+ Generate New Report"}
-                    </button>
-                </div>
-            </div>
-
             <div className={styles.reportsGrid}>
                 {reportTemplates.map((template) => (
                     <div key={template.id} className={styles.reportCard}>
@@ -134,7 +115,22 @@ export default function ReportsPage() {
             </div>
 
             <div className={styles.historySection}>
-                <h2 className={styles.sectionTitle}>Recent Generations</h2>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                    <h2 className={styles.sectionTitle} style={{ margin: 0 }}>Recent Generations</h2>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                         <a className={styles.btnOutline as unknown as string} href={exportHref} style={{ padding: '12px 24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', fontWeight: 900, fontSize: '0.85rem' }}>
+                            Export All
+                        </a>
+                        <button
+                            className={styles.btnPrimary}
+                            onClick={() => generateReport("Quick Audit")}
+                            disabled={isGenerating}
+                            style={{ padding: '12px 24px', borderRadius: '12px', background: '#0A0A0A', color: '#FFFFFF', fontWeight: 950, fontSize: '0.85rem', border: 'none', cursor: 'pointer' }}
+                        >
+                            {isGenerating ? "Generating..." : "+ New Report"}
+                        </button>
+                    </div>
+                </div>
                 <table className={styles.historyTable}>
                     <thead>
                         <tr>

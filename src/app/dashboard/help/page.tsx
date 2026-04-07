@@ -4,11 +4,6 @@ import React from "react";
 export default function HelpPage() {
     return (
         <div className={styles.container}>
-            <div className={styles.header}>
-                <h1>Support & Resources</h1>
-                <p>Everything you need to master your autonomous firm operations.</p>
-            </div>
-
             <div className={styles.grid}>
                 <div className={styles.card}>
                     <h3>

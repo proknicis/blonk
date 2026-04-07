@@ -14,9 +14,8 @@ async function getAgents(teamId: string) {
             const names = (wf.name || 'Automation').split(' ');
             const initials = names.length > 1 ? names[0][0] + names[1][0] : names[0][0] + (names[0][1] || 'A');
             
-            // Logic for real status
             let displayStatus = wf.status || 'Idle';
-            let color = '#94A3B8'; // default idle gray
+            let color = '#94A3B8';
             let statusKey = 'idle';
 
             if (wf.status === 'Failed' || wf.status === 'Error') {
@@ -42,11 +41,9 @@ async function getAgents(teamId: string) {
             };
         });
 
-        // 2. Fetch Notifications for Live feed
         const notifRows = await db.query('SELECT * FROM "Notification" WHERE "teamId" = $1 ORDER BY "createdAt" DESC LIMIT 10', [teamId]);
         
         const feed = (notifRows || []).map((n: any) => {
-            // simple heuristic to guess type
             let type = 'info';
             if (n.title?.toLowerCase().includes('success') || n.message?.toLowerCase().includes('success')) type = 'success';
             if (n.title?.toLowerCase().includes('fail') || n.message?.toLowerCase().includes('fail')) type = 'error';
@@ -79,16 +76,10 @@ export default async function OfficePage() {
 
     return (
         <div className={styles.officeContainer}>
-            <div className={styles.header}>
-                <div className={styles.headerText}>
-                    <h1>Live Overview</h1>
-                    <p className={styles.subtitle}>Real-time status of your active automations.</p>
-                </div>
-                <div className={styles.officeStats}>
-                    <div className={styles.statChip} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: '#F8FAFC', borderRadius: '100px', fontWeight: 900, fontSize: '0.85rem', color: '#0F172A', border: '1px solid #E2E8F0' }}>
-                        <div className={styles.pulseDot} style={{ background: '#34D186', width: '8px', height: '8px', borderRadius: '50%' }} />
-                        {workflows.filter((a: any) => a.statusKey === 'running').length} Workflows Running
-                    </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '32px' }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: '#F8FAFC', borderRadius: '100px', fontWeight: 900, fontSize: '0.85rem', color: '#0F172A', border: '1px solid #E2E8F0' }}>
+                    <div className={styles.pulseDot} style={{ background: '#34D186', width: '8px', height: '8px', borderRadius: '50%' }} />
+                    {workflows.filter((a: any) => a.statusKey === 'running').length} Workflows Running
                 </div>
             </div>
 
