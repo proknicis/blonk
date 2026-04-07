@@ -250,6 +250,7 @@
     display: grid;
     grid-template-columns: 1.5fr 1fr;
     gap: 32px;
+    min-width: 0;
 }
 
 .activeWorkflows, .liveFeed {
@@ -257,6 +258,8 @@
     border: 1px solid #EAEAEA;
     border-radius: 36px;
     padding: 40px;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .cardHeader {
