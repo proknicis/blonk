@@ -3,6 +3,7 @@
 import styles from "./settings.module.css";
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Shield, CreditCard, Users, Settings as SettingsIcon, Check, Download, AlertTriangle } from "lucide-react";
 
 function SettingsContent() {
     const [activeTab, setActiveTab] = useState('general');
@@ -71,13 +72,10 @@ function SettingsContent() {
             });
             const data = await res.json();
             if (data.success) {
-                alert("Sovereign Co-Pilot account successfully provisioned.");
                 setInviteEmail("");
                 setInvitePassword("");
                 setInviteName("");
-                fetchTeamData(); // Refresh member pulse
-            } else {
-                alert(data.error || "Personnel provisioning failure");
+                fetchTeamData();
             }
         } catch (error) {
             console.error("Provisioning failure", error);
@@ -97,8 +95,6 @@ function SettingsContent() {
             const data = await res.json();
             if (data.success) {
                 setMembers(members.filter((m: any) => m.id !== memberId));
-            } else {
-                alert(data.error || 'Failed to remove operator.');
             }
         } catch (error) {
             console.error('Member removal failure', error);
@@ -110,14 +106,10 @@ function SettingsContent() {
             setIsLoading(true);
             const res = await fetch(`/api/stripe/verify?session_id=${sessionId}`);
             const data = await res.json();
-            
             if (data.success) {
-                // Successfully verified and upgraded
                 setSaved(true);
                 setTimeout(() => setSaved(false), 3000);
             }
-        } catch (error) {
-            console.error("Stripe verification failure", error);
         } finally {
             fetchInitialData();
         }
@@ -142,9 +134,7 @@ function SettingsContent() {
                     name: userData.name || ""
                 });
             }
-            if (opData && !opData.error) {
-                setOperationalSettings(opData);
-            }
+            if (opData && !opData.error) setOperationalSettings(opData);
             if (billData && !billData.error) {
                 setCurrentPlan(billData.plan);
                 setInvoices(billData.invoices);
@@ -186,433 +176,278 @@ function SettingsContent() {
 
     const handlePlanSwitch = async (plan: string) => {
         if (plan === currentPlan) return;
-        
         try {
             setIsLoading(true);
-            
-            // Institutional plan triggers the sovereign checkout handshake
             if (plan === 'Institutional') {
-                // We use a modular POST to initiate the sovereign payment session
                 const res = await fetch("/api/stripe/checkout", { 
                     method: "POST",
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ plan: 'Institutional' })
                 });
-                
                 const data = await res.json().catch(() => null);
-                
-                if (!res.ok || !data?.url) {
-                    throw new Error(data?.error || "Institutional Handshake Failed");
+                if (data?.url) {
+                    window.location.href = data.url;
+                    return;
                 }
-                
-                // Redirecting to Stripe Sovereign Terminal
-                window.location.href = data.url;
-                return;
             }
-
-            // For infrastructure or other tiers, reset loading
             setCurrentPlan(plan);
+        } catch (error) {
+            console.error("Plan switch failed", error);
+        } finally {
             setIsLoading(false);
             setSaved(true);
             setTimeout(() => setSaved(false), 2000);
-        } catch (error) {
-            console.error("Plan switch failed", error);
-            setIsLoading(false);
-            alert("Payment initialization failed. Please verify configuration.");
         }
     };
 
     if (isLoading) {
-        return <div className={styles.container}><p>Synchronizing vault parameters...</p></div>;
+        return (
+            <div className={styles.container} style={{ height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <p style={{ fontWeight: 950, color: '#94A3B8', letterSpacing: '-0.02em' }}>Initializing sovereign control panel...</p>
+            </div>
+        );
     }
 
     return (
         <div className={styles.container}>
-
-
             <div className={styles.tabs}>
                 <button 
                     className={`${styles.tab} ${activeTab === 'general' ? styles.activeTab : ''}`}
                     onClick={() => setActiveTab('general')}
                 >
-                    Firm Identity
+                    System Profile
                 </button>
                 <button 
                     className={`${styles.tab} ${activeTab === 'team' ? styles.activeTab : ''}`}
                     onClick={() => setActiveTab('team')}
                 >
-                    Team Management
+                    Personnel Roster
                 </button>
                 <button 
                     className={`${styles.tab} ${activeTab === 'billing' ? styles.activeTab : ''}`}
                     onClick={() => setActiveTab('billing')}
                 >
-                    Billing & Plans
+                    Subscription Tiers
                 </button>
             </div>
 
             {activeTab === 'general' && (
-                <>
-                    <div className={styles.section}>
-                        <h2>Identity & Access</h2>
+                <div className={styles.section}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div>
+                            <h2>Configuration & Guardrails</h2>
+                            <p style={{ margin: '8px 0 0 0', color: '#64748B', fontWeight: 700, fontSize: '0.9rem' }}>Manage your administrative vault and autonomous operating parameters.</p>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', background: '#F8FAFC', borderRadius: '14px', border: '1px solid #E2E8F0' }}>
+                            <Shield size={16} color="#34D186" />
+                            <span style={{ fontSize: '0.8rem', fontWeight: 950, color: '#0A0A0A', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Vault Encrypted</span>
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                         <div className={styles.field}>
-                            <label>Full Name</label>
+                            <label>Admin Principal Presence</label>
                             <input
                                 type="text"
                                 className={styles.input}
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                placeholder="Your Name"
                             />
                         </div>
                         <div className={styles.field}>
-                            <label>Firm Name</label>
+                            <label>Sovereign Firm Identity</label>
                             <input
                                 type="text"
                                 className={styles.input}
                                 value={formData.firmName}
                                 onChange={(e) => setFormData({ ...formData, firmName: e.target.value })}
+                                placeholder="Firm Name"
                             />
                         </div>
                         <div className={styles.field}>
-                            <label>Admin Email</label>
+                            <label>Primary Communication Endpoint</label>
                             <input
                                 type="email"
                                 className={styles.input}
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                placeholder="Email"
                             />
                         </div>
                     </div>
 
-                    <div className={styles.section}>
-                        <h2>Operational Guardrails</h2>
-                        <div className={styles.toggleField}>
-                            <div className={styles.toggleInfo}>
-                                <strong>Autonomous Discovery</strong>
-                                <p>Enable agents to scale document search loops independently.</p>
+                    <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: '40px' }}>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: 950, marginBottom: '24px' }}>Autonomous Logic</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <div className={styles.toggleField}>
+                                <div className={styles.toggleInfo}>
+                                    <strong>Subsystem Discovery</strong>
+                                    <p>Allow agents to independently provision new specialized loop modules.</p>
+                                </div>
+                                <label className={styles.switch}>
+                                    <input
+                                        type="checkbox"
+                                        checked={operationalSettings.autonomous_discovery === "true"}
+                                        onChange={() => toggleOperational('autonomous_discovery')}
+                                    />
+                                    <span className={styles.slider}></span>
+                                </label>
                             </div>
-                            <label className={styles.switch}>
-                                <input
-                                    type="checkbox"
-                                    checked={operationalSettings.autonomous_discovery === "true"}
-                                    onChange={() => toggleOperational('autonomous_discovery')}
-                                />
-                                <span className={styles.slider}></span>
-                            </label>
-                        </div>
-                        <div className={styles.toggleField}>
-                            <div className={styles.toggleInfo}>
-                                <strong>Real-time Auditing</strong>
-                                <p>Generate specialized risk assessments for every large transaction.</p>
+                            <div className={styles.toggleField}>
+                                <div className={styles.toggleInfo}>
+                                    <strong>Continuous Ledger Audit</strong>
+                                    <p>Real-time oversight for every financial interaction within active loop sectors.</p>
+                                </div>
+                                <label className={styles.switch}>
+                                    <input
+                                        type="checkbox"
+                                        checked={operationalSettings.real_time_auditing === "true"}
+                                        onChange={() => toggleOperational('real_time_auditing')}
+                                    />
+                                    <span className={styles.slider}></span>
+                                </label>
                             </div>
-                            <label className={styles.switch}>
-                                <input
-                                    type="checkbox"
-                                    checked={operationalSettings.real_time_auditing === "true"}
-                                    onChange={() => toggleOperational('real_time_auditing')}
-                                />
-                                <span className={styles.slider}></span>
-                            </label>
                         </div>
                     </div>
 
                     <div className={styles.footer}>
                         <button className={styles.btnPrimary} onClick={handleSave}>
-                            {saved ? "Vault Updated" : "Commit Configuration"}
+                            {saved ? "Synchronized with Vault" : "Commit System Changes"}
                         </button>
                     </div>
-                </>
+                </div>
             )}
 
             {activeTab === 'team' && (
-                <div className={styles.teamView}>
-                    {/* PROVISION NEW MEMBER */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
                     <div className={styles.section}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
-                                <h2 style={{ margin: 0 }}>Add Team Member</h2>
-                                <p style={{ color: '#64748B', fontWeight: 700, fontSize: '0.95rem', marginTop: '6px' }}>
-                                    Create login credentials for your co-pilots. They can sign in immediately.
-                                </p>
+                                <h2>Operator Provisioning</h2>
+                                <p style={{ margin: '8px 0 0 0', color: '#64748B', fontWeight: 700, fontSize: '0.9rem' }}>Deploy new co-pilots with specialized administrative credentials.</p>
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#F0FAF5', padding: '8px 16px', borderRadius: '12px' }}>
-                                <div style={{ width: '8px', height: '8px', background: '#34D186', borderRadius: '50%' }} />
-                                <span style={{ fontSize: '0.75rem', fontWeight: 950, color: '#34D186', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                                    {members.length} Active
-                                </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', background: '#F0FAF5', borderRadius: '14px', border: '1px solid #34D18633' }}>
+                                <Users size={16} color="#34D186" />
+                                <span style={{ fontSize: '0.8rem', fontWeight: 950, color: '#34D186', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{members.length} Active</span>
                             </div>
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-                            <div className={styles.field} style={{ margin: 0 }}>
-                                <label>Full Name</label>
-                                <input
-                                    type="text"
-                                    className={styles.input}
-                                    placeholder="Jane Smith"
-                                    value={inviteName}
-                                    onChange={(e) => setInviteName(e.target.value)}
-                                />
-                            </div>
-                            <div className={styles.field} style={{ margin: 0 }}>
-                                <label>Email Address</label>
-                                <input
-                                    type="email"
-                                    className={styles.input}
-                                    placeholder="jane@yourfirm.com"
-                                    value={inviteEmail}
-                                    onChange={(e) => setInviteEmail(e.target.value)}
-                                />
-                            </div>
-                        </div>
-
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '32px' }}>
-                            <div className={styles.field} style={{ margin: 0 }}>
-                                <label>Login Password</label>
-                                <div style={{ position: 'relative' }}>
-                                    <input
-                                        type={showPassword ? 'text' : 'password'}
-                                        className={styles.input}
-                                        placeholder="Min. 8 characters"
-                                        value={invitePassword}
-                                        onChange={(e) => setInvitePassword(e.target.value)}
-                                        style={{ paddingRight: '52px' }}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        style={{
-                                            position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)',
-                                            background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', padding: 0, lineHeight: 1
-                                        }}
-                                    >
-                                        {showPassword ? (
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                                        ) : (
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                                        )}
-                                    </button>
-                                </div>
-                            </div>
-                            <div className={styles.field} style={{ margin: 0 }}>
-                                <label>Role</label>
-                                <select
-                                    className={styles.input}
-                                    value={inviteRole}
-                                    onChange={(e) => setInviteRole(e.target.value)}
-                                >
-                                    <option value="MEMBER">Member — Standard access</option>
-                                    <option value="ADMIN">Admin — Elevated access</option>
-                                </select>
-                            </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px' }}>
+                            <div className={styles.field}><label>Presence Name</label><input type="text" className={styles.input} value={inviteName} onChange={e => setInviteName(e.target.value)} placeholder="Jane Smith" /></div>
+                            <div className={styles.field}><label>Identity Token (Email)</label><input type="email" className={styles.input} value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} placeholder="jane@blonk.ai" /></div>
+                            <div className={styles.field}><label>Initial Password</label><input type="text" className={styles.input} value={invitePassword} onChange={e => setInvitePassword(e.target.value)} placeholder="Min. 8 characters" /></div>
+                            <div className={styles.field}><label>System Permission</label><select className={styles.input} value={inviteRole} onChange={e => setInviteRole(e.target.value)}><option value="MEMBER">Member — Standard Loop Access</option><option value="ADMIN">Admin — Full Subsystem Control</option></select></div>
                         </div>
 
                         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                            <button
-                                className={styles.btnPrimary}
-                                onClick={handleInvite}
-                                disabled={inviting || !inviteEmail || !invitePassword || !inviteName}
-                            >
-                                {inviting ? (
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ animation: 'spin 1s linear infinite' }}><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" opacity=".2"/><path d="M21 12a9 9 0 0 0-9-9"/></svg>
-                                        Provisioning...
-                                    </span>
-                                ) : '+ Provision Account'}
+                            <button className={styles.btnPrimary} onClick={handleInvite} disabled={inviting || !inviteEmail || !invitePassword || !inviteName}>
+                                {inviting ? "Provisioning..." : "+ Deploy New Operator"}
                             </button>
                         </div>
                     </div>
 
-                    {/* ACTIVE ROSTER */}
                     <div className={styles.section}>
-                        <h2>Active Roster</h2>
-                        {members.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '48px', color: '#94A3B8', background: '#F8FAFC', borderRadius: '20px', border: '1px solid #E2E8F0' }}>
-                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="1.5" style={{ margin: '0 auto 16px', display: 'block' }}>
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                                </svg>
-                                <p style={{ fontWeight: 800, fontSize: '1rem' }}>No team members yet.</p>
-                                <p style={{ fontSize: '0.85rem', marginTop: '4px' }}>Provision an account above to get started.</p>
-                            </div>
-                        ) : (
-                            <table className={styles.billTable}>
-                                <thead>
-                                    <tr>
-                                        <th>Operator</th>
-                                        <th>Email</th>
-                                        <th>Role</th>
-                                        <th>Joined</th>
-                                        <th style={{ textAlign: 'right' }}>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {members.map((member: any) => (
-                                        <tr key={member.id}>
-                                            <td>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                    <div style={{
-                                                        width: '38px', height: '38px', borderRadius: '12px', flexShrink: 0,
-                                                        background: member.role === 'OWNER' ? '#0A0A0A' : member.role === 'ADMIN' ? '#EEF2FF' : '#F0FAF5',
-                                                        color: member.role === 'OWNER' ? '#FFFFFF' : member.role === 'ADMIN' ? '#6366F1' : '#34D186',
-                                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                        fontWeight: 950, fontSize: '0.9rem'
-                                                    }}>
-                                                        {(member.name || 'O').charAt(0).toUpperCase()}
-                                                    </div>
-                                                    <span style={{ fontWeight: 950, color: '#0A0A0A' }}>{member.name || 'Anonymous Operator'}</span>
+                        <h2>Active Personnel Roster</h2>
+                        <table className={styles.billTable}>
+                            <thead>
+                                <tr>
+                                    <th>Identity</th>
+                                    <th>Token</th>
+                                    <th>Status</th>
+                                    <th style={{ textAlign: 'right' }}>Direct Control</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {members.map((member: any) => (
+                                    <tr key={member.id}>
+                                        <td>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: member.role === 'OWNER' ? '#0A0A0A' : '#F0FAF5', color: member.role === 'OWNER' ? '#FFFFFF' : '#34D186', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 950, fontSize: '0.9rem' }}>
+                                                    {(member.name || 'O').charAt(0).toUpperCase()}
                                                 </div>
-                                            </td>
-                                            <td style={{ color: '#64748B' }}>{member.email}</td>
-                                            <td>
-                                                <span style={{
-                                                    padding: '5px 12px', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 950,
-                                                    textTransform: 'uppercase', letterSpacing: '0.08em',
-                                                    background: member.role === 'OWNER' ? '#0A0A0A' : member.role === 'ADMIN' ? '#EEF2FF' : '#F0FAF5',
-                                                    color: member.role === 'OWNER' ? '#FFFFFF' : member.role === 'ADMIN' ? '#6366F1' : '#34D186',
-                                                }}>
-                                                    {member.role}
-                                                </span>
-                                            </td>
-                                            <td style={{ color: '#94A3B8', fontSize: '0.9rem' }}>
-                                                {member.createdAt ? new Date(member.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
-                                            </td>
-                                            <td style={{ textAlign: 'right' }}>
-                                                {member.role !== 'OWNER' ? (
-                                                    <button
-                                                        onClick={() => handleRemoveMember(member.id, member.name)}
-                                                        style={{
-                                                            background: '#FFF1F2', border: '1px solid #FFE4E6', color: '#F43F5E',
-                                                            padding: '8px 16px', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 950,
-                                                            cursor: 'pointer', transition: 'all 0.2s'
-                                                        }}
-                                                        onMouseEnter={e => { (e.target as HTMLElement).style.background = '#F43F5E'; (e.target as HTMLElement).style.color = '#FFFFFF'; }}
-                                                        onMouseLeave={e => { (e.target as HTMLElement).style.background = '#FFF1F2'; (e.target as HTMLElement).style.color = '#F43F5E'; }}
-                                                    >
-                                                        Remove
-                                                    </button>
-                                                ) : (
-                                                    <span style={{ color: '#CBD5E1', fontSize: '0.8rem', fontWeight: 800 }}>Team Owner</span>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        )}
+                                                <span style={{ fontWeight: 950, color: '#0A0A0A' }}>{member.name}</span>
+                                            </div>
+                                        </td>
+                                        <td style={{ color: '#64748B' }}>{member.email}</td>
+                                        <td>
+                                            <span style={{ padding: '6px 12px', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 950, background: '#F0FAF5', color: '#34D186', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{member.role}</span>
+                                        </td>
+                                        <td style={{ textAlign: 'right' }}>
+                                            {member.role !== 'OWNER' && (
+                                                <button onClick={() => handleRemoveMember(member.id, member.name)} style={{ background: 'none', border: 'none', color: '#EF4444', fontWeight: 950, fontSize: '0.8rem', cursor: 'pointer' }}>Eject Member</button>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             )}
 
             {activeTab === 'billing' && (
-                <div className={styles.billingView}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
                     <div className={styles.section}>
-                        <h2>Fleet Subscription</h2>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
+                            <div>
+                                <h2>Infrastructure Commitment</h2>
+                                <p style={{ margin: '8px 0 0 0', color: '#64748B', fontWeight: 700, fontSize: '0.9rem' }}>Select the operational capacity that aligns with your firm's administrative volume.</p>
+                            </div>
+                        </div>
+
                         <div className={styles.planGrid}>
-                            {/* INSTITUTIONAL PLAN */}
                             <div className={styles.institutionCard}>
-                                <div className={styles.planLabels}>
-                                    <span className={styles.planLabel}>Institutional</span>
-                                </div>
-                                <div className={styles.planPricing}>
-                                    <span className={styles.planAmount}>$833</span>
-                                    <span className={styles.planPeriod}>/mo</span>
-                                </div>
-                                <p className={styles.planDescription}>
-                                    Deploy a full autonomous workforce module across your critical departmental layers.
-                                </p>
+                                <span className={styles.planLabel}>Priority Tier</span>
+                                <div className={styles.planPricing}><span className={styles.planAmount}>$833</span><span className={styles.planPeriod}>/mo</span></div>
+                                <p className={styles.planDescription}>The definitive operating layer for autonomous personnel management.</p>
                                 <ul className={styles.featureList}>
-                                    <li className={styles.featureItem}>
-                                        <svg className={styles.planIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                                        Core Governance Engine
-                                    </li>
-                                    <li className={styles.featureItem}>
-                                        <svg className={styles.planIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                                        Public Sovereign Cloud
-                                    </li>
-                                    <li className={styles.featureItem}>
-                                        <svg className={styles.planIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                                        SOC-2 Ready Audit
-                                    </li>
-                                    <li className={styles.featureItem}>
-                                        <svg className={styles.planIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                                        5 Seat Integrated Vault
-                                    </li>
+                                    <li className={styles.featureItem}><Check size={18} color="#34D186" /> Unlimited Audit Loops</li>
+                                    <li className={styles.featureItem}><Check size={18} color="#34D186" /> Sovereign Data Backbone</li>
+                                    <li className={styles.featureItem}><Check size={18} color="#34D186" /> SOC-2 Compliance Core</li>
                                 </ul>
-                                <button 
-                                    className={styles.btnInstitutional}
-                                    onClick={() => handlePlanSwitch('Institutional')}
-                                    disabled={currentPlan === 'Institutional'}
-                                >
-                                    {currentPlan === 'Institutional' ? "Current Directive" : "Select Institutional."}
+                                <button className={styles.btnInstitutional} onClick={() => handlePlanSwitch('Institutional')} disabled={currentPlan === 'Institutional'}>
+                                    {currentPlan === 'Institutional' ? "Active Directive" : "Commit to Institutional"}
                                 </button>
                             </div>
 
-                            {/* INFRASTRUCTURE (ENTERPRISE) PLAN */}
                             <div className={styles.infrastructureCard}>
-                                <span className={styles.enterpriseBadge}>Enterprise</span>
-                                <div className={styles.planLabels}>
-                                    <span className={styles.planLabel}>Infrastructure</span>
-                                </div>
-                                <div className={styles.planPricing}>
-                                    <span className={styles.planAmount}>Inquire</span>
-                                </div>
-                                <p className={styles.planDescription}>
-                                    The absolute operating layer for Fortune 500 legal and accounting firms.
-                                </p>
+                                <span className={styles.enterpriseBadge}>Limited Allocation</span>
+                                <div className={styles.planPricing}><span className={styles.planAmount}>Contact</span></div>
+                                <p className={styles.planDescription}>Custom infrastructure scaling for global legal and accounting entities.</p>
                                 <ul className={styles.featureList}>
-                                    <li className={styles.featureItem}>
-                                        <svg className={styles.planIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                                        Private Sovereign Backbone
-                                    </li>
-                                    <li className={styles.featureItem}>
-                                        <svg className={styles.planIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                                        Unlimited Capacity scaling
-                                    </li>
-                                    <li className={styles.featureItem}>
-                                        <svg className={styles.planIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                                        Strategic Compliance Sync
-                                    </li>
-                                    <li className={styles.featureItem}>
-                                        <svg className={styles.planIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                                        Dedicated Key Manager
-                                    </li>
+                                    <li className={styles.featureItem}><Check size={18} color="#34D186" /> Private Subsystem Mirroring</li>
+                                    <li className={styles.featureItem}><Check size={18} color="#34D186" /> 24/7 Loop Reliability Engineers</li>
+                                    <li className={styles.featureItem}><Check size={18} color="#34D186" /> Custom Regulatory Adapters</li>
                                 </ul>
-                                <button className={styles.btnInfrastructure} onClick={() => window.open('mailto:architecture@blonk.ai')}>
-                                    Contact Architecture.
-                                </button>
+                                <button className={styles.btnInfrastructure} onClick={() => window.open('mailto:architecture@blonk.ai')}>Inquire for Infrastructure</button>
                             </div>
                         </div>
                     </div>
 
                     <div className={styles.section}>
-                        <h2>Invoice History</h2>
+                        <h2>Transaction Ledger</h2>
                         <table className={styles.billTable}>
                             <thead>
                                 <tr>
                                     <th>Ref ID</th>
-                                    <th>Date</th>
-                                    <th>Amount</th>
+                                    <th>Commit Date</th>
+                                    <th>Allocation</th>
                                     <th>Status</th>
-                                    <th style={{ textAlign: 'right' }}>Action</th>
+                                    <th style={{ textAlign: 'right' }}>Audit Log</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {invoices.length > 0 ? invoices.map((inv) => (
+                                {invoices.length > 0 ? invoices.map(inv => (
                                     <tr key={inv.id}>
                                         <td>{inv.invoiceNumber}</td>
-                                        <td>{new Date(inv.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
-                                        <td style={{ fontWeight: 950, color: '#0F172A' }}>{inv.amount}</td>
-                                        <td><span className={`${styles.statusPill} ${styles.statusPaid}`}>{inv.status}</span></td>
-                                        <td style={{ textAlign: 'right' }}>
-                                            <button className={styles.downloadBtn} title="Download PDF">
-                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                                            </button>
-                                        </td>
+                                        <td>{new Date(inv.date).toLocaleDateString()}</td>
+                                        <td style={{ fontWeight: 950, color: '#0A0A0A' }}>{inv.amount}</td>
+                                        <td><span className={styles.statusPaid}>COMMITTED</span></td>
+                                        <td style={{ textAlign: 'right' }}><button className={styles.downloadBtn}><Download size={18} /></button></td>
                                     </tr>
                                 )) : (
-                                    <tr>
-                                        <td colSpan={5} style={{ textAlign: 'center', padding: '40px', color: '#94A3B8' }}>No historical transactions found.</td>
-                                    </tr>
+                                    <tr><td colSpan={5} style={{ textAlign: 'center', padding: '60px' }}>No historical commitment records found.</td></tr>
                                 )}
                             </tbody>
                         </table>
