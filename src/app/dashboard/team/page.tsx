@@ -10,6 +10,7 @@ export default function TeamPage() {
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [search, setSearch] = useState("");
     const [roleFilter, setRoleFilter] = useState("ALL");
+    const [currentUserRole, setCurrentUserRole] = useState("VIEWER");
     
     // Invite Modal State
     const [inviteName, setInviteName] = useState("");
@@ -21,7 +22,18 @@ export default function TeamPage() {
 
     useEffect(() => {
         fetchTeamData();
+        fetchCurrentUser();
     }, []);
+
+    const fetchCurrentUser = async () => {
+        try {
+            const res = await fetch('/api/settings');
+            const data = await res.json();
+            if (data.role) setCurrentUserRole(data.role);
+        } catch (error) {
+            console.error("Current user fetch failure", error);
+        }
+    };
 
     const fetchTeamData = async () => {
         try {
@@ -105,10 +117,12 @@ export default function TeamPage() {
                     <h1>Team Directory</h1>
                     <p>Manage access, assign workflows, and monitor activity.</p>
                 </div>
-                <button className={styles.btnPrimary} onClick={() => setShowInviteModal(true)}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-                    Invite Member
-                </button>
+                {(currentUserRole === 'OWNER' || currentUserRole === 'ADMIN') && (
+                    <button className={styles.btnPrimary} onClick={() => setShowInviteModal(true)}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                        Invite Member
+                    </button>
+                )}
             </div>
 
             <div className={styles.statsGrid}>
@@ -142,7 +156,7 @@ export default function TeamPage() {
                         <option value="OWNER">Owner</option>
                         <option value="ADMIN">Admin</option>
                         <option value="OPERATOR">Operator</option>
-                        <option value="MEMBER">Viewer</option>
+                        <option value="VIEWER">Viewer</option>
                     </select>
                 </div>
 
@@ -185,7 +199,7 @@ export default function TeamPage() {
                                         </td>
                                         <td>
                                             <span className={styles.roleBadge} style={{ background: roleStyle.bg, color: roleStyle.color }}>
-                                                {member.role === 'MEMBER' ? 'VIEWER' : member.role}
+                                                {member.role}
                                             </span>
                                         </td>
                                         <td>
@@ -206,9 +220,11 @@ export default function TeamPage() {
                                             </div>
                                         </td>
                                         <td style={{ textAlign: 'right' }}>
-                                            <button className={styles.actionBtn} aria-label="Manage user">
-                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
-                                            </button>
+                                            {(currentUserRole === 'OWNER' || currentUserRole === 'ADMIN') && (
+                                                <button className={styles.actionBtn} aria-label="Manage user">
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+                                                </button>
+                                            )}
                                         </td>
                                     </tr>
                                 );

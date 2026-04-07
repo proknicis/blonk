@@ -132,7 +132,7 @@ export default async function OfficePage() {
                                         </div>
                                     </div>
                                     
-                                    {agent.statusKey === 'failed' && (
+                                    {(agent.statusKey === 'failed' && (session.user as any).role !== 'VIEWER') && (
                                         <button style={{ width: '100%', marginTop: '24px', padding: '12px', background: '#FEF2F2', border: '1px solid #FECACA', color: '#EF4444', borderRadius: '12px', fontWeight: 900, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s' }}>
                                             View Logs & Retry
                                         </button>
