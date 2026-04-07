@@ -1,0 +1,277 @@
+.teamContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.headerLeft h1 {
+    font-size: 2.5rem;
+    font-weight: 950;
+    letter-spacing: -0.04em;
+    color: #0F172A;
+    margin: 0 0 8px 0;
+}
+
+.headerLeft p {
+    font-size: 1.05rem;
+    color: #64748B;
+    font-weight: 600;
+    margin: 0;
+}
+
+.btnPrimary {
+    background: #000;
+    color: white;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s;
+}
+
+.btnPrimary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.statCard {
+    background: #fff;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
+
+.statLabel {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    color: #94A3B8;
+}
+
+.statValue {
+    font-size: 2rem;
+    font-weight: 950;
+    color: #0F172A;
+}
+
+.controls {
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    background: #fff;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid #E2E8F0;
+}
+
+.searchBox {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    background: #F8FAFC;
+    padding: 0 16px;
+    border-radius: 12px;
+    border: 1px solid #E2E8F0;
+    min-height: 48px;
+}
+
+.searchBox input {
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    width: 100%;
+    color: #0F172A;
+}
+
+.filterSelect {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    color: #0F172A;
+    font-weight: 700;
+    padding: 0 16px;
+    border-radius: 12px;
+    outline: none;
+    min-height: 48px;
+    min-width: 160px;
+}
+
+.tableWrapper {
+    background: #fff;
+    border-radius: 24px;
+    border: 1px solid #E2E8F0;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.02);
+}
+
+.teamTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.teamTable th {
+    text-align: left;
+    padding: 20px 24px;
+    font-size: 0.8rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94A3B8;
+    background: #F8FAFC;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.teamTable td {
+    padding: 24px;
+    border-bottom: 1px solid #F1F5F9;
+    vertical-align: middle;
+}
+
+.teamRow {
+    transition: background 0.2s;
+}
+
+.teamRow:hover {
+    background: #FAFAFA;
+}
+
+.userCell {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 950;
+    font-size: 1.1rem;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.statusDot {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+
+.statusActive { background: #34D186; }
+.statusOffline { background: #CBD5E1; }
+
+.userInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.userName {
+    font-weight: 950;
+    font-size: 1rem;
+    color: #0F172A;
+}
+
+.userEmail {
+    font-size: 0.85rem;
+    color: #64748B;
+    font-weight: 600;
+}
+
+.roleBadge {
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 950;
+    text-transform: uppercase;
+}
+
+.workflowsList {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.workflowPill {
+    background: #F1F5F9;
+    color: #334155;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    display: inline-block;
+}
+
+.activityInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.activityText {
+    font-size: 0.85rem;
+    color: #0F172A;
+    font-weight: 700;
+}
+
+.activityTime {
+    font-size: 0.75rem;
+    color: #94A3B8;
+    font-weight: 600;
+}
+
+.actionBtn {
+    background: none;
+    border: none;
+    color: #94A3B8;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.actionBtn:hover {
+    background: #F1F5F9;
+    color: #0F172A;
+}
+
+/* Modal styles included inside page.tsx instead */
