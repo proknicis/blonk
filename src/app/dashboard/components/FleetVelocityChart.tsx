@@ -233,7 +233,18 @@ export default function FleetVelocityChart({ initialData }: { initialData: Chart
             </div>
 
             {/* LEGEND BOX */}
-            <div style={{ display: 'flex', gap: '32px', marginTop: '32px', padding: '24px', background: '#F8FAFC', borderRadius: '20px', border: '1px solid #E2E8F0' }}>
+            <div style={{ 
+                display: 'flex', 
+                flexWrap: 'wrap',
+                gap: '24px 32px', 
+                marginTop: '32px', 
+                padding: '24px', 
+                background: '#F8FAFC', 
+                borderRadius: '20px', 
+                border: '1px solid #E2E8F0',
+                width: '100%',
+                boxSizing: 'border-box'
+            }}>
                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                    <div style={{ width: '12px', height: '12px', borderRadius: '4px', background: '#34D186' }} />
                    <div>

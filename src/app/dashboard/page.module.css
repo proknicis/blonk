@@ -206,7 +206,7 @@
     border: 1px solid #EAEAEA;
     border-radius: 36px;
     padding: 48px;
-    min-height: 600px;
+    height: auto; /* Reverting from min-height to allow full fluid expansion */
 }
 
 .sectionHeader {
@@ -241,8 +241,9 @@
 }
 
 .chartWrapper {
-    height: 400px;
+    height: auto;
     width: 100%;
+    min-height: 500px; /* Ensures a baseline profile during async data syncs */
 }
 
 /* COMMAND GRID: Active Components */
