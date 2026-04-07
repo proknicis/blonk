@@ -27,6 +27,7 @@ function SettingsContent() {
     const [invitePassword, setInvitePassword] = useState("");
     const [inviteRole, setInviteRole] = useState("MEMBER");
     const [inviting, setInviting] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -82,6 +83,25 @@ function SettingsContent() {
             console.error("Provisioning failure", error);
         } finally {
             setInviting(false);
+        }
+    };
+
+    const handleRemoveMember = async (memberId: string, memberName: string) => {
+        if (!confirm(`Remove ${memberName || 'this operator'} from your team? This cannot be undone.`)) return;
+        try {
+            const res = await fetch('/api/team', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ memberId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setMembers(members.filter((m: any) => m.id !== memberId));
+            } else {
+                alert(data.error || 'Failed to remove operator.');
+            }
+        } catch (error) {
+            console.error('Member removal failure', error);
         }
     };
 
@@ -309,57 +329,179 @@ function SettingsContent() {
 
             {activeTab === 'team' && (
                 <div className={styles.teamView}>
+                    {/* PROVISION NEW MEMBER */}
                     <div className={styles.section}>
-                        <h2>Team Management</h2>
-                        <div style={{ display: 'flex', gap: '16px', marginBottom: '32px' }}>
-                            <input
-                                type="email"
-                                className={styles.input}
-                                placeholder="name@firm.com"
-                                value={inviteEmail}
-                                onChange={(e) => setInviteEmail(e.target.value)}
-                                style={{ maxWidth: '300px' }}
-                            />
-                            <select 
-                                className={styles.input} 
-                                value={inviteRole}
-                                onChange={(e) => setInviteRole(e.target.value)}
-                                style={{ maxWidth: '150px' }}
-                            >
-                                <option value="ADMIN">Admin</option>
-                                <option value="MEMBER">Member</option>
-                            </select>
-                            <button 
-                                className={styles.btnPrimary} 
-                                onClick={handleInvite}
-                                disabled={inviting}
-                            >
-                                {inviting ? "Pulse..." : "Invite Member"}
-                            </button>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
+                            <div>
+                                <h2 style={{ margin: 0 }}>Add Team Member</h2>
+                                <p style={{ color: '#64748B', fontWeight: 700, fontSize: '0.95rem', marginTop: '6px' }}>
+                                    Create login credentials for your co-pilots. They can sign in immediately.
+                                </p>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#F0FAF5', padding: '8px 16px', borderRadius: '12px' }}>
+                                <div style={{ width: '8px', height: '8px', background: '#34D186', borderRadius: '50%' }} />
+                                <span style={{ fontSize: '0.75rem', fontWeight: 950, color: '#34D186', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                                    {members.length} Active
+                                </span>
+                            </div>
                         </div>
 
-                        <table className={styles.billTable}>
-                            <thead>
-                                <tr>
-                                    <th>Operator Name</th>
-                                    <th>Identity Email</th>
-                                    <th>Direct Role</th>
-                                    <th style={{ textAlign: 'right' }}>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {members.map((member) => (
-                                    <tr key={member.id}>
-                                        <td style={{ fontWeight: 950, color: '#0A0A0A' }}>{member.name || 'Anonymous Operator'}</td>
-                                        <td>{member.email}</td>
-                                        <td><span className={styles.planLabel} style={{ fontSize: '0.65rem' }}>{member.role}</span></td>
-                                        <td style={{ textAlign: 'right' }}>
-                                            <span className={`${styles.statusPill} ${styles.statusActive}`}>Live Connection</span>
-                                        </td>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                            <div className={styles.field} style={{ margin: 0 }}>
+                                <label>Full Name</label>
+                                <input
+                                    type="text"
+                                    className={styles.input}
+                                    placeholder="Jane Smith"
+                                    value={inviteName}
+                                    onChange={(e) => setInviteName(e.target.value)}
+                                />
+                            </div>
+                            <div className={styles.field} style={{ margin: 0 }}>
+                                <label>Email Address</label>
+                                <input
+                                    type="email"
+                                    className={styles.input}
+                                    placeholder="jane@yourfirm.com"
+                                    value={inviteEmail}
+                                    onChange={(e) => setInviteEmail(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '32px' }}>
+                            <div className={styles.field} style={{ margin: 0 }}>
+                                <label>Login Password</label>
+                                <div style={{ position: 'relative' }}>
+                                    <input
+                                        type={showPassword ? 'text' : 'password'}
+                                        className={styles.input}
+                                        placeholder="Min. 8 characters"
+                                        value={invitePassword}
+                                        onChange={(e) => setInvitePassword(e.target.value)}
+                                        style={{ paddingRight: '52px' }}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        style={{
+                                            position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)',
+                                            background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', padding: 0, lineHeight: 1
+                                        }}
+                                    >
+                                        {showPassword ? (
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                        ) : (
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                            <div className={styles.field} style={{ margin: 0 }}>
+                                <label>Role</label>
+                                <select
+                                    className={styles.input}
+                                    value={inviteRole}
+                                    onChange={(e) => setInviteRole(e.target.value)}
+                                >
+                                    <option value="MEMBER">Member — Standard access</option>
+                                    <option value="ADMIN">Admin — Elevated access</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <button
+                                className={styles.btnPrimary}
+                                onClick={handleInvite}
+                                disabled={inviting || !inviteEmail || !invitePassword || !inviteName}
+                            >
+                                {inviting ? (
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ animation: 'spin 1s linear infinite' }}><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" opacity=".2"/><path d="M21 12a9 9 0 0 0-9-9"/></svg>
+                                        Provisioning...
+                                    </span>
+                                ) : '+ Provision Account'}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* ACTIVE ROSTER */}
+                    <div className={styles.section}>
+                        <h2>Active Roster</h2>
+                        {members.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '48px', color: '#94A3B8', background: '#F8FAFC', borderRadius: '20px', border: '1px solid #E2E8F0' }}>
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="1.5" style={{ margin: '0 auto 16px', display: 'block' }}>
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                                <p style={{ fontWeight: 800, fontSize: '1rem' }}>No team members yet.</p>
+                                <p style={{ fontSize: '0.85rem', marginTop: '4px' }}>Provision an account above to get started.</p>
+                            </div>
+                        ) : (
+                            <table className={styles.billTable}>
+                                <thead>
+                                    <tr>
+                                        <th>Operator</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Joined</th>
+                                        <th style={{ textAlign: 'right' }}>Action</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {members.map((member: any) => (
+                                        <tr key={member.id}>
+                                            <td>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                    <div style={{
+                                                        width: '38px', height: '38px', borderRadius: '12px', flexShrink: 0,
+                                                        background: member.role === 'OWNER' ? '#0A0A0A' : member.role === 'ADMIN' ? '#EEF2FF' : '#F0FAF5',
+                                                        color: member.role === 'OWNER' ? '#FFFFFF' : member.role === 'ADMIN' ? '#6366F1' : '#34D186',
+                                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                        fontWeight: 950, fontSize: '0.9rem'
+                                                    }}>
+                                                        {(member.name || 'O').charAt(0).toUpperCase()}
+                                                    </div>
+                                                    <span style={{ fontWeight: 950, color: '#0A0A0A' }}>{member.name || 'Anonymous Operator'}</span>
+                                                </div>
+                                            </td>
+                                            <td style={{ color: '#64748B' }}>{member.email}</td>
+                                            <td>
+                                                <span style={{
+                                                    padding: '5px 12px', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 950,
+                                                    textTransform: 'uppercase', letterSpacing: '0.08em',
+                                                    background: member.role === 'OWNER' ? '#0A0A0A' : member.role === 'ADMIN' ? '#EEF2FF' : '#F0FAF5',
+                                                    color: member.role === 'OWNER' ? '#FFFFFF' : member.role === 'ADMIN' ? '#6366F1' : '#34D186',
+                                                }}>
+                                                    {member.role}
+                                                </span>
+                                            </td>
+                                            <td style={{ color: '#94A3B8', fontSize: '0.9rem' }}>
+                                                {member.createdAt ? new Date(member.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
+                                            </td>
+                                            <td style={{ textAlign: 'right' }}>
+                                                {member.role !== 'OWNER' ? (
+                                                    <button
+                                                        onClick={() => handleRemoveMember(member.id, member.name)}
+                                                        style={{
+                                                            background: '#FFF1F2', border: '1px solid #FFE4E6', color: '#F43F5E',
+                                                            padding: '8px 16px', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 950,
+                                                            cursor: 'pointer', transition: 'all 0.2s'
+                                                        }}
+                                                        onMouseEnter={e => { (e.target as HTMLElement).style.background = '#F43F5E'; (e.target as HTMLElement).style.color = '#FFFFFF'; }}
+                                                        onMouseLeave={e => { (e.target as HTMLElement).style.background = '#FFF1F2'; (e.target as HTMLElement).style.color = '#F43F5E'; }}
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                ) : (
+                                                    <span style={{ color: '#CBD5E1', fontSize: '0.8rem', fontWeight: 800 }}>Team Owner</span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
                     </div>
                 </div>
             )}
