@@ -36,7 +36,7 @@ export default function HomePage() {
                         </div>
 
                         <div className={styles.cta_center}>
-                            <Link href="/setup" className={styles.cta_button}>
+                            <Link href="/login" className={styles.cta_button}>
                                 <span className={styles.cta_text}>Get started</span>
                                 <div className={styles.arrow_circle}>
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -84,7 +84,7 @@ export default function HomePage() {
                                         </li>
                                     ))}
                                 </ul>
-                                <Link href="/setup" style={{ background: '#000', color: '#fff', padding: '20px 32px', borderRadius: '100px', textAlign: 'center', textDecoration: 'none', fontWeight: 800, marginTop: 'auto' }}>Initialize BLONK.</Link>
+                                <Link href="/login" style={{ background: '#000', color: '#fff', padding: '20px 32px', borderRadius: '100px', textAlign: 'center', textDecoration: 'none', fontWeight: 800, marginTop: 'auto' }}>Initialize BLONK.</Link>
                             </div>
 
                             {/* Scale Card — Featured */}
@@ -104,7 +104,7 @@ export default function HomePage() {
                                         </li>
                                     ))}
                                 </ul>
-                                <Link href="/setup" style={{ background: '#fff', color: '#000', padding: '20px 32px', borderRadius: '100px', textAlign: 'center', textDecoration: 'none', fontWeight: 800, marginTop: 'auto' }}>Inquire for Enterprise.</Link>
+                                <Link href="/login" style={{ background: '#fff', color: '#000', padding: '20px 32px', borderRadius: '100px', textAlign: 'center', textDecoration: 'none', fontWeight: 800, marginTop: 'auto' }}>Inquire for Enterprise.</Link>
                             </div>
                         </div>
                     </div>
@@ -113,7 +113,7 @@ export default function HomePage() {
                 <section style={{ padding: '160px 24px', textAlign: 'center', background: '#000', color: '#fff' }}>
                     <div style={{ maxWidth: 1000, margin: '0 auto' }}>
                         <h2 style={{ fontSize: 'clamp(3rem, 6vw, 4.5rem)', fontWeight: 950, letterSpacing: '-0.05em', marginBottom: 48, lineHeight: 1.05 }}>Start automating today.</h2>
-                        <Link href="/setup" style={{ display: 'inline-flex', alignItems: 'center', gap: 16, background: '#fff', color: '#000', padding: '24px 64px', borderRadius: '100px', fontSize: '1.25rem', fontWeight: 900, textDecoration: 'none', transition: 'transform 0.3s' }}>
+                        <Link href="/login" style={{ display: 'inline-flex', alignItems: 'center', gap: 16, background: '#fff', color: '#000', padding: '24px 64px', borderRadius: '100px', fontSize: '1.25rem', fontWeight: 900, textDecoration: 'none', transition: 'transform 0.3s' }}>
                             Scale your business.
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                                 <line x1="5" y1="12" x2="19" y2="12"></line>

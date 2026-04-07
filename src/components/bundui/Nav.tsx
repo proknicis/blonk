@@ -39,7 +39,7 @@ export default function PremiumNav() {
                     <Link href="/pricing">Pricing</Link>
                 </div>
 
-                <Link href="/setup" className={`${styles.nav_cta} ${scrolled ? styles.visible : ""}`}>
+                <Link href="/login" className={`${styles.nav_cta} ${scrolled ? styles.visible : ""}`}>
                     Get started
                 </Link>
             </div>
