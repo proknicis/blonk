@@ -311,6 +311,29 @@
     gap: 20px;
 }
 
+.createWorkflowBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 24px;
+    height: 48px;
+    border-radius: 16px;
+    background: #0A0A0A;
+    color: #FFFFFF;
+    font-weight: 950;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    border: none;
+    cursor: pointer;
+}
+
+.createWorkflowBtn:hover {
+    background: #34D186;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(52, 209, 134, 0.4);
+}
+
 .iconBtn {
     width: 48px;
     height: 48px;

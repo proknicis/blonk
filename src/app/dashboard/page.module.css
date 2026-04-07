@@ -236,3 +236,229 @@
     .statValue { font-size: 2.2rem; }
     .growthGrid { grid-template-columns: repeat(6, 1fr); }
 }
+
+/* DASHBOARD UX IMPROVEMENTS */
+
+.healthPanel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    padding: 24px 32px;
+}
+
+.healthPanelValue {
+    font-size: 0.9rem;
+    font-weight: 950;
+    color: #0A0A0A;
+    background: #FFFFFF;
+    padding: 8px 16px;
+    border-radius: 12px;
+    border: 1px solid #EAEAEA;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+}
+
+/* ONBOARDING STATE */
+
+.onboardingState {
+    background: #FFFFFF;
+    border: 1px dashed #CBD5E1;
+    border-radius: 36px;
+    padding: 80px 40px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.onboardingIllustration {
+    width: 96px;
+    height: 96px;
+    background: #F0FAF5;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 32px;
+    box-shadow: 0 10px 30px rgba(52, 209, 134, 0.15);
+}
+
+.onboardingTitle {
+    font-size: 2rem;
+    font-weight: 950;
+    color: #0A0A0A;
+    margin-bottom: 16px;
+    letter-spacing: -0.04em;
+}
+
+.onboardingSubtitle {
+    font-size: 1.1rem;
+    color: #64748B;
+    max-width: 500px;
+    line-height: 1.6;
+    margin-bottom: 40px;
+}
+
+.onboardingActions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.primaryActionBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #0A0A0A;
+    color: #FFFFFF;
+    padding: 0 28px;
+    height: 56px;
+    border-radius: 16px;
+    font-size: 1rem;
+    font-weight: 950;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.primaryActionBtn:hover {
+    background: #34D186;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(52, 209, 134, 0.3);
+}
+
+.secondaryActionBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #FFFFFF;
+    color: #0A0A0A;
+    padding: 0 28px;
+    height: 56px;
+    border-radius: 16px;
+    font-size: 1rem;
+    font-weight: 950;
+    border: 2px solid #EAEAEA;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.secondaryActionBtn:hover {
+    border-color: #0A0A0A;
+    background: #0A0A0A;
+    color: #FFFFFF;
+    transform: translateY(-2px);
+}
+
+/* ACTIVITY FEED */
+
+.activityFeed {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.activityItem {
+    display: flex;
+    gap: 16px;
+}
+
+.activityDotWrapper {
+    margin-top: 4px;
+}
+
+.activityDotSuccess {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #34D186;
+    box-shadow: 0 0 0 4px #F0FAF5;
+}
+
+.activityDotError {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #EF4444;
+    box-shadow: 0 0 0 4px #FEF2F2;
+}
+
+.activityContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.activityContent strong {
+    font-size: 0.95rem;
+    font-weight: 950;
+    color: #0A0A0A;
+}
+
+.activityContent span {
+    font-size: 0.8rem;
+    color: #64748B;
+    font-weight: 800;
+}
+
+/* TEMPLATES */
+
+.templateList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.templateCard {
+    background: #FFFFFF;
+    border: 1px solid #EAEAEA;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transition: all 0.2s ease;
+}
+
+.templateCard:hover {
+    border-color: #0A0A0A;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+}
+
+.templateInfo h4 {
+    margin: 0 0 8px 0;
+    font-size: 1rem;
+    font-weight: 950;
+    color: #0A0A0A;
+}
+
+.templateInfo p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #64748B;
+    line-height: 1.5;
+}
+
+.templateBtn {
+    background: #F8F9FA;
+    color: #0A0A0A;
+    border: 1px solid #EAEAEA;
+    font-size: 0.85rem;
+    font-weight: 950;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.templateBtn:hover {
+    background: #0A0A0A;
+    color: #FFFFFF;
+    border-color: #0A0A0A;
+}
