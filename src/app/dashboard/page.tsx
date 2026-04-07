@@ -64,17 +64,15 @@ async function getDashboardSummary(teamId: string): Promise<DashboardData> {
         fleetPaths[id].data[hourIdx] = parseInt(row.ops);
     });
 
-    // Provide demo data if completely empty to make it look alive
+    // If empty, return zeroed metrics. The empty state handles the UI.
     if (workflowRows.length === 0) {
         return {
             totalWorkflows: 0,
             activeAgents: 0,
-            totalTasks: 128,
-            timeSavedHours: 14,
+            totalTasks: 0,
+            timeSavedHours: 0,
             failedRuns: 0,
-            chartData: [
-                { name: "Demo Workflow: Lead Capturing", data: [0, 0, 5, 10, 15, 20, 15, 10, 5, 0, 0, 0, 0, 5, 10, 12, 8, 4, 0, 0, 0, 0, 0, 0] }
-            ],
+            chartData: [],
             topWorkflows: []
         };
     }
@@ -132,7 +130,7 @@ export default async function DashboardPage() {
                     </div>
                 </div>
                 <div className={styles.healthPanelValue}>
-                    {isEmpty ? 'You saved 14 hours this week' : `You saved ${data.timeSavedHours} hours this week`}
+                    {isEmpty ? '0 hours saved this week' : `You saved ${data.timeSavedHours} hours this week`}
                 </div>
             </div>
 
@@ -145,7 +143,7 @@ export default async function DashboardPage() {
                     </div>
                     <div className={styles.statValue}>{data.totalTasks.toLocaleString()}</div>
                     <p style={{ color: '#64748B', fontSize: '0.85rem', fontWeight: 800, margin: 0 }}>
-                        {isEmpty ? '128 tasks automated today' : `${data.totalTasks} operations processed`}
+                        {isEmpty ? '0 operations processed' : `${data.totalTasks} operations processed`}
                     </p>
                 </div>
 
