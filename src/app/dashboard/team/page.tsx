@@ -10,6 +10,14 @@ export default function TeamPage() {
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [search, setSearch] = useState("");
     const [roleFilter, setRoleFilter] = useState("ALL");
+    
+    // Invite Modal State
+    const [inviteName, setInviteName] = useState("");
+    const [inviteEmail, setInviteEmail] = useState("");
+    const [invitePassword, setInvitePassword] = useState("");
+    const [inviteRole, setInviteRole] = useState("VIEWER");
+    const [inviteLoading, setInviteLoading] = useState(false);
+    const [inviteError, setInviteError] = useState("");
 
     useEffect(() => {
         fetchTeamData();
@@ -35,6 +43,42 @@ export default function TeamPage() {
             console.error("Team fetch failure", error);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleInvite = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setInviteError("");
+        setInviteLoading(true);
+
+        try {
+            const res = await fetch('/api/team', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: inviteName,
+                    email: inviteEmail,
+                    password: invitePassword,
+                    role: inviteRole
+                })
+            });
+            const data = await res.json();
+            
+            if (!res.ok) {
+                setInviteError(data.error || "Failed to invite member");
+                return;
+            }
+
+            // Success, close modal and refresh team
+            setShowInviteModal(false);
+            setInviteName("");
+            setInviteEmail("");
+            setInvitePassword("");
+            fetchTeamData();
+        } catch (err) {
+            setInviteError("Network error occurred.");
+        } finally {
+            setInviteLoading(false);
         }
     };
 
@@ -188,15 +232,27 @@ export default function TeamPage() {
                                 </div>
                             </div>
 
-                            <form onSubmit={(e) => { e.preventDefault(); setShowInviteModal(false); }}>
-                                <div style={{ marginBottom: '24px' }}>
+                            <form onSubmit={handleInvite}>
+                                {inviteError && <div style={{ marginBottom: '16px', padding: '12px', background: '#FEF2F2', color: '#EF4444', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700 }}>{inviteError}</div>}
+                                
+                                <div style={{ marginBottom: '20px' }}>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', marginBottom: '8px' }}>Full Name</label>
+                                    <input type="text" required value={inviteName} onChange={e => setInviteName(e.target.value)} placeholder="Jane Doe" style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#F8FAFC', outline: 'none', fontWeight: 600, fontSize: '0.95rem' }} />
+                                </div>
+
+                                <div style={{ marginBottom: '20px' }}>
                                     <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', marginBottom: '8px' }}>Email Address</label>
-                                    <input type="email" required placeholder="colleague@company.com" style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#F8FAFC', outline: 'none', fontWeight: 600, fontSize: '0.95rem' }} />
+                                    <input type="email" required value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} placeholder="colleague@company.com" style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#F8FAFC', outline: 'none', fontWeight: 600, fontSize: '0.95rem' }} />
+                                </div>
+
+                                <div style={{ marginBottom: '20px' }}>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', marginBottom: '8px' }}>Temporary Password</label>
+                                    <input type="password" required value={invitePassword} onChange={e => setInvitePassword(e.target.value)} placeholder="Provide a secure password" style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#F8FAFC', outline: 'none', fontWeight: 600, fontSize: '0.95rem' }} />
                                 </div>
 
                                 <div style={{ marginBottom: '24px' }}>
                                     <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', marginBottom: '8px' }}>Role</label>
-                                    <select style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#F8FAFC', outline: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}>
+                                    <select value={inviteRole} onChange={e => setInviteRole(e.target.value)} style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#F8FAFC', outline: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}>
                                         <option value="ADMIN">Admin (Full Access)</option>
                                         <option value="OPERATOR">Operator (Manage Workflows)</option>
                                         <option value="VIEWER">Viewer (Read Only)</option>
@@ -219,8 +275,8 @@ export default function TeamPage() {
                                     <button type="button" onClick={() => setShowInviteModal(false)} style={{ flex: 1, padding: '16px', borderRadius: '14px', border: '1px solid #E2E8F0', background: '#FFFFFF', color: '#0F172A', fontWeight: 900, cursor: 'pointer' }}>
                                         Cancel
                                     </button>
-                                    <button type="submit" style={{ flex: 1, padding: '16px', borderRadius: '14px', border: 'none', background: '#0A0A0A', color: '#FFFFFF', fontWeight: 900, cursor: 'pointer' }}>
-                                        Send Invite
+                                    <button type="submit" disabled={inviteLoading} style={{ flex: 1, padding: '16px', borderRadius: '14px', border: 'none', background: '#0A0A0A', color: '#FFFFFF', fontWeight: 900, cursor: inviteLoading ? 'not-allowed' : 'pointer' }}>
+                                        {inviteLoading ? 'Provisioning...' : 'Provision Account'}
                                     </button>
                                 </div>
                             </form>
