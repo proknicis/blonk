@@ -25,6 +25,13 @@ function SetupContent() {
         goal: ""
     });
 
+    // Members skip setup entirely — they are provisioned by their team owner
+    useEffect(() => {
+        if (status === 'authenticated' && (session?.user as any)?.role === 'MEMBER') {
+            router.replace('/dashboard');
+        }
+    }, [session, status, router]);
+
     // Auto-fill from session if available
     useEffect(() => {
         if (session?.user?.email) {

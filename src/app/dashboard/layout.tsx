@@ -49,8 +49,8 @@ export default function DashboardLayout({
                 const userData = await userRes.json();
                 if (userData && !userData.error) {
                     setUser({
-                        name: userData.name || "Prokopecs",
-                        role: "Strategic Admin",
+                        name: userData.name || "Operator",
+                        role: userData.role || "MEMBER",
                         email: userData.email || "user@blonk.ai",
                     });
                 }
@@ -100,12 +100,15 @@ export default function DashboardLayout({
         }
     };
 
-    const navItems = [
-        { name: "Executive Summary", href: "/dashboard", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> },
-        { name: "Digital Office", href: "/dashboard/office", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg> },
-        { name: "Workflow Assets", href: "/dashboard/workflows", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> },
-        { name: "Strategic Reports", href: "/dashboard/reports", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> }
+    const allNavItems = [
+        { name: "Executive Summary", href: "/dashboard", roles: ['OWNER', 'ADMIN', 'MEMBER'], icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> },
+        { name: "Digital Office", href: "/dashboard/office", roles: ['OWNER', 'ADMIN', 'MEMBER'], icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg> },
+        { name: "Team", href: "/dashboard/team", roles: ['OWNER', 'ADMIN', 'MEMBER'], icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
+        { name: "Workflow Assets", href: "/dashboard/workflows", roles: ['OWNER', 'ADMIN'], icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> },
+        { name: "Strategic Reports", href: "/dashboard/reports", roles: ['OWNER', 'ADMIN'], icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> },
     ];
+
+    const navItems = allNavItems.filter(item => item.roles.includes(user.role || 'MEMBER'));
 
     return (
         <div className={styles.appShell} onMouseDownCapture={onShellMouseDownCapture} onKeyDownCapture={onShellKeyDownCapture}>
