@@ -1,6 +1,5 @@
 .container {
-    padding: 0;
-    max-width: 1200px;
+    width: 100%;
     animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
