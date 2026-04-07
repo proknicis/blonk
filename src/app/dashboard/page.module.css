@@ -206,6 +206,7 @@
     border: 1px solid #EAEAEA;
     border-radius: 36px;
     padding: 48px;
+    min-height: 600px;
 }
 
 .sectionHeader {

@@ -86,7 +86,7 @@ export default function FleetVelocityChart({ initialData }: { initialData: Chart
             {/* TOOLSET BAR */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                   <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: '#F0FAF5', display: 'flex', alignItems: 'center', justifyCenter: 'center', color: '#34D186' }}>
+                   <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: '#F0FAF5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34D186' }}>
                        <TrendingUp size={24} style={{ margin: 'auto' }}/>
                    </div>
                    <div>
