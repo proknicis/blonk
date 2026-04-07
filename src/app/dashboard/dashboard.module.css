@@ -254,12 +254,15 @@
     background-size: 80px 80px; /* Modular Swiss Grid */
     position: relative;
     z-index: 10;
-    overflow-y: auto; /* Sovereign Scroll Restoration */
+    overflow-y: auto; 
     overflow-x: hidden;
+    scrollbar-gutter: stable; /* Crucial fix: Prevents navbar 'shrinking' when scrollbar appears */
 }
 
 .topbar {
     height: 80px;
+    min-height: 80px;
+    flex-shrink: 0;
     padding: 0;
     display: flex;
     justify-content: center;
