@@ -263,7 +263,7 @@
     padding: 0 60px;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(16px);
     border-bottom: 1px solid rgba(0, 0, 0, 0.03);
@@ -303,6 +303,19 @@
     background: #FFFFFF;
     border-color: #0A0A0A;
     box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+}
+
+.topbarContext {
+    display: flex;
+    align-items: center;
+}
+
+.pageTitle {
+    font-size: 1.5rem;
+    font-weight: 950;
+    color: #0A0A0A;
+    letter-spacing: -0.04em;
+    margin: 0;
 }
 
 .topbarActions {

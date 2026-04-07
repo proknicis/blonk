@@ -146,7 +146,32 @@ export default function DashboardLayout({
 
             <main className={styles.mainContent}>
                 <header className={styles.topbar}>
+                    <div className={styles.topbarContext}>
+                        <h1 className={styles.pageTitle}>
+                            {navItems.find(item => item.href === pathname)?.name || 
+                             (pathname === '/dashboard/settings' ? 'Settings' : 'Dashboard')}
+                        </h1>
+                    </div>
                     <div className={styles.topbarActions}>
+                        {pathname === '/dashboard/team' && (user.role === 'OWNER' || user.role === 'ADMIN') && (
+                            <button 
+                                className={styles.createWorkflowBtn} 
+                                onClick={() => {
+                                    // This event will be caught by the Team page modal
+                                    window.dispatchEvent(new CustomEvent('OPEN_INVITE_MODAL'));
+                                }}
+                                style={{ background: '#34D186', color: '#0A0A0A' }}
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="17" y1="11" x2="23" y2="11"/></svg>
+                                Invite Member
+                            </button>
+                        )}
+                        {pathname === '/dashboard' && (
+                             <Link href="/dashboard/workflows?create=true" className={styles.createWorkflowBtn}>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                Create Workflow
+                             </Link>
+                        )}
                         <div ref={notifsAnchorRef} className={styles.dropdownAnchor}>
                             <button
                                 className={styles.iconBtn}

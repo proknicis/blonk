@@ -23,6 +23,10 @@ export default function TeamPage() {
     useEffect(() => {
         fetchTeamData();
         fetchCurrentUser();
+
+        const handleOpenModal = () => setShowInviteModal(true);
+        window.addEventListener('OPEN_INVITE_MODAL', handleOpenModal);
+        return () => window.removeEventListener('OPEN_INVITE_MODAL', handleOpenModal);
     }, []);
 
     const fetchCurrentUser = async () => {
@@ -112,18 +116,6 @@ export default function TeamPage() {
 
     return (
         <div className={styles.teamContainer}>
-            <div className={styles.header}>
-                <div className={styles.headerLeft}>
-                    <h1>Team Directory</h1>
-                    <p>Manage access, assign workflows, and monitor activity.</p>
-                </div>
-                {(currentUserRole === 'OWNER' || currentUserRole === 'ADMIN') && (
-                    <button className={styles.btnPrimary} onClick={() => setShowInviteModal(true)}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-                        Invite Member
-                    </button>
-                )}
-            </div>
 
             <div className={styles.statsGrid}>
                 <div className={styles.statCard}>
