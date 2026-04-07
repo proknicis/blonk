@@ -49,12 +49,11 @@ export default function HomePage() {
 
                         <div className={styles.desc_right}>
                             <h3 className={styles.desc_h3}>
-                                Dedicated team of <br/>autonomous workflows.
+                                Choose a workflow to<br/>automate your business.
                             </h3>
                             <p className={styles.desc_p}>
-                                Kickstart your governance and receive your results in a matter of 2-3 days. 
-                                Enjoy full flexibility of a sovereign workforce for the price of one employee. 
-                                No manual calls, or slow audits.
+                                Connect your apps, map your process, and let automation handle the repetitive work. 
+                                Save hours every week with simple, reliable workflows.
                             </p>
                         </div>
                     </div>
@@ -113,10 +112,9 @@ export default function HomePage() {
 
                 <section style={{ padding: '160px 24px', textAlign: 'center', background: '#000', color: '#fff' }}>
                     <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-                        <span style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.25em', color: '#34D186', display: 'block', marginBottom: 24 }}>Ready to integrate?</span>
-                        <h2 style={{ fontSize: 'clamp(3rem, 6vw, 4.5rem)', fontWeight: 950, letterSpacing: '-0.05em', marginBottom: 48, lineHeight: 1.05 }}>Establish your sovereign governance today.</h2>
+                        <h2 style={{ fontSize: 'clamp(3rem, 6vw, 4.5rem)', fontWeight: 950, letterSpacing: '-0.05em', marginBottom: 48, lineHeight: 1.05 }}>Start automating today.</h2>
                         <Link href="/setup" style={{ display: 'inline-flex', alignItems: 'center', gap: 16, background: '#fff', color: '#000', padding: '24px 64px', borderRadius: '100px', fontSize: '1.25rem', fontWeight: 900, textDecoration: 'none', transition: 'transform 0.3s' }}>
-                            Scale with BLONK.
+                            Scale your business.
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
                                 <polyline points="12 5 19 12 12 19"></polyline>

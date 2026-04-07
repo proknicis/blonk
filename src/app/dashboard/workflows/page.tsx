@@ -16,28 +16,28 @@ export default function WorkflowsPage() {
     const [templateInputs, setTemplateInputs] = useState<Record<string, any>>({});
 
     const blueprintMap: Record<string, any> = {
-        "Tax Compliance Loop": {
-            logic: ["Scans incoming tax documents (W2, 1099, K-1).", "Validates against previous year data.", "Flags discrepancies in real-time.", "Populates draft tax returns."],
-            impact: { time: "40h/mo", accuracy: "99.8%" },
-            sample: "Automated Tax Worksheet Generated v2.4"
+        "Lead Automation": {
+            logic: ["New lead submits form on website", "Extract contact details & preferences", "Push to Salesforce/HubSpot CRM", "Send personalized welcome email sequence"],
+            impact: { time: "Saves ~15h/week", accuracy: "100% Capture Rate" },
+            sample: "Lead #A982 Successfully Synced"
         },
         "Client Onboarding": {
-            logic: ["Centralizes client documentation.", "Automates identity verification.", "Schedules initial discovery meetings.", "Triggers firm-wide compliance checks."],
-            impact: { time: "12h/client", accuracy: "100%" },
-            sample: "Institutional Welcome Pack (Verified)"
+            logic: ["Signed contract received via DocuSign", "Create dedicated Google Drive folder workspace", "Invite client and project manager to new Slack channel", "Schedule 30-min kickoff Zoom meeting"],
+            impact: { time: "Saves ~5h/week", accuracy: "0 Missed Steps" },
+            sample: "Project Setup Complete"
         },
         "Invoice Processing": {
-            logic: ["OCR analysis of incoming bills.", "GL code assignment based on history.", "Three-way matching with POs.", "Scheduled payment batch generation."],
-            impact: { time: "25h/mo", accuracy: "99.5%" },
-            sample: "Verified Batch Report #833"
+            logic: ["Receive invoice PDF via email attachment", "Extract vendor, amount, and due date (OCR)", "Match line items against approved Purchase Orders", "Draft payment in Xero/QuickBooks for approval"],
+            impact: { time: "Saves ~20h/month", accuracy: "99.5% Match Rate" },
+            sample: "Payment Drafted: Invoice REF-882"
         }
     };
 
     const handlePreviewClick = (template: any) => {
         const blueprint = blueprintMap[template.name] || {
-            logic: ["Analyzing document structural logic.", "Identifying critical data points.", "Optimizing loop trajectory.", "Preparing institutional report."],
-            impact: { time: "15h/mo", accuracy: "99.0%" },
-            sample: "Operational Feedback Blueprint"
+            logic: ["Trigger event occurs", "Data processing step", "Action executed in target app"],
+            impact: { time: "Saves ~2h/week", accuracy: "100%" },
+            sample: "Task Completed"
         };
         setPreviewTemplate({ ...template, blueprint });
     };
@@ -144,22 +144,8 @@ export default function WorkflowsPage() {
         <div className={styles.workflowsContainer}>
             <section className={styles.hero}>
                 <div className={styles.heroContent}>
-                    <h1>Automate Everything<span className={styles.heroDot}>.</span></h1>
-                    <p>Select specialized document loops for your firm. Once added, our team will link the autonomous backend to your environment.</p>
-                    <div className={styles.heroStats} style={{ marginTop: '32px' }}>
-                        <div className={styles.heroStat}>
-                            <label>Ready Loops</label>
-                            <span>{templates.length}+</span>
-                        </div>
-                        <div className={styles.heroStat}>
-                            <label>Success Rate</label>
-                            <span>99.9%</span>
-                        </div>
-                        <div className={styles.heroStat}>
-                            <label>Avg. Setup</label>
-                            <span>&lt; 24h</span>
-                        </div>
-                    </div>
+                    <h1>Choose a workflow to automate your business<span className={styles.heroDot}>.</span></h1>
+                    <p>Select specialized workflows for your firm. Connect your apps and let automation handle the rest.</p>
                 </div>
             </section>
 
@@ -178,7 +164,7 @@ export default function WorkflowsPage() {
                 <div className={styles.searchWrapper}>
                     <input
                         type="text"
-                        placeholder="Search autonomous loops..."
+                        placeholder="Search automations..."
                         className={styles.searchInput}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
@@ -187,7 +173,7 @@ export default function WorkflowsPage() {
             </div>
 
             {isLoading ? (
-                <div className={styles.loading}>Connecting to autonomous loop registry...</div>
+                <div className={styles.loading}>Loading marketplace...</div>
             ) : (
                 <div className={styles.workflowGrid}>
                     {filteredTemplates.map(wf => (
@@ -203,16 +189,16 @@ export default function WorkflowsPage() {
 
                             <div className={styles.metadataGrid}>
                                 <div className={styles.metaItem}>
-                                    <label>Sector</label>
+                                    <label>Category</label>
                                     <span>{wf.sector}</span>
                                 </div>
                                 <div className={styles.metaItem}>
-                                    <label>Avg. Saving</label>
-                                    <span>{wf.savings}</span>
+                                    <label>Value</label>
+                                    <span style={{ color: '#34D186', fontWeight: 950 }}>Saves {wf.savings || '10h/mo'}</span>
                                 </div>
                                 <div className={styles.metaItem}>
-                                    <label>Complexity</label>
-                                    <span>{wf.complexity}</span>
+                                    <label>Adoption</label>
+                                    <span>Used by {Math.floor(Math.random() * 200) + 50} teams</span>
                                 </div>
                             </div>
 
@@ -227,7 +213,7 @@ export default function WorkflowsPage() {
                         </div>
                     ))}
                     {filteredTemplates.length === 0 && (
-                        <div className={styles.loading}>No new autonomous loops match your criteria.</div>
+                        <div className={styles.loading}>No workflows match your search.</div>
                     )}
                 </div>
             )}
@@ -248,8 +234,8 @@ export default function WorkflowsPage() {
                                 {configureTemplate.icon || '⚙️'}
                             </div>
                             <div>
-                                <h2 style={{ fontSize: '1.75rem', fontWeight: 950, margin: 0, letterSpacing: '-0.04em', color: '#0F172A' }}>Configure Asset</h2>
-                                <p style={{ fontSize: '0.95rem', color: '#64748B', margin: 0, fontWeight: 600 }}>Finalize parameters for institutional deployment.</p>
+                                <h2 style={{ fontSize: '1.75rem', fontWeight: 950, margin: 0, letterSpacing: '-0.04em', color: '#0F172A' }}>Configure Automation</h2>
+                                <p style={{ fontSize: '0.95rem', color: '#64748B', margin: 0, fontWeight: 600 }}>Set up your workflow connections.</p>
                             </div>
                         </div>
 
@@ -329,7 +315,7 @@ export default function WorkflowsPage() {
                                 disabled={isDeploying || configureTemplate.parsedReqs.some((r: any) => !r.isOptional && !templateInputs[r.name])}
                                 onClick={() => deployWorkflow(configureTemplate, templateInputs)}
                             >
-                                {isDeploying ? 'Deploying...' : 'Deploy to Firmware'}
+                                {isDeploying ? 'Enabling...' : 'Enable Workflow'}
                             </button>
                         </div>
                     </div>
@@ -348,7 +334,7 @@ export default function WorkflowsPage() {
                                 </div>
                                 <div>
                                     <h2 style={{ fontSize: '1.75rem', fontWeight: 950, margin: 0, letterSpacing: '-0.04em', color: '#0F172A' }}>{previewTemplate.name}</h2>
-                                    <p style={{ fontSize: '0.95rem', color: '#64748B', margin: 0, fontWeight: 700 }}>Internal Operational Blueprint</p>
+                                    <p style={{ fontSize: '0.95rem', color: '#64748B', margin: 0, fontWeight: 700 }}>Workflow Preview</p>
                                 </div>
                             </div>
                             <button 
@@ -361,12 +347,19 @@ export default function WorkflowsPage() {
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                             <div style={{ background: '#F8FAFC', padding: '24px', borderRadius: '24px', border: '1px solid #E2E8F0' }}>
-                                <h3 style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0A0A0A', marginTop: 0, marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Strategic Trajectory</h3>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                <h3 style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0A0A0A', marginTop: 0, marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Trigger & Action Diagram</h3>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                     {previewTemplate.blueprint.logic.map((step: string, idx: number) => (
-                                        <div key={idx} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                                            <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: '#34D186', marginTop: '6px', flexShrink: 0 }}></div>
-                                            <p style={{ margin: 0, fontSize: '0.95rem', color: '#475569', fontWeight: 700, lineHeight: 1.5 }}>{step}</p>
+                                        <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                            <div style={{ display: 'flex', gap: '16px', alignItems: 'center', width: '100%', background: '#FFFFFF', padding: '16px', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
+                                                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: idx === 0 ? '#FEF3C7' : '#F0FAF5', color: idx === 0 ? '#D97706' : '#34D186', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                                                    {idx === 0 ? '⚡' : '→'}
+                                                </div>
+                                                <p style={{ margin: 0, fontSize: '0.95rem', color: '#0A0A0A', fontWeight: 800 }}>{step}</p>
+                                            </div>
+                                            {idx < previewTemplate.blueprint.logic.length - 1 && (
+                                                <div style={{ width: '2px', height: '16px', background: '#CBD5E1', alignSelf: 'center' }}></div>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
@@ -403,7 +396,7 @@ export default function WorkflowsPage() {
                                     handleAddClick(previewTemplate);
                                 }}
                             >
-                                Deploy this Asset
+                                Use Template
                             </button>
                         </div>
                     </div>
