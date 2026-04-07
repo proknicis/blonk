@@ -107,6 +107,28 @@ function SetupContent() {
         }
     };
 
+    // Only OWNERS need to complete the setup. Invited staff skips setup entirely.
+    useEffect(() => {
+        if (status === 'authenticated') {
+            const role = (session?.user as any)?.role;
+            if (role !== 'OWNER') {
+                router.replace('/dashboard');
+            }
+        }
+    }, [session, status, router]);
+
+    const isNonOwner = status === 'authenticated' && (session?.user as any)?.role !== 'OWNER';
+
+    if (isNonOwner) {
+        return (
+            <div className={styles.wrapper}>
+                <div style={{ padding: '64px', textAlign: 'center', width: '100%', color: '#64748B', fontWeight: 800 }}>
+                    Initializing workspace traversal...
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className={styles.wrapper}>
             {/* --- Left Column: Institutional Anchor --- */}

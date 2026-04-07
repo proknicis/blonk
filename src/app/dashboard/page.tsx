@@ -98,11 +98,11 @@ export default async function DashboardPage() {
     const userId = (session.user as any).id;
     const sessionTeamId = (session.user as any).teamId;
 
-    const [userRecord] = await db.query('SELECT "onboardingStatus", "teamId" FROM "User" WHERE id = $1', [userId]) as any[];
+    const [userRecord] = await db.query('SELECT "onboardingStatus", "teamId", role FROM "User" WHERE id = $1', [userId]) as any[];
     
     const finalTeamId = sessionTeamId || userRecord?.teamId;
 
-    if (userRecord?.onboardingStatus !== 'COMPLETED' && !finalTeamId) {
+    if (userRecord?.role === 'OWNER' && userRecord?.onboardingStatus !== 'COMPLETED' && !finalTeamId) {
         redirect("/setup");
     }
 
