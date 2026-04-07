@@ -24,7 +24,7 @@ export async function GET() {
         workflowRows.forEach((w: any) => {
             totalTasksDone += parseInt(w.tasksCount || "0");
             const s = (w.status || 'passive').toLowerCase();
-            if (s === 'active' || s === 'running') {
+            if (s === 'active' || s === 'running' || s === 'success') { // success could be a transient state
                 activeUnits++;
             }
         });
@@ -32,26 +32,25 @@ export async function GET() {
         // 2. Fetch Velocity Chart Data (Real logs from last 24h)
         const velocityRows = await db.query(`
             SELECT 
-                "workflowId", 
                 "workflowName",
-                DATE_TRUNC('hour', "executedAt") as hour, 
+                DATE_TRUNC('hour', "createdAt") as hour, 
                 COUNT(*) as ops
             FROM "WorkflowLog" 
             WHERE "teamId" = $1
-            AND "executedAt" > CURRENT_TIMESTAMP - INTERVAL '24 hours'
-            GROUP BY "workflowId", "workflowName", hour
+            AND "createdAt" > CURRENT_TIMESTAMP - INTERVAL '24 hours'
+            GROUP BY "workflowName", hour
             ORDER BY hour ASC
         `, [teamId]) as any[];
 
         const fleetPaths: Record<string, { name: string, data: number[] }> = {};
         velocityRows.forEach(row => {
-            const id = row.workflowId || 'unknown';
-            if (!fleetPaths[id]) {
-                fleetPaths[id] = { name: row.workflowName || 'Sector ' + id.substring(0, 4), data: new Array(24).fill(0) };
+            const name = row.workflowName || 'Sector Alpha';
+            if (!fleetPaths[name]) {
+                fleetPaths[name] = { name: name, data: new Array(24).fill(0) };
             }
             const hourIdx = new Date(row.hour).getHours();
             if (hourIdx >= 0 && hourIdx < 24) {
-                fleetPaths[id].data[hourIdx] = parseInt(row.ops);
+                fleetPaths[name].data[hourIdx] = parseInt(row.ops);
             }
         });
 
@@ -60,31 +59,31 @@ export async function GET() {
             SELECT COUNT(*) as count 
             FROM "WorkflowLog" 
             WHERE "teamId" = $1 
-            AND status = 'error' 
-            AND "executedAt" > CURRENT_TIMESTAMP - INTERVAL '24 hours'
+            AND (status = 'error' OR status = 'failed')
+            AND "createdAt" > CURRENT_TIMESTAMP - INTERVAL '24 hours'
         `, [teamId]) as any[];
         const failedRunsCount = parseInt(failedRunsRes[0]?.count || "0");
 
         // 4. Fetch Intelligence Feed (Real recent logs)
         const feedLogs = await db.query(`
-            SELECT "workflowName" as title, message as meta, status as type, "executedAt" as time
+            SELECT "workflowName" as title, result as meta, status as type, "createdAt" as time
             FROM "WorkflowLog"
             WHERE "teamId" = $1
-            ORDER BY "executedAt" DESC
+            ORDER BY "createdAt" DESC
             LIMIT 10
         `, [teamId]) as any[];
 
         const formattedFeed = feedLogs.map(log => ({
             title: log.title || "Autonomous Event",
-            meta: log.meta || "System operation completed",
-            type: log.type === 'error' ? 'error' : (log.type === 'info' ? 'info' : 'success'),
+            meta: formatResultMessage(log.meta),
+            type: (log.type === 'error' || log.type === 'failed') ? 'error' : (log.type === 'info' ? 'info' : 'success'),
             time: formatTimeAgo(new Date(log.time))
         }));
 
-        const calculatedTimeSaved = Math.round(totalTasksDone * 0.08); // 0.08 hours (approx 5 mins) per task
+        const calculatedTimeSaved = Math.round(totalTasksDone * 0.08); // 0.08 hours per task
         
         // Calculate real efficiency percentage
-        const totalLogs = await db.query(`SELECT COUNT(*) as count FROM "WorkflowLog" WHERE "teamId" = $1 AND "executedAt" > CURRENT_TIMESTAMP - INTERVAL '24 hours'`, [teamId]) as any[];
+        const totalLogs = await db.query(`SELECT COUNT(*) as count FROM "WorkflowLog" WHERE "teamId" = $1 AND "createdAt" > CURRENT_TIMESTAMP - INTERVAL '24 hours'`, [teamId]) as any[];
         const totalLogCount = parseInt(totalLogs[0]?.count || "0");
         const successRate = totalLogCount > 0 ? Math.round(((totalLogCount - failedRunsCount) / totalLogCount) * 1000) / 10 : 100;
 
@@ -103,6 +102,20 @@ export async function GET() {
         console.error("Dashboard API error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
+}
+
+function formatResultMessage(meta: any) {
+    if (!meta) return "System operation finalized.";
+    if (typeof meta === 'string') {
+        try {
+            const parsed = JSON.parse(meta);
+            if (typeof parsed === 'object') return parsed.message || parsed.status || "Data packet synchronized.";
+            return meta.substring(0, 60);
+        } catch {
+            return meta.substring(0, 60);
+        }
+    }
+    return "Data packet synchronized.";
 }
 
 function formatTimeAgo(date: Date) {
