@@ -3,7 +3,7 @@
 import styles from "./page.module.css";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Activity, Zap, CheckCircle, AlertCircle, Plus, FileText, Link2, ArrowUpRight } from "lucide-react";
+import { Activity, Zap, CheckCircle, AlertCircle, Plus, FileText, Link2, ArrowUpRight, ShieldCheck, ShieldAlert } from "lucide-react";
 import FleetVelocityChart from "./components/FleetVelocityChart";
 import WorkflowList from "./components/WorkflowList";
 
@@ -13,11 +13,18 @@ interface DashboardData {
     totalTasks: number;
     timeSavedHours: number;
     failedRuns: number;
+    efficiencyRate: number;
     chartData: Array<{
         name: string;
         data: number[];
     }>;
     topWorkflows: Array<any>;
+    intelligenceFeed: Array<{
+        title: string;
+        meta: string;
+        type: string;
+        time: string;
+    }>;
 }
 
 export default function DashboardPage() {
@@ -29,7 +36,9 @@ export default function DashboardPage() {
             try {
                 const res = await fetch('/api/dashboard/summary');
                 const result = await res.json();
-                setData(result);
+                if (result && !result.error) {
+                    setData(result);
+                }
             } catch (error) {
                 console.error("Dashboard synchronization failure", error);
             } finally {
@@ -61,16 +70,16 @@ export default function DashboardPage() {
                     </div>
                     <div>
                         <h4 className={styles.integrityTitle}>
-                            {data.failedRuns > 0 ? `${data.failedRuns} Execution Interruptions detected` : `Systems Integrity: 100% Operational`}
+                            {data.failedRuns > 0 ? `${data.failedRuns} Execution Interruptions detected` : `Systems Integrity: ${data.efficiencyRate}% Operational`}
                         </h4>
                         <p className={styles.integritySubtitle}>
-                            {data.failedRuns > 0 ? `Manual intervention required in Subsystem B.` : `Fleet throughput is stable across all autonomous sectors.`}
+                            {data.failedRuns > 0 ? `Manual intervention may be required in failing autonomous loops.` : `Fleet throughput is stable across all active firm sectors.`}
                         </p>
                     </div>
                 </div>
                 <div className={styles.integrityMetrics}>
-                    <span className={styles.metricLabel}>Velocity:</span>
-                    <span className={styles.metricValue}>{isEmpty ? '0' : '98.2'}%</span>
+                    <span className={styles.metricLabel}>Real-time Efficiency:</span>
+                    <span className={styles.metricValue}>{data.efficiencyRate}%</span>
                 </div>
             </div>
 
@@ -88,30 +97,30 @@ export default function DashboardPage() {
                 <div className={styles.metricCard}>
                     <div className={styles.metricHeader}>
                         <span className={styles.label}>Capacity Saved</span>
-                        <span className={styles.trendBadge}>+12%</span>
+                        <span className={styles.neutralBadge}>Real-time</span>
                     </div>
                     <div className={styles.value}>{data.timeSavedHours}h</div>
-                    <div className={styles.trend}>Hours reclaimed this week</div>
+                    <div className={styles.trend}>Hours reclaimed to date</div>
                 </div>
 
                 <div className={styles.metricCard}>
                     <div className={styles.metricHeader}>
-                        <span className={styles.label}>Active Workforce</span>
+                        <span className={styles.label}>Active Loops</span>
                         <div className={styles.activeDot} />
                     </div>
-                    <div className={styles.value}>{data.activeAgents}</div>
-                    <div className={styles.trend}>Autonomous loops running</div>
+                    <div className={styles.value}>{data.activeAgents} / {data.totalWorkflows}</div>
+                    <div className={styles.trend}>Running workflow units</div>
                 </div>
 
                 <div className={styles.metricCard}>
                     <div className={styles.metricHeader}>
-                        <span className={styles.label}>Disruption Rate</span>
-                        {data.failedRuns === 0 && <span className={styles.neutralBadge}>0.00%</span>}
+                        <span className={styles.label}>Disruption Events</span>
+                        {data.failedRuns === 0 ? <ShieldCheck size={14} color="#34D186"/> : <ShieldAlert size={14} color="#EF4444"/>}
                     </div>
                     <div className={data.failedRuns > 0 ? styles.valueCritical : styles.value}>
                         {data.failedRuns}
                     </div>
-                    <div className={styles.trend}>Execution failures detected</div>
+                    <div className={styles.trend}>Failures in last 24h</div>
                 </div>
             </div>
 
@@ -120,7 +129,7 @@ export default function DashboardPage() {
                 <div className={styles.sectionHeader}>
                     <h3 className={styles.sectionTitle}>Fleet Velocity Projection</h3>
                     <div className={styles.projectionLegend}>
-                        <div className={styles.legendItem}><span /> Real-time Throughput</div>
+                        <div className={styles.legendItem}><span /> Real Throughput (24h Window)</div>
                     </div>
                 </div>
                 <div className={styles.chartWrapper}>
@@ -130,19 +139,19 @@ export default function DashboardPage() {
 
             {isEmpty ? (
                 <div className={styles.onboardingState}>
-                    <div className={styles.onboardingIllustration}>
-                        <Plus size={32} />
-                    </div>
-                    <h2 className={styles.onboardingTitle}>Initialize your autonomous firm</h2>
-                    <p className={styles.onboardingSubtitle}>Your dashboard is empty because no workflows have been provisioned yet. Start by creating a custom automation loop.</p>
-                    <div className={styles.onboardingActions}>
-                        <Link href="/dashboard/workflows?create=true" className={styles.btnInstitutional}>
-                            Generate Workflow
-                        </Link>
-                        <Link href="/dashboard/workflows" className={styles.btnOutline}>
-                            Select Template
-                        </Link>
-                    </div>
+                   <div className={styles.onboardingIllustration}>
+                       <Plus size={32} />
+                   </div>
+                   <h2 className={styles.onboardingTitle}>Initialize your autonomous firm</h2>
+                   <p className={styles.onboardingSubtitle}>Your dashboard is empty because no workflows have been provisioned yet. Start by creating a custom automation loop.</p>
+                   <div className={styles.onboardingActions}>
+                       <Link href="/dashboard/workflows?create=true" className={styles.btnInstitutional}>
+                           Generate Workflow
+                       </Link>
+                       <Link href="/dashboard/workflows" className={styles.btnOutline}>
+                           Select Template
+                       </Link>
+                   </div>
                 </div>
             ) : (
                 <div className={styles.commandGrid}>
@@ -161,21 +170,23 @@ export default function DashboardPage() {
                             <h3 className={styles.cardTitle}>Intelligence Feed</h3>
                         </div>
                         <div className={styles.feedWrapper}>
-                            {[
-                                { title: "Invoice Matched", meta: "Financial Audit loop completed successully", time: "2m ago", type: "success" },
-                                { title: "New Lead Discovered", meta: "Lead Discovery agent synced to HubSpot", time: "14m ago", type: "success" },
-                                { title: "Docusign Error", meta: "API timeout in Client Onboarding loop", time: "1h ago", type: "error" },
-                                { title: "System Heartbeat", meta: "All autonomous agents synchronized", time: "2h ago", type: "info" }
-                            ].map((item, idx) => (
-                                <div key={idx} className={styles.feedItem}>
-                                    <div className={item.type === 'error' ? styles.feedDotError : styles.feedDotSuccess} />
-                                    <div className={styles.feedContent}>
-                                        <div className={styles.feedTitle}>{item.title}</div>
-                                        <div className={styles.feedMeta}>{item.meta}</div>
-                                        <div className={styles.feedTime}>{item.time}</div>
+                            {data.intelligenceFeed && data.intelligenceFeed.length > 0 ? (
+                                data.intelligenceFeed.map((item, idx) => (
+                                    <div key={idx} className={styles.feedItem}>
+                                        <div className={item.type === 'error' ? styles.feedDotError : styles.feedDotSuccess} />
+                                        <div className={styles.feedContent}>
+                                            <div className={styles.feedTitle}>{item.title}</div>
+                                            <div className={styles.feedMeta}>{item.meta}</div>
+                                            <div className={styles.feedTime}>{item.time}</div>
+                                        </div>
                                     </div>
+                                ))
+                            ) : (
+                                <div style={{ textAlign: 'center', padding: '40px 0', color: '#94A3B8' }}>
+                                    <Activity size={32} style={{ marginBottom: '16px', opacity: 0.5 }} />
+                                    <p style={{ fontWeight: 800 }}>No recent operational activity detected</p>
                                 </div>
-                            ))}
+                            )}
                         </div>
                     </div>
                 </div>
