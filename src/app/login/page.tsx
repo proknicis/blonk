@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { signIn, useSession } from "next-auth/react";
-import styles from "./auth.module.css";
+import styles from "./login.module.css";
 import React from "react";
 
 function AuthContent() {
