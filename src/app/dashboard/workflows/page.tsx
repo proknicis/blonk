@@ -142,12 +142,7 @@ export default function WorkflowsPage() {
 
     return (
         <div className={styles.workflowsContainer}>
-            <section className={styles.hero}>
-                <div className={styles.heroContent}>
-                    <h1>Choose a workflow to automate your business<span className={styles.heroDot}>.</span></h1>
-                    <p>Select specialized workflows for your firm. Connect your apps and let automation handle the rest.</p>
-                </div>
-            </section>
+
 
             <div className={styles.marketplaceActions}>
                 <div className={styles.filterTabs}>

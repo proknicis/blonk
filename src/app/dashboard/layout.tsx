@@ -148,8 +148,9 @@ export default function DashboardLayout({
                 <header className={styles.topbar}>
                     <div className={styles.topbarContext}>
                         <h1 className={styles.pageTitle}>
-                            {navItems.find(item => item.href === pathname)?.name || 
-                             (pathname === '/dashboard/settings' ? 'Settings' : 'Dashboard')}
+                            {pathname === '/dashboard' ? 'Fleet Overview' :
+                             pathname === '/dashboard/settings' ? 'System Control' :
+                             navItems.find(item => item.href === pathname)?.name || 'Dashboard'}
                         </h1>
                     </div>
                     <div className={styles.topbarActions}>

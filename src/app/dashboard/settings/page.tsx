@@ -228,10 +228,7 @@ function SettingsContent() {
 
     return (
         <div className={styles.container}>
-            <div className={styles.header}>
-                <h1>System Control</h1>
-                <p>Manage your firm parameters, operational guardrails and billing history.</p>
-            </div>
+
 
             <div className={styles.tabs}>
                 <button 
