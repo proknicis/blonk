@@ -28,10 +28,10 @@ export async function POST(request: Request) {
         const hashedPassword = await bcrypt.hash(password, 10);
         const userId = uuidv4();
 
-        // Insert new user (PostgreSQL Syntax)
+        // Insert new user as an OWNER with PENDING status (PostgreSQL Syntax)
         await db.execute(
-            'INSERT INTO "User" (id, email, password, name, "firmName", industry, plan) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-            [userId, email, hashedPassword, name || email.split('@')[0], firmName || '', industry || '', 'Starter']
+            'INSERT INTO "User" (id, email, password, name, "firmName", industry, plan, role, "onboardingStatus") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
+            [userId, email, hashedPassword, name || email.split('@')[0], firmName || '', industry || '', 'Starter', 'OWNER', 'PENDING']
         );
 
         return NextResponse.json({

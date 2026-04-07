@@ -68,7 +68,7 @@ export const authOptions: NextAuthOptions = {
 
                         await db.query(
                             'INSERT INTO "User" (id, email, name, role, "teamId", plan, password, "onboardingStatus") VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-                            [userId, email, user.name, 'OWNER', teamId, 'Starter', 'oauth_' + uuidv4(), 'COMPLETED']
+                            [userId, email, user.name, 'OWNER', teamId, 'Starter', 'oauth_' + uuidv4(), 'PENDING']
                         );
 
                         await db.query('UPDATE "Team" SET "ownerId" = $1 WHERE id = $2', [userId, teamId]);

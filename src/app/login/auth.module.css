@@ -7,7 +7,7 @@
 }
 
 .leftSidebar {
-    flex: 1;
+    width: 480px;
     display: flex;
     flex-direction: column;
     padding: 60px;
@@ -55,8 +55,8 @@
 }
 
 .sidebarTitle {
-    font-size: 4rem;
-    line-height: 1;
+    font-size: 3.5rem;
+    line-height: 1.1;
     font-weight: 800;
     letter-spacing: -0.03em;
     margin-bottom: 24px;
@@ -74,7 +74,7 @@
 }
 
 .rightContent {
-    width: 600px;
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
