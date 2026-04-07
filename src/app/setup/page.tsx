@@ -25,10 +25,13 @@ function SetupContent() {
         goal: ""
     });
 
-    // Members skip setup entirely — they are provisioned by their team owner
+    // Only OWNERS need to complete the setup. Invited staff skips setup entirely.
     useEffect(() => {
-        if (status === 'authenticated' && (session?.user as any)?.role === 'MEMBER') {
-            router.replace('/dashboard');
+        if (status === 'authenticated') {
+            const role = (session?.user as any)?.role;
+            if (role !== 'OWNER') {
+                router.replace('/dashboard');
+            }
         }
     }, [session, status, router]);
 
