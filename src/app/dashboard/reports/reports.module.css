@@ -150,6 +150,9 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: #949A97;
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
 .historyTable td {
