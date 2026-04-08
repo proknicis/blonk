@@ -3,8 +3,24 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "../dashboard/dashboard.module.css";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { signOut } from "next-auth/react";
 import AiChat from "../components/AiChat";
+import { 
+    Search, 
+    Bell, 
+    LogOut, 
+    Settings, 
+    Users, 
+    Zap, 
+    Shield, 
+    Grid2X2, 
+    Monitor, 
+    Database,
+    ShieldAlert
+} from "lucide-react";
+
+type UserData = { name: string; role: string; email: string };
 
 export default function AdminLayout({
     children,
@@ -12,83 +28,147 @@ export default function AdminLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
-    const [user, setUser] = useState({ name: "Admin", role: "Super Admin", initials: "A" });
+    const [showUserMenu, setShowUserMenu] = useState(false);
+    const [user, setUser] = useState<UserData>({ 
+        name: "Admin Operator", 
+        role: "SUPER ADMIN", 
+        email: "admin@blonk.ai" 
+    });
+    
+    const userMenuAnchorRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        // Fetch admin specific settings if needed
+    }, []);
 
     if (pathname === "/admin/login") {
         return <>{children}</>;
     }
 
-    const navItems = [
-        { name: "Workflow Config", href: "/admin", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> },
-        { name: "Marketplace Management", href: "/admin/marketplace", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg> },
-        { name: "User Management", href: "/admin/users", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> },
-        { name: "App Dashboard", href: "/dashboard", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> },
-    ];
+    const onShellMouseDownCapture = (e: React.MouseEvent) => {
+        if (!showUserMenu) return;
+        const target = e.target as Node | null;
+        if (!target) return;
+        if (showUserMenu && userMenuAnchorRef.current && !userMenuAnchorRef.current.contains(target)) setShowUserMenu(false);
+    };
+
+    const getModuleTitle = (path: string) => {
+        if (path === '/admin') return 'Fleet Provisioning';
+        if (path === '/admin/marketplace') return 'Marketplace Management';
+        if (path === '/admin/users') return 'User Directory';
+        return 'System Control';
+    };
 
     return (
-        <>
-        <div className={styles.appShell}>
+        <div className={styles.appShell} onMouseDownCapture={onShellMouseDownCapture}>
+            <div className={styles.noise} />
+            
+            {/* SOVEREIGN ADMIN SIDEBAR */}
             <aside className={styles.sidebar}>
                 <div className={styles.sidebarBrand}>
                     <Link href="/admin" className={styles.logo}>
-                        BLONK<span style={{ color: '#34D186' }}> ADMIN</span>
+                        <span className={styles.logoSquare}></span>BLONK<span style={{ color: '#34D186', marginLeft: '4px' }}>ADMN</span>
                     </Link>
                 </div>
 
                 <nav className={styles.sidebarNav}>
                     <div className={styles.navGroup}>
-                        <span className={styles.navGroupLabel}>System Control</span>
+                        <span className={styles.navGroupLabel}>Operations</span>
                         <ul>
-                            {navItems.map((item) => (
-                                <li key={item.href}>
-                                    <Link
-                                        href={item.href}
-                                        className={`${styles.navLink} ${pathname === item.href ? styles.navLinkActive : ''}`}
-                                    >
-                                        {item.icon}
-                                        {item.name}
-                                    </Link>
-                                </li>
-                            ))}
+                            <li>
+                                <Link href="/admin" className={`${styles.navLink} ${pathname === '/admin' ? styles.navLinkActive : ''}`}>
+                                    <Database size={20} /> Loop Config
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/admin/marketplace" className={`${styles.navLink} ${pathname === '/admin/marketplace' ? styles.navLinkActive : ''}`}>
+                                    <Zap size={20} /> Marketplace
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/admin/users" className={`${styles.navLink} ${pathname === '/admin/users' ? styles.navLinkActive : ''}`}>
+                                    <Users size={20} /> User Registry
+                                </Link>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div className={styles.navGroup}>
+                        <span className={styles.navGroupLabel}>System</span>
+                        <ul>
+                            <li>
+                                <Link href="/dashboard" className={styles.navLink}>
+                                    <Grid2X2 size={20} /> App Dashboard
+                                </Link>
+                            </li>
                         </ul>
                     </div>
                 </nav>
 
-                <div className={styles.navGroup} style={{ marginTop: 'auto' }}>
-                    <a href="/api/admin/logout" className={styles.navLink} style={{ width: '100%', textAlign: 'left', textDecoration: 'none' }}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF5252" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                        <span style={{ color: '#FF5252' }}>Logout</span>
-                    </a>
+                <div className={styles.usageSection}>
+                     <div className={styles.usageCard} style={{ borderColor: '#34D186', background: '#F0FAF5' }}>
+                         <div className={styles.usagePlanTop}>
+                             <span className={styles.planBadge} style={{ background: '#34D186', color: '#0A0A0A' }}>SYSTEM ACTIVE</span>
+                             <div className={styles.tierDots}><span className={styles.tierDot}/><span className={styles.tierDot}/><span className={styles.tierDot}/></div>
+                         </div>
+                         <div className={styles.statLabel} style={{ color: '#059669' }}>Root Privilege</div>
+                         <div className={styles.statValue}>Sovereign Access</div>
+                     </div>
                 </div>
             </aside>
 
             <main className={styles.mainContent}>
                 <header className={styles.topbar}>
-                    <div className={styles.searchWrapper}>
-                        <div className={styles.searchIcon}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <div className={styles.topbarInner}>
+                        <div className={styles.topbarContext}>
+                            <h1 className={styles.pageTitle}>{getModuleTitle(pathname)}</h1>
                         </div>
-                        <input type="text" placeholder="Search system records..." className={styles.searchInput} />
-                    </div>
 
-                    <div className={styles.topbarActions}>
-                        <div className={styles.userProfile}>
-                            <div className={styles.userData}>
-                                <strong>{user.name}</strong>
-                                <span>{user.role}</span>
-                            </div>
-                            <div className={styles.avatar} style={{ background: '#34D186' }}>
-                                {user.initials}
+                        <div className={styles.searchWrapper}>
+                             <Search className={styles.searchIcon} size={18} />
+                             <input type="text" placeholder="Search system records..." className={styles.searchInput} />
+                        </div>
+
+                        <div className={styles.topbarActions}>
+                            <button className={styles.iconBtn}>
+                                <Bell size={20} />
+                            </button>
+
+                            <div ref={userMenuAnchorRef} className={styles.dropdownAnchor}>
+                                <button className={styles.userProfile} onClick={() => setShowUserMenu(!showUserMenu)}>
+                                    <div className={styles.userData}>
+                                        <strong>{user.name}</strong>
+                                        <span>{user.role}</span>
+                                    </div>
+                                    <div className={styles.avatar} style={{ background: '#34D186' }}>{user.name.charAt(0)}</div>
+                                </button>
+                                {showUserMenu && (
+                                    <div className={styles.userDropdown}>
+                                        <div className={styles.userDropdownProfile}>
+                                            <div className={styles.userDropdownName}>{user.name}</div>
+                                            <div className={styles.userDropdownRole}>{user.role}</div>
+                                            <div className={styles.userDropdownEmail}>{user.email}</div>
+                                        </div>
+                                        <Link href="/dashboard/settings" className={styles.userDropdownLink} onClick={() => setShowUserMenu(false)}>
+                                            <Settings size={18} /> Settings
+                                        </Link>
+                                        <div className={styles.userDropdownDivider} />
+                                        <button className={`${styles.userDropdownLink} ${styles.logoutBtn}`} onClick={() => signOut({ callbackUrl: '/' })}>
+                                            <LogOut size={18} /> Log out
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
                 </header>
+
                 <div className={styles.pageContent}>
                     {children}
                 </div>
             </main>
+            <AiChat />
         </div>
-        <AiChat />
-        </>
     );
 }
+

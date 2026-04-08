@@ -30,6 +30,11 @@ export default function OfficeClient({ initialWorkflows, initialFeed, userRole }
     const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(null);
     const [workflowLogs, setWorkflowLogs] = useState<any[]>([]);
     const [isLoadingLogs, setIsLoadingLogs] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     useEffect(() => {
         if (selectedWorkflow) {
@@ -107,7 +112,7 @@ export default function OfficeClient({ initialWorkflows, initialFeed, userRole }
                                         </div>
                                         <div style={{ flex: 1 }}>
                                             <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 900, textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '0.05em' }}>Recent Sync</div>
-                                            <div style={{ fontSize: '1.1rem', color: '#0F172A', fontWeight: 950 }}>{agent.lastRun ? new Date(agent.lastRun).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Never'}</div>
+                                            <div style={{ fontSize: '1.1rem', color: '#0F172A', fontWeight: 950 }}>{isMounted && agent.lastRun ? new Date(agent.lastRun).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : agent.lastRun ? '...' : 'Never'}</div>
                                         </div>
                                     </div>
                                     
@@ -181,7 +186,7 @@ export default function OfficeClient({ initialWorkflows, initialFeed, userRole }
                                     </div>
                                     <div className={styles.statCard}>
                                         <span className={styles.statLabel}><Clock size={14} style={{ marginRight: '8px' }} /> Last Sync Event</span>
-                                        <div className={styles.statValue}>{selectedWorkflow.lastRun ? new Date(selectedWorkflow.lastRun).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Never'}</div>
+                                        <div className={styles.statValue}>{isMounted && selectedWorkflow.lastRun ? new Date(selectedWorkflow.lastRun).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : selectedWorkflow.lastRun ? '...' : 'Never'}</div>
                                     </div>
                                     <div className={styles.statCard}>
                                         <span className={styles.statLabel}><Zap size={14} style={{ marginRight: '8px' }} /> Deployment Sector</span>
@@ -215,7 +220,7 @@ export default function OfficeClient({ initialWorkflows, initialFeed, userRole }
                                             {workflowLogs.map((log, idx) => (
                                                 <div key={idx} className={styles.logItem}>
                                                     <div className={styles.logHeader}>
-                                                        <span className={styles.logTime}>{new Date(log.executedAt).toLocaleString()}</span>
+                                                        <span className={styles.logTime}>{isMounted ? new Date(log.executedAt).toLocaleString() : '...'}</span>
                                                         <span className={styles.logStatus} style={{ 
                                                             background: log.status === 'success' ? '#F0FAF5' : '#FEF2F2',
                                                             color: log.status === 'success' ? '#34D186' : '#EF4444'
