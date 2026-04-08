@@ -418,3 +418,43 @@
 @media (max-width: 900px) {
     .metricsMatrix { grid-template-columns: 1fr; }
 }
+
+.forceStartBtn, .forceEndBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid #F1F5F9;
+    background: #FFFFFF;
+    color: #0A0A0A;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.forceStartBtn:hover {
+    background: #0A0A0A;
+    border-color: #0A0A0A;
+    color: #34D186;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.forceEndBtn:hover {
+    background: #0A0A0A;
+    border-color: #0A0A0A;
+    color: #EF4444;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.forceStartBtn:active, .forceEndBtn:active {
+    transform: translateY(0);
+}
+
+.forceStartBtn:disabled, .forceEndBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}

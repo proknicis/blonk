@@ -6,13 +6,15 @@ import React, { useState } from "react";
 export default function WorkflowList({ workflows }: { workflows: any[] }) {
     const [runningId, setRunningId] = useState<string | null>(null);
 
-    const runWorkflow = async (wf: any) => {
+    const runWorkflow = async (wf: any, actionType: 'START' | 'STOP') => {
         if (!wf.n8nWebhookUrl) {
             alert("No n8n webhook linked for this workflow. Please configure it in the Admin Panel.");
             return;
         }
 
-        setRunningId(wf.id);
+        const actionLabel = actionType === 'START' ? 'Force Start' : 'Force End';
+        setRunningId(`${wf.id}-${actionType}`);
+        
         try {
             const res = await fetch('/api/admin/proxy-trigger', {
                 method: 'POST',
@@ -21,7 +23,8 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                     url: wf.n8nWebhookUrl,
                     payload: {
                         user: 'nikolass',
-                        action: `Triggered ${wf.name}`,
+                        action: `${actionLabel}: ${wf.name}`,
+                        type: actionType,
                         source: 'BLONK_Dashboard',
                         workflowName: wf.name,
                         workflowId: wf.id,
@@ -33,7 +36,7 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
             const result = await res.json();
 
             if (result.success) {
-                alert(`Successfully triggered loop: ${wf.name}`);
+                alert(`Successfully executed ${actionLabel} for loop: ${wf.name}`);
             } else {
                 alert(`Trigger Error: ${result.status}\nBody: ${result.data || 'No response'}`);
             }
@@ -54,8 +57,7 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                 const isOnline = wf.status === 'Active' || wf.status === 'Success' || wf.status === 'Completed';
                 
                 const displayStatus = (isOnline && isStale) ? 'Standby' : (wf.status || 'Passive');
-                const statusClass = (isOnline && !isStale) ? styles.statusSuccess : styles.statusPaused;
-
+                
                 return (
                     <div key={i} className={styles.workflowItem} style={{ 
                         background: '#FFFFFF',
@@ -98,22 +100,37 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                             </div>
                             
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <div style={{ textAlign: 'right' }}>
+                                <div style={{ textAlign: 'right', marginRight: '8px' }}>
                                     <div style={{ fontSize: '0.7rem', fontWeight: 950, color: isOnline ? '#34D186' : '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                                         {displayStatus}
                                     </div>
                                     <div style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748B' }}>Live Status</div>
                                 </div>
-                                <button
-                                    className={styles.runBtn}
-                                    onClick={() => wf.n8nWebhookUrl ? runWorkflow(wf) : alert(`This loop is in fully autonomous mode.`)}
-                                    disabled={runningId === wf.id}
-                                    style={{ width: '48px', height: '48px', borderRadius: '14px' }}
-                                >
-                                    {runningId === wf.id ? "..." : (
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                                    )}
-                                </button>
+                                
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button
+                                        title="Force Start"
+                                        className={styles.forceStartBtn}
+                                        onClick={() => runWorkflow(wf, 'START')}
+                                        disabled={runningId === `${wf.id}-START`}
+                                    >
+                                        {runningId === `${wf.id}-START` ? "..." : (
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                        )}
+                                        <span style={{ fontSize: '0.7rem', fontWeight: 950, marginLeft: '4px' }}>START</span>
+                                    </button>
+                                    <button
+                                        title="Force End"
+                                        className={styles.forceEndBtn}
+                                        onClick={() => runWorkflow(wf, 'STOP')}
+                                        disabled={runningId === `${wf.id}-STOP`}
+                                    >
+                                        {runningId === `${wf.id}-STOP` ? "..." : (
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"></rect></svg>
+                                        )}
+                                        <span style={{ fontSize: '0.7rem', fontWeight: 950, marginLeft: '4px' }}>END</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -128,7 +145,7 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                         }}>
                             <div>
                                 <div style={{ fontSize: '0.6rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Throughput</div>
-                                <div style={{ fontSize: '0.95rem', fontWeight: 950, color: '#0A0A0A' }}>{wf.performance?.replace(/loops\/hr/gi, '') || '0'} <span style={{ opacity: 0.4 }}>OPS/HR</span></div>
+                                <div style={{ fontSize: '0.95rem', fontWeight: 950, color: '#0A0A0A' }}>{wf.performance?.toString().replace(/loops\/hr/gi, '') || '0'} <span style={{ opacity: 0.4 }}>OPS/HR</span></div>
                             </div>
                             <div>
                                 <div style={{ fontSize: '0.6rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Autonomous Yield</div>
