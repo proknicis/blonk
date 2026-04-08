@@ -1,0 +1,23 @@
+[
+  {
+    "column_name": "id"
+  },
+  {
+    "column_name": "name"
+  },
+  {
+    "column_name": "type"
+  },
+  {
+    "column_name": "date"
+  },
+  {
+    "column_name": "size"
+  },
+  {
+    "column_name": "content"
+  },
+  {
+    "column_name": "createdAt"
+  }
+]

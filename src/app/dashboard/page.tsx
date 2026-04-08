@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Activity, Zap, CheckCircle, AlertCircle, Plus, FileText, Link2, ArrowUpRight, ShieldCheck, ShieldAlert } from "lucide-react";
 import FleetVelocityChart from "./components/FleetVelocityChart";
 import WorkflowList from "./components/WorkflowList";
+import { Skeleton, SkeletonRectangle, SkeletonCircle } from "../components/Skeleton";
 
 interface DashboardData {
     totalWorkflows: number;
@@ -42,20 +43,40 @@ export default function DashboardPage() {
             } catch (error) {
                 console.error("Dashboard synchronization failure", error);
             } finally {
-                setIsLoading(false);
+                setTimeout(() => setIsLoading(false), 800); // Institutional smoothing
             }
         };
         fetchDashboard();
     }, []);
 
-    if (isLoading || !data) {
+    if (isLoading) {
         return (
-            <div className={styles.dashboardLoading}>
-                <div className={styles.pulseDot} />
-                <span>Synchronizing sovereign analytics...</span>
+            <div className={styles.dashboard}>
+                {/* Skeleton Integrity Banner */}
+                <div className={styles.integrityBanner} style={{ borderStyle: 'none', background: 'transparent', padding: 0 }}>
+                    <Skeleton height="100px" borderRadius="24px" />
+                </div>
+
+                {/* Skeleton Metrics Matrix */}
+                <div className={styles.metricsMatrix}>
+                    {[1, 2, 3, 4].map(id => (
+                        <SkeletonRectangle key={id} height="200px" borderRadius="32px" />
+                    ))}
+                </div>
+
+                {/* Skeleton Chart */}
+                <Skeleton height="500px" borderRadius="36px" />
+
+                {/* Skeleton Bottom Grid */}
+                <div className={styles.commandGrid}>
+                   <Skeleton height="400px" borderRadius="36px" />
+                   <Skeleton height="400px" borderRadius="36px" />
+                </div>
             </div>
         );
     }
+
+    if (!data) return null;
 
     const isEmpty = data.totalWorkflows === 0;
 

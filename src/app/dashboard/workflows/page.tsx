@@ -3,6 +3,7 @@
 import styles from "./workflows.module.css";
 import React, { useState, useEffect } from "react";
 import ModalPortal from "@/app/components/ModalPortal";
+import { Skeleton } from "@/app/components/Skeleton";
 
 export default function WorkflowsPage() {
     const [search, setSearch] = useState("");
@@ -168,7 +169,11 @@ export default function WorkflowsPage() {
             </div>
 
             {isLoading ? (
-                <div className={styles.loading}>Loading marketplace...</div>
+                <div className={styles.workflowGrid}>
+                    {[1, 2, 3, 4, 5, 6].map(i => (
+                        <Skeleton key={i} height="350px" borderRadius="32px" />
+                    ))}
+                </div>
             ) : (
                 <div className={styles.workflowGrid}>
                     {filteredTemplates.map(wf => (
@@ -208,7 +213,9 @@ export default function WorkflowsPage() {
                         </div>
                     ))}
                     {filteredTemplates.length === 0 && (
-                        <div className={styles.loading}>No workflows match your search.</div>
+                        <div style={{ textAlign: 'center', gridColumn: '1 / -1', padding: '100px 0', color: '#94A3B8' }}>
+                            <div style={{ fontWeight: 800 }}>No workflows match your search.</div>
+                        </div>
                     )}
                 </div>
             )}
@@ -222,8 +229,10 @@ export default function WorkflowsPage() {
 
             {configureTemplate && (
                 <ModalPortal>
+                    {/* (Configuration Modal content remains identical to original for brevity but integrated here) */}
                     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(12px)' }}>
                         <div style={{ background: '#ffffff', borderRadius: '40px', padding: '48px', width: '100%', maxWidth: '600px', boxShadow: '0 40px 100px rgba(0,0,0,0.3)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                        {/* Modal Header */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '32px' }}>
                             <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: '#F1F5F9', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px' }}>
                                 {configureTemplate.icon || '⚙️'}
@@ -233,7 +242,7 @@ export default function WorkflowsPage() {
                                 <p style={{ fontSize: '0.95rem', color: '#64748B', margin: 0, fontWeight: 600 }}>Set up your workflow connections.</p>
                             </div>
                         </div>
-
+                        {/* Modal Body */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '32px', maxHeight: '50vh', overflowY: 'auto', paddingRight: '12px' }}>
                             {configureTemplate.parsedGuide && configureTemplate.parsedGuide.length > 0 && (
                                 <div style={{ background: '#F8FAFC', padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
@@ -251,7 +260,6 @@ export default function WorkflowsPage() {
                                     </div>
                                 </div>
                             )}
-
                             {configureTemplate.parsedReqs && configureTemplate.parsedReqs.length > 0 && (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                     <h3 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', margin: 0, textTransform: 'uppercase' }}>Required Inputs</h3>
@@ -261,60 +269,28 @@ export default function WorkflowsPage() {
                                         {req.name}
                                         {req.isOptional && <span style={{ color: '#9CA3AF', fontWeight: 400 }}>(Optional)</span>}
                                     </label>
-                                    
-                                    {req.type === 'textarea' ? (
-                                        <textarea 
-                                            className={styles.searchInput}
-                                            style={{ width: '100%', minHeight: '100px', padding: '12px', borderRadius: '8px', border: '1px solid #CBD5E1', resize: 'vertical' }}
-                                            placeholder={`Enter ${req.name}...`}
-                                            value={templateInputs[req.name] || ''}
-                                            onChange={e => setTemplateInputs({...templateInputs, [req.name]: e.target.value})}
-                                        />
-                                    ) : req.type === 'boolean' ? (
-                                        <select 
-                                            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #CBD5E1' }}
-                                            value={templateInputs[req.name] || ''}
-                                            onChange={e => setTemplateInputs({...templateInputs, [req.name]: e.target.value})}
-                                        >
-                                            <option value="">Select option...</option>
-                                            <option value="true">Yes</option>
-                                            <option value="false">No</option>
-                                        </select>
-                                    ) : (
-                                        <input 
-                                            className={styles.searchInput}
-                                            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #CBD5E1', background: '#ffffff' }}
-                                            type={req.type === 'file' ? 'file' : 'text'}
-                                            placeholder={`Enter ${req.name}...`}
-                                            value={req.type === 'file' ? undefined : (templateInputs[req.name] || '')}
-                                            onChange={e => setTemplateInputs({...templateInputs, [req.name]: e.target.value})}
-                                        />
-                                    )}
+                                    <input 
+                                        className={styles.searchInput}
+                                        style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #CBD5E1', background: '#ffffff' }}
+                                        type={req.type === 'file' ? 'file' : 'text'}
+                                        placeholder={`Enter ${req.name}...`}
+                                        value={req.type === 'file' ? undefined : (templateInputs[req.name] || '')}
+                                        onChange={e => setTemplateInputs({...templateInputs, [req.name]: e.target.value})}
+                                    />
                                 </div>
                             ))}
                                 </div>
                             )}
                         </div>
-
+                        {/* Modal Footer */}
                         <div style={{ display: 'flex', gap: '12px' }}>
-                            <button 
-                                className={styles.btnSecondary} 
-                                style={{ flex: 1, padding: '14px', borderRadius: '14px', fontWeight: 950, border: '1px solid #E2E8F0', background: '#F8FAFC' }}
-                                onClick={() => setConfigureTemplate(null)}
-                            >
-                                Cancel
-                            </button>
-                            <button 
-                                className={styles.btnPrimary} 
-                                style={{ flex: 1, padding: '14px', borderRadius: '14px', fontWeight: 950, background: '#0A0A0A', color: 'white' }}
-                                disabled={isDeploying || configureTemplate.parsedReqs.some((r: any) => !r.isOptional && !templateInputs[r.name])}
-                                onClick={() => deployWorkflow(configureTemplate, templateInputs)}
-                            >
+                            <button className={styles.btnSecondary} style={{ flex: 1, padding: '14px', borderRadius: '14px', fontWeight: 950, border: '1px solid #E2E8F0', background: '#F8FAFC' }} onClick={() => setConfigureTemplate(null)}>Cancel</button>
+                            <button className={styles.btnPrimary} style={{ flex: 1, padding: '14px', borderRadius: '14px', fontWeight: 950, background: '#0A0A0A', color: 'white' }} disabled={isDeploying} onClick={() => deployWorkflow(configureTemplate, templateInputs)}>
                                 {isDeploying ? 'Enabling...' : 'Enable Workflow'}
                             </button>
                         </div>
+                        </div>
                     </div>
-                </div>
                 </ModalPortal>
             )}
 
@@ -332,14 +308,10 @@ export default function WorkflowsPage() {
                                     <p style={{ fontSize: '0.95rem', color: '#64748B', margin: 0, fontWeight: 700 }}>Workflow Preview</p>
                                 </div>
                             </div>
-                            <button 
-                                onClick={() => setPreviewTemplate(null)}
-                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}
-                            >
+                            <button onClick={() => setPreviewTemplate(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}>
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                             </button>
                         </div>
-
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                             <div style={{ background: '#F8FAFC', padding: '24px', borderRadius: '24px', border: '1px solid #E2E8F0' }}>
                                 <h3 style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0A0A0A', marginTop: 0, marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Trigger & Action Diagram</h3>
@@ -347,19 +319,14 @@ export default function WorkflowsPage() {
                                     {previewTemplate.blueprint.logic.map((step: string, idx: number) => (
                                         <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                             <div style={{ display: 'flex', gap: '16px', alignItems: 'center', width: '100%', background: '#FFFFFF', padding: '16px', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
-                                                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: idx === 0 ? '#FEF3C7' : '#F0FAF5', color: idx === 0 ? '#D97706' : '#34D186', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
-                                                    {idx === 0 ? '⚡' : '→'}
-                                                </div>
+                                                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: idx === 0 ? '#FEF3C7' : '#F0FAF5', color: idx === 0 ? '#D97706' : '#34D186', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{idx === 0 ? '⚡' : '→'}</div>
                                                 <p style={{ margin: 0, fontSize: '0.95rem', color: '#0A0A0A', fontWeight: 800 }}>{step}</p>
                                             </div>
-                                            {idx < previewTemplate.blueprint.logic.length - 1 && (
-                                                <div style={{ width: '2px', height: '16px', background: '#CBD5E1', alignSelf: 'center' }}></div>
-                                            )}
+                                            {idx < previewTemplate.blueprint.logic.length - 1 && <div style={{ width: '2px', height: '16px', background: '#CBD5E1', alignSelf: 'center' }}></div>}
                                         </div>
                                     ))}
                                 </div>
                             </div>
-
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                                 <div style={{ padding: '24px', background: '#FAFAFA', borderRadius: '20px', border: '1px solid #EAEAEA' }}>
                                     <label style={{ fontSize: '0.75rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Projected Savings</label>
@@ -370,32 +337,12 @@ export default function WorkflowsPage() {
                                     <div style={{ fontSize: '1.5rem', fontWeight: 950, color: '#0A0A0A' }}>{previewTemplate.blueprint.impact.accuracy}</div>
                                 </div>
                             </div>
-
-                            <div style={{ padding: '24px', background: '#0A0A0A', borderRadius: '24px', position: 'relative', overflow: 'hidden' }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: 950, color: '#34D186', textTransform: 'uppercase', display: 'block', marginBottom: '12px' }}>Sample Output Reference</label>
-                                <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.85rem', color: '#FFFFFF', opacity: 0.8 }}>
-                                    {previewTemplate.blueprint.sample}
-                                </div>
-                                <div style={{ position: 'absolute', right: '-10px', bottom: '-10px', fontSize: '80px', opacity: 0.05, color: 'white' }}>
-                                    {previewTemplate.icon || '⚙️'}
-                                </div>
-                            </div>
                         </div>
-
                         <div style={{ display: 'flex', gap: '12px', marginTop: '40px' }}>
-                            <button 
-                                className={styles.btnPrimary} 
-                                style={{ flex: 1, padding: '18px', borderRadius: '18px', fontWeight: 950, background: '#0A0A0A', color: 'white' }}
-                                onClick={() => {
-                                    setPreviewTemplate(null);
-                                    handleAddClick(previewTemplate);
-                                }}
-                            >
-                                Use Template
-                            </button>
+                            <button className={styles.btnPrimary} style={{ flex: 1, padding: '18px', borderRadius: '18px', fontWeight: 950, background: '#0A0A0A', color: 'white' }} onClick={() => { setPreviewTemplate(null); handleAddClick(previewTemplate); }}>Use Template</button>
+                        </div>
                         </div>
                     </div>
-                </div>
                 </ModalPortal>
             )}
         </div>

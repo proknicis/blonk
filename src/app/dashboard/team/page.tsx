@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "./team.module.css";
 import ModalPortal from "@/app/components/ModalPortal";
+import { Skeleton } from "@/app/components/Skeleton";
 
 export default function TeamPage() {
     const [members, setMembers] = useState<any[]>([]);
@@ -40,6 +41,7 @@ export default function TeamPage() {
     };
 
     const fetchTeamData = async () => {
+        setIsLoading(true);
         try {
             const res = await fetch('/api/team');
             const data = await res.json();
@@ -120,15 +122,15 @@ export default function TeamPage() {
             <div className={styles.statsGrid}>
                 <div className={styles.statCard}>
                     <span className={styles.statLabel}>Total Members</span>
-                    <span className={styles.statValue}>{members.length}</span>
+                    <span className={styles.statValue}>{isLoading ? <Skeleton width="40px" height="32px"/> : members.length}</span>
                 </div>
                 <div className={styles.statCard}>
                     <span className={styles.statLabel}>Active Today</span>
-                    <span className={styles.statValue}>{activeToday}</span>
+                    <span className={styles.statValue}>{isLoading ? <Skeleton width="40px" height="32px"/> : activeToday}</span>
                 </div>
                 <div className={styles.statCard}>
                     <span className={styles.statLabel}>Workflows Assigned</span>
-                    <span className={styles.statValue}>{totalWorkflowsAssigned}</span>
+                    <span className={styles.statValue}>{isLoading ? <Skeleton width="40px" height="32px"/> : totalWorkflowsAssigned}</span>
                 </div>
             </div>
 
@@ -152,28 +154,36 @@ export default function TeamPage() {
                     </select>
                 </div>
 
-                {isLoading ? (
-                    <div style={{ padding: '64px', textAlign: 'center', color: '#94A3B8', fontWeight: 600 }}>Loading team data...</div>
-                ) : filteredMembers.length === 0 ? (
-                    <div style={{ padding: '64px', textAlign: 'center' }}>
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="1.5" style={{ margin: '0 auto 16px', display: 'block' }}>
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                        </svg>
-                        <p style={{ fontWeight: 800, fontSize: '1.1rem', color: '#64748B', margin: 0 }}>No members found.</p>
-                    </div>
-                ) : (
-                    <table className={styles.teamTable}>
-                        <thead>
+                <table className={styles.teamTable}>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Assigned Workflows</th>
+                            <th>Last Activity</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {isLoading ? (
+                            [1, 2, 3, 4].map(i => (
+                                <tr key={i} className={styles.teamRow}>
+                                    <td colSpan={5} style={{ padding: '24px' }}>
+                                        <Skeleton height="60px" borderRadius="16px" />
+                                    </td>
+                                </tr>
+                            ))
+                        ) : filteredMembers.length === 0 ? (
                             <tr>
-                                <th>User</th>
-                                <th>Role</th>
-                                <th>Assigned Workflows</th>
-                                <th>Last Activity</th>
-                                <th></th>
+                                <td colSpan={5} style={{ padding: '64px', textAlign: 'center' }}>
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="1.5" style={{ margin: '0 auto 16px', display: 'block' }}>
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                    </svg>
+                                    <p style={{ fontWeight: 800, fontSize: '1.1rem', color: '#64748B', margin: 0 }}>No members found.</p>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {filteredMembers.map((member: any) => {
+                        ) : (
+                            filteredMembers.map((member: any) => {
                                 const roleStyle = getRoleStyles(member.role);
                                 return (
                                     <tr key={member.id} className={styles.teamRow}>
@@ -220,10 +230,10 @@ export default function TeamPage() {
                                         </td>
                                     </tr>
                                 );
-                            })}
-                        </tbody>
-                    </table>
-                )}
+                            })
+                        )}
+                    </tbody>
+                </table>
             </div>
 
             {showInviteModal && (
@@ -265,18 +275,6 @@ export default function TeamPage() {
                                         <option value="OPERATOR">Operator (Manage Workflows)</option>
                                         <option value="VIEWER">Viewer (Read Only)</option>
                                     </select>
-                                </div>
-
-                                <div style={{ marginBottom: '32px' }}>
-                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', marginBottom: '8px' }}>Direct Assignments (Optional)</label>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                                        <label style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '8px 16px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                                            <input type="checkbox" /> <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>Lead Automation</span>
-                                        </label>
-                                        <label style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '8px 16px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                                            <input type="checkbox" /> <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>Invoice Processing</span>
-                                        </label>
-                                    </div>
                                 </div>
 
                                 <div style={{ display: 'flex', gap: '12px' }}>

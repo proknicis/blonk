@@ -1,0 +1,30 @@
+[
+  {
+    "table_name": "Report",
+    "column_name": "id"
+  },
+  {
+    "table_name": "Report",
+    "column_name": "name"
+  },
+  {
+    "table_name": "Report",
+    "column_name": "type"
+  },
+  {
+    "table_name": "Report",
+    "column_name": "date"
+  },
+  {
+    "table_name": "Report",
+    "column_name": "size"
+  },
+  {
+    "table_name": "Report",
+    "column_name": "content"
+  },
+  {
+    "table_name": "Report",
+    "column_name": "createdAt"
+  }
+]
