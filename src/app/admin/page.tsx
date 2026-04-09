@@ -272,7 +272,6 @@ export default function AdminControlPage() {
                             </tbody>
                             </table>
                         </div>
-                    )}
                 </div>
             </div>
 
