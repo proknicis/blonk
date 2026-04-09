@@ -109,3 +109,130 @@
 .btn:hover {
     background: #34D186;
 }
+
+/* Institutional Modal System */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(10, 10, 10, 0.4);
+    backdrop-filter: blur(16px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 24px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal {
+    background: white;
+    width: 100%;
+    max-width: 680px;
+    border-radius: 36px;
+    box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modalHeader {
+    background: #0A0A0A;
+    padding: 48px;
+    color: white;
+    position: relative;
+}
+
+.modalTitle {
+    margin: 0;
+    font-size: 1.85rem;
+    font-weight: 950;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+}
+
+.modalSubtitle {
+    margin: 12px 0 0;
+    font-size: 1rem;
+    color: #94A3B8;
+    fontWeight: 700;
+}
+
+.modalBody {
+    padding: 48px;
+    max-height: 55vh;
+    overflow-y: auto;
+    background: #FFFFFF;
+}
+
+.modalFooter {
+    padding: 32px 48px;
+    border-top: 1px solid #F1F5F9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #F8F9FA;
+}
+
+/* Wizard / Stepper */
+.wizardContainer {
+    display: flex;
+    gap: 12px;
+    margin-top: 40px;
+}
+
+.wizardStep {
+    flex: 1;
+    height: 6px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.4s ease;
+}
+
+.wizardStepActive {
+    background: #34D186;
+    box-shadow: 0 0 15px rgba(52, 209, 134, 0.3);
+}
+
+/* Data Display */
+.parameterCard {
+    background: #F8F9FA;
+    padding: 24px;
+    border-radius: 24px;
+    border: 1px solid #EAEAEA;
+    margin-bottom: 20px;
+}
+
+.parameterLabel {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 950;
+    color: #94A3B8;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.parameterValue {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #0A0A0A;
+    font-family: var(--font-mono);
+    background: white;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid #EAEAEA;
+    word-break: break-all;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}

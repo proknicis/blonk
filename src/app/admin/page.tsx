@@ -1,6 +1,7 @@
 "use client";
 
 import styles from "../dashboard/page.module.css";
+import adminStyles from "./admin.module.css";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
@@ -277,34 +278,40 @@ export default function AdminControlPage() {
 
             {/* CONFIG MODAL */}
             {configWorkflow && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(10, 10, 10, 0.4)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: '24px' }}>
-                    <div style={{ background: 'white', width: '100%', maxWidth: '640px', borderRadius: '32px', boxShadow: '0 40px 80px -12px rgba(0, 0, 0, 0.2)', overflow: 'hidden', border: '1px solid #EAEAEA' }}>
+                <div className={adminStyles.modalOverlay}>
+                    <div className={adminStyles.modal}>
                         {/* Modal Header */}
-                        <div style={{ background: '#0A0A0A', padding: '40px', color: 'white' }}>
+                        <div className={adminStyles.modalHeader}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
                                         <Database size={20} color="#34D186" />
                                         <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.2em', color: '#94A3B8' }}>NODE CALIBRATION</span>
                                     </div>
-                                    <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 950, letterSpacing: '-0.04em' }}>Production Sync</h3>
-                                    <p style={{ margin: '8px 0 0', fontSize: '1rem', color: '#94A3B8', fontWeight: 700 }}>Instance: {configWorkflow.name}</p>
+                                    <h3 className={adminStyles.modalTitle}>Production Sync</h3>
+                                    <p className={adminStyles.modalSubtitle}>Instance: {configWorkflow.name}</p>
                                 </div>
-                                <button onClick={() => setConfigWorkflow(null)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: 'white', cursor: 'pointer', width: '48px', height: '48px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Trash2 size={20} />
+                                <button 
+                                    onClick={() => setConfigWorkflow(null)} 
+                                    style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: 'white', cursor: 'pointer', width: '48px', height: '48px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                >
+                                    <MoreVertical size={20} />
                                 </button>
                             </div>
 
                             {/* Wizard Progress */}
-                            <div style={{ display: 'flex', gap: '12px', marginTop: '48px' }}>
+                            <div className={adminStyles.wizardContainer}>
                                 {[1, 2, 3].map(s => (
-                                    <div key={s} style={{ flex: 1, height: '6px', background: configStep >= s ? '#34D186' : 'rgba(255,255,255,0.1)', borderRadius: '10px' }}></div>
+                                    <div 
+                                        key={s} 
+                                        className={`${adminStyles.wizardStep} ${configStep >= s ? adminStyles.wizardStepActive : ""}`}
+                                    />
                                 ))}
                             </div>
                         </div>
 
                         {/* Modal Body */}
-                        <div style={{ padding: '48px', maxHeight: '60vh', overflowY: 'auto' }}>
+                        <div className={adminStyles.modalBody}>
                             {configStep === 1 && (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
@@ -323,9 +330,9 @@ export default function AdminControlPage() {
                                                 } catch (e) { data = {}; }
                                                 
                                                 return Object.entries(data || {}).map(([key, val]: any) => (
-                                                    <div key={key} style={{ background: '#F8F9FA', padding: '24px', borderRadius: '24px', border: '1px solid #EAEAEA' }}>
-                                                        <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: '#94A3B8', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{key}</label>
-                                                        <div style={{ fontSize: '1rem', fontWeight: 800, color: '#0A0A0A', fontFamily: 'var(--font-mono)', wordBreak: 'break-all', background: 'white', padding: '16px', borderRadius: '14px', border: '1px solid #EAEAEA' }}>{String(val)}</div>
+                                                    <div key={key} className={adminStyles.parameterCard}>
+                                                        <label className={adminStyles.parameterLabel}>{key}</label>
+                                                        <div className={adminStyles.parameterValue}>{String(val)}</div>
                                                     </div>
                                                 ));
                                             })()
@@ -342,14 +349,15 @@ export default function AdminControlPage() {
                             {configStep === 2 && (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                                     <div>
-                                        <label style={{ display: 'block', fontWeight: 950, marginBottom: '16px', fontSize: '0.8rem', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Sovereign Loop Identity</label>
+                                        <label className={adminStyles.parameterLabel}>Sovereign Loop Identity</label>
                                         <div style={{ display: 'flex', gap: '16px' }}>
                                             <div style={{ flex: 1, padding: '24px', borderRadius: '24px', background: '#F8F9FA', border: '1px solid #EAEAEA', fontSize: '1.2rem', fontWeight: 950, color: '#0A0A0A', fontFamily: 'monospace', letterSpacing: '-0.02em' }}>
                                                 {configWorkflow.id}
                                             </div>
                                             <button 
                                                 onClick={() => copyToClipboard(configWorkflow.id)}
-                                                style={{ padding: '0 32px', borderRadius: '24px', background: '#0A0A0A', color: 'white', fontWeight: 950, border: 'none', cursor: 'pointer', transition: 'all 0.2s' }}
+                                                className={styles.btnInstitutional}
+                                                style={{ padding: '0 32px', borderRadius: '24px' }}
                                             >
                                                 COPY
                                             </button>
@@ -379,7 +387,7 @@ export default function AdminControlPage() {
                         </div>
 
                         {/* Modal Footer */}
-                        <div style={{ padding: '32px 48px', borderTop: '1px solid #EAEAEA', display: 'flex', justifyContent: 'space-between', background: '#F8F9FA' }}>
+                        <div className={adminStyles.modalFooter}>
                             <button 
                                 className={styles.btnOutline} 
                                 style={{ padding: '0 32px', height: '52px', borderRadius: '20px', fontWeight: 950, fontSize: '1rem' }}

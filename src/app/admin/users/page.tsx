@@ -1,6 +1,7 @@
 "use client";
 
 import styles from "../../dashboard/page.module.css";
+import adminStyles from "../admin.module.css";
 import React, { useState, useEffect } from "react";
 import { 
     Users, 
@@ -216,12 +217,16 @@ export default function AdminUsersPage() {
                                                 <tr key={u.id}>
                                                     <td>
                                                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                                            <div className={styles.avatar} style={{ width: '40px', height: '40px', fontSize: '1rem' }}>
+                                                            <div className={styles.avatar} style={{ width: '40px', height: '40px', fontSize: '1rem', background: '#F8F9FA', border: '1px solid #EAEAEA', color: '#0A0A0A' }}>
                                                                 {u.name?.charAt(0) || "U"}
                                                             </div>
                                                             <div>
                                                                 <div style={{ fontWeight: 950, color: '#0A0A0A', fontSize: '1rem' }}>{u.name}</div>
-                                                                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase' }}>ID: {u.id.substring(0, 8)}</div>
+                                                                <div style={{ marginTop: '4px' }}>
+                                                                    <code style={{ fontSize: '0.7rem', fontWeight: 900, background: '#F8F9FA', color: '#94A3B8', padding: '2px 6px', borderRadius: '4px', border: '1px solid #EAEAEA' }}>
+                                                                        {u.id.substring(0, 12)}
+                                                                    </code>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -238,7 +243,7 @@ export default function AdminUsersPage() {
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        <div style={{ position: 'relative', width: '140px' }}>
+                                                        <div style={{ position: 'relative', width: '160px' }}>
                                                             <select
                                                                 value={u.role}
                                                                 disabled={u.role === 'SuperAdmin' || updatingId === u.id}
@@ -246,15 +251,19 @@ export default function AdminUsersPage() {
                                                                 className={styles.btnOutline}
                                                                 style={{ 
                                                                     width: '100%', 
-                                                                    padding: '6px 12px', 
+                                                                    padding: '8px 16px', 
                                                                     appearance: 'none', 
                                                                     cursor: (u.role === 'SuperAdmin' || updatingId === u.id) ? 'not-allowed' : 'pointer',
                                                                     fontSize: '0.8rem',
-                                                                    fontWeight: 900,
+                                                                    fontWeight: 950,
                                                                     textAlign: 'center',
+                                                                    borderRadius: '12px',
+                                                                    borderWidth: '1.5px',
+                                                                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                                                                     background: u.role === 'OWNER' || u.role === 'Admin' ? '#F0FAF5' : '#FFFFFF',
-                                                                    borderColor: u.role === 'OWNER' || u.role === 'Admin' ? '#34D186' : '#EAEAEA',
-                                                                    color: u.role === 'OWNER' || u.role === 'Admin' ? '#34D186' : '#0A0A0A'
+                                                                    borderColor: u.role === 'OWNER' || u.role === 'Admin' ? '#34D186' : '#E2E8F0',
+                                                                    color: u.role === 'OWNER' || u.role === 'Admin' ? '#34D186' : '#0F172A',
+                                                                    boxShadow: u.role === 'OWNER' || u.role === 'Admin' ? '0 4px 12px rgba(52, 209, 134, 0.1)' : 'none'
                                                                 }}
                                                             >
                                                                 <option value="User">Standard User</option>
@@ -262,6 +271,9 @@ export default function AdminUsersPage() {
                                                                 <option value="OWNER">Firm Owner</option>
                                                                 <option value="SuperAdmin" disabled>Super Admin</option>
                                                             </select>
+                                                            <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#94A3B8' }}>
+                                                                <MoreVertical size={14} />
+                                                            </div>
                                                         </div>
                                                     </td>
                                                     <td style={{ textAlign: 'right' }}>
