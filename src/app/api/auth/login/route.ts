@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
         // Use sovereign DB helper for PostgreSQL compatibility
         const rows = await db.query(
-            'SELECT id, email, name, "firmName", password FROM "User" WHERE email = $1 LIMIT 1',
+            'SELECT id, email, name, "firmName", password FROM "User" WHERE LOWER(email) = LOWER($1) LIMIT 1',
             [email],
         );
 

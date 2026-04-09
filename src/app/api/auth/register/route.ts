@@ -17,7 +17,7 @@ export async function POST(request: Request) {
 
         // Check for existing user (PostgreSQL Syntax)
         const rows = await db.query(
-            'SELECT id FROM "User" WHERE email = $1 LIMIT 1',
+            'SELECT id FROM "User" WHERE LOWER(email) = LOWER($1) LIMIT 1',
             [email]
         );
 
