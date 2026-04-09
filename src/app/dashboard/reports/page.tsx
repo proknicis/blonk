@@ -161,8 +161,20 @@ export default function ReportsPage() {
                         {isLoading ? (
                             [1, 2, 3, 4, 5].map(i => (
                                 <tr key={i}>
-                                    <td colSpan={5} style={{ padding: '12px 24px' }}>
-                                        <Skeleton height="30px" borderRadius="8px" />
+                                    <td>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <Skeleton width="18px" height="18px" borderRadius="4px" />
+                                            <Skeleton width="180px" height="20px" />
+                                        </div>
+                                    </td>
+                                    <td><Skeleton width="80px" height="16px" /></td>
+                                    <td><Skeleton width="100px" height="16px" /></td>
+                                    <td><Skeleton width="60px" height="24px" borderRadius="100px" /></td>
+                                    <td className={styles.rowActions}>
+                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                            <Skeleton width="40px" height="32px" borderRadius="8px" />
+                                            <Skeleton width="70px" height="32px" borderRadius="8px" />
+                                        </div>
                                     </td>
                                 </tr>
                             ))

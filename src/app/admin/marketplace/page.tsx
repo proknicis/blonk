@@ -17,6 +17,8 @@ import {
     ArrowUpRight
 } from "lucide-react";
 
+import { Skeleton } from "../../components/Skeleton";
+
 export default function MarketplaceManagementPage() {
     const router = useRouter();
     const [templates, setTemplates] = useState<any[]>([]);
@@ -70,6 +72,29 @@ export default function MarketplaceManagementPage() {
         t.description?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const SkeletonRow = () => (
+        <tr>
+            <td>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <Skeleton width="44px" height="44px" borderRadius="14px" />
+                    <div>
+                        <Skeleton width="120px" height="18px" style={{ marginBottom: '8px' }} />
+                        <Skeleton width="200px" height="14px" />
+                    </div>
+                </div>
+            </td>
+            <td><Skeleton width="80px" height="24px" borderRadius="8px" /></td>
+            <td><Skeleton width="60px" height="18px" /></td>
+            <td><Skeleton width="100px" height="24px" borderRadius="12px" /></td>
+            <td style={{ textAlign: 'right' }}>
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                    <Skeleton width="36px" height="36px" borderRadius="10px" />
+                    <Skeleton width="36px" height="36px" borderRadius="10px" />
+                </div>
+            </td>
+        </tr>
+    );
+
     return (
         <div className={styles.dashboard}>
             {/* STATUS BANNER */}
@@ -97,7 +122,7 @@ export default function MarketplaceManagementPage() {
                         <span className={styles.label}>Library Assets</span>
                         <Layers size={14} className={styles.accentIcon} />
                     </div>
-                    <div className={styles.value}>{stats.total}</div>
+                    <div className={styles.value}>{isLoading ? <Skeleton width="40px" height="32px" /> : stats.total}</div>
                     <div className={styles.trend}>Total templates created</div>
                 </div>
 
@@ -106,7 +131,7 @@ export default function MarketplaceManagementPage() {
                         <span className={styles.label}>Live Distribution</span>
                         <div className={styles.activeDot} />
                     </div>
-                    <div className={styles.value}>{stats.published}</div>
+                    <div className={styles.value}>{isLoading ? <Skeleton width="40px" height="32px" /> : stats.published}</div>
                     <div className={styles.trend}>Active in marketplace</div>
                 </div>
 
@@ -115,7 +140,7 @@ export default function MarketplaceManagementPage() {
                         <span className={styles.label}>Est. Value Created</span>
                         <TrendingUp size={14} color="#34D186"/>
                     </div>
-                    <div className={styles.value}>{stats.avgSavings}</div>
+                    <div className={styles.value}>{isLoading ? <Skeleton width="100px" height="32px" /> : stats.avgSavings}</div>
                     <div className={styles.trend}>Aggregated efficiency</div>
                 </div>
 
@@ -149,100 +174,105 @@ export default function MarketplaceManagementPage() {
                         </div>
                     </div>
 
-                    {isLoading ? (
-                        <div style={{ padding: '60px 0', textAlign: 'center' }}>
-                            <div className={styles.pulseEffect} style={{ margin: '0 auto 24px' }} />
-                            <p style={{ fontWeight: 800, color: '#64748B' }}>Accessing protocol registry...</p>
-                        </div>
-                    ) : (
-                        <div style={{ overflowX: 'auto', marginTop: '24px' }}>
-                            <table className={styles.historyTable}>
-                                <thead>
-                                    <tr>
-                                        <th>Protocol Name</th>
-                                        <th>Institutional Sector</th>
-                                        <th>Automation Value</th>
-                                        <th>Deployment Status</th>
-                                        <th style={{ textAlign: 'right' }}>Management</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredTemplates.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={5} style={{ padding: '80px 0', textAlign: 'center' }}>
-                                                <Layers size={48} style={{ color: '#EAEAEA', marginBottom: '20px' }} />
-                                                <p style={{ fontWeight: 900, color: '#0A0A0A', fontSize: '1.1rem' }}>No protocols found</p>
-                                                <p style={{ color: '#94A3B8', fontWeight: 700 }}>Adjust your search parameters or initialize a new loop.</p>
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        filteredTemplates.map(t => (
-                                            <tr key={t.id}>
-                                                <td>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                                        <div style={{ width: '44px', height: '44px', background: '#F8F9FA', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #EAEAEA', fontSize: '1.2rem' }}>
-                                                            {t.icon || "⚡"}
-                                                        </div>
-                                                        <div>
-                                                            <div style={{ fontWeight: 950, color: '#0A0A0A', fontSize: '1rem' }}>{t.name}</div>
-                                                            <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 700, maxWidth: '280px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                                {t.description || "System protocol description pending."}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <span style={{ padding: '6px 12px', background: '#F8F9FA', color: '#0A0A0A', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', border: '1px solid #EAEAEA' }}>
-                                                        {t.sector || "GENERAL"}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <div style={{ fontWeight: 950, color: '#34D186', fontSize: '0.95rem' }}>
-                                                        {t.savings || "—"}
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <span style={{
-                                                        padding: '6px 14px',
-                                                        borderRadius: '100px',
-                                                        fontSize: '0.7rem',
-                                                        fontWeight: 950,
-                                                        background: t.status === 'Published' ? '#F0FAF5' : '#F8F9FA',
-                                                        color: t.status === 'Published' ? '#34D186' : '#94A3B8',
-                                                        display: 'inline-flex',
-                                                        alignItems: 'center',
-                                                        gap: '8px',
-                                                        textTransform: 'uppercase',
-                                                        letterSpacing: '0.05em'
-                                                    }}>
-                                                        <span style={{ width: '6px', height: '6px', background: 'currentColor', borderRadius: '50%' }}></span>
-                                                        {t.status || 'DRAFT'}
-                                                    </span>
-                                                </td>
-                                                <td style={{ textAlign: 'right' }}>
-                                                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                                                        <button 
-                                                            className={styles.btnOutline}
-                                                            style={{ width: '40px', height: '40px', borderRadius: '12px', padding: 0 }}
-                                                            onClick={() => alert("Editor integration pending")}
-                                                        >
-                                                            <Edit3 size={18} />
-                                                        </button>
-                                                        <button 
-                                                            style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'none', border: '1px solid #FEE2E2', color: '#EF4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                                            onClick={() => deleteTemplate(t.id)}
-                                                        >
-                                                            <Trash2 size={18} />
-                                                        </button>
-                                                    </div>
+                    <div style={{ overflowX: 'auto', marginTop: '24px' }}>
+                        <table className={styles.historyTable}>
+                            <thead>
+                                <tr>
+                                    <th>Protocol Name</th>
+                                    <th>Institutional Sector</th>
+                                    <th>Automation Value</th>
+                                    <th>Deployment Status</th>
+                                    <th style={{ textAlign: 'right' }}>Management</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {isLoading ? (
+                                    <>
+                                        <SkeletonRow />
+                                        <SkeletonRow />
+                                        <SkeletonRow />
+                                        <SkeletonRow />
+                                        <SkeletonRow />
+                                    </>
+                                ) : (
+                                    <>
+                                        {filteredTemplates.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={5} style={{ padding: '80px 0', textAlign: 'center' }}>
+                                                    <Layers size={48} style={{ color: '#EAEAEA', marginBottom: '20px' }} />
+                                                    <p style={{ fontWeight: 900, color: '#0A0A0A', fontSize: '1.1rem' }}>No protocols found</p>
+                                                    <p style={{ color: '#94A3B8', fontWeight: 700 }}>Adjust your search parameters or initialize a new loop.</p>
                                                 </td>
                                             </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
+                                        ) : (
+                                            filteredTemplates.map(t => (
+                                                <tr key={t.id}>
+                                                    <td>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                                            <div style={{ width: '44px', height: '44px', background: '#F8F9FA', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #EAEAEA', fontSize: '1.2rem' }}>
+                                                                {t.icon || "⚡"}
+                                                            </div>
+                                                            <div>
+                                                                <div style={{ fontWeight: 950, color: '#0A0A0A', fontSize: '1rem' }}>{t.name}</div>
+                                                                <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 700, maxWidth: '280px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                                    {t.description || "System protocol description pending."}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <span style={{ padding: '6px 12px', background: '#F8F9FA', color: '#0A0A0A', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', border: '1px solid #EAEAEA' }}>
+                                                            {t.sector || "GENERAL"}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <div style={{ fontWeight: 950, color: '#34D186', fontSize: '0.95rem' }}>
+                                                            {t.savings || "—"}
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <span style={{
+                                                            padding: '6px 14px',
+                                                            borderRadius: '100px',
+                                                            fontSize: '0.7rem',
+                                                            fontWeight: 950,
+                                                            background: t.status === 'Published' ? '#F0FAF5' : '#F8F9FA',
+                                                            color: t.status === 'Published' ? '#34D186' : '#94A3B8',
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            gap: '8px',
+                                                            textTransform: 'uppercase',
+                                                            letterSpacing: '0.05em'
+                                                        }}>
+                                                            <span style={{ width: '6px', height: '6px', background: 'currentColor', borderRadius: '50%' }}></span>
+                                                            {t.status || 'DRAFT'}
+                                                        </span>
+                                                    </td>
+                                                    <td style={{ textAlign: 'right' }}>
+                                                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                                                            <button 
+                                                                className={styles.btnOutline}
+                                                                style={{ width: '40px', height: '40px', borderRadius: '12px', padding: 0 }}
+                                                                onClick={() => alert("Editor integration pending")}
+                                                            >
+                                                                <Edit3 size={18} />
+                                                            </button>
+                                                            <button 
+                                                                style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'none', border: '1px solid #FEE2E2', color: '#EF4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                                                onClick={() => deleteTemplate(t.id)}
+                                                            >
+                                                                <Trash2 size={18} />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

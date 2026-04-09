@@ -18,6 +18,8 @@ import {
     Users
 } from "lucide-react";
 
+import { Skeleton } from "../components/Skeleton";
+
 export default function AdminControlPage() {
     const [workflows, setWorkflows] = useState<any[]>([]);
     const [isLoadingWorkflows, setIsLoadingWorkflows] = useState(true);
@@ -64,6 +66,34 @@ export default function AdminControlPage() {
         alert("Copied to clipboard!");
     };
 
+    const SkeletonRow = () => (
+        <tr>
+            <td>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <Skeleton width="44px" height="44px" borderRadius="14px" />
+                    <div>
+                        <Skeleton width="120px" height="18px" style={{ marginBottom: '8px' }} />
+                        <Skeleton width="80px" height="12px" />
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Skeleton width="32px" height="32px" borderRadius="50%" />
+                    <Skeleton width="100px" height="16px" />
+                </div>
+            </td>
+            <td><Skeleton width="100px" height="28px" borderRadius="8px" /></td>
+            <td><Skeleton width="90px" height="24px" borderRadius="100px" /></td>
+            <td style={{ textAlign: 'right' }}>
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                    <Skeleton width="80px" height="40px" borderRadius="12px" />
+                    <Skeleton width="40px" height="40px" borderRadius="12px" />
+                </div>
+            </td>
+        </tr>
+    );
+
     return (
         <div className={styles.dashboard}>
             {/* STATUS BANNER */}
@@ -79,7 +109,7 @@ export default function AdminControlPage() {
                 </div>
                 <div className={styles.integrityMetrics}>
                     <span className={styles.metricLabel}>Active Nodes:</span>
-                    <span className={styles.metricValue}>{workflows.length}</span>
+                    <span className={styles.metricValue}>{isLoadingWorkflows ? <Skeleton width="30px" height="20px" /> : workflows.length}</span>
                 </div>
             </div>
 
@@ -90,7 +120,7 @@ export default function AdminControlPage() {
                         <span className={styles.label}>Total Provisioned</span>
                         <Database size={14} className={styles.accentIcon} />
                     </div>
-                    <div className={styles.value}>{workflows.length}</div>
+                    <div className={styles.value}>{isLoadingWorkflows ? <Skeleton width="40px" height="32px" /> : workflows.length}</div>
                     <div className={styles.trend}>Loop instances in registry</div>
                 </div>
 
@@ -99,7 +129,7 @@ export default function AdminControlPage() {
                         <span className={styles.label}>Pending Nodes</span>
                         <div className={styles.activeDot} style={{ background: '#F59E0B' }} />
                     </div>
-                    <div className={styles.value}>{workflows.filter(wf => wf.status !== 'Active').length}</div>
+                    <div className={styles.value}>{isLoadingWorkflows ? <Skeleton width="40px" height="32px" /> : workflows.filter(wf => wf.status !== 'Active').length}</div>
                     <div className={styles.trend}>Awaiting calibration</div>
                 </div>
 
@@ -135,95 +165,111 @@ export default function AdminControlPage() {
                         </button>
                     </div>
 
-                    {isLoadingWorkflows ? (
-                        <div style={{ padding: '60px 0', textAlign: 'center' }}>
-                            <div className={styles.pulseEffect} style={{ margin: '0 auto 24px' }} />
-                            <p style={{ fontWeight: 800, color: '#64748B' }}>Accessing secure registry...</p>
-                        </div>
-                    ) : (
-                        <div style={{ overflowX: 'auto', marginTop: '24px' }}>
-                            <table className={styles.historyTable}>
-                                <thead>
-                                    <tr>
-                                        <th>Loop Detail</th>
-                                        <th>Requested By</th>
-                                        <th>Identity Hash</th>
-                                        <th>Status</th>
-                                        <th style={{ textAlign: 'right' }}>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {workflows.map(wf => (
-                                        <tr key={wf.id}>
-                                            <td>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                                    <div style={{ width: '44px', height: '44px', background: '#F8F9FA', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #EAEAEA' }}>
-                                                        <Zap size={20} color="#0A0A0A" />
-                                                    </div>
-                                                    <div>
-                                                        <div style={{ fontWeight: 950, color: '#0A0A0A', fontSize: '1rem' }}>{wf.name}</div>
-                                                        <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{wf.sector}</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                    <div className={styles.avatar} style={{ width: '32px', height: '32px', fontSize: '0.8rem' }}>
-                                                        {wf.requestedBy?.charAt(0) || "U"}
-                                                    </div>
-                                                    <div>
-                                                        <div style={{ fontSize: '0.9rem', fontWeight: 850, color: '#0A0A0A' }}>{wf.requestedBy || "Client User"}</div>
-                                                        <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 700 }}>Institutional Partner</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <button 
-                                                    onClick={() => copyToClipboard(wf.id)}
-                                                    style={{ background: '#F8F9FA', border: '1px solid #EAEAEA', borderRadius: '8px', padding: '6px 12px', fontSize: '0.75rem', fontWeight: 900, color: '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
-                                                >
-                                                    <code>{wf.id.substring(0, 12)}...</code>
-                                                    <Copy size={12} />
-                                                </button>
-                                            </td>
-                                            <td>
-                                                <span style={{
-                                                    padding: '6px 14px',
-                                                    borderRadius: '100px',
-                                                    fontSize: '0.7rem',
-                                                    fontWeight: 950,
-                                                    background: wf.status === 'Pending' ? '#FFFBEB' : '#F0FAF5',
-                                                    color: wf.status === 'Pending' ? '#B45309' : '#34D186',
-                                                    display: 'inline-flex',
-                                                    alignItems: 'center',
-                                                    gap: '8px',
-                                                    textTransform: 'uppercase',
-                                                    letterSpacing: '0.05em'
-                                                }}>
-                                                    <span style={{ width: '6px', height: '6px', background: 'currentColor', borderRadius: '50%' }}></span>
-                                                    {wf.status === 'Active' ? 'SYNCED' : 'AWAITING NODE'}
-                                                </span>
-                                            </td>
-                                            <td style={{ textAlign: 'right' }}>
-                                                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                                                    <button
-                                                        className={styles.btnInstitutional}
-                                                        style={{ padding: '0 16px', height: '40px', fontSize: '0.85rem', background: wf.status === 'Pending' ? '#0A0A0A' : '#F8F9FA', color: wf.status === 'Pending' ? '#FFFFFF' : '#64748B' }}
-                                                        onClick={() => { setConfigWorkflow(wf); setConfigStep(1); }}
-                                                    >
-                                                        Configure
-                                                    </button>
-                                                    <button 
-                                                        style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'none', border: '1px solid #FEE2E2', color: '#EF4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                                        onClick={() => deleteWorkflow(wf.id)}
-                                                    >
-                                                        <Trash2 size={18} />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
+                    <div style={{ overflowX: 'auto', marginTop: '24px' }}>
+                        <table className={styles.historyTable}>
+                            <thead>
+                                <tr>
+                                    <th>Loop Detail</th>
+                                    <th>Requested By</th>
+                                    <th>Identity Hash</th>
+                                    <th>Status</th>
+                                    <th style={{ textAlign: 'right' }}>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {isLoadingWorkflows ? (
+                                    <>
+                                        <SkeletonRow />
+                                        <SkeletonRow />
+                                        <SkeletonRow />
+                                        <SkeletonRow />
+                                        <SkeletonRow />
+                                    </>
+                                ) : (
+                                    <>
+                                        {workflows.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={5} style={{ padding: '80px 0', textAlign: 'center' }}>
+                                                    <Database size={48} style={{ color: '#EAEAEA', marginBottom: '20px' }} />
+                                                    <p style={{ fontWeight: 900, color: '#0A0A0A', fontSize: '1.1rem' }}>No nodes provisioned</p>
+                                                    <p style={{ color: '#94A3B8', fontWeight: 700 }}>Initialize your first operational instance from user requests.</p>
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            workflows.map(wf => (
+                                                <tr key={wf.id}>
+                                                    <td>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                                            <div style={{ width: '44px', height: '44px', background: '#F8F9FA', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #EAEAEA' }}>
+                                                                <Zap size={20} color="#0A0A0A" />
+                                                            </div>
+                                                            <div>
+                                                                <div style={{ fontWeight: 950, color: '#0A0A0A', fontSize: '1rem' }}>{wf.name}</div>
+                                                                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{wf.sector}</div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                            <div className={styles.avatar} style={{ width: '32px', height: '32px', fontSize: '0.8rem' }}>
+                                                                {wf.requestedBy?.charAt(0) || "U"}
+                                                            </div>
+                                                            <div>
+                                                                <div style={{ fontSize: '0.9rem', fontWeight: 850, color: '#0A0A0A' }}>{wf.requestedBy || "Client User"}</div>
+                                                                <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 700 }}>Institutional Partner</div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <button 
+                                                            onClick={() => copyToClipboard(wf.id)}
+                                                            style={{ background: '#F8F9FA', border: '1px solid #EAEAEA', borderRadius: '8px', padding: '6px 12px', fontSize: '0.75rem', fontWeight: 900, color: '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                                                        >
+                                                            <code>{wf.id.substring(0, 12)}...</code>
+                                                            <Copy size={12} />
+                                                        </button>
+                                                    </td>
+                                                    <td>
+                                                        <span style={{
+                                                            padding: '6px 14px',
+                                                            borderRadius: '100px',
+                                                            fontSize: '0.7rem',
+                                                            fontWeight: 950,
+                                                            background: wf.status === 'Pending' ? '#FFFBEB' : '#F0FAF5',
+                                                            color: wf.status === 'Pending' ? '#B45309' : '#34D186',
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            gap: '8px',
+                                                            textTransform: 'uppercase',
+                                                            letterSpacing: '0.05em'
+                                                        }}>
+                                                            <span style={{ width: '6px', height: '6px', background: 'currentColor', borderRadius: '50%' }}></span>
+                                                            {wf.status === 'Active' ? 'SYNCED' : 'AWAITING NODE'}
+                                                        </span>
+                                                    </td>
+                                                    <td style={{ textAlign: 'right' }}>
+                                                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                                                            <button
+                                                                className={styles.btnInstitutional}
+                                                                style={{ padding: '0 16px', height: '40px', fontSize: '0.85rem', background: wf.status === 'Pending' ? '#0A0A0A' : '#F8F9FA', color: wf.status === 'Pending' ? '#FFFFFF' : '#64748B' }}
+                                                                onClick={() => { setConfigWorkflow(wf); setConfigStep(1); }}
+                                                            >
+                                                                Configure
+                                                            </button>
+                                                            <button 
+                                                                style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'none', border: '1px solid #FEE2E2', color: '#EF4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                                                onClick={() => deleteWorkflow(wf.id)}
+                                                            >
+                                                                <Trash2 size={18} />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </>
+                                )}
+                            </tbody>
                             </table>
                         </div>
                     )}
