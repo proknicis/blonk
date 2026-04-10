@@ -480,3 +480,12 @@
 .difficultyEasy { background: #DCFCE7; color: #166534; }
 .difficultyMedium { background: #FEF3C7; color: #92400E; }
 .difficultyHard { background: #FEE2E2; color: #991B1B; }
+
+.spinning {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}

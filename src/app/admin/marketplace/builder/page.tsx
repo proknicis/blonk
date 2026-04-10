@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./builder.module.css";
 
 const STEPS = [
@@ -12,11 +12,14 @@ const STEPS = [
     { id: 5, name: "Publish", description: "Make it live" },
 ];
 
-export default function BuilderPage() {
+function BuilderContent() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const templateId = searchParams.get('id');
     const [currentStep, setCurrentStep] = useState(1);
     const [isSaving, setIsSaving] = useState(false);
     const [isImproving, setIsImproving] = useState(false);
+    const [isLoading, setIsLoading] = useState(!!templateId);
 
     // Form Data
     const [formData, setFormData] = useState({
@@ -46,6 +49,44 @@ export default function BuilderPage() {
             difficulty: "Easy"
         }
     });
+
+    useEffect(() => {
+        if (templateId) {
+            fetchTemplate(templateId);
+        }
+    }, [templateId]);
+
+    const fetchTemplate = async (id: string) => {
+        try {
+            const res = await fetch(`/api/admin/templates?id=${id}`);
+            if (res.ok) {
+                const data = await res.json();
+                setFormData({
+                    name: data.name || "",
+                    category: data.sector || "General",
+                    description: data.description || "",
+                    icon: data.icon || "Zap",
+                    complexity: data.complexity || "Low",
+                    savings: data.savings || "",
+                    inputs: Array.isArray(data.requirements) ? data.requirements : [],
+                    guide: Array.isArray(data.setupGuide) ? data.setupGuide : [],
+                    webhookUrl: data.webhookUrl || "",
+                    status: data.status || "Draft",
+                    productInfo: data.productInfo || {
+                        valueProp: "",
+                        targetUser: "SME Owners",
+                        setupTime: "5 min",
+                        price: "0",
+                        difficulty: "Easy"
+                    }
+                });
+            }
+        } catch (e) {
+            console.error("Error fetching template:", e);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const [previewMode, setPreviewTab] = useState<'product' | 'setup'>('product');
 
@@ -140,6 +181,7 @@ export default function BuilderPage() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    id: templateId, // Include ID if editing
                     name: formData.name,
                     sector: formData.category,
                     description: formData.description,
@@ -165,11 +207,23 @@ export default function BuilderPage() {
         }
     };
 
+    if (isLoading) {
+        return (
+            <div className={styles.container} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '600px' }}>
+                <div style={{ textAlign: 'center' }}>
+                    <RefreshCcw size={48} className={styles.spinning} style={{ color: '#34D186', marginBottom: '24px' }} />
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 950, color: '#0F172A' }}>Loading Protocol Data...</h2>
+                    <p style={{ color: '#64748B', fontWeight: 700 }}>Synchronizing with sovereign registry.</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <h1 className={styles.title}>Workflow Builder</h1>
-                <p className={styles.subtitle}>Create and publish no-code automations for the firm marketplace.</p>
+                <h1 className={styles.title}>{templateId ? "Edit Protocol" : "Workflow Builder"}</h1>
+                <p className={styles.subtitle}>{templateId ? `Currently modifying: ${formData.name}` : "Create and publish no-code automations for the firm marketplace."}</p>
             </div>
 
             <div className={styles.wizard}>
@@ -488,12 +542,24 @@ export default function BuilderPage() {
                             <button className={styles.btnPrimary} onClick={handleNext} disabled={!formData.name}>Next Step →</button>
                         ) : (
                             <button className={styles.btnPrimary} onClick={handlePublish} disabled={isSaving || !formData.name}>
-                                {isSaving ? "Publishing..." : "Complete & Publish ✓"}
+                                {isSaving ? "Saving..." : (templateId ? "Update Protocol ✓" : "Complete & Publish ✓")}
                             </button>
                         )}
                     </div>
                 </main>
             </div>
         </div>
+    );
+}
+
+export default function BuilderPage() {
+    return (
+        <Suspense fallback={
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#FFFFFF' }}>
+                <RefreshCcw size={48} className={styles.spinning} style={{ color: '#34D186' }} />
+            </div>
+        }>
+            <BuilderContent />
+        </Suspense>
     );
 }

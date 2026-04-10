@@ -238,13 +238,15 @@ export default function MarketplaceManagementPage() {
                                                         <button 
                                                             className={adminStyles.actionBtnPrimary}
                                                             style={{ width: '40px', padding: 0 }}
-                                                            onClick={() => alert("Editor integration pending")}
+                                                            onClick={() => router.push(`/admin/marketplace/builder?id=${t.id}`)}
+                                                            title="Edit Protocol"
                                                         >
                                                             <Edit3 size={18} />
                                                         </button>
                                                         <button 
                                                             className={adminStyles.actionBtnDelete}
                                                             onClick={() => deleteTemplate(t.id)}
+                                                            title="Delete Protocol"
                                                         >
                                                             <Trash2 size={16} />
                                                         </button>
