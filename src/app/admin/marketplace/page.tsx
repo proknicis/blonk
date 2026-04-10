@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import { Skeleton } from "../../components/Skeleton";
+import adminStyles from "../admin.module.css";
 
 export default function MarketplaceManagementPage() {
     const router = useRouter();
@@ -73,206 +74,188 @@ export default function MarketplaceManagementPage() {
     );
 
     const SkeletonRow = () => (
-        <tr>
+        <tr className={adminStyles.registryRow}>
             <td>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <Skeleton width="44px" height="44px" borderRadius="14px" />
+                <div className={adminStyles.loopDetail}>
+                    <Skeleton width="44px" height="44px" borderRadius="12px" />
                     <div>
-                        <Skeleton width="120px" height="18px" style={{ marginBottom: '8px' }} />
-                        <Skeleton width="200px" height="14px" />
+                        <Skeleton width="140px" height="18px" style={{ marginBottom: '6px' }} />
+                        <Skeleton width="220px" height="12px" />
                     </div>
                 </div>
             </td>
-            <td><Skeleton width="80px" height="24px" borderRadius="8px" /></td>
-            <td><Skeleton width="60px" height="18px" /></td>
-            <td><Skeleton width="100px" height="24px" borderRadius="12px" /></td>
+            <td><Skeleton width="100px" height="24px" borderRadius="10px" /></td>
+            <td><Skeleton width="70px" height="20px" /></td>
+            <td><Skeleton width="100px" height="28px" borderRadius="100px" /></td>
             <td style={{ textAlign: 'right' }}>
                 <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                    <Skeleton width="36px" height="36px" borderRadius="10px" />
-                    <Skeleton width="36px" height="36px" borderRadius="10px" />
+                    <Skeleton width="40px" height="40px" borderRadius="10px" />
+                    <Skeleton width="40px" height="40px" borderRadius="10px" />
                 </div>
             </td>
         </tr>
     );
 
     return (
-        <div className={styles.dashboard}>
-            {/* STATUS BANNER */}
-            <div className={styles.integrityBanner}>
-                <div className={styles.integrityInfo}>
-                    <div className={styles.statusIndicatorHealthy}>
-                        <div className={styles.pulseEffect} />
+            <div className={adminStyles.integrityPanel}>
+                <div className={adminStyles.integrityHub}>
+                    <div className={adminStyles.statusBeacon}>
+                        <div className={adminStyles.beaconPulse} />
                     </div>
                     <div>
-                        <h4 className={styles.integrityTitle}>Marketplace Infrastructure: Active</h4>
-                        <p className={styles.integritySubtitle}>Template library is synchronized across all institutional nodes.</p>
+                        <h4 className={adminStyles.panelTitle}>Marketplace Registry: Secure</h4>
+                        <p className={adminStyles.panelSubtitle}>Template library is synchronized across all institutional firm nodes.</p>
                     </div>
                 </div>
-                <div className={styles.integrityActions}>
-                    <button className={styles.btnInstitutional} onClick={() => router.push("/admin/marketplace/builder")}>
+                <div className={adminStyles.hubMetrics}>
+                    <button className={adminStyles.actionBtnPrimary} onClick={() => router.push("/admin/marketplace/builder")}>
                         <Plus size={16} /> Create Terminal Loop
                     </button>
                 </div>
             </div>
 
-            {/* QUICK METRICS */}
-            <div className={styles.metricsMatrix}>
-                <div className={styles.metricCard}>
-                    <div className={styles.metricHeader}>
-                        <span className={styles.label}>Library Assets</span>
-                        <Layers size={14} className={styles.accentIcon} />
+            <div className={adminStyles.metricMatrix}>
+                <div className={adminStyles.adminMetricCard}>
+                    <div className={adminStyles.metricMeta}>
+                        <span className={adminStyles.metricTag}>LIBRARY ASSETS</span>
+                        <Layers size={14} />
                     </div>
-                    <div className={styles.value}>{isLoading ? <Skeleton width="40px" height="32px" /> : stats.total}</div>
-                    <div className={styles.trend}>Total templates created</div>
+                    <div className={adminStyles.metricAmount}>{isLoading ? <Skeleton width="40px" height="32px" /> : stats.total}</div>
+                    <div className={adminStyles.metricDetail}>Provisioned protocol templates</div>
                 </div>
 
-                <div className={styles.metricCard}>
-                    <div className={styles.metricHeader}>
-                        <span className={styles.label}>Live Distribution</span>
-                        <div className={styles.activeDot} />
+                <div className={adminStyles.adminMetricCard}>
+                    <div className={adminStyles.metricMeta}>
+                        <span className={adminStyles.metricTag}>LIVE DISTRIBUTION</span>
+                        <div className={adminStyles.statusPulse} style={{ background: '#34D186', width: '8px', height: '8px' }} />
                     </div>
-                    <div className={styles.value}>{isLoading ? <Skeleton width="40px" height="32px" /> : stats.published}</div>
-                    <div className={styles.trend}>Active in marketplace</div>
+                    <div className={adminStyles.metricAmount}>{isLoading ? <Skeleton width="40px" height="32px" /> : stats.published}</div>
+                    <div className={adminStyles.metricDetail}>Active in regional marketplace</div>
                 </div>
 
-                <div className={styles.metricCard}>
-                    <div className={styles.metricHeader}>
-                        <span className={styles.label}>Est. Value Created</span>
+                <div className={adminStyles.adminMetricCard}>
+                    <div className={adminStyles.metricMeta}>
+                        <span className={adminStyles.metricTag}>EFFICIENCY GAIN</span>
                         <TrendingUp size={14} color="#34D186"/>
                     </div>
-                    <div className={styles.value}>{isLoading ? <Skeleton width="100px" height="32px" /> : stats.avgSavings}</div>
-                    <div className={styles.trend}>Aggregated efficiency</div>
+                    <div className={adminStyles.metricAmount}>{isLoading ? <Skeleton width="100px" height="32px" /> : stats.avgSavings}</div>
+                    <div className={adminStyles.metricDetail}>Aggregated operator savings</div>
                 </div>
 
-                <div className={styles.metricCard}>
-                    <div className={styles.metricHeader}>
-                        <span className={styles.label}>Registry Status</span>
+                <div className={adminStyles.adminMetricCard}>
+                    <div className={adminStyles.metricMeta}>
+                        <span className={adminStyles.metricTag}>ENCRYPTION STATUS</span>
                         <ShieldCheck size={14} />
                     </div>
-                    <div className={styles.value}>Sovereign</div>
-                    <div className={styles.trend}>End-to-end encrypted</div>
+                    <div className={adminStyles.metricAmount}>Sovereign</div>
+                    <div className={adminStyles.metricDetail}>End-to-end node encryption</div>
                 </div>
             </div>
 
-            {/* TEMPLATE REGISTRY */}
-            <div className={styles.commandGrid} style={{ gridTemplateColumns: '1fr' }}>
-                <div className={styles.activeWorkflows} style={{ padding: '32px' }}>
-                    <div className={styles.cardHeader}>
-                        <div>
-                            <h3 className={styles.cardTitle}>Template Catalog</h3>
-                            <p style={{ color: '#94A3B8', fontWeight: 600, fontSize: '0.85rem', marginTop: '4px' }}>Maintain the institutional library of autonomous firm protocols.</p>
-                        </div>
-                        <div className={styles.searchWrapper} style={{ width: '400px' }}>
-                             <Search className={styles.searchIcon} size={18} />
-                             <input 
-                                type="text" 
-                                placeholder="Filter by protocol name or sector..." 
-                                className={styles.searchInput} 
-                                value={searchTerm}
-                                onChange={e => setSearchTerm(e.target.value)}
-                             />
-                        </div>
+            <div className={adminStyles.registryCard}>
+                <div className={adminStyles.registryHeader}>
+                    <div>
+                        <h3 className={adminStyles.registryTitle}>Template Catalog</h3>
+                        <p className={adminStyles.registrySubtitle}>Maintain the institutional library of autonomous firm protocols.</p>
                     </div>
+                    <div className={styles.searchWrapper} style={{ width: '400px' }}>
+                        <Search className={styles.searchIcon} size={18} />
+                        <input 
+                            type="text" 
+                            placeholder="Filter by protocol name or sector..." 
+                            className={styles.searchInput} 
+                            value={searchTerm}
+                            onChange={e => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                </div>
 
-                    <div style={{ overflowX: 'auto', marginTop: '24px' }}>
-                        <table className={styles.historyTable}>
-                            <thead>
-                                <tr>
-                                    <th>Protocol Name</th>
-                                    <th>Institutional Sector</th>
-                                    <th>Automation Value</th>
-                                    <th>Deployment Status</th>
-                                    <th style={{ textAlign: 'right' }}>Management</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {isLoading ? (
-                                    <>
-                                        <SkeletonRow />
-                                        <SkeletonRow />
-                                        <SkeletonRow />
-                                        <SkeletonRow />
-                                        <SkeletonRow />
-                                    </>
-                                ) : (
-                                    <>
-                                        {filteredTemplates.length === 0 ? (
-                                            <tr>
-                                                <td colSpan={5} style={{ padding: '80px 0', textAlign: 'center' }}>
-                                                    <Layers size={48} style={{ color: '#EAEAEA', marginBottom: '20px' }} />
-                                                    <p style={{ fontWeight: 900, color: '#0A0A0A', fontSize: '1.1rem' }}>No protocols found</p>
-                                                    <p style={{ color: '#94A3B8', fontWeight: 700 }}>Adjust your search parameters or initialize a new loop.</p>
+                <div className={adminStyles.tableWrapper}>
+                    <table className={adminStyles.registryTable}>
+                        <thead>
+                            <tr>
+                                <th className={adminStyles.registryTH}>Protocol Name</th>
+                                <th className={adminStyles.registryTH}>Institutional Sector</th>
+                                <th className={adminStyles.registryTH}>Automation Value</th>
+                                <th className={adminStyles.registryTH}>Deployment Status</th>
+                                <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Management</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {isLoading ? (
+                                <>
+                                    <SkeletonRow />
+                                    <SkeletonRow />
+                                    <SkeletonRow />
+                                    <SkeletonRow />
+                                    <SkeletonRow />
+                                </>
+                            ) : (
+                                <>
+                                    {filteredTemplates.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={5} style={{ padding: '80px 0', textAlign: 'center' }}>
+                                                <Layers size={48} style={{ color: '#EAEAEA', marginBottom: '20px' }} />
+                                                <p style={{ fontWeight: 900, color: '#0A0A0A', fontSize: '1.1rem' }}>No protocols found</p>
+                                                <p style={{ color: '#94A3B8', fontWeight: 700 }}>Adjust your search parameters or initialize a new loop.</p>
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        filteredTemplates.map(t => (
+                                            <tr key={t.id} className={adminStyles.registryRow}>
+                                                <td>
+                                                    <div className={adminStyles.loopDetail}>
+                                                        <div className={adminStyles.loopIcon}>
+                                                            {t.icon || "⚡"}
+                                                        </div>
+                                                        <div>
+                                                            <div className={adminStyles.loopName}>{t.name}</div>
+                                                            <div className={adminStyles.loopSector}>
+                                                                {t.description?.substring(0, 60) || "System protocol description pending."}...
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div className={adminStyles.statusBadge} style={{ background: '#F8F9FA', color: '#0A0A0A', border: '1px solid #EAEAEA' }}>
+                                                        <span>{t.sector || "GENERAL"}</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div style={{ fontWeight: 950, color: '#34D186', fontSize: '0.95rem' }}>
+                                                        {t.savings || "—"}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div className={`${adminStyles.statusBadge} ${t.status === 'Published' ? adminStyles.statusActive : adminStyles.statusPending}`}>
+                                                        <div className={adminStyles.statusPulse} />
+                                                        <span>{t.status === 'Published' ? 'LIVE' : 'DRAFT'}</span>
+                                                    </div>
+                                                </td>
+                                                <td style={{ textAlign: 'right' }}>
+                                                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                        <button 
+                                                            className={adminStyles.actionBtnPrimary}
+                                                            style={{ width: '40px', padding: 0 }}
+                                                            onClick={() => alert("Editor integration pending")}
+                                                        >
+                                                            <Edit3 size={18} />
+                                                        </button>
+                                                        <button 
+                                                            className={adminStyles.actionBtnDelete}
+                                                            onClick={() => deleteTemplate(t.id)}
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
-                                        ) : (
-                                            filteredTemplates.map(t => (
-                                                <tr key={t.id}>
-                                                    <td>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                                            <div style={{ width: '44px', height: '44px', background: '#F8F9FA', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #EAEAEA', fontSize: '1.2rem' }}>
-                                                                {t.icon || "⚡"}
-                                                            </div>
-                                                            <div>
-                                                                <div style={{ fontWeight: 950, color: '#0A0A0A', fontSize: '1rem' }}>{t.name}</div>
-                                                                <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 700, maxWidth: '280px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                                    {t.description || "System protocol description pending."}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <span style={{ padding: '6px 12px', background: '#F8F9FA', color: '#0A0A0A', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', border: '1px solid #EAEAEA' }}>
-                                                            {t.sector || "GENERAL"}
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <div style={{ fontWeight: 950, color: '#34D186', fontSize: '0.95rem' }}>
-                                                            {t.savings || "—"}
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <span style={{
-                                                            padding: '6px 14px',
-                                                            borderRadius: '100px',
-                                                            fontSize: '0.7rem',
-                                                            fontWeight: 950,
-                                                            background: t.status === 'Published' ? '#F0FAF5' : '#F8F9FA',
-                                                            color: t.status === 'Published' ? '#34D186' : '#94A3B8',
-                                                            display: 'inline-flex',
-                                                            alignItems: 'center',
-                                                            gap: '8px',
-                                                            textTransform: 'uppercase',
-                                                            letterSpacing: '0.05em'
-                                                        }}>
-                                                            <span style={{ width: '6px', height: '6px', background: 'currentColor', borderRadius: '50%' }}></span>
-                                                            {t.status || 'DRAFT'}
-                                                        </span>
-                                                    </td>
-                                                    <td style={{ textAlign: 'right' }}>
-                                                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                                                            <button 
-                                                                className={styles.btnOutline}
-                                                                style={{ width: '40px', height: '40px', borderRadius: '12px', padding: 0 }}
-                                                                onClick={() => alert("Editor integration pending")}
-                                                            >
-                                                                <Edit3 size={18} />
-                                                            </button>
-                                                            <button 
-                                                                style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'none', border: '1px solid #FEE2E2', color: '#EF4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                                                onClick={() => deleteTemplate(t.id)}
-                                                            >
-                                                                <Trash2 size={18} />
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        )}
-                                    </>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
+                                        ))
+                                    )}
+                                </>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
