@@ -71,6 +71,17 @@
     margin-top: 24px;
 }
 
+.registryTH {
+    text-align: left;
+    padding: 18px 16px;
+    border-bottom: 2px solid #F1F5F9;
+    color: #94A3B8;
+    font-size: 0.75rem !important;
+    font-weight: 950 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
 .table th {
     text-align: left;
     padding: 16px;
@@ -225,6 +236,329 @@
     border-radius: 14px;
     border: 1px solid #EAEAEA;
     word-break: break-all;
+}
+
+/* Registry Table & Row Stylings */
+.registryRow {
+    transition: background 0.2s ease;
+}
+
+.registryRow:hover {
+    background: #F8F9FA;
+}
+
+.loopDetail {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.loopIcon {
+    width: 44px;
+    height: 44px;
+    background: #FFFFFF;
+    border: 1px solid #EAEAEA;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0A0A0A;
+}
+
+.loopName {
+    font-size: 0.95rem;
+    font-weight: 950;
+    color: #0A0A0A;
+    letter-spacing: -0.02em;
+}
+
+.loopSector {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 2px;
+}
+
+.requesterInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.requesterAvatar {
+    width: 36px;
+    height: 36px;
+    background: #0A0A0A;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 950;
+}
+
+.requesterName {
+    font-size: 0.9rem;
+    font-weight: 850;
+    color: #0A0A0A;
+}
+
+.requesterEmail {
+    font-size: 0.75rem;
+    color: #94A3B8;
+    font-weight: 700;
+}
+
+.identityContainer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #F1F5F9;
+    padding: 6px 12px;
+    border-radius: 10px;
+    width: fit-content;
+}
+
+.identityHash {
+    font-family: var(--font-mono), monospace;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #475569;
+}
+
+.copyAction {
+    background: white;
+    border: 1px solid #E2E8F0;
+    color: #64748B;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.copyAction:hover {
+    color: #0A0A0A;
+    border-color: #0A0A0A;
+}
+
+.statusBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.65rem;
+    font-weight: 950;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.statusActive {
+    background: #F0FAF5;
+    color: #34D186;
+    border: 1px solid rgba(52, 209, 134, 0.2);
+}
+
+.statusPending {
+    background: #FFFBEB;
+    color: #D97706;
+    border: 1px solid rgba(217, 119, 6, 0.2);
+}
+
+.statusPulse {
+    width: 6px;
+    height: 6px;
+    background: currentColor;
+    border-radius: 50%;
+}
+
+.statusActive .statusPulse {
+    animation: pulseGreen 2s infinite;
+}
+
+@keyframes pulseGreen {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.4; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.actionBtnPrimary {
+    background: #0A0A0A;
+    color: white;
+    border: none;
+    padding: 0 16px;
+    height: 38px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 850;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.actionBtnPrimary:hover {
+    background: #34D186;
+    color: #0A0A0A;
+}
+
+.actionBtnDelete {
+    background: white;
+    border: 1px solid #FEE2E2;
+    color: #EF4444;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.actionBtnDelete:hover {
+    background: #EF4444;
+    color: white;
+    border-color: #EF4444;
+}
+
+/* Institutional UI Enhancements */
+.integrityPanel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 32px 48px;
+    border-radius: 36px;
+    border: 1px solid #EAEAEA;
+    margin-bottom: 32px;
+}
+
+.integrityHub {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.statusBeacon {
+    width: 14px;
+    height: 14px;
+    background: #34D186;
+    border-radius: 50%;
+    position: relative;
+}
+
+.beaconPulse {
+    position: absolute;
+    inset: -6px;
+    border: 2px solid #34D186;
+    border-radius: 50%;
+    opacity: 0.3;
+    animation: beaconPulse 2s infinite;
+}
+
+@keyframes beaconPulse {
+    0% { transform: scale(1); opacity: 0.4; }
+    70% { transform: scale(2.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 0; }
+}
+
+.panelTitle {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 950;
+    letter-spacing: -0.02em;
+    color: #0A0A0A;
+}
+
+.panelSubtitle {
+    margin: 4px 0 0;
+    font-size: 0.85rem;
+    color: #64748B;
+    font-weight: 700;
+}
+
+.hubMetrics {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+}
+
+.hubLabel {
+    font-size: 0.75rem;
+    font-weight: 950;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+}
+
+.hubValue {
+    font-size: 1.5rem;
+    font-weight: 950;
+    color: #0A0A0A;
+}
+
+.metricMatrix {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-bottom: 48px;
+}
+
+.adminMetricCard {
+    background: white;
+    padding: 40px;
+    border-radius: 40px;
+    border: 1px solid #EAEAEA;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.adminMetricCard:hover {
+    border-color: #0A0A0A;
+    transform: translateY(-5px);
+    box-shadow: 0 40px 100px -20px rgba(0,0,0,0.06);
+}
+
+.metricMeta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.metricTag {
+    font-size: 0.7rem;
+    font-weight: 950;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+}
+
+.metricAmount {
+    font-size: 2.8rem;
+    font-weight: 950;
+    letter-spacing: -0.05em;
+    color: #0A0A0A;
+    line-height: 1;
+    margin-bottom: 20px;
+}
+
+.metricDetail {
+    font-size: 0.85rem;
+    color: #64748B;
+    font-weight: 700;
+}
+
+.amberDot {
+    width: 8px;
+    height: 8px;
+    background: #F59E0B;
+    border-radius: 50%;
 }
 
 @keyframes fadeIn {

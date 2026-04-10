@@ -101,7 +101,6 @@ export const authOptions: NextAuthOptions = {
     secret: process.env.NEXTAUTH_SECRET,
 };
 
-console.log('[DEBUG] NextAuth route module loaded');
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

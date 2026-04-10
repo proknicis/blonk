@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { db } from "@/lib/db";
 
 export async function GET() {
-    console.log('[DEBUG] GET /api/admin/workflows called');
     try {
         const rows = await db.query('SELECT id, name, sector, status, "n8nWebhookUrl", inputs, "requestedBy" FROM "Workflow"');
         return NextResponse.json(rows || []);
