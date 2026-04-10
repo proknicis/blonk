@@ -248,6 +248,136 @@
     font-size: 1.6rem;
     font-weight: 950;
     color: #0A0A0A;
+    letter-spacing: -0.03em;
+}
+
+/* Tabs for Admin Dashboard */
+.tabsContainer {
+    display: flex;
+    gap: 32px;
+    margin: 48px 0;
+    border-bottom: 1px solid #EAEAEA;
+    padding-bottom: 12px;
+}
+
+.tab {
+    font-size: 1.1rem;
+    font-weight: 950;
+    color: #94A3B8;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 12px 0;
+    position: relative;
+    transition: all 0.2s ease;
+    letter-spacing: -0.02em;
+}
+
+.tabActive {
+    color: #0A0A0A;
+}
+
+.tabActive::after {
+    content: '';
+    position: absolute;
+    bottom: -13px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #34D186;
+    border-radius: 10px;
+}
+
+/* Analytics Layout */
+.analyticsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+    margin-bottom: 48px;
+}
+
+.analyticsCard {
+    background: white;
+    border: 1px solid #EAEAEA;
+    border-radius: 36px;
+    padding: 32px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.analyticsCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.05);
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.cardLabel {
+    font-size: 0.85rem;
+    font-weight: 950;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.cardValue {
+    font-size: 2.25rem;
+    font-weight: 950;
+    color: #0A0A0A;
+    letter-spacing: -0.04em;
+}
+
+.cardTrend {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+
+.trendPositive {
+    color: #34D186;
+}
+
+.trendNegative {
+    color: #EF4444;
+}
+
+.chartsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 32px;
+}
+
+.chartCard {
+    background: white;
+    border: 1px solid #EAEAEA;
+    border-radius: 40px;
+    padding: 48px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+}
+
+.chartTitle {
+    font-size: 1.4rem;
+    font-weight: 950;
+    color: #0A0A0A;
+    margin-bottom: 8px;
+    letter-spacing: -0.03em;
+}
+
+.chartSubtitle {
+    font-size: 0.95rem;
+    color: #64748B;
+    font-weight: 700;
+    margin-bottom: 40px;
+}
     letter-spacing: -0.04em;
     margin: 0;
 }

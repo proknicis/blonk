@@ -16,20 +16,65 @@ import {
     RefreshCcw,
     Copy,
     CheckCircle2,
-    Users
+    Users,
+    TrendingUp,
+    DollarSign,
+    BarChart3,
+    ArrowUp,
+    ArrowDown
 } from "lucide-react";
 
-import { Skeleton } from "../components/Skeleton";
+import { Skeleton, SkeletonRectangle } from "../components/Skeleton";
+
+// REUSABLE ANALYTICS CHART COMPONENT
+function AnalyticsChart({ data, color = "#34D186", height = 180 }: { data: number[], color?: string, height?: number }) {
+    const max = Math.max(...data, 10);
+    const getPath = (isArea = false) => {
+        if (data.length < 2) return "";
+        const width = 1000;
+        const xStep = width / (data.length - 1);
+        let path = `M 0 ${height - (data[0] / max) * height}`;
+        
+        for (let i = 0; i < data.length - 1; i++) {
+            const x1 = (i + 1) * xStep;
+            const y1 = height - (data[i + 1] / max) * height;
+            const x0 = i * xStep;
+            const y0 = height - (data[i] / max) * height;
+            const cp1x = x0 + (x1 - x0) / 2;
+            const cp2x = cp1x;
+            path += ` C ${cp1x} ${y0}, ${cp2x} ${y1}, ${x1} ${y1}`;
+        }
+        if (isArea) path += ` V ${height} H 0 Z`;
+        return path;
+    };
+
+    return (
+        <svg width="100%" height={height} viewBox={`0 0 1000 ${height}`} preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+            <defs>
+                <linearGradient id={`grad-${color}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={color} stopOpacity="0.2" />
+                    <stop offset="100%" stopColor={color} stopOpacity="0" />
+                </linearGradient>
+            </defs>
+            <path d={getPath(true)} fill={`url(#grad-${color})`} />
+            <path d={getPath(false)} fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+    );
+}
 
 export default function AdminControlPage() {
+    const [activeTab, setActiveTab] = useState<'fleet' | 'analytics'>('fleet');
     const [workflows, setWorkflows] = useState<any[]>([]);
+    const [analyticsData, setAnalyticsData] = useState<any>(null);
     const [isLoadingWorkflows, setIsLoadingWorkflows] = useState(true);
+    const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(true);
     const [savingId, setSavingId] = useState<string | null>(null);
     const [configWorkflow, setConfigWorkflow] = useState<any>(null);
     const [configStep, setConfigStep] = useState(1);
 
     useEffect(() => {
         fetchWorkflows();
+        fetchAnalytics();
     }, []);
 
     const fetchWorkflows = async () => {
@@ -38,6 +83,15 @@ export default function AdminControlPage() {
             const data = await res.json();
             if (Array.isArray(data)) setWorkflows(data);
         } catch (error) { console.error(error); } finally { setIsLoadingWorkflows(false); }
+    };
+
+    const fetchAnalytics = async () => {
+        setIsLoadingAnalytics(true);
+        try {
+            const res = await fetch('/api/admin/analytics');
+            const data = await res.json();
+            if (data && !data.error) setAnalyticsData(data);
+        } catch (error) { console.error(error); } finally { setIsLoadingAnalytics(false); }
     };
 
     const updateWebhook = async (id: string, url: string) => {
@@ -136,155 +190,275 @@ export default function AdminControlPage() {
                 </div>
             </div>
 
-            {/* QUICK METRICS */}
-            <div className={adminStyles.metricMatrix}>
-                <div className={adminStyles.adminMetricCard}>
-                    <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>REGISTRY TOTAL</span>
-                        <Database size={14} />
-                    </div>
-                    <div className={adminStyles.metricAmount}>{isLoadingWorkflows ? <Skeleton width="40px" height="32px" /> : workflows.length}</div>
-                    <div className={adminStyles.metricDetail}>Provisioned loop instances</div>
-                </div>
-
-                <div className={adminStyles.adminMetricCard}>
-                    <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>PENDING SYNC</span>
-                        <div className={adminStyles.amberDot} />
-                    </div>
-                    <div className={adminStyles.metricAmount}>{isLoadingWorkflows ? <Skeleton width="40px" height="32px" /> : workflows.filter(wf => wf.status !== 'Active').length}</div>
-                    <div className={adminStyles.metricDetail}>Provisioning queue</div>
-                </div>
-
-                <div className={adminStyles.adminMetricCard}>
-                    <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>NETWORK UPTIME</span>
-                        <ShieldCheck size={14} color="#34D186"/>
-                    </div>
-                    <div className={adminStyles.metricAmount}>100%</div>
-                    <div className={adminStyles.metricDetail}>System registry integrity</div>
-                </div>
-
-                <div className={adminStyles.adminMetricCard}>
-                    <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>NODE STATUS</span>
-                        <Activity size={14} />
-                    </div>
-                    <div className={adminStyles.metricAmount}>Stable</div>
-                    <div className={adminStyles.metricDetail}>Telemetry data stream</div>
-                </div>
+            {/* TAB SYSTEM */}
+            <div className={adminStyles.tabsContainer}>
+                <button 
+                    className={`${adminStyles.tab} ${activeTab === 'fleet' ? adminStyles.tabActive : ''}`}
+                    onClick={() => setActiveTab('fleet')}
+                >
+                    Fleet Management
+                </button>
+                <button 
+                    className={`${adminStyles.tab} ${activeTab === 'analytics' ? adminStyles.tabActive : ''}`}
+                    onClick={() => setActiveTab('analytics')}
+                >
+                    Analytics Overview
+                </button>
             </div>
 
-            {/* MAIN PROVISIONING REGISTRY */}
-            <div className={adminStyles.registryCard}>
-                <div className={adminStyles.registryHeader}>
-                    <div>
-                        <h3 className={adminStyles.registryTitle}>Fleet Management</h3>
-                        <p className={adminStyles.registrySubtitle}>Calibrate and sync autonomous loops with production nodes.</p>
-                    </div>
-                    <button className={adminStyles.refreshBtn} onClick={fetchWorkflows}>
-                        <RefreshCcw size={14} /> Refresh Registry
-                    </button>
-                </div>
+            {activeTab === 'fleet' ? (
+                <>
+                    {/* QUICK METRICS */}
+                    <div className={adminStyles.metricMatrix}>
+                        <div className={adminStyles.adminMetricCard}>
+                            <div className={adminStyles.metricMeta}>
+                                <span className={adminStyles.metricTag}>REGISTRY TOTAL</span>
+                                <Database size={14} />
+                            </div>
+                            <div className={adminStyles.metricAmount}>{isLoadingWorkflows ? <Skeleton width="40px" height="32px" /> : workflows.length}</div>
+                            <div className={adminStyles.metricDetail}>Provisioned loop instances</div>
+                        </div>
 
-                <div className={adminStyles.tableWrapper}>
-                    <table className={adminStyles.registryTable}>
-                            <thead>
-                                <tr>
-                                    <th className={adminStyles.registryTH}>Loop Detail</th>
-                                    <th className={adminStyles.registryTH}>Requested By</th>
-                                    <th className={adminStyles.registryTH}>Identity Hash</th>
-                                    <th className={adminStyles.registryTH}>Status</th>
-                                    <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {isLoadingWorkflows ? (
-                                    <>
-                                        <SkeletonRow />
-                                        <SkeletonRow />
-                                        <SkeletonRow />
-                                        <SkeletonRow />
-                                        <SkeletonRow />
-                                    </>
-                                ) : (
-                                    <>
-                                        {workflows.length === 0 ? (
-                                            <tr>
-                                                <td colSpan={5} style={{ padding: '80px 0', textAlign: 'center' }}>
-                                                    <Database size={48} style={{ color: '#EAEAEA', marginBottom: '20px' }} />
-                                                    <p style={{ fontWeight: 900, color: '#0A0A0A', fontSize: '1.1rem' }}>No nodes provisioned</p>
-                                                    <p style={{ color: '#94A3B8', fontWeight: 700 }}>Initialize your first operational instance from user requests.</p>
-                                                </td>
-                                            </tr>
+                        <div className={adminStyles.adminMetricCard}>
+                            <div className={adminStyles.metricMeta}>
+                                <span className={adminStyles.metricTag}>PENDING SYNC</span>
+                                <div className={adminStyles.amberDot} />
+                            </div>
+                            <div className={adminStyles.metricAmount}>{isLoadingWorkflows ? <Skeleton width="40px" height="32px" /> : workflows.filter(wf => wf.status !== 'Active').length}</div>
+                            <div className={adminStyles.metricDetail}>Provisioning queue</div>
+                        </div>
+
+                        <div className={adminStyles.adminMetricCard}>
+                            <div className={adminStyles.metricMeta}>
+                                <span className={adminStyles.metricTag}>NETWORK UPTIME</span>
+                                <ShieldCheck size={14} color="#34D186"/>
+                            </div>
+                            <div className={adminStyles.metricAmount}>100%</div>
+                            <div className={adminStyles.metricDetail}>System registry integrity</div>
+                        </div>
+
+                        <div className={adminStyles.adminMetricCard}>
+                            <div className={adminStyles.metricMeta}>
+                                <span className={adminStyles.metricTag}>NODE STATUS</span>
+                                <Activity size={14} />
+                            </div>
+                            <div className={adminStyles.metricAmount}>Stable</div>
+                            <div className={adminStyles.metricDetail}>Telemetry data stream</div>
+                        </div>
+                    </div>
+
+                    {/* MAIN PROVISIONING REGISTRY */}
+                    <div className={adminStyles.registryCard}>
+                        <div className={adminStyles.registryHeader}>
+                            <div>
+                                <h3 className={adminStyles.registryTitle}>Fleet Management</h3>
+                                <p className={adminStyles.registrySubtitle}>Calibrate and sync autonomous loops with production nodes.</p>
+                            </div>
+                            <button className={adminStyles.refreshBtn} onClick={fetchWorkflows}>
+                                <RefreshCcw size={14} /> Refresh Registry
+                            </button>
+                        </div>
+
+                        <div className={adminStyles.tableWrapper}>
+                            <table className={adminStyles.registryTable}>
+                                    <thead>
+                                        <tr>
+                                            <th className={adminStyles.registryTH}>Loop Detail</th>
+                                            <th className={adminStyles.registryTH}>Requested By</th>
+                                            <th className={adminStyles.registryTH}>Identity Hash</th>
+                                            <th className={adminStyles.registryTH}>Status</th>
+                                            <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {isLoadingWorkflows ? (
+                                            <>
+                                                <SkeletonRow />
+                                                <SkeletonRow />
+                                                <SkeletonRow />
+                                                <SkeletonRow />
+                                                <SkeletonRow />
+                                            </>
                                         ) : (
-                                            workflows.map(wf => (
-                                                <tr key={wf.id} className={adminStyles.registryRow}>
-                                                    <td>
-                                                        <div className={adminStyles.loopDetail}>
-                                                            <div className={adminStyles.loopIcon}>
-                                                                <Zap size={18} />
-                                                            </div>
-                                                            <div>
-                                                                <div className={adminStyles.loopName}>{wf.name}</div>
-                                                                <div className={adminStyles.loopSector}>{wf.sector || 'General Institutional'}</div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div className={adminStyles.requesterInfo}>
-                                                            <div className={adminStyles.requesterAvatar}>
-                                                                {wf.requestedBy?.charAt(0).toUpperCase() || "U"}
-                                                            </div>
-                                                            <div>
-                                                                <div className={adminStyles.requesterName}>{wf.requestedBy || "System Operator"}</div>
-                                                                <div className={adminStyles.requesterEmail}>{(wf as any).requestedBy || "operator@firm.com"}</div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div className={adminStyles.identityContainer}>
-                                                            <code className={adminStyles.identityHash}>{wf.id.substring(0, 16).toUpperCase()}</code>
-                                                            <button 
-                                                                onClick={() => copyToClipboard(wf.id)}
-                                                                className={adminStyles.copyAction}
-                                                                title="Copy Full Hash"
-                                                            >
-                                                                <Copy size={12} />
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div className={`${adminStyles.statusBadge} ${wf.status === 'Active' ? adminStyles.statusActive : adminStyles.statusPending}`}>
-                                                            <div className={adminStyles.statusPulse} />
-                                                            <span>{wf.status === 'Active' ? 'OPERATIONAL' : 'CALIBRATING'}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td style={{ textAlign: 'right' }}>
-                                                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                            <button
-                                                                className={adminStyles.actionBtnPrimary}
-                                                                onClick={() => { setConfigWorkflow(wf); setConfigStep(1); }}
-                                                            >
-                                                                Configure
-                                                            </button>
-                                                            <button 
-                                                                className={adminStyles.actionBtnDelete}
-                                                                onClick={() => deleteWorkflow(wf.id)}
-                                                            >
-                                                                <Trash2 size={16} />
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                        ))
+                                            <>
+                                                {workflows.length === 0 ? (
+                                                    <tr>
+                                                        <td colSpan={5} style={{ padding: '80px 0', textAlign: 'center' }}>
+                                                            <Database size={48} style={{ color: '#EAEAEA', marginBottom: '20px' }} />
+                                                            <p style={{ fontWeight: 900, color: '#0A0A0A', fontSize: '1.1rem' }}>No nodes provisioned</p>
+                                                            <p style={{ color: '#94A3B8', fontWeight: 700 }}>Initialize your first operational instance from user requests.</p>
+                                                        </td>
+                                                    </tr>
+                                                ) : (
+                                                    workflows.map(wf => (
+                                                        <tr key={wf.id} className={adminStyles.registryRow}>
+                                                            <td>
+                                                                <div className={adminStyles.loopDetail}>
+                                                                    <div className={adminStyles.loopIcon}>
+                                                                        <Zap size={18} />
+                                                                    </div>
+                                                                    <div>
+                                                                        <div className={adminStyles.loopName}>{wf.name}</div>
+                                                                        <div className={adminStyles.loopSector}>{wf.sector || 'General Institutional'}</div>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div className={adminStyles.requesterInfo}>
+                                                                    <div className={adminStyles.requesterAvatar}>
+                                                                        {wf.requestedBy?.charAt(0).toUpperCase() || "U"}
+                                                                    </div>
+                                                                    <div>
+                                                                        <div className={adminStyles.requesterName}>{wf.requestedBy || "System Operator"}</div>
+                                                                        <div className={adminStyles.requesterEmail}>{(wf as any).requestedBy || "operator@firm.com"}</div>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div className={adminStyles.identityContainer}>
+                                                                    <code className={adminStyles.identityHash}>{wf.id.substring(0, 16).toUpperCase()}</code>
+                                                                    <button 
+                                                                        onClick={() => copyToClipboard(wf.id)}
+                                                                        className={adminStyles.copyAction}
+                                                                        title="Copy Full Hash"
+                                                                    >
+                                                                        <Copy size={12} />
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div className={`${adminStyles.statusBadge} ${wf.status === 'Active' ? adminStyles.statusActive : adminStyles.statusPending}`}>
+                                                                    <div className={adminStyles.statusPulse} />
+                                                                    <span>{wf.status === 'Active' ? 'OPERATIONAL' : 'CALIBRATING'}</span>
+                                                                </div>
+                                                            </td>
+                                                            <td style={{ textAlign: 'right' }}>
+                                                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                                    <button
+                                                                        className={adminStyles.actionBtnPrimary}
+                                                                        onClick={() => { setConfigWorkflow(wf); setConfigStep(1); }}
+                                                                    >
+                                                                        Configure
+                                                                    </button>
+                                                                    <button 
+                                                                        className={adminStyles.actionBtnDelete}
+                                                                        onClick={() => deleteWorkflow(wf.id)}
+                                                                    >
+                                                                        <Trash2 size={16} />
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                ))
+                                            )}
+                                        </>
                                     )}
-                                </>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </>
+            ) : (
+                <div style={{ animation: 'fadeIn 0.5s ease' }}>
+                    {/* ANALYTICS KPI GRID */}
+                    <div className={adminStyles.analyticsGrid}>
+                        {isLoadingAnalytics ? (
+                            [1, 2, 3, 4].map(i => <SkeletonRectangle key={i} height="180px" borderRadius="36px" />)
+                        ) : (
+                            <>
+                                <div className={adminStyles.analyticsCard}>
+                                    <div className={adminStyles.cardHeader}>
+                                        <span className={adminStyles.cardLabel}>Total Revenue</span>
+                                        <DollarSign size={18} color="#34D186" />
+                                    </div>
+                                    <div className={adminStyles.cardValue}>{analyticsData?.kpis.revenue.total}</div>
+                                    <div className={`${adminStyles.cardTrend} ${adminStyles.trendPositive}`}>
+                                        <ArrowUp size={14} /> {analyticsData?.kpis.revenue.change} <span style={{ color: '#94A3B8' }}>vs last month</span>
+                                    </div>
+                                </div>
+                                <div className={adminStyles.analyticsCard}>
+                                    <div className={adminStyles.cardHeader}>
+                                        <span className={adminStyles.cardLabel}>MRR Estimation</span>
+                                        <TrendingUp size={18} color="#0EA5E9" />
+                                    </div>
+                                    <div className={adminStyles.cardValue}>{analyticsData?.kpis.mrr.value}</div>
+                                    <div className={`${adminStyles.cardTrend} ${adminStyles.trendPositive}`}>
+                                        <ArrowUp size={14} /> {analyticsData?.kpis.mrr.change} <span style={{ color: '#94A3B8' }}>growth</span>
+                                    </div>
+                                </div>
+                                <div className={adminStyles.analyticsCard}>
+                                    <div className={adminStyles.cardHeader}>
+                                        <span className={adminStyles.cardLabel}>CAC / LTV</span>
+                                        <Users size={18} color="#8B5CF6" />
+                                    </div>
+                                    <div className={adminStyles.cardValue}>{analyticsData?.kpis.cac.value} / {analyticsData?.kpis.ltv.value}</div>
+                                    <div className={`${adminStyles.cardTrend} ${analyticsData?.kpis.cac.positive ? adminStyles.trendPositive : adminStyles.trendNegative}`}>
+                                        {analyticsData?.kpis.cac.positive ? <ArrowUp size={14} /> : <ArrowDown size={14} />} {analyticsData?.kpis.cac.change} <span style={{ color: '#94A3B8' }}>efficiency</span>
+                                    </div>
+                                </div>
+                                <div className={adminStyles.analyticsCard}>
+                                    <div className={adminStyles.cardHeader}>
+                                        <span className={adminStyles.cardLabel}>Conversion Rates</span>
+                                        <BarChart3 size={18} color="#F59E0B" />
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '24px' }}>
+                                        <div>
+                                            <div className={adminStyles.cardValue} style={{ fontSize: '1.5rem' }}>{analyticsData?.kpis.conversion.visitorToSignup}</div>
+                                            <div className={adminStyles.cardLabel} style={{ fontSize: '0.65rem' }}>Vis → Sign</div>
+                                        </div>
+                                        <div style={{ width: '1px', background: '#EAEAEA' }} />
+                                        <div>
+                                            <div className={adminStyles.cardValue} style={{ fontSize: '1.5rem' }}>{analyticsData?.kpis.conversion.signupToPaid}</div>
+                                            <div className={adminStyles.cardLabel} style={{ fontSize: '0.65rem' }}>Sign → Paid</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </div>
+
+                    {/* CHARTS GRID */}
+                    <div className={adminStyles.chartsGrid}>
+                        <div className={adminStyles.chartCard}>
+                            <h3 className={adminStyles.chartTitle}>Revenue Performance</h3>
+                            <p className={adminStyles.chartSubtitle}>Institutional revenue tracking over the last 7 cycles.</p>
+                            {isLoadingAnalytics ? <Skeleton height="200px" borderRadius="20px" /> : (
+                                <AnalyticsChart data={analyticsData?.charts.revenue[0].data} color="#34D186" />
                             )}
-                        </tbody>
-                    </table>
+                        </div>
+                        <div className={adminStyles.chartCard}>
+                            <h3 className={adminStyles.chartTitle}>User Growth</h3>
+                            <p className={adminStyles.chartSubtitle}>Sovereign identity registration velocity.</p>
+                            {isLoadingAnalytics ? <Skeleton height="200px" borderRadius="20px" /> : (
+                                <AnalyticsChart data={analyticsData?.charts.users[0].data} color="#0EA5E9" />
+                            )}
+                        </div>
+                        <div className={adminStyles.chartCard} style={{ gridColumn: 'span 2' }}>
+                            <h3 className={adminStyles.chartTitle}>Conversion Funnel</h3>
+                            <p className={adminStyles.chartSubtitle}>Throughput from initial discovery to paid institutional status.</p>
+                            {isLoadingAnalytics ? <Skeleton height="200px" borderRadius="20px" /> : (
+                                <div style={{ display: 'flex', alignItems: 'flex-end', gap: '12px', height: '200px', padding: '0 24px' }}>
+                                    {analyticsData?.charts.funnel[0].data.map((val: number, i: number) => (
+                                        <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center' }}>
+                                            <div style={{ 
+                                                width: '100%', 
+                                                height: `${(val / analyticsData?.charts.funnel[0].data[0]) * 100}%`, 
+                                                background: i === 0 ? '#F1F5F9' : (i === 1 ? '#E2E8F0' : '#34D186'),
+                                                borderRadius: '16px',
+                                                transition: 'height 1s ease'
+                                            }} />
+                                            <span className={adminStyles.cardLabel} style={{ fontSize: '0.7rem' }}>
+                                                {['Visitors', 'Signups', 'Paid'][i]}
+                                            </span>
+                                            <span className={adminStyles.cardValue} style={{ fontSize: '1.1rem' }}>{val.toLocaleString()}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* CONFIG MODAL */}
             {configWorkflow && (
