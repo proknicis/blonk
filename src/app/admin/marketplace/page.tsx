@@ -97,6 +97,7 @@ export default function MarketplaceManagementPage() {
     );
 
     return (
+        <div className={styles.dashboard}>
             <div className={adminStyles.integrityPanel}>
                 <div className={adminStyles.integrityHub}>
                     <div className={adminStyles.statusBeacon}>
