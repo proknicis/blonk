@@ -26,11 +26,28 @@ export default function BuilderPage() {
         icon: "Zap", // System default icon
         complexity: "Low",
         savings: "",
-        inputs: [] as { name: string, type: string, required: boolean, placeholder: string, example: string, help: string }[],
-        guide: [] as { title: string, text: string }[],
+        inputs: [] as { 
+            name: string, 
+            type: string, 
+            required: boolean, 
+            placeholder: string, 
+            example: string, 
+            help: string,
+            guide?: { link: string, steps: string[], image?: string }
+        }[],
+        guide: [] as { title: string, text: string, image?: string, video?: string }[],
         webhookUrl: "", // Handled manually later, keeping in state for schema compatibility
         status: "Draft",
+        productInfo: {
+            valueProp: "",
+            targetUser: "SME Owners",
+            setupTime: "5 min",
+            price: "0",
+            difficulty: "Easy"
+        }
     });
+
+    const [previewMode, setPreviewTab] = useState<'product' | 'setup'>('product');
 
     // Step handlers
     const handleNext = () => setCurrentStep(prev => Math.min(prev + 1, 5));
@@ -38,11 +55,29 @@ export default function BuilderPage() {
 
     // Array Handlers
     const addInput = () => {
-        setFormData({ ...formData, inputs: [...formData.inputs, { name: "", type: "text", required: true, placeholder: "", example: "", help: "" }] });
+        setFormData({ ...formData, inputs: [...formData.inputs, { name: "", type: "text", required: true, placeholder: "", example: "", help: "", guide: { link: "", steps: [""] } }] });
     };
     const updateInput = (idx: number, field: string, val: any) => {
         const arr = [...formData.inputs];
         arr[idx] = { ...arr[idx], [field]: val };
+        setFormData({ ...formData, inputs: arr });
+    };
+    const updateInputGuide = (idx: number, field: string, val: any) => {
+        const arr = [...formData.inputs];
+        arr[idx] = { ...arr[idx], guide: { ...arr[idx].guide, [field]: val } as any };
+        setFormData({ ...formData, inputs: arr });
+    };
+    const updateInputStep = (idx: number, sIdx: number, val: string) => {
+        const arr = [...formData.inputs];
+        const steps = [...(arr[idx].guide?.steps || [])];
+        steps[sIdx] = val;
+        arr[idx] = { ...arr[idx], guide: { ...arr[idx].guide, steps } as any };
+        setFormData({ ...formData, inputs: arr });
+    };
+    const addInputStep = (idx: number) => {
+        const arr = [...formData.inputs];
+        const steps = [...(arr[idx].guide?.steps || []), ""];
+        arr[idx] = { ...arr[idx], guide: { ...arr[idx].guide, steps } as any };
         setFormData({ ...formData, inputs: arr });
     };
     const removeInput = (idx: number) => {
@@ -52,7 +87,7 @@ export default function BuilderPage() {
     };
 
     const addGuideStep = () => {
-        setFormData({ ...formData, guide: [...formData.guide, { title: "", text: "" }] });
+        setFormData({ ...formData, guide: [...formData.guide, { title: "", text: "", image: "" }] });
     };
     const updateGuide = (idx: number, field: string, val: any) => {
         const arr = [...formData.guide];
@@ -66,27 +101,36 @@ export default function BuilderPage() {
     };
 
     const enhanceDescription = async () => {
-        if (!formData.description) return;
+        if (!formData.name) return;
         setIsImproving(true);
-        try {
-            const res = await fetch("/api/ai/improve-description", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    text: formData.description, 
-                    name: formData.name, 
-                    category: formData.category 
-                }),
-            });
-            const data = await res.json();
-            if (data.text) {
-                setFormData({ ...formData, description: data.text });
-            }
-        } catch (e) {
-            console.error("[Improve Error]", e);
-        } finally {
+        // Simulated AI generation for Value Proposition and Description
+        setTimeout(() => {
+            setFormData(prev => ({
+                ...prev,
+                productInfo: {
+                    ...prev.productInfo,
+                    valueProp: `The definitive institutional protocol for ${prev.name}.`
+                },
+                description: `This autonomous loop streamlines ${prev.name} by orchestrating high-fidelity data streams into actionable outcomes. It eliminates manual overhead, ensures 100% compliance, and accelerates your firm's operational velocity.`
+            }));
             setIsImproving(false);
-        }
+        }, 1500);
+    };
+
+    const generateSetupGuide = async () => {
+        if (!formData.name) return;
+        setIsImproving(true);
+        setTimeout(() => {
+            setFormData(prev => ({
+                ...prev,
+                guide: [
+                    { title: "Authentication", text: `Log in to your ${prev.name} provider and navigate to the security settings.` },
+                    { title: "Protocol Connection", text: "Copy the primary API credentials and paste them into the BLONK configuration field." },
+                    { title: "System Sync", text: "Run the initial calibration to ensure all production nodes are correctly mapped." }
+                ]
+            }));
+            setIsImproving(false);
+        }, 1500);
     };
 
     const handlePublish = async () => {
@@ -166,7 +210,7 @@ export default function BuilderPage() {
                                         <input className={styles.input} value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Stripe Invoice Sync" />
                                     </div>
                                     <div className={styles.formGroup}>
-                                        <label className={styles.label}>Category <span className={styles.requiredAsterisk}>*</span></label>
+                                        <label className={styles.label}>Institutional Category <span className={styles.requiredAsterisk}>*</span></label>
                                         <select className={styles.select} value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
                                             <option>General</option>
                                             <option>Accounting</option>
@@ -179,37 +223,67 @@ export default function BuilderPage() {
 
                                 <div className={styles.formGroup}>
                                     <label className={styles.label}>
-                                        Description 
+                                        Core Value Proposition
+                                        <span className={styles.helpText}>(The main benefit for the firm)</span>
+                                    </label>
+                                    <input className={styles.input} value={formData.productInfo.valueProp} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, valueProp: e.target.value}})} placeholder="e.g. Reduce invoice processing time by 80% with automated matching." />
+                                </div>
+
+                                <div className={styles.formGroup}>
+                                    <label className={styles.label}>
+                                        Product Description 
                                         <button 
                                             className={`${styles.aiBtn} ${isImproving ? styles.aiBtnLoading : ""}`} 
                                             onClick={enhanceDescription} 
                                             disabled={isImproving || !formData.description}
                                             title="AI Improve this text"
                                         >
-                                            {isImproving ? "✨ Improving..." : "✨ Improve"}
+                                            {isImproving ? "✨ Generating..." : "✨ AI Generate"}
                                         </button>
                                     </label>
-                                    <textarea className={styles.textarea} value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Explain what this automation achieves..." />
+                                    <textarea className={styles.textarea} value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Explain how this automation works and what it delivers..." />
                                 </div>
 
                                 <div className={styles.formRow}>
                                     <div className={styles.formGroup}>
-                                        <label className={styles.label}>Complexity</label>
-                                        <select className={styles.select} value={formData.complexity} onChange={e => setFormData({...formData, complexity: e.target.value})}>
-                                            <option>Low</option>
-                                            <option>Medium</option>
-                                            <option>High</option>
+                                        <label className={styles.label}>Target Firm Profile</label>
+                                        <select className={styles.select} value={formData.productInfo.targetUser} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, targetUser: e.target.value}})}>
+                                            <option>SME Owners</option>
+                                            <option>Legal Professionals</option>
+                                            <option>Accountants</option>
+                                            <option>IT Managers</option>
+                                            <option>HR Departments</option>
                                         </select>
                                     </div>
                                     <div className={styles.formGroup}>
-                                        <label className={styles.label}>Marketplace Focus</label>
-                                        <div style={{ display: 'flex', alignItems: 'center', height: '100%', paddingLeft: '4px', fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>Standard Sovereign Protocol</div>
+                                        <label className={styles.label}>Difficulty Level</label>
+                                        <select className={styles.select} value={formData.productInfo.difficulty} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, difficulty: e.target.value as any}})}>
+                                            <option value="Easy">Easy (No tech needed)</option>
+                                            <option value="Medium">Medium (API keys needed)</option>
+                                            <option value="Hard">Hard (Advanced config)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className={styles.formRow}>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Estimated Savings <span className={styles.helpText}>(e.g. 10 hours/week)</span></label>
+                                        <input className={styles.input} value={formData.savings} onChange={e => setFormData({...formData, savings: e.target.value})} placeholder="10 hrs/wk, or $5k/mo" />
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Setup Time</label>
+                                        <select className={styles.select} value={formData.productInfo.setupTime} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, setupTime: e.target.value}})}>
+                                            <option>2 min</option>
+                                            <option>5 min</option>
+                                            <option>10 min</option>
+                                            <option>30 min</option>
+                                        </select>
                                     </div>
                                 </div>
 
                                 <div className={styles.formGroup}>
-                                    <label className={styles.label}>Estimated Savings <span className={styles.helpText}>(e.g. 10 hours/week)</span></label>
-                                    <input className={styles.input} value={formData.savings} onChange={e => setFormData({...formData, savings: e.target.value})} placeholder="10 hrs/wk, or $5k/mo" />
+                                    <label className={styles.label}>Setup Fee / License Price ($)</label>
+                                    <input type="number" className={styles.input} value={formData.productInfo.price} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, price: e.target.value}})} placeholder="0 for free" />
                                 </div>
                             </div>
                         )}
@@ -219,131 +293,163 @@ export default function BuilderPage() {
                             <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
                                 <div style={{ background: "#EFF6FF", padding: "16px", borderRadius: "12px", border: "1px solid #BFDBFE" }}>
                                     <p style={{ margin: 0, fontSize: "0.85rem", color: "#1E3A8A", fontWeight: 500 }}>
-                                        <strong>Pro Tip:</strong> These are the fields the user must fill out before they can activate the loop. Be very clear in your "Help Text" so beginners know exactly what to paste.
+                                        <strong>Pro Tip:</strong> Define the data points the firm needs to provide. Add clear "Where to get this" instructions to ensure successful onboarding.
                                     </p>
                                 </div>
 
                                 {formData.inputs.map((input, idx) => (
                                     <div key={idx} className={styles.builderCard}>
                                         <div className={styles.cardTopRow}>
-                                            <h4 style={{ margin: 0, fontSize: "0.95rem", color: "#334155" }}>Field #{idx + 1}</h4>
+                                            <h4 style={{ margin: 0, fontSize: "0.95rem", color: "#334155" }}>Input Field #{idx + 1}</h4>
                                             <button className={styles.btnDanger} onClick={() => removeInput(idx)}>✕</button>
                                         </div>
 
                                         <div className={styles.formRow}>
                                             <div className={styles.formGroup}>
                                                 <label className={styles.label}>Field Name</label>
-                                                <input className={styles.input} value={input.name} onChange={e => updateInput(idx, "name", e.target.value)} placeholder="e.g. Google API Key" />
+                                                <input className={styles.input} value={input.name} onChange={e => updateInput(idx, "name", e.target.value)} placeholder="e.g. Stripe API Secret Key" />
                                             </div>
                                             <div className={styles.formGroup}>
-                                                <label className={styles.label}>Type</label>
+                                                <label className={styles.label}>Data Type</label>
                                                 <select className={styles.select} value={input.type} onChange={e => updateInput(idx, "type", e.target.value)}>
-                                                    <option value="text">API Key / Text</option>
-                                                    <option value="email">Email</option>
-                                                    <option value="textarea">Long Text</option>
-                                                    <option value="file">File Upload</option>
-                                                    <option value="boolean">Toggle Yes/No</option>
+                                                    <option value="api_key">API Secret Key</option>
+                                                    <option value="token">Auth Token</option>
+                                                    <option value="webhook">Webhook URL</option>
+                                                    <option value="email">Email Address</option>
+                                                    <option value="text">General Text</option>
                                                 </select>
+                                            </div>
+                                        </div>
+
+                                        <div className={styles.formGroup}>
+                                            <label className={styles.label}>"Where to find this?" Guide</label>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+                                                <input className={styles.input} value={input.guide?.link} onChange={e => updateInputGuide(idx, "link", e.target.value)} placeholder="Official Documentation Link (optional)" />
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                    {input.guide?.steps.map((step, sIdx) => (
+                                                        <input key={sIdx} className={styles.input} style={{ fontSize: '0.85rem' }} value={step} onChange={e => updateInputStep(idx, sIdx, e.target.value)} placeholder={`Step ${sIdx + 1}: e.g. Open Stripe Dashboard`} />
+                                                    ))}
+                                                    <button className={styles.aiBtn} style={{ alignSelf: 'flex-start' }} onClick={() => addInputStep(idx)}>+ Add Step</button>
+                                                </div>
+                                                <div className={styles.imagePlaceholder}>
+                                                    <span>Click to add instruction screenshot</span>
+                                                </div>
                                             </div>
                                         </div>
 
                                         <div className={styles.formRow}>
                                             <div className={styles.formGroup}>
-                                                <label className={styles.label}>Placeholder / Example</label>
-                                                <input className={styles.input} value={input.example} onChange={e => updateInput(idx, "example", e.target.value)} placeholder="e.g. AIzaSyB..." />
+                                                <label className={styles.label}>Example Value</label>
+                                                <input className={styles.input} value={input.example} onChange={e => updateInput(idx, "example", e.target.value)} placeholder="e.g. sk_live_..." />
                                             </div>
                                             <div className={styles.formGroup} style={{ justifyContent: "center" }}>
                                                 <label className={styles.toggleRow}>
                                                     <input type="checkbox" checked={input.required} onChange={e => updateInput(idx, "required", e.target.checked)} />
-                                                    Required
+                                                    Mandatory Requirement
                                                 </label>
                                             </div>
-                                        </div>
-
-                                        <div className={styles.formGroup}>
-                                            <label className={styles.label}>Help Text (Instructions)</label>
-                                            <input className={styles.input} value={input.help} onChange={e => updateInput(idx, "help", e.target.value)} placeholder="e.g. Go to Google Cloud -> APIs -> Credentials to generate a key." />
                                         </div>
                                     </div>
                                 ))}
 
-                                <button className={styles.btnAdd} onClick={addInput}>+ Add Input Field</button>
+                                <button className={styles.btnAdd} onClick={addInput}>+ Add Required Input</button>
                             </div>
                         )}
 
                         {/* STEP 3: SETUP GUIDE */}
                         {currentStep === 3 && (
                             <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-                                <div style={{ background: "#FEF2F2", padding: "16px", borderRadius: "12px", border: "1px solid #FECACA" }}>
+                                <div style={{ background: "#FEF2F2", padding: "16px", borderRadius: "12px", border: "1px solid #FECACA", display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <p style={{ margin: 0, fontSize: "0.85rem", color: "#991B1B", fontWeight: 500 }}>
-                                        <strong>CRITICAL:</strong> Non-technical users need exact click-by-click instructions on how to set up their external tools before running this.
+                                        <strong>Onboarding Strategy:</strong> Break the setup into small, visual actions. Use "AI Assist" to generate standard instructions.
                                     </p>
+                                    <button className={styles.aiBtn} onClick={generateSetupGuide} disabled={isImproving || !formData.name}>✨ AI Generate Guide</button>
                                 </div>
 
                                 {formData.guide.map((step, idx) => (
                                     <div key={idx} className={styles.builderCard}>
                                         <div className={styles.cardTopRow}>
-                                            <h4 style={{ margin: 0, fontSize: "0.95rem", color: "#334155" }}>Step {idx + 1}</h4>
+                                            <h4 style={{ margin: 0, fontSize: "0.95rem", color: "#334155" }}>Onboarding Step {idx + 1}</h4>
                                             <button className={styles.btnDanger} onClick={() => removeGuide(idx)}>✕</button>
                                         </div>
 
                                         <div className={styles.formGroup}>
-                                            <label className={styles.label}>Step Title</label>
-                                            <input className={styles.input} value={step.title} onChange={e => updateGuide(idx, "title", e.target.value)} placeholder="e.g. Create OpenAI Account" />
+                                            <label className={styles.label}>Action Title</label>
+                                            <input className={styles.input} value={step.title} onChange={e => updateGuide(idx, "title", e.target.value)} placeholder="e.g. Authorize Slack Workspace" />
                                         </div>
                                         
-                                        <div className={styles.formGroup}>
-                                            <label className={styles.label}>Description</label>
-                                            <textarea className={styles.textarea} value={step.text} onChange={e => updateGuide(idx, "text", e.target.value)} placeholder="Provide specific instructions..." />
+                                        <div className={styles.formRow}>
+                                            <div className={styles.formGroup}>
+                                                <label className={styles.label}>Instructions</label>
+                                                <textarea className={styles.textarea} value={step.text} onChange={e => updateGuide(idx, "text", e.target.value)} placeholder="Explain exactly what the user should do..." />
+                                            </div>
+                                            <div className={styles.formGroup}>
+                                                <label className={styles.label}>Visual Aid</label>
+                                                <div className={styles.imagePlaceholder} style={{ height: '100%' }}>
+                                                    <span>Upload Screenshot / Image</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
 
-                                <button className={styles.btnAdd} onClick={addGuideStep}>+ Add Setup Step</button>
+                                <button className={styles.btnAdd} onClick={addGuideStep}>+ Add Onboarding Step</button>
                             </div>
                         )}
 
                         {/* STEP 4: PREVIEW */}
                         {currentStep === 4 && (
                             <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-                                <div className={styles.previewBox}>
-                                    <span className={styles.previewLabel}>User Form Preview</span>
-                                    <h2 style={{ fontSize: "1.25rem", color: "#0F172A", margin: "0 0 16px" }}>{formData.name || "Untitled Workflow"}</h2>
-                                    <p style={{ fontSize: "0.9rem", color: "#64748B", marginBottom: "24px" }}>{formData.description || "Deploy this to the firm dashboard."}</p>
-                                    
-                                    <div style={{ display: "flex", flexDirection: "column", gap: "16px", padding: "16px", background: "#F8FAFC", borderRadius: "12px", border: "1px solid #E2E8F0" }}>
-                                        {formData.inputs.length === 0 && <p style={{ fontSize: "0.8rem", color: "#94A3B8", fontStyle: "italic", margin: 0 }}>No dynamic inputs configured.</p>}
-                                        {formData.inputs.map((inp, i) => (
-                                            <div key={i}>
-                                                <label style={{ display: 'block', fontWeight: 700, fontSize: '0.8rem', color: '#1E293B', marginBottom: '6px' }}>
-                                                    {inp.name} {inp.required && <span style={{ color: '#EF4444' }}>*</span>}
-                                                </label>
-                                                {inp.type === 'textarea' ? (
-                                                    <textarea style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #CBD5E1' }} placeholder={inp.example || inp.placeholder} disabled />
-                                                ) : (
-                                                    <input style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #CBD5E1' }} placeholder={inp.example || inp.placeholder} disabled />
-                                                )}
-                                                <p style={{ fontSize: '0.75rem', color: '#64748B', margin: '6px 0 0 0' }}>{inp.help}</p>
-                                            </div>
-                                        ))}
-                                    </div>
+                                <div className={styles.previewTabs}>
+                                    <button className={`${styles.previewTab} ${previewMode === 'product' ? styles.previewTabActive : ''}`} onClick={() => setPreviewTab('product')}>Marketplace Page</button>
+                                    <button className={`${styles.previewTab} ${previewMode === 'setup' ? styles.previewTabActive : ''}`} onClick={() => setPreviewTab('setup')}>Setup Flow</button>
                                 </div>
-                                
-                                <div className={styles.previewBox}>
-                                    <span className={styles.previewLabel}>Setup Instructions Preview</span>
-                                    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                                        {formData.guide.length === 0 && <p style={{ fontSize: "0.8rem", color: "#94A3B8", fontStyle: "italic", margin: 0 }}>No setup steps configured.</p>}
-                                        {formData.guide.map((step, i) => (
-                                            <div key={i} style={{ display: "flex", gap: "16px" }}>
-                                                <div style={{ width: "32px", height: "32px", background: "#0F172A", color: "white", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", flexShrink: 0 }}>{i + 1}</div>
-                                                <div>
-                                                    <h4 style={{ margin: "0 0 8px 0", fontSize: "0.95rem", color: "#0F172A" }}>{step.title}</h4>
-                                                    <p style={{ margin: 0, fontSize: "0.85rem", color: "#64748B", whiteSpace: "pre-wrap" }}>{step.text}</p>
+
+                                {previewMode === 'product' ? (
+                                    <div className={styles.previewBox} style={{ border: '2px solid #0F172A', background: '#FAFAF9' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                                            <div style={{ width: '64px', height: '64px', borderRadius: '16px', background: '#ffffff', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px' }}>{formData.icon === 'Zap' ? '⚡' : formData.icon}</div>
+                                            <div className={`${styles.difficultyBadge} ${formData.productInfo.difficulty === 'Easy' ? styles.difficultyEasy : (formData.productInfo.difficulty === 'Medium' ? styles.difficultyMedium : styles.difficultyHard)}`}>
+                                                {formData.productInfo.difficulty}
+                                            </div>
+                                        </div>
+                                        <h2 style={{ fontSize: "1.75rem", fontWeight: 950, color: "#0F172A", margin: "0 0 8px" }}>{formData.name || "Workflow Product Name"}</h2>
+                                        <p style={{ fontSize: "1.1rem", color: "#0F172A", fontWeight: 800, marginBottom: '16px' }}>{formData.productInfo.valueProp || "The main benefit of this automation."}</p>
+                                        <p style={{ fontSize: "0.95rem", color: "#64748B", marginBottom: "32px", lineHeight: 1.6 }}>{formData.description || "A detailed explanation of how this institutional protocol operates."}</p>
+                                        
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '32px' }}>
+                                            <div style={{ padding: '16px', background: '#ffffff', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+                                                <label style={{ fontSize: '0.65rem', fontWeight: 900, color: '#94A3B8', textTransform: 'uppercase' }}>Value</label>
+                                                <div style={{ fontSize: '1.1rem', fontWeight: 950, color: '#34D186' }}>{formData.savings || '—'}</div>
+                                            </div>
+                                            <div style={{ padding: '16px', background: '#ffffff', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+                                                <label style={{ fontSize: '0.65rem', fontWeight: 900, color: '#94A3B8', textTransform: 'uppercase' }}>Setup</label>
+                                                <div style={{ fontSize: '1.1rem', fontWeight: 950, color: '#0F172A' }}>{formData.productInfo.setupTime}</div>
+                                            </div>
+                                            <div style={{ padding: '16px', background: '#ffffff', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+                                                <label style={{ fontSize: '0.65rem', fontWeight: 900, color: '#94A3B8', textTransform: 'uppercase' }}>Fee</label>
+                                                <div style={{ fontSize: '1.1rem', fontWeight: 950, color: '#0F172A' }}>{parseFloat(formData.productInfo.price) > 0 ? `$${formData.productInfo.price}` : 'FREE'}</div>
+                                            </div>
+                                        </div>
+
+                                        <button className={styles.btnPrimary} style={{ width: '100%', padding: '18px' }}>Rapid Deploy</button>
+                                    </div>
+                                ) : (
+                                    <div className={styles.previewBox}>
+                                        <h3 style={{ fontSize: "1.1rem", color: "#0F172A", margin: "0 0 24px" }}>Step 1: Configuration</h3>
+                                        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                                            {formData.inputs.map((inp, i) => (
+                                                <div key={i}>
+                                                    <label style={{ display: 'block', fontWeight: 800, fontSize: '0.85rem', color: '#0F172A', marginBottom: '8px' }}>
+                                                        {inp.name} {inp.required && <span style={{ color: '#EF4444' }}>*</span>}
+                                                    </label>
+                                                    <input className={styles.input} style={{ width: '100%' }} placeholder={inp.example} disabled />
+                                                    <div className={styles.helpLink} style={{ cursor: 'default' }}>Where to find this?</div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
                         )}
 

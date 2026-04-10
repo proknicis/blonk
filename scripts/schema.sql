@@ -83,8 +83,9 @@ CREATE TABLE IF NOT EXISTS "WorkflowTemplate" (
     icon VARCHAR(100),
     color VARCHAR(100),
     featured BOOLEAN DEFAULT FALSE,
-    requirements JSONB DEFAULT '[]',
-    "setupGuide" JSONB DEFAULT '[]',
+    requirements JSONB DEFAULT '[]', -- Updated to include API guides
+    "setupGuide" JSONB DEFAULT '[]', -- Updated to include visual steps
+    "productInfo" JSONB DEFAULT '{}', -- Value Prop, Target User, Pricing
     "webhookUrl" TEXT,
     status VARCHAR(50) DEFAULT 'Draft',
     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP

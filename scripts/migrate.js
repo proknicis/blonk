@@ -79,6 +79,12 @@ async function migrate() {
             await client.query(ddl);
         }
 
+        // 5. UPDATE WORKFLOW TEMPLATE FOR PRODUCT FIELDS
+        console.log('📦 Enhancing WorkflowTemplate for Product Creation...');
+        await client.query(`
+            ALTER TABLE "WorkflowTemplate" ADD COLUMN IF NOT EXISTS "productInfo" JSONB DEFAULT '{}';
+        `);
+
         console.log('✅ Institutional migration successful. Database is in sync with the regional registry.');
     } catch (err) {
         console.error('❌ Migration failed:', err);
