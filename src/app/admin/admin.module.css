@@ -145,9 +145,32 @@
     position: relative;
 }
 
+.modalClose {
+    position: absolute;
+    top: 40px;
+    right: 40px;
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    color: #94A3B8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modalClose:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: rotate(90deg);
+}
+
 .modalTitle {
     margin: 0;
-    font-size: 1.85rem;
+    font-size: 2rem;
     font-weight: 950;
     letter-spacing: -0.04em;
     line-height: 1.1;
@@ -155,76 +178,115 @@
 
 .modalSubtitle {
     margin: 12px 0 0;
-    font-size: 1rem;
-    color: #94A3B8;
+    font-size: 1.1rem;
+    color: #64748B;
     font-weight: 700;
 }
 
 .modalBody {
     padding: 48px;
-    max-height: 55vh;
+    max-height: 60vh;
     overflow-y: auto;
     background: #FFFFFF;
-}
-
-.modalFooter {
-    padding: 32px 48px;
-    border-top: 1px solid #F1F5F9;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #F8F9FA;
 }
 
 /* Wizard / Stepper */
 .wizardContainer {
     display: flex;
-    gap: 12px;
-    margin-top: 40px;
+    gap: 8px;
+    margin-top: 48px;
 }
 
 .wizardStep {
     flex: 1;
-    height: 6px;
+    height: 4px;
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.1);
-    transition: all 0.4s ease;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
 }
 
 .wizardStepActive {
     background: #34D186;
-    box-shadow: 0 0 15px rgba(52, 209, 134, 0.3);
+    box-shadow: 0 0 20px rgba(52, 209, 134, 0.4);
 }
 
 /* Data Display */
+.parameterGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
 .parameterCard {
-    background: #F8F9FA;
-    padding: 24px;
-    border-radius: 24px;
-    border: 1px solid #EAEAEA;
-    margin-bottom: 20px;
+    background: #F8FAFC;
+    padding: 20px;
+    border-radius: 20px;
+    border: 1px solid #F1F5F9;
+    transition: all 0.2s ease;
+}
+
+.parameterCard:hover {
+    border-color: #34D186;
+    background: #FFFFFF;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
 }
 
 .parameterLabel {
     display: block;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 950;
     color: #94A3B8;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+}
+
+.parameterValue {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #0A0A0A;
+    font-family: 'JetBrains Mono', monospace;
+    word-break: break-all;
+    line-height: 1.4;
+}
+
+/* Input System */
+.inputWrapper {
+    margin-top: 32px;
+}
+
+.inputLabel {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 950;
+    color: #0A0A0A;
     margin-bottom: 12px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
 }
 
-.parameterValue {
-    font-size: 1rem;
-    font-weight: 800;
+.mainInput {
+    width: 100%;
+    padding: 20px 24px;
+    background: #F8FAFC;
+    border: 2px solid #F1F5F9;
+    border-radius: 20px;
+    font-size: 1.1rem;
+    font-weight: 700;
     color: #0A0A0A;
-    font-family: var(--font-mono);
-    background: white;
-    padding: 16px;
-    border-radius: 14px;
-    border: 1px solid #EAEAEA;
-    word-break: break-all;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.mainInput:focus {
+    border-color: #34D186;
+    background: #FFFFFF;
+    box-shadow: 0 0 0 4px rgba(52, 209, 134, 0.1);
+}
+
+.mainInput::placeholder {
+    color: #94A3B8;
 }
 
 /* Fleet Registry Layout */
@@ -670,18 +732,19 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 14px;
+    padding: 8px 16px;
     border-radius: 100px;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     font-weight: 950;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
 }
 
 .statusActive {
-    background: #F0FAF5;
+    background: #0A0A0A;
     color: #34D186;
-    border: 1px solid rgba(52, 209, 134, 0.2);
+    border: 1px solid rgba(52, 209, 134, 0.3);
+    box-shadow: 0 4px 12px rgba(52, 209, 134, 0.15);
 }
 
 .statusPending {
@@ -695,54 +758,60 @@
     height: 6px;
     background: currentColor;
     border-radius: 50%;
+    box-shadow: 0 0 8px currentColor;
 }
 
 .statusActive .statusPulse {
-    animation: pulseGreen 2s infinite;
+    animation: pulseGreen 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
 }
 
 @keyframes pulseGreen {
     0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.5); opacity: 0.4; }
+    50% { transform: scale(1.8); opacity: 0.3; }
     100% { transform: scale(1); opacity: 1; }
 }
 
 .actionBtnPrimary {
     background: #0A0A0A;
     color: white;
-    border: none;
-    padding: 0 16px;
-    height: 38px;
-    border-radius: 10px;
-    font-size: 0.85rem;
-    font-weight: 850;
+    border: 1px solid #0A0A0A;
+    padding: 0 24px;
+    height: 44px;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    font-weight: 950;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    letter-spacing: -0.01em;
 }
 
 .actionBtnPrimary:hover {
     background: #34D186;
     color: #0A0A0A;
+    border-color: #34D186;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -10px rgba(52, 209, 134, 0.4);
 }
 
 .actionBtnDelete {
-    background: white;
-    border: 1px solid #FEE2E2;
-    color: #EF4444;
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
+    background: #FFFFFF;
+    border: 1px solid #F1F5F9;
+    color: #64748B;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .actionBtnDelete:hover {
-    background: #EF4444;
-    color: white;
-    border-color: #EF4444;
+    background: #FEF2F2;
+    color: #EF4444;
+    border-color: #FEE2E2;
+    transform: translateY(-2px);
 }
 
 /* Institutional UI Enhancements */
@@ -824,33 +893,51 @@
 .metricMatrix {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
+    gap: 32px;
     margin-bottom: 48px;
 }
 
 .adminMetricCard {
     background: white;
-    padding: 40px;
-    border-radius: 40px;
-    border: 1px solid #EAEAEA;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    padding: 48px;
+    border-radius: 48px;
+    border: 1px solid #F1F5F9;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
 }
 
 .adminMetricCard:hover {
     border-color: #0A0A0A;
-    transform: translateY(-5px);
-    box-shadow: 0 40px 100px -20px rgba(0,0,0,0.06);
+    transform: translateY(-8px);
+    box-shadow: 0 40px 100px -20px rgba(0,0,0,0.08);
+}
+
+.adminMetricCard::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #0A0A0A;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.adminMetricCard:hover::after {
+    opacity: 1;
 }
 
 .metricMeta {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 32px;
+    margin-bottom: 40px;
 }
 
 .metricTag {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 950;
     color: #94A3B8;
     text-transform: uppercase;
@@ -858,12 +945,12 @@
 }
 
 .metricAmount {
-    font-size: 2.8rem;
+    font-size: 3.5rem;
     font-weight: 950;
-    letter-spacing: -0.05em;
+    letter-spacing: -0.06em;
     color: #0A0A0A;
     line-height: 1;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
 .metricDetail {

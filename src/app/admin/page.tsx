@@ -16,7 +16,9 @@ import {
     RefreshCcw,
     Copy,
     CheckCircle2,
-    Users
+    Users,
+    X,
+    Link2
 } from "lucide-react";
 
 import { Skeleton } from "../components/Skeleton";
@@ -27,6 +29,7 @@ export default function AdminControlPage() {
     const [savingId, setSavingId] = useState<string | null>(null);
     const [configWorkflow, setConfigWorkflow] = useState<any>(null);
     const [configStep, setConfigStep] = useState(1);
+    const [webhookUrl, setWebhookUrl] = useState("");
 
     useEffect(() => {
         fetchWorkflows();
@@ -51,6 +54,7 @@ export default function AdminControlPage() {
             fetchWorkflows();
             setConfigWorkflow(null);
             setConfigStep(1);
+            setWebhookUrl("");
         } catch (error) { console.error(error); } finally { setSavingId(null); }
     };
 
@@ -294,18 +298,18 @@ export default function AdminControlPage() {
                         <div className={adminStyles.modalHeader}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                                        <Database size={20} color="#34D186" />
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                                        <div style={{ width: '8px', height: '8px', background: '#34D186', borderRadius: '50%', boxShadow: '0 0 10px #34D186' }} />
                                         <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.2em', color: '#94A3B8' }}>NODE CALIBRATION</span>
                                     </div>
                                     <h3 className={adminStyles.modalTitle}>Production Sync</h3>
-                                    <p className={adminStyles.modalSubtitle}>Instance: {configWorkflow.name}</p>
+                                    <p className={adminStyles.modalSubtitle}>Loop Instance: {configWorkflow.name}</p>
                                 </div>
                                 <button 
-                                    onClick={() => setConfigWorkflow(null)} 
-                                    style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: 'white', cursor: 'pointer', width: '48px', height: '48px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                    className={adminStyles.modalClose}
+                                    onClick={() => { setConfigWorkflow(null); setConfigStep(1); setWebhookUrl(""); }}
                                 >
-                                    <MoreVertical size={20} />
+                                    <X size={20} />
                                 </button>
                             </div>
 
@@ -324,11 +328,17 @@ export default function AdminControlPage() {
                         <div className={adminStyles.modalBody}>
                             {configStep === 1 && (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                                        <div style={{ width: '10px', height: '10px', borderRadius: '2px', background: '#34D186' }}></div>
-                                        <h4 style={{ margin: 0, fontSize: '0.8rem', color: '#0A0A0A', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.12em' }}>Inbound Parameters</h4>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <Database size={18} color="#0A0A0A" />
+                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#0A0A0A', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Inbound Parameters</h4>
+                                        </div>
+                                        <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#94A3B8', background: '#F8FAFC', padding: '6px 12px', borderRadius: '8px', border: '1px solid #F1F5F9' }}>
+                                            {Object.keys(configWorkflow.inputs || {}).length} variables
+                                        </div>
                                     </div>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
+                                    <div className={adminStyles.parameterGrid}>
                                         {configWorkflow.inputs ? (
                                             (() => {
                                                 let data = {};
@@ -339,16 +349,24 @@ export default function AdminControlPage() {
                                                     if (typeof data === 'string') data = JSON.parse(data);
                                                 } catch (e) { data = {}; }
                                                 
-                                                return Object.entries(data || {}).map(([key, val]: any) => (
+                                                const entries = Object.entries(data || {});
+                                                if (entries.length === 0) return (
+                                                    <div style={{ gridColumn: 'span 2', textAlign: 'center', padding: '60px', border: '2px dashed #F1F5F9', borderRadius: '32px' }}>
+                                                        <Database size={32} style={{ color: '#E2E8F0', marginBottom: '16px' }} />
+                                                        <p style={{ fontSize: '1rem', color: '#94A3B8', fontWeight: 800, margin: 0 }}>No custom data provided.</p>
+                                                    </div>
+                                                );
+
+                                                return entries.map(([key, val]: any) => (
                                                     <div key={key} className={adminStyles.parameterCard}>
-                                                        <label className={adminStyles.parameterLabel}>{key}</label>
+                                                        <label className={adminStyles.parameterLabel}>{key.replace(/_/g, ' ')}</label>
                                                         <div className={adminStyles.parameterValue}>{String(val)}</div>
                                                     </div>
                                                 ));
                                             })()
                                         ) : (
-                                            <div style={{ textAlign: 'center', padding: '60px', border: '2px dashed #EAEAEA', borderRadius: '24px' }}>
-                                                <Database size={32} style={{ color: '#EAEAEA', marginBottom: '16px' }} />
+                                            <div style={{ gridColumn: 'span 2', textAlign: 'center', padding: '60px', border: '2px dashed #F1F5F9', borderRadius: '32px' }}>
+                                                <Database size={32} style={{ color: '#E2E8F0', marginBottom: '16px' }} />
                                                 <p style={{ fontSize: '1rem', color: '#94A3B8', fontWeight: 800, margin: 0 }}>No custom data provided.</p>
                                             </div>
                                         )}
@@ -357,41 +375,64 @@ export default function AdminControlPage() {
                             )}
 
                             {configStep === 2 && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
                                     <div>
-                                        <label className={adminStyles.parameterLabel}>Sovereign Loop Identity</label>
-                                        <div style={{ display: 'flex', gap: '16px' }}>
-                                            <div style={{ flex: 1, padding: '24px', borderRadius: '24px', background: '#F8F9FA', border: '1px solid #EAEAEA', fontSize: '1.2rem', fontWeight: 950, color: '#0A0A0A', fontFamily: 'monospace', letterSpacing: '-0.02em' }}>
-                                                {configWorkflow.id}
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                                            <ShieldCheck size={18} color="#0A0A0A" />
+                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#0A0A0A', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Sovereign Loop Identity</h4>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '12px' }}>
+                                            <div style={{ flex: 1, padding: '24px', borderRadius: '24px', background: '#F8FAFC', border: '2px solid #F1F5F9', fontSize: '1.25rem', fontWeight: 950, color: '#0A0A0A', fontFamily: 'monospace', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                <span>{configWorkflow.id.substring(0, 8)}...{configWorkflow.id.substring(configWorkflow.id.length - 8)}</span>
+                                                <div style={{ color: '#34D186', fontSize: '0.75rem', fontWeight: 950, background: 'rgba(52, 209, 134, 0.1)', padding: '4px 12px', borderRadius: '100px' }}>SECURE</div>
                                             </div>
                                             <button 
                                                 onClick={() => copyToClipboard(configWorkflow.id)}
                                                 className={styles.btnInstitutional}
-                                                style={{ padding: '0 32px', borderRadius: '24px' }}
+                                                style={{ padding: '0 32px', borderRadius: '24px', height: 'auto' }}
                                             >
-                                                COPY
+                                                COPY HASH
                                             </button>
                                         </div>
                                     </div>
-                                    
-                                    <div style={{ background: '#F0FAF5', padding: '28px', borderRadius: '28px', border: '1px solid #34D186', display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
-                                        <div style={{ width: '44px', height: '44px', background: '#34D186', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                            <ShieldCheck size={24} color="#0A0A0A" />
+
+                                    <div className={adminStyles.inputWrapper}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                                            <Link2 size={18} color="#0A0A0A" />
+                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#0A0A0A', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Production Endpoint</h4>
                                         </div>
-                                        <div style={{ fontSize: '0.95rem', color: '#0A0A0A', lineHeight: '1.6', fontWeight: 800 }}>
-                                            Autonomous Deployment: Use this identity hash in your production n8n nodes. Systematic tracking will commence upon activation.
-                                        </div>
+                                        <input 
+                                            type="text" 
+                                            className={adminStyles.mainInput}
+                                            placeholder="https://n8n.yourfirm.com/webhook/..."
+                                            value={webhookUrl}
+                                            onChange={(e) => setWebhookUrl(e.target.value)}
+                                        />
+                                        <p style={{ marginTop: '12px', fontSize: '0.85rem', color: '#64748B', fontWeight: 700, lineHeight: '1.5' }}>
+                                            Paste the n8n production webhook URL here. This will bridge the platform with your sovereign workflow engine.
+                                        </p>
                                     </div>
                                 </div>
                             )}
 
                             {configStep === 3 && (
                                 <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                                    <div style={{ width: '100px', height: '100px', background: '#F0FAF5', color: '#34D186', borderRadius: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 36px' }}>
-                                        <CheckCircle2 size={48} strokeWidth={2.5} />
+                                    <div style={{ width: '120px', height: '120px', background: 'rgba(52, 209, 134, 0.1)', color: '#34D186', borderRadius: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 40px', position: 'relative' }}>
+                                        <CheckCircle2 size={56} strokeWidth={2.5} />
+                                        <div style={{ position: 'absolute', top: -10, right: -10, background: '#0A0A0A', color: 'white', fontSize: '0.7rem', fontWeight: 950, padding: '6px 14px', borderRadius: '100px' }}>READY</div>
                                     </div>
-                                    <h4 style={{ margin: 0, fontSize: '2rem', color: '#0A0A0A', fontWeight: 950, letterSpacing: '-0.04em' }}>Node Authorized</h4>
-                                    <p style={{ fontSize: '1.1rem', color: '#64748B', maxWidth: '380px', margin: '20px auto 0', lineHeight: '1.6', fontWeight: 700 }}>The loop is ready for full production. Finalizing will activate real-time telemetry and notify the client.</p>
+                                    <h4 style={{ margin: 0, fontSize: '2.25rem', color: '#0A0A0A', fontWeight: 950, letterSpacing: '-0.04em' }}>Authorization Verified</h4>
+                                    <p style={{ fontSize: '1.1rem', color: '#64748B', maxWidth: '420px', margin: '24px auto 0', lineHeight: '1.6', fontWeight: 700 }}>
+                                        The loop is fully calibrated and ready for production deployment. Activating will initiate real-time telemetry and notify the requester.
+                                    </p>
+                                    
+                                    <div style={{ marginTop: '48px', padding: '24px', background: '#F8FAFC', borderRadius: '24px', border: '1px solid #F1F5F9', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                        <div style={{ width: '12px', height: '12px', background: '#34D186', borderRadius: '50%' }} />
+                                        <div>
+                                            <div style={{ fontSize: '0.75rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Target Endpoint</div>
+                                            <div style={{ fontSize: '1rem', fontWeight: 800, color: '#0A0A0A', fontFamily: 'monospace' }}>{webhookUrl || "No endpoint specified"}</div>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -400,21 +441,30 @@ export default function AdminControlPage() {
                         <div className={adminStyles.modalFooter}>
                             <button 
                                 className={styles.btnOutline} 
-                                style={{ padding: '0 32px', height: '52px', borderRadius: '20px', fontWeight: 950, fontSize: '1rem' }}
+                                style={{ padding: '0 32px', height: '56px', borderRadius: '24px', fontWeight: 950, fontSize: '1rem' }}
                                 onClick={() => configStep > 1 ? setConfigStep(prev => prev - 1) : setConfigWorkflow(null)}
                             >
                                 {configStep === 1 ? 'Discard' : 'Back'}
                             </button>
                             <button 
                                 className={styles.btnInstitutional} 
-                                style={{ background: configStep === 3 ? '#34D186' : '#0A0A0A', color: configStep === 3 ? '#0A0A0A' : '#FFFFFF', minWidth: '180px', height: '52px', borderRadius: '20px', fontWeight: 950, fontSize: '1rem' }}
+                                style={{ 
+                                    background: configStep === 3 ? '#34D186' : '#0A0A0A', 
+                                    color: configStep === 3 ? '#0A0A0A' : '#FFFFFF', 
+                                    minWidth: '220px', 
+                                    height: '56px', 
+                                    borderRadius: '24px', 
+                                    fontWeight: 950, 
+                                    fontSize: '1rem',
+                                    boxShadow: configStep === 3 ? '0 10px 30px -10px rgba(52, 209, 134, 0.5)' : 'none'
+                                }}
                                 onClick={() => {
                                     if (configStep < 3) setConfigStep(prev => prev + 1);
-                                    else updateWebhook(configWorkflow.id, ""); // No URL needed
+                                    else updateWebhook(configWorkflow.id, webhookUrl);
                                 }}
-                                disabled={savingId === configWorkflow.id}
+                                disabled={savingId === configWorkflow.id || (configStep === 2 && !webhookUrl)}
                             >
-                                {savingId === configWorkflow.id ? "Syncing..." : (configStep === 3 ? 'Broadcast Activation' : 'Step Complete')}
+                                {savingId === configWorkflow.id ? "Syncing..." : (configStep === 3 ? 'Initialize Node' : 'Continue Calibration')}
                             </button>
                         </div>
                     </div>
