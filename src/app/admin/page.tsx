@@ -436,22 +436,21 @@ export default function AdminControlPage() {
                                                                         <MoreHorizontal size={16} />
                                                                     </button>
                                                                     {activeMenuId === wf.id && (
-                                                                        <div style={{
-                                                                            position: 'absolute',
-                                                                            top: '100%',
-                                                                            right: 0,
-                                                                            marginTop: '8px',
-                                                                            background: 'white',
-                                                                            border: '1px solid #EAEAEA',
-                                                                            borderRadius: '12px',
-                                                                            boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-                                                                            zIndex: 100,
-                                                                            minWidth: '180px',
-                                                                            padding: '8px',
-                                                                            display: 'flex',
-                                                                            flexDirection: 'column',
-                                                                            gap: '4px'
-                                                                        }}>
+                                                                         <div style={{
+                                                                             position: 'absolute',
+                                                                             bottom: 'calc(100% + 8px)',
+                                                                             right: 0,
+                                                                             background: 'white',
+                                                                             border: '1px solid #EAEAEA',
+                                                                             borderRadius: '12px',
+                                                                             boxShadow: '0 -10px 30px rgba(0,0,0,0.1)',
+                                                                             zIndex: 100,
+                                                                             minWidth: '180px',
+                                                                             padding: '8px',
+                                                                             display: 'flex',
+                                                                             flexDirection: 'column',
+                                                                             gap: '4px'
+                                                                         }}>
                                                                             <button 
                                                                                 className={adminStyles.filterBtn} 
                                                                                 style={{ border: 'none', justifyContent: 'flex-start', padding: '10px 12px', width: '100%', fontSize: '0.85rem' }}
