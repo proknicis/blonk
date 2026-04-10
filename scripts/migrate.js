@@ -89,6 +89,16 @@ async function migrate() {
             ALTER TABLE "WorkflowTemplate" ADD COLUMN IF NOT EXISTS "conversionRate" DECIMAL(5,2) DEFAULT 0.00;
         `);
 
+        // 6. UPDATE USER TABLE FOR BUSINESS INSIGHTS
+        console.log('👤 Enhancing User table for Identity Management...');
+        await client.query(`
+            ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "tier" VARCHAR(50) DEFAULT 'Free';
+            ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "totalSpend" DECIMAL(15,2) DEFAULT 0.00;
+            ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "lastActive" TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+            ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "status" VARCHAR(50) DEFAULT 'Active';
+            ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "workflowsUsed" JSONB DEFAULT '[]';
+        `);
+
         console.log('✅ Institutional migration successful. Database is in sync with the regional registry.');
     } catch (err) {
         console.error('❌ Migration failed:', err);

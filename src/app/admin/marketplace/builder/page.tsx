@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { RefreshCcw, ArrowUpRight } from "lucide-react";
+import { Skeleton } from "../../../components/Skeleton";
 import styles from "./builder.module.css";
 
 const STEPS = [
@@ -208,17 +209,75 @@ function BuilderContent() {
         }
     };
 
-    if (isLoading) {
-        return (
-            <div className={styles.container} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '600px' }}>
-                <div style={{ textAlign: 'center' }}>
-                    <RefreshCcw size={48} className={styles.spinning} style={{ color: '#34D186', marginBottom: '24px' }} />
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: 950, color: '#0F172A' }}>Loading Protocol Data...</h2>
-                    <p style={{ color: '#64748B', fontWeight: 700 }}>Synchronizing with sovereign registry.</p>
-                </div>
+    const BuilderSkeleton = () => (
+        <div className={styles.container}>
+            <div className={styles.header}>
+                <Skeleton width="300px" height="32px" borderRadius="8px" style={{ marginBottom: '12px' }} />
+                <Skeleton width="450px" height="18px" borderRadius="6px" />
             </div>
-        );
-    }
+
+            <div className={styles.wizard}>
+                <aside className={styles.sidebar}>
+                    <div className={styles.stepList}>
+                        {[1, 2, 3, 4, 5].map(i => (
+                            <div key={i} className={styles.stepItem} style={{ cursor: 'default' }}>
+                                <Skeleton width="24px" height="24px" borderRadius="50%" />
+                                <div>
+                                    <Skeleton width="100px" height="16px" style={{ marginBottom: '6px' }} />
+                                    <Skeleton width="140px" height="10px" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </aside>
+
+                <main className={styles.content}>
+                    <div className={styles.stepHeader}>
+                        <Skeleton width="200px" height="24px" style={{ marginBottom: '8px' }} />
+                        <Skeleton width="300px" height="14px" />
+                    </div>
+
+                    <div className={styles.stepBody}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
+                            <div style={{ display: "flex", gap: "24px" }}>
+                                <div style={{ flex: 1 }}>
+                                    <Skeleton width="120px" height="14px" style={{ marginBottom: '12px' }} />
+                                    <Skeleton width="100%" height="48px" borderRadius="12px" />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <Skeleton width="120px" height="14px" style={{ marginBottom: '12px' }} />
+                                    <Skeleton width="100%" height="48px" borderRadius="12px" />
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <Skeleton width="150px" height="14px" style={{ marginBottom: '12px' }} />
+                                <Skeleton width="100%" height="120px" borderRadius="12px" />
+                            </div>
+
+                            <div style={{ display: "flex", gap: "24px" }}>
+                                <div style={{ flex: 1 }}>
+                                    <Skeleton width="120px" height="14px" style={{ marginBottom: '12px' }} />
+                                    <Skeleton width="100%" height="48px" borderRadius="12px" />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <Skeleton width="120px" height="14px" style={{ marginBottom: '12px' }} />
+                                    <Skeleton width="100%" height="48px" borderRadius="12px" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className={styles.stepFooter}>
+                        <Skeleton width="100px" height="44px" borderRadius="12px" />
+                        <Skeleton width="140px" height="44px" borderRadius="12px" />
+                    </div>
+                </main>
+            </div>
+        </div>
+    );
+
+    if (isLoading) return <BuilderSkeleton />;
 
     return (
         <div className={styles.container}>
@@ -556,8 +615,29 @@ function BuilderContent() {
 export default function BuilderPage() {
     return (
         <Suspense fallback={
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#FFFFFF' }}>
-                <RefreshCcw size={48} className={styles.spinning} style={{ color: '#34D186' }} />
+            <div className={styles.container}>
+                <div className={styles.header}>
+                    <Skeleton width="300px" height="32px" borderRadius="8px" style={{ marginBottom: '12px' }} />
+                    <Skeleton width="450px" height="18px" borderRadius="6px" />
+                </div>
+                <div className={styles.wizard}>
+                    <aside className={styles.sidebar}>
+                        <div className={styles.stepList}>
+                            {[1, 2, 3, 4, 5].map(i => (
+                                <div key={i} className={styles.stepItem} style={{ cursor: 'default' }}>
+                                    <Skeleton width="24px" height="24px" borderRadius="50%" />
+                                    <div>
+                                        <Skeleton width="100px" height="16px" style={{ marginBottom: '6px' }} />
+                                        <Skeleton width="140px" height="10px" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </aside>
+                    <main className={styles.content}>
+                        <Skeleton width="100%" height="400px" borderRadius="20px" />
+                    </main>
+                </div>
             </div>
         }>
             <BuilderContent />

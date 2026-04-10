@@ -14,7 +14,20 @@ import {
     Mail, 
     Building2,
     RefreshCcw,
-    MoreVertical
+    MoreVertical,
+    Euro,
+    Clock,
+    Zap,
+    AlertCircle,
+    TrendingUp,
+    ChevronRight,
+    X,
+    CreditCard,
+    History,
+    Key,
+    ArrowUpCircle,
+    ArrowDownCircle,
+    Filter
 } from "lucide-react";
 
 import { Skeleton } from "../../components/Skeleton";
@@ -24,6 +37,8 @@ export default function AdminUsersPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [updatingId, setUpdatingId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [selectedUser, setSelectedUser] = useState<any>(null);
+    const [activeFilter, setActiveFilter] = useState("All");
 
     useEffect(() => {
         fetchUsers();
@@ -43,17 +58,19 @@ export default function AdminUsersPage() {
         }
     };
 
-    const updateRole = async (id: string, newRole: string) => {
+    const updateUser = async (id: string, updates: any) => {
         setUpdatingId(id);
         try {
             const res = await fetch('/api/admin/users', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, role: newRole })
+                body: JSON.stringify({ id, ...updates })
             });
             if (res.ok) {
-                setUsers(prev => prev.map(u => u.id === id ? { ...u, role: newRole } : u));
-                alert(`User role updated to ${newRole}`);
+                setUsers(prev => prev.map(u => u.id === id ? { ...u, ...updates } : u));
+                if (selectedUser?.id === id) {
+                    setSelectedUser({ ...selectedUser, ...updates });
+                }
             }
         } catch (error) {
             console.error("Error:", error);
@@ -69,17 +86,52 @@ export default function AdminUsersPage() {
             const res = await fetch(`/api/admin/users?id=${id}`, { method: 'DELETE' });
             if (res.ok) {
                 setUsers(prev => prev.filter(u => u.id !== id));
+                setSelectedUser(null);
             }
         } catch (error) {
             console.error("Error:", error);
         }
     };
 
-    const filteredUsers = users.filter(u => 
-        u.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.firmName?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const getUserStatus = (u: any) => {
+        if (u.status === 'Suspended') return 'Suspended';
+        const lastActive = new Date(u.lastActive || u.createdAt);
+        const diffDays = (new Date().getTime() - lastActive.getTime()) / (1000 * 3600 * 24);
+        
+        if (diffDays > 30) return 'Churned';
+        if (diffDays > 7) return 'Inactive';
+        return 'Active';
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'Active': return '#34D186';
+            case 'Inactive': return '#F59E0B';
+            case 'Churned': return '#EF4444';
+            case 'Suspended': return '#64748B';
+            default: return '#E2E8F0';
+        }
+    };
+
+    const filteredUsers = users.filter(u => {
+        const matchesSearch = u.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                             u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                             u.firmName?.toLowerCase().includes(searchTerm.toLowerCase());
+        
+        if (activeFilter === "All") return matchesSearch;
+        if (activeFilter === "Active") return matchesSearch && getUserStatus(u) === "Active";
+        if (activeFilter === "Inactive") return matchesSearch && (getUserStatus(u) === "Inactive" || getUserStatus(u) === "Churned");
+        if (activeFilter === "Paying") return matchesSearch && (u.tier === "Paid" || u.tier === "Enterprise");
+        
+        return matchesSearch;
+    });
+
+    const stats = {
+        total: users.length,
+        paying: users.filter(u => u.tier !== 'Free').length,
+        revenue: users.reduce((acc, u) => acc + (parseFloat(u.totalSpend) || 0), 0),
+        churnRisk: users.filter(u => getUserStatus(u) === 'Churned').length
+    };
 
     const SkeletonRow = () => (
         <tr className={adminStyles.registryRow}>
@@ -134,29 +186,29 @@ export default function AdminUsersPage() {
 
                 <div className={adminStyles.adminMetricCard}>
                     <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>FIRM ENTITIES</span>
-                        <Building2 size={14} />
+                        <span className={adminStyles.metricTag}>PAYING CLIENTS</span>
+                        <TrendingUp size={14} color="#34D186" />
                     </div>
-                    <div className={adminStyles.metricAmount}>{isLoading ? <Skeleton width="40px" height="32px" /> : new Set(users.map(u => u.firmName)).size}</div>
-                    <div className={adminStyles.metricDetail}>Unique institutional clients</div>
+                    <div className={adminStyles.metricAmount}>{isLoading ? <Skeleton width="40px" height="32px" /> : stats.paying}</div>
+                    <div className={adminStyles.metricDetail}>Premium tier subscribers</div>
                 </div>
 
                 <div className={adminStyles.adminMetricCard}>
                     <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>PRIVILEGE ACCESS</span>
-                        <Shield size={14} color="#34D186"/>
+                        <span className={adminStyles.metricTag}>TOTAL SPEND</span>
+                        <Euro size={14} color="#34D186"/>
                     </div>
-                    <div className={adminStyles.metricAmount}>{isLoading ? <Skeleton width="40px" height="32px" /> : users.filter(u => u.role === 'Admin' || u.role === 'SuperAdmin' || u.role === 'OWNER').length}</div>
-                    <div className={adminStyles.metricDetail}>Administrative accounts</div>
+                    <div className={adminStyles.metricAmount}>{isLoading ? <Skeleton width="40px" height="32px" /> : `€${stats.revenue.toLocaleString()}`}</div>
+                    <div className={adminStyles.metricDetail}>Aggregated user revenue</div>
                 </div>
 
                 <div className={adminStyles.adminMetricCard}>
                     <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>REGISTRY HEALTH</span>
-                        <Activity size={14} />
+                        <span className={adminStyles.metricTag}>CHURN RISK</span>
+                        <AlertCircle size={14} color="#EF4444" />
                     </div>
-                    <div className={adminStyles.metricAmount}>Optimal</div>
-                    <div className={adminStyles.metricDetail}>Liveness data active</div>
+                    <div className={adminStyles.metricAmount}>{isLoading ? <Skeleton width="40px" height="32px" /> : stats.churnRisk}</div>
+                    <div className={adminStyles.metricDetail}>Inactive for 30+ days</div>
                 </div>
             </div>
 
