@@ -294,6 +294,7 @@ export default function AdminUsersPage() {
                 </div>
             </ModalPortal>
         );
+    };
 
     const fetchUsers = async () => {
         try {
