@@ -358,10 +358,17 @@ export default function AdminControlPage() {
                             {/* Wizard Progress */}
                             <div className={adminStyles.wizardContainer}>
                                 {[1, 2, 3].map(s => (
-                                    <div 
-                                        key={s} 
-                                        className={`${adminStyles.wizardStep} ${configStep >= s ? adminStyles.wizardStepActive : ""}`}
-                                    />
+                                    <div key={s} style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}>
+                                        {configStep === 1 && (
+                                            <div 
+                                                className={adminStyles.wizardStep} 
+                                                style={{ width: '100%', position: 'absolute' }}
+                                            />
+                                        )}
+                                        <div 
+                                            className={`${adminStyles.wizardStep} ${configStep >= s ? adminStyles.wizardStepActive : ""}`}
+                                        />
+                                    </div>
                                 ))}
                             </div>
                         </div>
@@ -369,14 +376,19 @@ export default function AdminControlPage() {
                         {/* Modal Body */}
                         <div className={adminStyles.modalBody}>
                             {configStep === 1 && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                            <Database size={18} color="#0A0A0A" />
-                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#0A0A0A', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Inbound Parameters</h4>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                            <div style={{ width: '40px', height: '40px', background: '#F8F9FA', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                <Database size={20} color="#0A0A0A" />
+                                            </div>
+                                            <div>
+                                                <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#0A0A0A', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Inbound Parameters</h4>
+                                                <div style={{ fontSize: '0.75rem', color: '#94A3B8', fontWeight: 800 }}>Pre-configured node variables</div>
+                                            </div>
                                         </div>
-                                        <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#94A3B8', background: '#F8FAFC', padding: '6px 12px', borderRadius: '8px', border: '1px solid #F1F5F9' }}>
-                                            {Object.keys(configWorkflow.inputs || {}).length} variables
+                                        <div style={{ fontSize: '0.8rem', fontWeight: 950, color: '#34D186', background: 'rgba(52, 209, 134, 0.1)', padding: '6px 14px', borderRadius: '100px', letterSpacing: '0.05em' }}>
+                                            {Object.keys(configWorkflow.inputs || {}).length} VARIABLES
                                         </div>
                                     </div>
 
@@ -393,9 +405,12 @@ export default function AdminControlPage() {
                                                 
                                                 const entries = Object.entries(data || {});
                                                 if (entries.length === 0) return (
-                                                    <div style={{ gridColumn: 'span 2', textAlign: 'center', padding: '60px', border: '2px dashed #F1F5F9', borderRadius: '32px' }}>
-                                                        <Database size={32} style={{ color: '#E2E8F0', marginBottom: '16px' }} />
-                                                        <p style={{ fontSize: '1rem', color: '#94A3B8', fontWeight: 800, margin: 0 }}>No custom data provided.</p>
+                                                    <div style={{ gridColumn: 'span 2', textAlign: 'center', padding: '80px 40px', background: '#F8F9FA', border: '1px solid #F1F5F9', borderRadius: '32px' }}>
+                                                        <div style={{ width: '64px', height: '64px', background: '#FFFFFF', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                                                            <Database size={28} style={{ color: '#E2E8F0' }} />
+                                                        </div>
+                                                        <h5 style={{ fontSize: '1.1rem', color: '#0A0A0A', fontWeight: 950, margin: '0 0 8px' }}>No custom data</h5>
+                                                        <p style={{ fontSize: '0.9rem', color: '#94A3B8', fontWeight: 750, margin: 0, maxWidth: '240px', marginInline: 'auto', lineHeight: '1.5' }}>This node instance is operating with default system parameters.</p>
                                                     </div>
                                                 );
 
@@ -498,22 +513,39 @@ export default function AdminControlPage() {
                         <div className={adminStyles.modalFooter}>
                             <button 
                                 className={styles.btnOutline} 
-                                style={{ padding: '0 32px', height: '56px', borderRadius: '24px', fontWeight: 950, fontSize: '1rem' }}
+                                style={{ 
+                                    padding: '0 32px', 
+                                    height: '56px', 
+                                    borderRadius: '18px', 
+                                    fontWeight: 950, 
+                                    fontSize: '0.95rem',
+                                    border: '1px solid #EAEAEA',
+                                    background: '#FFFFFF',
+                                    color: '#64748B',
+                                    transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+                                }}
                                 onClick={() => configStep > 1 ? setConfigStep(prev => prev - 1) : setConfigWorkflow(null)}
                             >
-                                {configStep === 1 ? 'Discard' : 'Back'}
+                                {configStep === 1 ? 'Discard' : 'Previous Step'}
                             </button>
                             <button 
                                 className={styles.btnInstitutional} 
                                 style={{ 
                                     background: configStep === 3 ? '#34D186' : '#0A0A0A', 
                                     color: configStep === 3 ? '#0A0A0A' : '#FFFFFF', 
-                                    minWidth: '220px', 
+                                    minWidth: '240px', 
                                     height: '56px', 
-                                    borderRadius: '24px', 
+                                    borderRadius: '18px', 
                                     fontWeight: 950, 
-                                    fontSize: '1rem',
-                                    boxShadow: configStep === 3 ? '0 10px 30px -10px rgba(52, 209, 134, 0.5)' : 'none'
+                                    fontSize: '0.95rem',
+                                    boxShadow: configStep === 3 
+                                        ? '0 20px 40px -10px rgba(52, 209, 134, 0.5)' 
+                                        : '0 20px 40px -10px rgba(0, 0, 0, 0.2)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '12px',
+                                    transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
                                 }}
                                 onClick={() => {
                                     if (configStep < 3) setConfigStep(prev => prev + 1);
@@ -521,7 +553,17 @@ export default function AdminControlPage() {
                                 }}
                                 disabled={savingId === configWorkflow.id || (configStep === 2 && !webhookUrl)}
                             >
-                                {savingId === configWorkflow.id ? "Syncing..." : (configStep === 3 ? 'Initialize Node' : 'Continue Calibration')}
+                                {savingId === configWorkflow.id ? (
+                                    <>
+                                        <RefreshCcw size={18} className={styles.spinning} />
+                                        <span>SYNCHRONIZING...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span>{configStep === 3 ? 'INITIALIZE NODE' : 'CONTINUE CALIBRATION'}</span>
+                                        <ArrowUpRight size={18} />
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>
