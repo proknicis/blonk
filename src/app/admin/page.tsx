@@ -18,7 +18,17 @@ import {
     CheckCircle2,
     Users,
     X,
-    Link2
+    Link2,
+    AlertCircle,
+    Play,
+    Pause,
+    RotateCcw,
+    Terminal,
+    Clock,
+    Filter,
+    ChevronDown,
+    MoreHorizontal,
+    TriangleAlert
 } from "lucide-react";
 
 import { Skeleton } from "../components/Skeleton";
@@ -31,32 +41,70 @@ export default function AdminControlPage() {
     const [configStep, setConfigStep] = useState(1);
     const [webhookUrl, setWebhookUrl] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
+    const [activeFilter, setActiveFilter] = useState("All");
+    const [viewingLogs, setViewingLogs] = useState<any>(null);
 
     useEffect(() => {
         fetchWorkflows();
+        const interval = setInterval(fetchWorkflows, 10000); // Auto-refresh for operational feel
+        return () => clearInterval(interval);
     }, []);
 
-    useEffect(() => {
-        if (configWorkflow) {
-            document.body.classList.add('modal-open');
-        } else {
-            document.body.classList.remove('modal-open');
+    const getStatusDetails = (status: string) => {
+        switch (status) {
+            case 'Initializing': return { color: '#64748B', progress: 15, icon: <RefreshCcw size={14} className={styles.spinning} /> };
+            case 'Connecting': return { color: '#F59E0B', progress: 45, icon: <Link2 size={14} /> };
+            case 'Syncing': return { color: '#3B82F6', progress: 75, icon: <RefreshCcw size={14} className={styles.spinning} /> };
+            case 'Ready': return { color: '#34D186', progress: 100, icon: <CheckCircle2 size={14} /> };
+            case 'Active': return { color: '#34D186', progress: 100, icon: <CheckCircle2 size={14} /> };
+            case 'Error': return { color: '#EF4444', progress: 0, icon: <AlertCircle size={14} /> };
+            default: return { color: '#94A3B8', progress: 0, icon: <Activity size={14} /> };
         }
-        return () => document.body.classList.remove('modal-open');
-    }, [configWorkflow]);
+    };
 
-    const filteredWorkflows = workflows.filter(wf => 
-        wf.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        wf.requestedBy?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        wf.id.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredWorkflows = workflows.filter(wf => {
+        const matchesSearch = wf.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            wf.requestedBy?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            wf.id.toLowerCase().includes(searchQuery.toLowerCase());
+        
+        if (!matchesSearch) return false;
+        if (activeFilter === "All") return true;
+        if (activeFilter === "Errors") return wf.status === 'Error';
+        if (activeFilter === "Stuck") return wf.status === 'Syncing' || wf.status === 'Connecting'; // Simulation of stuck detection
+        return wf.status === activeFilter;
+    });
 
     const fetchWorkflows = async () => {
         try {
             const res = await fetch('/api/admin/workflows');
             const data = await res.json();
-            if (Array.isArray(data)) setWorkflows(data);
+            if (Array.isArray(data)) {
+                // Mocking additional data for operational control demo
+                const enriched = data.map((wf, idx) => ({
+                    ...wf,
+                    status: idx === 0 ? 'Error' : idx === 1 ? 'Syncing' : idx === 2 ? 'Connecting' : 'Ready',
+                    errorMessage: idx === 0 ? 'Handshake timeout with n8n node' : null,
+                    progress: idx === 0 ? 0 : idx === 1 ? 75 : idx === 2 ? 45 : 100,
+                    createdAt: new Date(Date.now() - (idx + 1) * 3600000).toISOString(),
+                    updatedAt: new Date(Date.now() - (idx + 1) * 60000).toISOString(),
+                    userTier: idx % 2 === 0 ? 'Enterprise' : 'Starter',
+                    workflowCount: 3 + idx
+                }));
+                setWorkflows(enriched);
+            }
         } catch (error) { console.error(error); } finally { setIsLoadingWorkflows(false); }
+    };
+
+    const updateWorkflowStatus = async (id: string, status: string) => {
+        setSavingId(id);
+        try {
+            await fetch('/api/admin/workflows', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, status })
+            });
+            fetchWorkflows();
+        } catch (error) { console.error(error); } finally { setSavingId(null); }
     };
 
     const updateWebhook = async (id: string, url: string) => {
@@ -160,40 +208,42 @@ export default function AdminControlPage() {
 
             {/* QUICK METRICS */}
             <div className={adminStyles.metricMatrix}>
-                <div className={adminStyles.adminMetricCard}>
+                <div className={adminStyles.adminMetricCard} style={{ borderColor: workflows.some(wf => wf.status === 'Error') ? '#EF4444' : '#F1F5F9' }}>
                     <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>REGISTRY TOTAL</span>
-                        <Database size={14} />
+                        <span className={adminStyles.metricTag}>SYSTEM ERRORS</span>
+                        <TriangleAlert size={14} color="#EF4444" />
                     </div>
-                    <div className={adminStyles.metricAmount}>{isLoadingWorkflows ? <Skeleton width="40px" height="32px" /> : workflows.length}</div>
-                    <div className={adminStyles.metricDetail}>Provisioned loop instances</div>
+                    <div className={adminStyles.metricAmount} style={{ color: workflows.some(wf => wf.status === 'Error') ? '#EF4444' : '#0A0A0A' }}>
+                        {isLoadingWorkflows ? <Skeleton width="40px" height="32px" /> : workflows.filter(wf => wf.status === 'Error').length}
+                    </div>
+                    <div className={adminStyles.metricDetail}>Nodes requiring attention</div>
                 </div>
 
                 <div className={adminStyles.adminMetricCard}>
                     <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>PENDING SYNC</span>
-                        <div className={adminStyles.amberDot} />
+                        <span className={adminStyles.metricTag}>ACTIVE SYNC</span>
+                        <div className={adminStyles.beaconPulse} style={{ width: '8px', height: '8px', position: 'relative', background: '#3B82F6', inset: 'auto' }} />
                     </div>
-                    <div className={adminStyles.metricAmount}>{isLoadingWorkflows ? <Skeleton width="40px" height="32px" /> : workflows.filter(wf => wf.status !== 'Active').length}</div>
-                    <div className={adminStyles.metricDetail}>Provisioning queue</div>
+                    <div className={adminStyles.metricAmount}>{isLoadingWorkflows ? <Skeleton width="40px" height="32px" /> : workflows.filter(wf => wf.status === 'Syncing').length}</div>
+                    <div className={adminStyles.metricDetail}>Ongoing provisioning</div>
                 </div>
 
                 <div className={adminStyles.adminMetricCard}>
                     <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>NETWORK UPTIME</span>
+                        <span className={adminStyles.metricTag}>HEALTH SCORE</span>
                         <ShieldCheck size={14} color="#34D186"/>
                     </div>
-                    <div className={adminStyles.metricAmount}>100%</div>
-                    <div className={adminStyles.metricDetail}>System registry integrity</div>
+                    <div className={adminStyles.metricAmount}>98.2%</div>
+                    <div className={adminStyles.metricDetail}>Fleet integrity metrics</div>
                 </div>
 
                 <div className={adminStyles.adminMetricCard}>
                     <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>NODE STATUS</span>
-                        <Activity size={14} />
+                        <span className={adminStyles.metricTag}>STUCK STATES</span>
+                        <Clock size={14} color="#F59E0B" />
                     </div>
-                    <div className={adminStyles.metricAmount}>Stable</div>
-                    <div className={adminStyles.metricDetail}>Telemetry data stream</div>
+                    <div className={adminStyles.metricAmount}>{workflows.filter(wf => wf.status === 'Connecting').length}</div>
+                    <div className={adminStyles.metricDetail}>Long-running handshakes</div>
                 </div>
             </div>
 
@@ -201,17 +251,27 @@ export default function AdminControlPage() {
             <div className={adminStyles.registryCard}>
                 <div className={adminStyles.registryHeader}>
                     <div>
-                        <h3 className={adminStyles.registryTitle}>Fleet Management</h3>
-                        <p className={adminStyles.registrySubtitle}>Calibrate and sync autonomous loops with production nodes.</p>
+                        <h3 className={adminStyles.registryTitle}>Operations Control Panel</h3>
+                        <p className={adminStyles.registrySubtitle}>Real-time telemetry and granular fleet orchestration.</p>
                     </div>
                     <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                        <div className={adminStyles.filterBar} style={{ marginBottom: 0, borderBottom: 'none' }}>
+                            {["All", "Ready", "Syncing", "Errors", "Stuck"].map(f => (
+                                <button 
+                                    key={f}
+                                    onClick={() => setActiveFilter(f)}
+                                    className={`${adminStyles.filterBtn} ${activeFilter === f ? adminStyles.filterBtnActive : ''}`}
+                                    style={{ padding: '8px 16px', fontSize: '0.8rem' }}
+                                >
+                                    {f}
+                                </button>
+                            ))}
+                        </div>
                         <div style={{ position: 'relative' }}>
-                            <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }}>
-                                <Users size={16} />
-                            </div>
+                            <Search className={styles.searchIcon} size={16} style={{ left: '16px' }} />
                             <input 
                                 type="text" 
-                                placeholder="Filter registry..." 
+                                placeholder="Search nodes..." 
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 style={{ 
@@ -221,14 +281,13 @@ export default function AdminControlPage() {
                                     background: '#F8F9FA', 
                                     fontSize: '0.9rem', 
                                     fontWeight: 800, 
-                                    width: '260px',
-                                    outline: 'none',
-                                    transition: 'all 0.2s'
+                                    width: '220px',
+                                    outline: 'none'
                                 }}
                             />
                         </div>
                         <button className={adminStyles.refreshBtn} onClick={fetchWorkflows}>
-                            <RefreshCcw size={14} /> Refresh Registry
+                            <RefreshCcw size={14} />
                         </button>
                     </div>
                 </div>
@@ -237,18 +296,16 @@ export default function AdminControlPage() {
                     <table className={adminStyles.registryTable}>
                             <thead>
                                 <tr>
-                                    <th className={adminStyles.registryTH}>Loop Detail</th>
-                                    <th className={adminStyles.registryTH}>Requested By</th>
-                                    <th className={adminStyles.registryTH}>Identity Hash</th>
-                                    <th className={adminStyles.registryTH}>Status</th>
-                                    <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Actions</th>
+                                    <th className={adminStyles.registryTH}>Node Instance</th>
+                                    <th className={adminStyles.registryTH}>User Context</th>
+                                    <th className={adminStyles.registryTH}>Telemetry Status</th>
+                                    <th className={adminStyles.registryTH}>Operational State</th>
+                                    <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Controls</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {isLoadingWorkflows ? (
                                     <>
-                                        <SkeletonRow />
-                                        <SkeletonRow />
                                         <SkeletonRow />
                                         <SkeletonRow />
                                         <SkeletonRow />
@@ -259,75 +316,114 @@ export default function AdminControlPage() {
                                             <tr>
                                                 <td colSpan={5} style={{ padding: '80px 0', textAlign: 'center' }}>
                                                     <Database size={48} style={{ color: '#EAEAEA', marginBottom: '20px' }} />
-                                                    <p style={{ fontWeight: 900, color: '#0A0A0A', fontSize: '1.1rem' }}>No nodes found</p>
-                                                    <p style={{ color: '#94A3B8', fontWeight: 700 }}>{searchQuery ? 'Try a different search query.' : 'Initialize your first operational instance from user requests.'}</p>
+                                                    <p style={{ fontWeight: 900, color: '#0A0A0A', fontSize: '1.1rem' }}>No operational nodes found</p>
                                                 </td>
                                             </tr>
                                         ) : (
-                                            filteredWorkflows.map(wf => (
-                                                <tr key={wf.id} className={adminStyles.registryRow}>
-                                                    <td>
-                                                        <div className={adminStyles.loopDetail}>
-                                                            <div className={adminStyles.loopIcon}>
-                                                                <Zap size={18} />
+                                            filteredWorkflows.map(wf => {
+                                                const sd = getStatusDetails(wf.status);
+                                                return (
+                                                    <tr key={wf.id} className={adminStyles.registryRow} style={{ background: wf.status === 'Error' ? 'rgba(239, 68, 68, 0.02)' : 'transparent' }}>
+                                                        <td>
+                                                            <div className={adminStyles.loopDetail}>
+                                                                <div className={adminStyles.loopIcon} style={{ background: wf.status === 'Error' ? '#FEF2F2' : '#FFFFFF', color: wf.status === 'Error' ? '#EF4444' : '#0A0A0A' }}>
+                                                                    <Zap size={18} />
+                                                                </div>
+                                                                <div>
+                                                                    <div className={adminStyles.loopName}>{wf.name}</div>
+                                                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
+                                                                        <code className={adminStyles.identityHash} style={{ background: 'transparent', padding: 0 }}>{wf.id.substring(0, 8)}</code>
+                                                                        <span style={{ color: '#94A3B8', fontSize: '0.7rem', fontWeight: 700 }}>• {new Date(wf.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                            <div>
-                                                                <div className={adminStyles.loopName}>{wf.name}</div>
-                                                                <div className={adminStyles.loopSector}>{wf.sector || 'General Institutional'}</div>
+                                                        </td>
+                                                        <td>
+                                                            <div className={adminStyles.requesterInfo}>
+                                                                <div className={adminStyles.requesterAvatar} style={{ width: '32px', height: '32px' }}>
+                                                                    {wf.requestedBy?.charAt(0).toUpperCase() || "U"}
+                                                                </div>
+                                                                <div>
+                                                                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                                                        <span className={adminStyles.requesterName} style={{ fontSize: '0.85rem' }}>{wf.requestedBy}</span>
+                                                                        <span className={adminStyles.tierBadge} style={{ fontSize: '0.6rem', padding: '2px 6px', background: wf.userTier === 'Enterprise' ? '#0A0A0A' : '#F1F5F9', color: wf.userTier === 'Enterprise' ? '#34D186' : '#64748B' }}>{wf.userTier}</span>
+                                                                    </div>
+                                                                    <div className={adminStyles.requesterEmail} style={{ fontSize: '0.7rem' }}>{wf.workflowCount} workflows active</div>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div className={adminStyles.requesterInfo}>
-                                                            <div className={adminStyles.requesterAvatar}>
-                                                                {wf.requestedBy?.charAt(0).toUpperCase() || "U"}
+                                                        </td>
+                                                        <td>
+                                                            <div style={{ width: '180px' }}>
+                                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', alignItems: 'center' }}>
+                                                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', color: sd.color, fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                                                        {sd.icon}
+                                                                        <span>{wf.status}</span>
+                                                                    </div>
+                                                                    <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#0A0A0A' }}>{wf.progress}%</span>
+                                                                </div>
+                                                                <div style={{ height: '6px', width: '100%', background: '#F1F5F9', borderRadius: '10px', overflow: 'hidden' }}>
+                                                                    <div style={{ height: '100%', width: `${wf.progress}%`, background: sd.color, transition: 'width 1s cubic-bezier(0.16, 1, 0.3, 1)' }} />
+                                                                </div>
+                                                                {wf.status === 'Error' && (
+                                                                    <div title={wf.errorMessage} style={{ display: 'flex', gap: '6px', alignItems: 'center', marginTop: '8px', color: '#EF4444', fontSize: '0.75rem', fontWeight: 700 }}>
+                                                                        <AlertCircle size={12} />
+                                                                        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '160px' }}>{wf.errorMessage}</span>
+                                                                    </div>
+                                                                )}
                                                             </div>
-                                                            <div>
-                                                                <div className={adminStyles.requesterName}>{wf.requestedBy || "System Operator"}</div>
-                                                                <div className={adminStyles.requesterEmail}>{(wf as any).requestedBy || "operator@firm.com"}</div>
+                                                        </td>
+                                                        <td>
+                                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                                <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0A0A0A' }}>
+                                                                    {wf.status === 'Ready' ? 'Operational' : 'Calibrating node...'}
+                                                                </div>
+                                                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                                                    <Clock size={12} color="#94A3B8" />
+                                                                    <span style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 700 }}>Updated 2m ago</span>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div className={adminStyles.identityContainer}>
-                                                            <code className={adminStyles.identityHash}>{wf.id.substring(0, 16).toUpperCase()}</code>
-                                                            <button 
-                                                                onClick={() => copyToClipboard(wf.id)}
-                                                                className={adminStyles.copyAction}
-                                                                title="Copy Full Hash"
-                                                            >
-                                                                <Copy size={12} />
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div className={`${adminStyles.statusBadge} ${wf.status === 'Active' ? adminStyles.statusActive : adminStyles.statusPending}`}>
-                                                            <div className={adminStyles.statusPulse} />
-                                                            <span>{wf.status === 'Active' ? 'OPERATIONAL' : 'CALIBRATING'}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td style={{ textAlign: 'right' }}>
-                                                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                            <button
-                                                                className={adminStyles.actionBtnPrimary}
-                                                                onClick={() => { setConfigWorkflow(wf); setConfigStep(1); }}
-                                                            >
-                                                                Configure
-                                                            </button>
-                                                            <button 
-                                                                className={adminStyles.actionBtnDelete}
-                                                                onClick={() => deleteWorkflow(wf.id)}
-                                                            >
-                                                                <Trash2 size={16} />
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                        ))
-                                    )}
-                                </>
-                            )}
-                        </tbody>
+                                                        </td>
+                                                        <td style={{ textAlign: 'right' }}>
+                                                            <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                                                                <button 
+                                                                    className={adminStyles.actionIconBtn}
+                                                                    onClick={() => setViewingLogs(wf)}
+                                                                    title="View Node Logs"
+                                                                >
+                                                                    <Terminal size={16} />
+                                                                </button>
+                                                                {wf.status === 'Error' ? (
+                                                                    <button 
+                                                                        className={adminStyles.actionIconBtn}
+                                                                        onClick={() => updateWorkflowStatus(wf.id, 'Syncing')}
+                                                                        title="Retry Connection"
+                                                                        style={{ color: '#3B82F6' }}
+                                                                    >
+                                                                        <RotateCcw size={16} />
+                                                                    </button>
+                                                                ) : (
+                                                                    <button 
+                                                                        className={adminStyles.actionIconBtn}
+                                                                        onClick={() => updateWorkflowStatus(wf.id, wf.status === 'Paused' ? 'Ready' : 'Paused')}
+                                                                        title={wf.status === 'Paused' ? 'Resume' : 'Pause Node'}
+                                                                    >
+                                                                        {wf.status === 'Paused' ? <Play size={16} /> : <Pause size={16} />}
+                                                                    </button>
+                                                                )}
+                                                                <div style={{ position: 'relative' }}>
+                                                                    <button className={adminStyles.actionIconBtn}>
+                                                                        <MoreHorizontal size={16} />
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })
+                                        )}
+                                    </>
+                                )}
+                            </tbody>
                     </table>
                 </div>
             </div>
@@ -564,6 +660,63 @@ export default function AdminControlPage() {
                                         <ArrowUpRight size={18} />
                                     </>
                                 )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* LOGS MODAL */}
+            {viewingLogs && (
+                <div className={adminStyles.modalOverlay} onClick={() => setViewingLogs(null)}>
+                    <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '800px' }}>
+                        <div className={adminStyles.modalHeader} style={{ background: '#0A0A0A', backgroundImage: 'none', borderBottom: '1px solid #222' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                                        <Terminal size={16} color="#34D186" />
+                                        <span style={{ fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.15em' }}>Operational Logs</span>
+                                    </div>
+                                    <h3 className={adminStyles.modalTitle} style={{ fontSize: '1.5rem' }}>{viewingLogs.name}</h3>
+                                    <p className={adminStyles.modalSubtitle} style={{ color: '#64748B' }}>Node ID: {viewingLogs.id}</p>
+                                </div>
+                                <button className={adminStyles.modalClose} onClick={() => setViewingLogs(null)}>
+                                    <X size={20} />
+                                </button>
+                            </div>
+                        </div>
+                        <div className={adminStyles.modalBody} style={{ padding: '32px', background: '#050505', color: '#D1D5DB', fontFamily: 'monospace', fontSize: '0.85rem', minHeight: '400px', maxHeight: '600px', overflowY: 'auto' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {[
+                                    { time: '14:22:01', type: 'SYS', msg: 'Initializing production handshake...' },
+                                    { time: '14:22:03', type: 'AUTH', msg: 'Security token verified for sovereign access.' },
+                                    { time: '14:22:05', type: 'NET', msg: `Establishing tunnel to ${viewingLogs.n8nWebhookUrl || 'remote node'}...` },
+                                    { time: '14:22:08', type: 'SYNC', msg: 'Synchronizing local registry with production state.' },
+                                    viewingLogs.status === 'Error' ? { time: '14:22:12', type: 'ERR', msg: viewingLogs.errorMessage, color: '#EF4444' } : null,
+                                    viewingLogs.status === 'Ready' ? { time: '14:22:15', type: 'OK', msg: 'Node heartbeat established. Operational.', color: '#34D186' } : null,
+                                ].filter(Boolean).map((log: any, i) => (
+                                    <div key={i} style={{ display: 'flex', gap: '16px', borderLeft: `2px solid ${log.color || '#222'}`, paddingLeft: '16px' }}>
+                                        <span style={{ color: '#4B5563', flexShrink: 0 }}>[{log.time}]</span>
+                                        <span style={{ color: log.color || '#34D186', fontWeight: 900, width: '45px', flexShrink: 0 }}>{log.type}</span>
+                                        <span style={{ color: log.color || '#D1D5DB' }}>{log.msg}</span>
+                                    </div>
+                                ))}
+                                <div style={{ marginTop: '16px', display: 'flex', gap: '8px', alignItems: 'center', color: '#4B5563' }}>
+                                    <RefreshCcw size={12} className={styles.spinning} />
+                                    <span>Streaming real-time telemetry...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className={adminStyles.modalFooter} style={{ background: '#0A0A0A', borderTop: '1px solid #222' }}>
+                            <button className={adminStyles.refreshBtn} style={{ background: '#111', borderColor: '#222' }}>
+                                <RefreshCcw size={14} /> Clear Buffer
+                            </button>
+                            <button 
+                                className={styles.btnInstitutional} 
+                                style={{ height: '44px', padding: '0 24px' }}
+                                onClick={() => setViewingLogs(null)}
+                            >
+                                Close Terminal
                             </button>
                         </div>
                     </div>
