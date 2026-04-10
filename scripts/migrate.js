@@ -80,9 +80,13 @@ async function migrate() {
         }
 
         // 5. UPDATE WORKFLOW TEMPLATE FOR PRODUCT FIELDS
-        console.log('📦 Enhancing WorkflowTemplate for Product Creation...');
+        console.log('📦 Enhancing WorkflowTemplate for Product Management...');
         await client.query(`
             ALTER TABLE "WorkflowTemplate" ADD COLUMN IF NOT EXISTS "productInfo" JSONB DEFAULT '{}';
+            ALTER TABLE "WorkflowTemplate" ADD COLUMN IF NOT EXISTS "price" DECIMAL(15,2) DEFAULT 0.00;
+            ALTER TABLE "WorkflowTemplate" ADD COLUMN IF NOT EXISTS "purchases" INTEGER DEFAULT 0;
+            ALTER TABLE "WorkflowTemplate" ADD COLUMN IF NOT EXISTS "revenue" DECIMAL(15,2) DEFAULT 0.00;
+            ALTER TABLE "WorkflowTemplate" ADD COLUMN IF NOT EXISTS "conversionRate" DECIMAL(5,2) DEFAULT 0.00;
         `);
 
         console.log('✅ Institutional migration successful. Database is in sync with the regional registry.');

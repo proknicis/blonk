@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { RefreshCcw, ArrowUpRight } from "lucide-react";
 import styles from "./builder.module.css";
 
 const STEPS = [

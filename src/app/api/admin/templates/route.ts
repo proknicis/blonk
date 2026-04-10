@@ -23,12 +23,12 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { id, name, sector, description, savings, complexity, icon, color, featured, requirements, setupGuide, productInfo, status } = body;
+        const { id, name, sector, description, savings, complexity, icon, color, featured, requirements, setupGuide, productInfo, status, price, purchases, revenue, conversionRate } = body;
 
         if (id) {
             // Update existing template
             await db.execute(
-                'UPDATE "WorkflowTemplate" SET name = $1, sector = $2, description = $3, savings = $4, complexity = $5, icon = $6, color = $7, featured = $8, requirements = $9::jsonb, "setupGuide" = $10::jsonb, "productInfo" = $11::jsonb, status = $12 WHERE id = $13',
+                'UPDATE "WorkflowTemplate" SET name = $1, sector = $2, description = $3, savings = $4, complexity = $5, icon = $6, color = $7, featured = $8, requirements = $9::jsonb, "setupGuide" = $10::jsonb, "productInfo" = $11::jsonb, status = $12, price = $13, purchases = $14, revenue = $15, "conversionRate" = $16 WHERE id = $17',
                 [
                     name, 
                     sector, 
@@ -42,6 +42,10 @@ export async function POST(request: Request) {
                     JSON.stringify(setupGuide || []), 
                     JSON.stringify(productInfo || {}),
                     status || 'Draft',
+                    price || 0,
+                    purchases || 0,
+                    revenue || 0,
+                    conversionRate || 0,
                     id
                 ]
             );
@@ -49,7 +53,7 @@ export async function POST(request: Request) {
         } else {
             // Create new template
             await db.execute(
-                'INSERT INTO "WorkflowTemplate" (id, name, sector, description, savings, complexity, icon, color, featured, requirements, "setupGuide", "productInfo", status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11::jsonb, $12::jsonb, $13)',
+                'INSERT INTO "WorkflowTemplate" (id, name, sector, description, savings, complexity, icon, color, featured, requirements, "setupGuide", "productInfo", status, price, purchases, revenue, "conversionRate") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11::jsonb, $12::jsonb, $13, $14, $15, $16, $17)',
                 [
                     uuidv4(), 
                     name, 
@@ -63,7 +67,11 @@ export async function POST(request: Request) {
                     JSON.stringify(requirements || []), 
                     JSON.stringify(setupGuide || []), 
                     JSON.stringify(productInfo || {}),
-                    status || 'Draft'
+                    status || 'Draft',
+                    price || 0,
+                    purchases || 0,
+                    revenue || 0,
+                    conversionRate || 0
                 ]
             );
             return NextResponse.json({ success: true });
