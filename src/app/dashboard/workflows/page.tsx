@@ -15,6 +15,7 @@ export default function WorkflowsPage() {
     const [configureTemplate, setConfigureTemplate] = useState<any>(null);
     const [previewTemplate, setPreviewTemplate] = useState<any>(null);
     const [templateInputs, setTemplateInputs] = useState<Record<string, any>>({});
+    const [helpStep, setHelpStep] = useState<any>(null);
 
     const blueprintMap: Record<string, any> = {
         "Lead Automation": {
@@ -229,68 +230,149 @@ export default function WorkflowsPage() {
 
             {configureTemplate && (
                 <ModalPortal>
-                    {/* (Configuration Modal content remains identical to original for brevity but integrated here) */}
-                    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(12px)' }}>
-                        <div style={{ background: '#ffffff', borderRadius: '40px', padding: '48px', width: '100%', maxWidth: '600px', boxShadow: '0 40px 100px rgba(0,0,0,0.3)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                        {/* Modal Header */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '32px' }}>
-                            <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: '#F1F5F9', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px' }}>
-                                {configureTemplate.icon || '⚙️'}
+                    <div className={styles.guideModal}>
+                        <div className={styles.guideContainer}>
+                        {/* Header */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                                <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: '#F1F5F9', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px' }}>
+                                    {configureTemplate.icon || '⚙️'}
+                                </div>
+                                <div>
+                                    <h2 style={{ fontSize: '1.75rem', fontWeight: 950, margin: 0, letterSpacing: '-0.04em', color: '#0F172A' }}>Set up {configureTemplate.name}</h2>
+                                    <p style={{ fontSize: '0.95rem', color: '#64748B', margin: 0, fontWeight: 700 }}>Follow these simple steps to start automating.</p>
+                                </div>
                             </div>
-                            <div>
-                                <h2 style={{ fontSize: '1.75rem', fontWeight: 950, margin: 0, letterSpacing: '-0.04em', color: '#0F172A' }}>Configure Automation</h2>
-                                <p style={{ fontSize: '0.95rem', color: '#64748B', margin: 0, fontWeight: 600 }}>Set up your workflow connections.</p>
+                            <button onClick={() => setConfigureTemplate(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
+                        </div>
+
+                        {/* Visual How It Works */}
+                        <div className={styles.visualSteps}>
+                            <div className={styles.visualStep}>
+                                <div className={styles.stepIconBox}>🔌</div>
+                                <div className={styles.stepLabel}>Connect</div>
+                            </div>
+                            <div style={{ alignSelf: 'center', color: '#E2E8F0' }}>→</div>
+                            <div className={styles.visualStep}>
+                                <div className={styles.stepIconBox}>⚙️</div>
+                                <div className={styles.stepLabel}>Configure</div>
+                            </div>
+                            <div style={{ alignSelf: 'center', color: '#E2E8F0' }}>→</div>
+                            <div className={styles.visualStep}>
+                                <div className={styles.stepIconBox}>🚀</div>
+                                <div className={styles.stepLabel}>Result</div>
                             </div>
                         </div>
-                        {/* Modal Body */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '32px', maxHeight: '50vh', overflowY: 'auto', paddingRight: '12px' }}>
-                            {configureTemplate.parsedGuide && configureTemplate.parsedGuide.length > 0 && (
-                                <div style={{ background: '#F8FAFC', padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-                                    <h3 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', marginTop: 0, marginBottom: '12px', textTransform: 'uppercase' }}>Setup Instructions</h3>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                        {configureTemplate.parsedGuide.map((step: any, idx: number) => (
-                                            <div key={idx} style={{ display: 'flex', gap: '12px' }}>
-                                                <div style={{ width: '24px', height: '24px', background: '#0F172A', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px', flexShrink: 0 }}>{idx + 1}</div>
+
+                        {/* Requirements / Connections */}
+                        {configureTemplate.parsedReqs && configureTemplate.parsedReqs.length > 0 && (
+                            <div style={{ marginBottom: '40px' }}>
+                                <h3 style={{ fontSize: '1.1rem', fontWeight: 950, color: '#0F172A', marginBottom: '20px' }}>1. Connect Services</h3>
+                                <div className={styles.requirementsList}>
+                                    {configureTemplate.parsedReqs.map((req: any, idx: number) => (
+                                        <div key={idx} className={styles.requirementCard}>
+                                            <div className={styles.reqService}>
+                                                <div className={styles.reqIcon}>
+                                                    {req.name.toLowerCase().includes('stripe') ? '💳' : 
+                                                     req.name.toLowerCase().includes('google') ? '🔍' : 
+                                                     req.name.toLowerCase().includes('notion') ? '📝' : '🔌'}
+                                                </div>
                                                 <div>
-                                                    <h4 style={{ margin: '0 0 4px 0', fontSize: '0.9rem', color: '#0F172A' }}>{step.title}</h4>
-                                                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748B', whiteSpace: 'pre-wrap' }}>{step.text}</p>
+                                                    <div className={styles.reqName}>{req.name}</div>
+                                                    <div className={styles.helpLink} onClick={() => setHelpStep(req)}>
+                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                                                        Where to find this?
+                                                    </div>
                                                 </div>
                                             </div>
-                                        ))}
-                                    </div>
+                                            <div className={styles.reqActions}>
+                                                <button className={`${styles.btnAction} ${styles.btnGet}`} onClick={() => setHelpStep(req)}>Get API Key</button>
+                                                <button className={`${styles.btnAction} ${styles.btnConnect}`} onClick={() => setHelpStep(req)}>Connect</button>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                            )}
-                            {configureTemplate.parsedReqs && configureTemplate.parsedReqs.length > 0 && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                                    <h3 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', margin: 0, textTransform: 'uppercase' }}>Required Inputs</h3>
+                            </div>
+                        )}
+
+                        {/* Setup Guide */}
+                        {configureTemplate.parsedGuide && configureTemplate.parsedGuide.length > 0 && (
+                            <div style={{ marginBottom: '40px' }}>
+                                <h3 style={{ fontSize: '1.1rem', fontWeight: 950, color: '#0F172A', marginBottom: '20px' }}>2. Setup Guide</h3>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', background: '#F8FAFC', padding: '32px', borderRadius: '32px', border: '1px solid #E2E8F0' }}>
+                                    {configureTemplate.parsedGuide.map((step: any, idx: number) => (
+                                        <div key={idx} style={{ display: 'flex', gap: '20px' }}>
+                                            <div style={{ width: '32px', height: '32px', background: '#0F172A', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', flexShrink: 0 }}>{idx + 1}</div>
+                                            <div>
+                                                <h4 style={{ margin: '0 0 8px 0', fontSize: '1rem', color: '#0F172A', fontWeight: 800 }}>{step.title}</h4>
+                                                <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748B', lineHeight: 1.6, fontWeight: 600 }}>{step.text}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Configuration Form */}
+                        {configureTemplate.parsedReqs && configureTemplate.parsedReqs.length > 0 && (
+                            <div style={{ marginBottom: '40px' }}>
+                                <h3 style={{ fontSize: '1.1rem', fontWeight: 950, color: '#0F172A', marginBottom: '20px' }}>3. Configuration</h3>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                                     {configureTemplate.parsedReqs.map((req: any, idx: number) => (
-                                <div key={idx}>
-                                    <label style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '0.85rem', marginBottom: '8px', color: '#1E293B' }}>
-                                        {req.name}
-                                        {req.isOptional && <span style={{ color: '#9CA3AF', fontWeight: 400 }}>(Optional)</span>}
-                                    </label>
-                                    <input 
-                                        className={styles.searchInput}
-                                        style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #CBD5E1', background: '#ffffff' }}
-                                        type={req.type === 'file' ? 'file' : 'text'}
-                                        placeholder={`Enter ${req.name}...`}
-                                        value={req.type === 'file' ? undefined : (templateInputs[req.name] || '')}
-                                        onChange={e => setTemplateInputs({...templateInputs, [req.name]: e.target.value})}
-                                    />
+                                        <div key={idx}>
+                                            <label style={{ display: 'block', fontWeight: 800, fontSize: '0.85rem', color: '#0F172A', marginBottom: '8px' }}>
+                                                {req.name} {req.required && <span style={{ color: '#EF4444' }}>*</span>}
+                                            </label>
+                                            <input 
+                                                className={styles.searchInput}
+                                                style={{ width: '100%', padding: '16px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#ffffff', fontWeight: 700 }}
+                                                type={req.type === 'file' ? 'file' : 'text'}
+                                                placeholder={req.example || `Paste your ${req.name} here...`}
+                                                value={req.type === 'file' ? undefined : (templateInputs[req.name] || '')}
+                                                onChange={e => setTemplateInputs({...templateInputs, [req.name]: e.target.value})}
+                                            />
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
-                                </div>
-                            )}
-                        </div>
-                        {/* Modal Footer */}
-                        <div style={{ display: 'flex', gap: '12px' }}>
-                            <button className={styles.btnSecondary} style={{ flex: 1, padding: '14px', borderRadius: '14px', fontWeight: 950, border: '1px solid #E2E8F0', background: '#F8FAFC' }} onClick={() => setConfigureTemplate(null)}>Cancel</button>
-                            <button className={styles.btnPrimary} style={{ flex: 1, padding: '14px', borderRadius: '14px', fontWeight: 950, background: '#0A0A0A', color: 'white' }} disabled={isDeploying} onClick={() => deployWorkflow(configureTemplate, templateInputs)}>
-                                {isDeploying ? 'Enabling...' : 'Enable Workflow'}
+                            </div>
+                        )}
+
+                        {/* Footer */}
+                        <div style={{ display: 'flex', gap: '16px', marginTop: '48px', paddingTop: '32px', borderTop: '1px solid #F1F5F9' }}>
+                            <button className={styles.btnSecondary} style={{ flex: 1 }} onClick={() => setConfigureTemplate(null)}>Cancel</button>
+                            <button className={styles.btnPrimary} style={{ flex: 1 }} disabled={isDeploying} onClick={() => deployWorkflow(configureTemplate, templateInputs)}>
+                                {isDeploying ? 'Deploying...' : 'Deploy Automation'}
                             </button>
                         </div>
                         </div>
                     </div>
+
+                    {/* API Guide Modal */}
+                    {helpStep && (
+                        <div className={styles.guideModal} style={{ zIndex: 1100, background: 'rgba(15, 23, 42, 0.6)' }}>
+                            <div className={styles.guideContainer} style={{ maxWidth: '500px', padding: '40px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                                    <h3 style={{ fontSize: '1.25rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>Guide: {helpStep.name}</h3>
+                                    <button onClick={() => setHelpStep(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}>
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                    </button>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                    <div style={{ background: '#F8FAFC', borderRadius: '16px', padding: '20px', border: '1px solid #E2E8F0' }}>
+                                        <p style={{ margin: 0, fontSize: '0.95rem', color: '#475569', lineHeight: 1.6, fontWeight: 600 }}>
+                                            {helpStep.help || `To find your ${helpStep.name}, log in to your service dashboard, navigate to Settings or API section, and copy the value provided.`}
+                                        </p>
+                                    </div>
+                                    <div style={{ height: '200px', background: '#F1F5F9', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px dashed #CBD5E1' }}>
+                                        <span style={{ fontSize: '0.8rem', color: '#94A3B8', fontWeight: 800, textTransform: 'uppercase' }}>Screenshot Placeholder</span>
+                                    </div>
+                                    <button className={styles.btnPrimary} onClick={() => setHelpStep(null)}>Got it, I have the key</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </ModalPortal>
             )}
 
