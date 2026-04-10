@@ -277,13 +277,12 @@ export default function AdminControlPage() {
                                                         </div>
                                                     </td>
                                                 </tr>
-                                            ))
-                                        )}
-                                    </>
-                                )}
-                            </tbody>
-                            </table>
-                        </div>
+                                        ))
+                                    )}
+                                </>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
