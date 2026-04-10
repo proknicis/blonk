@@ -63,8 +63,21 @@ export default function AdminControlPage() {
     };
 
     const copyToClipboard = (text: string) => {
-        navigator.clipboard.writeText(text);
-        alert("Copied to clipboard!");
+        if (typeof window !== 'undefined' && navigator.clipboard) {
+            navigator.clipboard.writeText(text);
+        } else {
+            // Fallback for non-secure contexts
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                console.error('Fallback copy failed', err);
+            }
+            document.body.removeChild(textArea);
+        }
     };
 
     const SkeletonRow = () => (
@@ -163,20 +176,19 @@ export default function AdminControlPage() {
             </div>
 
             {/* MAIN PROVISIONING REGISTRY */}
-            <div className={styles.commandGrid} style={{ gridTemplateColumns: '1fr' }}>
-                <div className={styles.activeWorkflows} style={{ padding: '32px' }}>
-                    <div className={styles.cardHeader}>
-                        <div>
-                            <h3 className={styles.cardTitle}>Fleet Management</h3>
-                            <p style={{ color: '#94A3B8', fontWeight: 600, fontSize: '0.85rem', marginTop: '4px' }}>Calibrate and sync autonomous loops with production nodes.</p>
-                        </div>
-                        <button className={styles.viewAllLink} onClick={fetchWorkflows} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <RefreshCcw size={14} /> Refresh Registry
-                        </button>
+            <div className={adminStyles.registryCard}>
+                <div className={adminStyles.registryHeader}>
+                    <div>
+                        <h3 className={adminStyles.registryTitle}>Fleet Management</h3>
+                        <p className={adminStyles.registrySubtitle}>Calibrate and sync autonomous loops with production nodes.</p>
                     </div>
+                    <button className={adminStyles.refreshBtn} onClick={fetchWorkflows}>
+                        <RefreshCcw size={14} /> Refresh Registry
+                    </button>
+                </div>
 
-                    <div style={{ overflowX: 'auto', marginTop: '24px' }}>
-                        <table className={styles.historyTable}>
+                <div className={adminStyles.tableWrapper}>
+                    <table className={adminStyles.registryTable}>
                             <thead>
                                 <tr>
                                     <th className={adminStyles.registryTH}>Loop Detail</th>

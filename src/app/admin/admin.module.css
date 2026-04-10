@@ -71,17 +71,6 @@
     margin-top: 24px;
 }
 
-.registryTH {
-    text-align: left;
-    padding: 18px 16px;
-    border-bottom: 2px solid #F1F5F9;
-    color: #94A3B8;
-    font-size: 0.75rem !important;
-    font-weight: 950 !important;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-}
-
 .table th {
     text-align: left;
     padding: 16px;
@@ -168,7 +157,7 @@
     margin: 12px 0 0;
     font-size: 1rem;
     color: #94A3B8;
-    fontWeight: 700;
+    font-weight: 700;
 }
 
 .modalBody {
@@ -238,13 +227,109 @@
     word-break: break-all;
 }
 
-/* Registry Table & Row Stylings */
+/* Fleet Registry Layout */
+.registryCard {
+    background: white;
+    border: 1px solid #EAEAEA;
+    border-radius: 40px;
+    padding: 48px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    width: 100%;
+}
+
+.registryHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 48px;
+}
+
+.registryTitle {
+    font-size: 1.6rem;
+    font-weight: 950;
+    color: #0A0A0A;
+    letter-spacing: -0.04em;
+    margin: 0;
+}
+
+.registrySubtitle {
+    font-size: 1rem;
+    color: #94A3B8;
+    font-weight: 700;
+    margin: 8px 0 0;
+}
+
+.refreshBtn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #FFFFFF;
+    border: 1px solid #EAEAEA;
+    padding: 12px 24px;
+    border-radius: 16px;
+    font-size: 0.85rem;
+    font-weight: 950;
+    color: #34D186;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.refreshBtn:hover {
+    background: #0A0A0A;
+    border-color: #0A0A0A;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px -10px rgba(52, 209, 134, 0.2);
+}
+
+.tableWrapper {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 12px;
+}
+
+.registryTable {
+    width: 100% !important;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: auto; /* Allow content-based resizing but enforce parent width */
+}
+
+.registryTH {
+    text-align: left;
+    padding: 20px 16px;
+    border-bottom: 2px solid #F1F5F9;
+    color: #94A3B8;
+    font-size: 0.75rem !important;
+    font-weight: 950 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    white-space: nowrap;
+}
+
+.registryTH:first-child { width: 30%; }
+.registryTH:nth-child(2) { width: 30%; }
+.registryTH:nth-child(3) { width: 20%; }
+.registryTH:nth-child(4) { width: 10%; }
+.registryTH:last-child { width: 10%; text-align: right; }
+
+/* Registry Row Stylings */
 .registryRow {
     transition: background 0.2s ease;
 }
 
 .registryRow:hover {
     background: #F8F9FA;
+}
+
+.registryRow td {
+    padding: 24px 16px;
+    background: transparent;
+    border-bottom: 1px solid #F1F5F9;
+    vertical-align: middle;
+}
+
+.registryRow td:last-child {
+    text-align: right;
 }
 
 .loopDetail {

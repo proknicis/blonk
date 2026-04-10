@@ -276,7 +276,7 @@
 
 .topbarInner {
     width: 100%;
-    max-width: 1600px;
+    max-width: 1800px;
     padding: 0 60px; /* Synchronized padding */
     display: flex;
     align-items: center;
@@ -518,7 +518,7 @@
     padding: 40px 60px 80px 60px; /* Aligned with topbarInner padding */
     flex: 1;
     width: 100%;
-    max-width: 1600px;
+    max-width: 1800px;
     margin: 0 auto;
 }
 
