@@ -19,6 +19,7 @@ import {
     Users,
     X,
     Link2,
+    Search,
     AlertCircle,
     Play,
     Pause,
