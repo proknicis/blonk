@@ -2,7 +2,7 @@
 
 import styles from "../dashboard/page.module.css";
 import adminStyles from "./admin.module.css";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { 
     Zap, 
@@ -44,6 +44,18 @@ export default function AdminControlPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [activeFilter, setActiveFilter] = useState("All");
     const [viewingLogs, setViewingLogs] = useState<any>(null);
+    const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setActiveMenuId(null);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     useEffect(() => {
         fetchWorkflows();
@@ -416,10 +428,54 @@ export default function AdminControlPage() {
                                                                         {wf.status === 'Paused' ? <Play size={16} /> : <Pause size={16} />}
                                                                     </button>
                                                                 )}
-                                                                <div style={{ position: 'relative' }}>
-                                                                    <button className={adminStyles.actionIconBtn}>
+                                                                <div style={{ position: 'relative' }} ref={activeMenuId === wf.id ? menuRef : null}>
+                                                                    <button 
+                                                                        className={adminStyles.actionIconBtn}
+                                                                        onClick={() => setActiveMenuId(activeMenuId === wf.id ? null : wf.id)}
+                                                                    >
                                                                         <MoreHorizontal size={16} />
                                                                     </button>
+                                                                    {activeMenuId === wf.id && (
+                                                                        <div style={{
+                                                                            position: 'absolute',
+                                                                            top: '100%',
+                                                                            right: 0,
+                                                                            marginTop: '8px',
+                                                                            background: 'white',
+                                                                            border: '1px solid #EAEAEA',
+                                                                            borderRadius: '12px',
+                                                                            boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                                                                            zIndex: 100,
+                                                                            minWidth: '180px',
+                                                                            padding: '8px',
+                                                                            display: 'flex',
+                                                                            flexDirection: 'column',
+                                                                            gap: '4px'
+                                                                        }}>
+                                                                            <button 
+                                                                                className={adminStyles.filterBtn} 
+                                                                                style={{ border: 'none', justifyContent: 'flex-start', padding: '10px 12px', width: '100%', fontSize: '0.85rem' }}
+                                                                                onClick={() => { updateWorkflowStatus(wf.id, 'Syncing'); setActiveMenuId(null); }}
+                                                                            >
+                                                                                <RotateCcw size={14} style={{ marginRight: '8px' }} /> Force Sync
+                                                                            </button>
+                                                                            <button 
+                                                                                className={adminStyles.filterBtn} 
+                                                                                style={{ border: 'none', justifyContent: 'flex-start', padding: '10px 12px', width: '100%', fontSize: '0.85rem' }}
+                                                                                onClick={() => { setConfigWorkflow(wf); setConfigStep(1); setActiveMenuId(null); }}
+                                                                            >
+                                                                                <Settings size={14} style={{ marginRight: '8px' }} /> Configure Node
+                                                                            </button>
+                                                                            <div style={{ height: '1px', background: '#F1F5F9', margin: '4px 0' }} />
+                                                                            <button 
+                                                                                className={adminStyles.filterBtn} 
+                                                                                style={{ border: 'none', justifyContent: 'flex-start', padding: '10px 12px', width: '100%', fontSize: '0.85rem', color: '#EF4444' }}
+                                                                                onClick={() => { deleteWorkflow(wf.id); setActiveMenuId(null); }}
+                                                                            >
+                                                                                <Trash2 size={14} style={{ marginRight: '8px' }} /> Delete Instance
+                                                                            </button>
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                         </td>
