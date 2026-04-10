@@ -20,7 +20,8 @@ async function setupDatabase() {
         const dropTables = [
             '"WorkflowLog"', '"OperationalSetting"', '"Notification"', 
             '"Transaction"', '"ChartData"', '"Kpi"', '"Workflow"', 
-            '"WorkflowTemplate"', '"Agent"', '"Report"', '"User"', '"Invoice"'
+            '"WorkflowTemplate"', '"Agent"', '"Report"', '"User"', '"Invoice"',
+            '"Event"', '"Payment"', '"MarketingSpend"'
         ];
         
         for (const table of dropTables) {
@@ -41,6 +42,9 @@ async function setupDatabase() {
             DROP TABLE IF EXISTS "Transaction" CASCADE;
             DROP TABLE IF EXISTS "Invoice" CASCADE;
             DROP TABLE IF EXISTS "User" CASCADE;
+            DROP TABLE IF EXISTS "Event" CASCADE;
+            DROP TABLE IF EXISTS "Payment" CASCADE;
+            DROP TABLE IF EXISTS "MarketingSpend" CASCADE;
 
             CREATE TABLE "Team" (
                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -60,6 +64,9 @@ async function setupDatabase() {
                 "teamId" UUID,
                 plan VARCHAR(50) DEFAULT 'Starter',
                 "onboardingStatus" VARCHAR(50) DEFAULT 'PENDING',
+                "utmSource" VARCHAR(100),
+                "utmMedium" VARCHAR(100),
+                "utmCampaign" VARCHAR(100),
                 "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
@@ -72,6 +79,39 @@ async function setupDatabase() {
                 role VARCHAR(50) DEFAULT 'MEMBER',
                 status VARCHAR(50) DEFAULT 'PENDING', -- PENDING, ACCEPTED, EXPIRED
                 "expiresAt" TIMESTAMP,
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        // 2b. ANALYTICS & FINANCIAL EXTENSIONS
+        console.log('📈 Provisioning Real-Time Analytics Ledgers...');
+        await client.query(`
+            CREATE TABLE "Event" (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                "userId" UUID,
+                "visitorId" VARCHAR(255),
+                "sessionId" VARCHAR(255),
+                "eventType" VARCHAR(100) NOT NULL,
+                "source" VARCHAR(100),
+                "metadata" JSONB DEFAULT '{}',
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE "Payment" (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                "userId" UUID,
+                "amount" DECIMAL(15,2) NOT NULL,
+                "currency" VARCHAR(10) DEFAULT 'USD',
+                "status" VARCHAR(50) DEFAULT 'completed',
+                "stripeSessionId" VARCHAR(255),
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE "MarketingSpend" (
+                id SERIAL PRIMARY KEY,
+                "date" DATE NOT NULL,
+                "amount" DECIMAL(15,2) DEFAULT 0.00,
+                "source" VARCHAR(100),
                 "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
