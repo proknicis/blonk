@@ -61,15 +61,18 @@ CREATE TABLE IF NOT EXISTS "Workflow" (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
     sector VARCHAR(100),
-    status VARCHAR(50) DEFAULT 'Pending',
+    status VARCHAR(50) DEFAULT 'Ready', -- Initializing, Connecting, Syncing, Ready, Error, Paused
     performance VARCHAR(50) DEFAULT '0',
+    progress INTEGER DEFAULT 100,
+    "errorMessage" TEXT,
     "tasksCount" INTEGER DEFAULT 0,
     inputs JSONB DEFAULT '{}',
     "requestedBy" VARCHAR(255),
     "userId" UUID,
     "lastRun" TIMESTAMP,
     "n8nWebhookUrl" TEXT,
-    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- WorkflowTemplate: Marketplace blue-prints

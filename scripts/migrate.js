@@ -99,9 +99,17 @@ async function migrate() {
             ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "workflowsUsed" JSONB DEFAULT '[]';
         `);
 
-        console.log('✅ Institutional migration successful. Database is in sync with the regional registry.');
+        // 7. UPDATE WORKFLOW TABLE FOR OPERATIONAL CONTROL
+        console.log('⚡ Enhancing Workflow table for Operational Control...');
+        await client.query(`
+            ALTER TABLE "Workflow" ADD COLUMN IF NOT EXISTS "progress" INTEGER DEFAULT 100;
+            ALTER TABLE "Workflow" ADD COLUMN IF NOT EXISTS "errorMessage" TEXT;
+            ALTER TABLE "Workflow" ADD COLUMN IF NOT EXISTS "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+        `);
+
+        console.log('✅ Fleet migration synchronized. Institutional ledger up-to-date.');
     } catch (err) {
-        console.error('❌ Migration failed:', err);
+        console.error('❌ Migration failure:', err);
     } finally {
         await client.end();
     }

@@ -80,20 +80,23 @@ export default function AdminControlPage() {
             const res = await fetch('/api/admin/workflows');
             const data = await res.json();
             if (Array.isArray(data)) {
-                // Mocking additional data for operational control demo
-                const enriched = data.map((wf, idx) => ({
+                // Ensure default values for missing database fields
+                const processed = data.map(wf => ({
                     ...wf,
-                    status: idx === 0 ? 'Error' : idx === 1 ? 'Syncing' : idx === 2 ? 'Connecting' : 'Ready',
-                    errorMessage: idx === 0 ? 'Handshake timeout with n8n node' : null,
-                    progress: idx === 0 ? 0 : idx === 1 ? 75 : idx === 2 ? 45 : 100,
-                    createdAt: new Date(Date.now() - (idx + 1) * 3600000).toISOString(),
-                    updatedAt: new Date(Date.now() - (idx + 1) * 60000).toISOString(),
-                    userTier: idx % 2 === 0 ? 'Enterprise' : 'Starter',
-                    workflowCount: 3 + idx
+                    status: wf.status || 'Ready',
+                    progress: wf.progress ?? (wf.status === 'Ready' || wf.status === 'Active' ? 100 : 0),
+                    createdAt: wf.createdAt || new Date().toISOString(),
+                    updatedAt: wf.updatedAt || new Date().toISOString(),
+                    userTier: wf.userTier || 'Starter',
+                    workflowCount: Array.isArray(wf.userWorkflows) ? wf.userWorkflows.length : 0
                 }));
-                setWorkflows(enriched);
+                setWorkflows(processed);
             }
-        } catch (error) { console.error(error); } finally { setIsLoadingWorkflows(false); }
+        } catch (error) { 
+            console.error("Error fetching workflows:", error); 
+        } finally { 
+            setIsLoadingWorkflows(false); 
+        }
     };
 
     const updateWorkflowStatus = async (id: string, status: string) => {
@@ -380,7 +383,9 @@ export default function AdminControlPage() {
                                                                 </div>
                                                                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                                                                     <Clock size={12} color="#94A3B8" />
-                                                                    <span style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 700 }}>Updated 2m ago</span>
+                                                                    <span style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 700 }}>
+                                                                        Updated {Math.floor((Date.now() - new Date(wf.updatedAt).getTime()) / 60000)}m ago
+                                                                    </span>
                                                                 </div>
                                                             </div>
                                                         </td>
@@ -693,8 +698,8 @@ export default function AdminControlPage() {
                                     { time: '14:22:03', type: 'AUTH', msg: 'Security token verified for sovereign access.' },
                                     { time: '14:22:05', type: 'NET', msg: `Establishing tunnel to ${viewingLogs.n8nWebhookUrl || 'remote node'}...` },
                                     { time: '14:22:08', type: 'SYNC', msg: 'Synchronizing local registry with production state.' },
-                                    viewingLogs.status === 'Error' ? { time: '14:22:12', type: 'ERR', msg: viewingLogs.errorMessage, color: '#EF4444' } : null,
-                                    viewingLogs.status === 'Ready' ? { time: '14:22:15', type: 'OK', msg: 'Node heartbeat established. Operational.', color: '#34D186' } : null,
+                                    viewingLogs.status === 'Error' ? { time: new Date(viewingLogs.updatedAt).toLocaleTimeString(), type: 'ERR', msg: viewingLogs.errorMessage || 'Unknown system error during handshake.', color: '#EF4444' } : null,
+                                    (viewingLogs.status === 'Ready' || viewingLogs.status === 'Active') ? { time: new Date(viewingLogs.updatedAt).toLocaleTimeString(), type: 'OK', msg: 'Node heartbeat established. Operational.', color: '#34D186' } : null,
                                 ].filter(Boolean).map((log: any, i) => (
                                     <div key={i} style={{ display: 'flex', gap: '16px', borderLeft: `2px solid ${log.color || '#222'}`, paddingLeft: '16px' }}>
                                         <span style={{ color: '#4B5563', flexShrink: 0 }}>[{log.time}]</span>
