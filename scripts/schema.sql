@@ -24,16 +24,26 @@ CREATE TABLE IF NOT EXISTS "User" (
     "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Analytics: Visit and Event tracking
-CREATE TABLE IF NOT EXISTS "Visit" (
+-- Analytics: Event tracking system
+CREATE TABLE IF NOT EXISTS "Event" (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    "sessionId" VARCHAR(255),
+    "userId" UUID,
     "visitorId" VARCHAR(255),
-    "path" TEXT,
-    "referrer" TEXT,
-    "utmSource" VARCHAR(100),
-    "utmMedium" VARCHAR(100),
-    "utmCampaign" VARCHAR(100),
+    "sessionId" VARCHAR(255),
+    "eventType" VARCHAR(100) NOT NULL, -- page_visit, signup, login, subscription_started, payment_completed, subscription_cancelled
+    "source" VARCHAR(100), -- UTM source
+    "metadata" JSONB DEFAULT '{}',
+    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Payments: Real financial ledger
+CREATE TABLE IF NOT EXISTS "Payment" (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    "userId" UUID,
+    "amount" DECIMAL(15,2) NOT NULL,
+    "currency" VARCHAR(10) DEFAULT 'USD',
+    "status" VARCHAR(50) DEFAULT 'completed',
+    "stripeSessionId" VARCHAR(255),
     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
