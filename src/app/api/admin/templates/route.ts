@@ -29,9 +29,9 @@ export async function POST(request: Request) {
                 icon || 'Zap', 
                 color || '#F1F5F9',
                 !!featured,
-                requirements || [], 
-                setupGuide || [], 
-                productInfo || {},
+                JSON.stringify(requirements || []), 
+                JSON.stringify(setupGuide || []), 
+                JSON.stringify(productInfo || {}),
                 status || 'Draft'
             ]
         );
