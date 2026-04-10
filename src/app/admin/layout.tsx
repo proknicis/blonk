@@ -17,7 +17,8 @@ import {
     Grid2X2, 
     Monitor, 
     Database,
-    ShieldAlert
+    ShieldAlert,
+    BarChart3
 } from "lucide-react";
 
 type UserData = { name: string; role: string; email: string };
@@ -54,6 +55,7 @@ export default function AdminLayout({
 
     const getModuleTitle = (path: string) => {
         if (path === '/admin') return 'Fleet Provisioning';
+        if (path === '/admin/analytics') return 'Analytics Overview';
         if (path === '/admin/marketplace') return 'Marketplace Management';
         if (path === '/admin/users') return 'User Directory';
         return 'System Control';
@@ -78,6 +80,11 @@ export default function AdminLayout({
                             <li>
                                 <Link href="/admin" className={`${styles.navLink} ${pathname === '/admin' ? styles.navLinkActive : ''}`}>
                                     <Database size={20} /> Loop Config
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/admin/analytics" className={`${styles.navLink} ${pathname === '/admin/analytics' ? styles.navLinkActive : ''}`}>
+                                    <BarChart3 size={20} /> Analytics
                                 </Link>
                             </li>
                             <li>
