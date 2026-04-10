@@ -39,10 +39,191 @@ export default function AdminUsersPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const [activeFilter, setActiveFilter] = useState("All");
+    const [modalTab, setModalTab] = useState("Info");
 
     useEffect(() => {
         fetchUsers();
     }, []);
+
+    const UserModal = ({ user, onClose }: { user: any, onClose: () => void }) => {
+        if (!user) return null;
+        const status = getUserStatus(user);
+
+        return (
+            <div className={adminStyles.modalOverlay} onClick={onClose}>
+                <div className={adminStyles.modal} onClick={e => e.stopPropagation()}>
+                    <div className={adminStyles.modalHeader}>
+                        <button className={adminStyles.modalClose} onClick={onClose}>
+                            <X size={20} />
+                        </button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                            <div className={adminStyles.requesterAvatar} style={{ width: '80px', height: '80px', fontSize: '2rem' }}>
+                                {user.name?.charAt(0) || "U"}
+                            </div>
+                            <div>
+                                <h2 className={adminStyles.modalTitle}>{user.name}</h2>
+                                <p className={adminStyles.modalSubtitle}>{user.email}</p>
+                                <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                                    <span className={`${adminStyles.statusBadge} ${getStatusClass(status)}`}>
+                                        <div className={adminStyles.statusPulse} />
+                                        {status}
+                                    </span>
+                                    <span className={`${adminStyles.tierBadge} ${getTierBadge(user.tier)}`}>
+                                        {user.tier || 'Free'}
+                                    </span>
+                                    {parseFloat(user.totalSpend) > 5000 && (
+                                        <span className={adminStyles.tierBadge} style={{ background: '#F0FAF5', color: '#34D186', border: '1px solid #34D186' }}>
+                                            High Value
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={adminStyles.tabsContainer} style={{ margin: '40px 0 0', border: 'none' }}>
+                            {["Info", "Workflows", "Payments", "Activity"].map(tab => (
+                                <button 
+                                    key={tab}
+                                    className={`${adminStyles.tab} ${modalTab === tab ? adminStyles.tabActive : ''}`}
+                                    onClick={() => setModalTab(tab)}
+                                    style={{ color: modalTab === tab ? 'white' : 'rgba(255,255,255,0.4)' }}
+                                >
+                                    {tab}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className={adminStyles.modalBody}>
+                        {modalTab === "Info" && (
+                            <div className={adminStyles.parameterGrid}>
+                                <div className={adminStyles.parameterCard}>
+                                    <span className={adminStyles.parameterLabel}>Firm Name</span>
+                                    <span className={adminStyles.parameterValue}>{user.firmName || "N/A"}</span>
+                                </div>
+                                <div className={adminStyles.parameterCard}>
+                                    <span className={adminStyles.parameterLabel}>User Role</span>
+                                    <span className={adminStyles.parameterValue}>{user.role}</span>
+                                </div>
+                                <div className={adminStyles.parameterCard}>
+                                    <span className={adminStyles.parameterLabel}>Account ID</span>
+                                    <span className={adminStyles.parameterValue}>{user.id}</span>
+                                </div>
+                                <div className={adminStyles.parameterCard}>
+                                    <span className={adminStyles.parameterLabel}>Registration Date</span>
+                                    <span className={adminStyles.parameterValue}>{new Date(user.createdAt).toLocaleDateString()}</span>
+                                </div>
+                            </div>
+                        )}
+
+                        {modalTab === "Workflows" && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                <div className={adminStyles.parameterCard} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div>
+                                        <span className={adminStyles.parameterLabel}>Total Workflows</span>
+                                        <span className={adminStyles.parameterValue}>{user.workflowsUsed || 0} active</span>
+                                    </div>
+                                    <Zap size={24} color="#34D186" />
+                                </div>
+                                {(user.workflowsUsed || 0) > 0 ? (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        <span className={adminStyles.parameterLabel}>Active Pipelines</span>
+                                        {["Data Ingestion Protocol", "Neural Audit Scan", "Global Risk Assessment"].slice(0, user.workflowsUsed).map((w, i) => (
+                                            <div key={i} className={adminStyles.workflowChip} style={{ padding: '12px', justifyContent: 'space-between' }}>
+                                                <span>{w}</span>
+                                                <span style={{ color: '#34D186', fontSize: '0.7rem' }}>ACTIVE</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p style={{ color: '#94A3B8', fontSize: '0.9rem', textAlign: 'center', padding: '20px' }}>
+                                        No active workflows detected for this operator.
+                                    </p>
+                                )}
+                            </div>
+                        )}
+
+                        {modalTab === "Payments" && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                <div className={adminStyles.parameterCard} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div>
+                                        <span className={adminStyles.parameterLabel}>Lifetime Spend</span>
+                                        <span className={adminStyles.parameterValue} style={{ color: '#34D186', fontSize: '1.5rem' }}>
+                                            €{(parseFloat(user.totalSpend) || 0).toLocaleString()}
+                                        </span>
+                                    </div>
+                                    <Euro size={24} color="#34D186" />
+                                </div>
+                                <div className={adminStyles.parameterCard}>
+                                    <span className={adminStyles.parameterLabel}>Current Plan</span>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
+                                        <span className={adminStyles.parameterValue}>{user.tier || 'Free Tier'}</span>
+                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                            <button 
+                                                className={adminStyles.actionBtnPrimary} 
+                                                style={{ height: '32px', padding: '0 12px', fontSize: '0.8rem' }}
+                                                onClick={() => updateUser(user.id, { tier: 'Paid' })}
+                                            >
+                                                Upgrade
+                                            </button>
+                                            <button 
+                                                className={adminStyles.actionBtnDelete} 
+                                                style={{ height: '32px', width: 'auto', padding: '0 12px', fontSize: '0.8rem' }}
+                                                onClick={() => updateUser(user.id, { tier: 'Free' })}
+                                            >
+                                                Downgrade
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {modalTab === "Activity" && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                <div className={adminStyles.parameterCard}>
+                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                        <History size={16} color="#94A3B8" />
+                                        <span className={adminStyles.parameterValue} style={{ fontSize: '0.9rem' }}>
+                                            Last active: {user.lastActive ? new Date(user.lastActive).toLocaleString() : 'Never'}
+                                        </span>
+                                    </div>
+                                </div>
+                                <p style={{ color: '#94A3B8', fontSize: '0.9rem', textAlign: 'center', padding: '20px' }}>
+                                    Real-time activity logs and session data would be streamed here.
+                                </p>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className={adminStyles.modalFooter}>
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                            <button 
+                                className={adminStyles.actionBtnPrimary}
+                                onClick={() => {
+                                    alert("API credentials have been reset and sent to " + user.email);
+                                    updateUser(user.id, { updatedAt: new Date().toISOString() });
+                                }}
+                            >
+                                <Key size={16} style={{ marginRight: '8px' }} />
+                                Reset Credentials
+                            </button>
+                            <button 
+                                className={adminStyles.actionBtnDelete}
+                                style={{ width: 'auto', padding: '0 24px' }}
+                                onClick={() => updateUser(user.id, { status: user.status === 'Suspended' ? 'Active' : 'Suspended' })}
+                            >
+                                {user.status === 'Suspended' ? 'Activate Account' : 'Suspend Account'}
+                            </button>
+                        </div>
+                        <button className={adminStyles.refreshBtn} onClick={onClose}>
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    };
 
     const fetchUsers = async () => {
         try {
@@ -95,64 +276,70 @@ export default function AdminUsersPage() {
 
     const getUserStatus = (u: any) => {
         if (u.status === 'Suspended') return 'Suspended';
-        const lastActive = new Date(u.lastActive || u.createdAt);
+        
+        const lastActive = u.lastActive ? new Date(u.lastActive) : null;
+        if (!lastActive) return 'No Activation';
+        
         const diffDays = (new Date().getTime() - lastActive.getTime()) / (1000 * 3600 * 24);
         
-        if (diffDays > 30) return 'Churned';
+        if (diffDays > 30) return 'Churn Risk';
         if (diffDays > 7) return 'Inactive';
         return 'Active';
     };
 
-    const getStatusColor = (status: string) => {
+    const getStatusClass = (status: string) => {
         switch (status) {
-            case 'Active': return '#34D186';
-            case 'Inactive': return '#F59E0B';
-            case 'Churned': return '#EF4444';
-            case 'Suspended': return '#64748B';
-            default: return '#E2E8F0';
+            case 'Active': return adminStyles.statusActive;
+            case 'Inactive': return adminStyles.statusInactive;
+            case 'Churn Risk': return adminStyles.statusChurn;
+            case 'Suspended': return adminStyles.statusSuspended;
+            case 'No Activation': return adminStyles.statusInactive;
+            default: return '';
         }
     };
 
+    const getTierBadge = (tier: string) => {
+        const t = tier?.toLowerCase() || 'free';
+        if (t === 'admin' || t === 'superadmin') return adminStyles.tierAdmin;
+        if (t === 'paid' || t === 'enterprise') return adminStyles.tierPaid;
+        return adminStyles.tierFree;
+    };
+
     const filteredUsers = users.filter(u => {
-        const matchesSearch = u.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                             u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                             u.firmName?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = 
+            u.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            u.firmName?.toLowerCase().includes(searchTerm.toLowerCase());
         
-        if (activeFilter === "All") return matchesSearch;
-        if (activeFilter === "Active") return matchesSearch && getUserStatus(u) === "Active";
-        if (activeFilter === "Inactive") return matchesSearch && (getUserStatus(u) === "Inactive" || getUserStatus(u) === "Churned");
-        if (activeFilter === "Paying") return matchesSearch && (u.tier === "Paid" || u.tier === "Enterprise");
+        if (!matchesSearch) return false;
+
+        const status = getUserStatus(u);
+        if (activeFilter === "All") return true;
+        if (activeFilter === "Active") return status === "Active";
+        if (activeFilter === "Inactive") return status === "Inactive" || status === "Churn Risk";
+        if (activeFilter === "Paying") return u.tier === "Paid" || u.tier === "Enterprise";
+        if (activeFilter === "Admin") return u.role === "Admin" || u.role === "SuperAdmin";
+        if (activeFilter === "Workflows") return (u.workflowsUsed || 0) > 0;
         
-        return matchesSearch;
+        return true;
     });
 
     const stats = {
         total: users.length,
-        paying: users.filter(u => u.tier !== 'Free').length,
+        paying: users.filter(u => u.tier === 'Paid' || u.tier === 'Enterprise').length,
         revenue: users.reduce((acc, u) => acc + (parseFloat(u.totalSpend) || 0), 0),
-        churnRisk: users.filter(u => getUserStatus(u) === 'Churned').length
+        churnRisk: users.filter(u => getUserStatus(u) === 'Churn Risk').length
     };
 
     const SkeletonRow = () => (
         <tr className={adminStyles.registryRow}>
-            <td>
-                <div className={adminStyles.loopDetail}>
-                    <Skeleton width="40px" height="40px" borderRadius="12px" />
-                    <div>
-                        <Skeleton width="140px" height="18px" style={{ marginBottom: '6px' }} />
-                        <Skeleton width="100px" height="12px" />
-                    </div>
-                </div>
-            </td>
-            <td><Skeleton width="200px" height="20px" /></td>
-            <td><Skeleton width="150px" height="20px" /></td>
-            <td><Skeleton width="140px" height="36px" borderRadius="10px" /></td>
-            <td style={{ textAlign: 'right' }}>
-                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                    <Skeleton width="40px" height="40px" borderRadius="10px" />
-                    <Skeleton width="40px" height="40px" borderRadius="10px" />
-                </div>
-            </td>
+            <td><Skeleton width="180px" height="40px" borderRadius="12px" /></td>
+            <td><Skeleton width="120px" height="24px" /></td>
+            <td><Skeleton width="80px" height="24px" /></td>
+            <td><Skeleton width="100px" height="24px" /></td>
+            <td><Skeleton width="100px" height="24px" /></td>
+            <td><Skeleton width="120px" height="32px" borderRadius="20px" /></td>
+            <td style={{ textAlign: 'right' }}><Skeleton width="120px" height="36px" borderRadius="10px" /></td>
         </tr>
     );
 
@@ -215,8 +402,8 @@ export default function AdminUsersPage() {
             <div className={adminStyles.registryCard}>
                 <div className={adminStyles.registryHeader}>
                     <div>
-                        <h3 className={adminStyles.registryTitle}>Identity Registry</h3>
-                        <p className={adminStyles.registrySubtitle}>Manage operator privileges and institutional firm anchoring.</p>
+                        <h3 className={adminStyles.registryTitle}>User Management System</h3>
+                        <p className={adminStyles.registrySubtitle}>Full visibility and control over institutional operators.</p>
                     </div>
                     <div className={styles.searchWrapper} style={{ width: '400px' }}>
                         <Search className={styles.searchIcon} size={18} />
@@ -230,14 +417,28 @@ export default function AdminUsersPage() {
                     </div>
                 </div>
 
+                <div className={adminStyles.filterBar}>
+                    {["All", "Active", "Paying", "Inactive", "Admin", "Workflows"].map(filter => (
+                        <button
+                            key={filter}
+                            className={`${adminStyles.filterBtn} ${activeFilter === filter ? adminStyles.filterBtnActive : ''}`}
+                            onClick={() => setActiveFilter(filter)}
+                        >
+                            {filter} Users
+                        </button>
+                    ))}
+                </div>
+
                 <div className={adminStyles.tableWrapper}>
                     <table className={adminStyles.registryTable}>
                         <thead>
                             <tr>
-                                <th className={adminStyles.registryTH}>Operator Instance</th>
-                                <th className={adminStyles.registryTH}>Email Connectivity</th>
-                                <th className={adminStyles.registryTH}>Firm Anchoring</th>
-                                <th className={adminStyles.registryTH}>Privilege Level</th>
+                                <th className={adminStyles.registryTH}>User</th>
+                                <th className={adminStyles.registryTH}>Tier</th>
+                                <th className={adminStyles.registryTH}>Spend</th>
+                                <th className={adminStyles.registryTH}>Workflows</th>
+                                <th className={adminStyles.registryTH}>Last Active</th>
+                                <th className={adminStyles.registryTH}>Status</th>
                                 <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Actions</th>
                             </tr>
                         </thead>
@@ -254,90 +455,85 @@ export default function AdminUsersPage() {
                                 <>
                                     {filteredUsers.length === 0 ? (
                                         <tr>
-                                            <td colSpan={5} style={{ padding: '80px 0', textAlign: 'center' }}>
+                                            <td colSpan={7} style={{ padding: '80px 0', textAlign: 'center' }}>
                                                 <Users size={48} style={{ color: '#EAEAEA', marginBottom: '20px' }} />
-                                                <p style={{ fontWeight: 900, color: '#0A0A0A', fontSize: '1.1rem' }}>No identities found</p>
+                                                <p style={{ fontWeight: 900, color: '#0A0A0A', fontSize: '1.1rem' }}>No users found</p>
                                                 <p style={{ color: '#94A3B8', fontWeight: 700 }}>Adjust your parameters to locate the operator.</p>
                                             </td>
                                         </tr>
                                     ) : (
-                                        filteredUsers.map(u => (
-                                            <tr key={u.id} className={adminStyles.registryRow}>
-                                                <td>
-                                                    <div className={adminStyles.loopDetail}>
-                                                        <div className={adminStyles.requesterAvatar}>
-                                                            {u.name?.charAt(0) || "U"}
+                                        filteredUsers.map(u => {
+                                            const status = getUserStatus(u);
+                                            return (
+                                                <tr key={u.id} className={adminStyles.registryRow}>
+                                                    <td>
+                                                        <div className={adminStyles.loopDetail} onClick={() => setSelectedUser(u)} style={{ cursor: 'pointer' }}>
+                                                            <div className={adminStyles.requesterAvatar}>
+                                                                {u.name?.charAt(0) || "U"}
+                                                            </div>
+                                                            <div>
+                                                                <div className={adminStyles.loopName}>{u.name}</div>
+                                                                <div className={adminStyles.requesterEmail}>{u.email}</div>
+                                                            </div>
                                                         </div>
-                                                        <div>
-                                                            <div className={adminStyles.loopName}>{u.name}</div>
-                                                            <code className={adminStyles.identityHash} style={{ marginTop: '2px', display: 'block' }}>
-                                                                {u.id.substring(0, 12)}
-                                                            </code>
+                                                    </td>
+                                                    <td>
+                                                        <span className={`${adminStyles.tierBadge} ${getTierBadge(u.tier)}`}>
+                                                            {u.tier || 'Free'}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <div className={adminStyles.loopName} style={{ color: '#34D186' }}>
+                                                            €{(parseFloat(u.totalSpend) || 0).toLocaleString()}
                                                         </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div className={adminStyles.requesterInfo}>
-                                                        <Mail size={14} color="#94A3B8" />
-                                                        <span className={adminStyles.requesterEmail}>{u.email}</span>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div className={adminStyles.requesterInfo}>
-                                                        <Building2 size={16} color="#94A3B8" />
-                                                        <span className={adminStyles.loopName} style={{ fontSize: '0.9rem' }}>{u.firmName || "N/A"}</span>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div style={{ position: 'relative', width: '160px' }}>
-                                                        <select
-                                                            value={u.role}
-                                                            disabled={u.role === 'SuperAdmin' || updatingId === u.id}
-                                                            onChange={(e) => updateRole(u.id, e.target.value)}
-                                                            className={adminStyles.actionBtnPrimary}
-                                                            style={{ 
-                                                                width: '100%', 
-                                                                appearance: 'none', 
-                                                                cursor: (u.role === 'SuperAdmin' || updatingId === u.id) ? 'not-allowed' : 'pointer',
-                                                                textAlign: 'center',
-                                                                background: u.role === 'OWNER' || u.role === 'Admin' ? '#F0FAF5' : '#FFFFFF',
-                                                                borderColor: u.role === 'OWNER' || u.role === 'Admin' ? '#34D186' : '#E2E8F0',
-                                                                color: u.role === 'OWNER' || u.role === 'Admin' ? '#34D186' : '#0F172A',
-                                                                height: '38px',
-                                                                lineHeight: '38px',
-                                                                padding: '0 16px',
-                                                                border: '1.5px solid'
-                                                            }}
-                                                        >
-                                                            <option value="User">Standard User</option>
-                                                            <option value="Admin">System Admin</option>
-                                                            <option value="OWNER">Firm Owner</option>
-                                                            <option value="SuperAdmin" disabled>Super Admin</option>
-                                                        </select>
-                                                    </div>
-                                                </td>
-                                                <td style={{ textAlign: 'right' }}>
-                                                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                        {u.role !== 'SuperAdmin' && (
+                                                    </td>
+                                                    <td>
+                                                        <div className={adminStyles.workflowChip}>
+                                                            <Zap size={12} />
+                                                            {u.workflowsUsed || 0}
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div className={adminStyles.requesterEmail}>
+                                                            {u.lastActive ? new Date(u.lastActive).toLocaleDateString() : 'Never'}
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div className={`${adminStyles.statusBadge} ${getStatusClass(status)}`}>
+                                                            <div className={adminStyles.statusPulse} />
+                                                            {status}
+                                                        </div>
+                                                    </td>
+                                                    <td style={{ textAlign: 'right' }}>
+                                                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                                                             <button 
-                                                                className={adminStyles.actionBtnDelete}
-                                                                onClick={() => deleteUser(u.id)}
-                                                                title="Revoke Access"
+                                                                className={adminStyles.actionIconBtn}
+                                                                onClick={() => setSelectedUser(u)}
+                                                                title="View Profile"
                                                             >
-                                                                <ShieldAlert size={18} />
+                                                                <ChevronRight size={18} />
                                                             </button>
-                                                        )}
-                                                        <button 
-                                                            className={adminStyles.actionBtnPrimary}
-                                                            style={{ width: '38px', padding: 0 }}
-                                                            onClick={fetchUsers}
-                                                        >
-                                                            <RefreshCcw size={16} />
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))
+                                                            <button 
+                                                                className={adminStyles.actionIconBtn}
+                                                                onClick={() => updateUser(u.id, { status: u.status === 'Suspended' ? 'Active' : 'Suspended' })}
+                                                                title={u.status === 'Suspended' ? "Activate" : "Suspend"}
+                                                            >
+                                                                {u.status === 'Suspended' ? <UserCheck size={18} /> : <ShieldAlert size={18} />}
+                                                            </button>
+                                                            {u.role !== 'SuperAdmin' && (
+                                                                <button 
+                                                                    className={`${adminStyles.actionIconBtn} ${adminStyles.actionIconBtnDanger}`}
+                                                                    onClick={() => deleteUser(u.id)}
+                                                                    title="Delete User"
+                                                                >
+                                                                    <Trash2 size={18} />
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
                                     )}
                                 </>
                             )}
@@ -345,6 +541,8 @@ export default function AdminUsersPage() {
                     </table>
                 </div>
             </div>
+
+            {selectedUser && <UserModal user={selectedUser} onClose={() => setSelectedUser(null)} />}
         </div>
     );
 }

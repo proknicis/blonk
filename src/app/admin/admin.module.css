@@ -786,16 +786,103 @@
 }
 
 .statusActive {
-    background: #0A0A0A;
+    background: #F0FAF5;
     color: #34D186;
     border: 1px solid rgba(52, 209, 134, 0.3);
-    box-shadow: 0 4px 12px rgba(52, 209, 134, 0.15);
 }
 
-.statusPending {
+.statusInactive {
     background: #FFFBEB;
-    color: #D97706;
-    border: 1px solid rgba(217, 119, 6, 0.2);
+    color: #F59E0B;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.statusChurn {
+    background: #FEF2F2;
+    color: #EF4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.statusSuspended {
+    background: #F8FAFC;
+    color: #64748B;
+    border: 1px solid rgba(100, 116, 139, 0.3);
+}
+
+.tierBadge {
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.tierFree { background: #F1F5F9; color: #475569; }
+.tierPaid { background: #F0FAF5; color: #34D186; }
+.tierAdmin { background: #0A0A0A; color: #FFFFFF; }
+
+.workflowChip {
+    padding: 4px 8px;
+    background: #F1F5F9;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #475569;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.filterBar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+}
+
+.filterBtn {
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    background: white;
+    border: 1px solid #EAEAEA;
+    color: #94A3B8;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filterBtnActive {
+    background: #0A0A0A;
+    color: white;
+    border-color: #0A0A0A;
+}
+
+.actionIconBtn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #F8FAFC;
+    border: 1px solid #F1F5F9;
+    color: #64748B;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.actionIconBtn:hover {
+    background: #F1F5F9;
+    color: #0A0A0A;
+    border-color: #E2E8F0;
+}
+
+.actionIconBtnDanger:hover {
+    background: #FEF2F2;
+    color: #EF4444;
+    border-color: #FEE2E2;
 }
 
 .statusPulse {
