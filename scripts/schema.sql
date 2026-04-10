@@ -14,9 +14,36 @@ CREATE TABLE IF NOT EXISTS "User" (
     "firmName" VARCHAR(255),
     industry VARCHAR(255),
     plan VARCHAR(50) DEFAULT 'Starter',
+    role VARCHAR(50) DEFAULT 'MEMBER',
+    "teamId" UUID,
     "onboardingStatus" VARCHAR(50) DEFAULT 'PENDING',
+    "utmSource" VARCHAR(100),
+    "utmMedium" VARCHAR(100),
+    "utmCampaign" VARCHAR(100),
     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Analytics: Visit and Event tracking
+CREATE TABLE IF NOT EXISTS "Visit" (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    "sessionId" VARCHAR(255),
+    "visitorId" VARCHAR(255),
+    "path" TEXT,
+    "referrer" TEXT,
+    "utmSource" VARCHAR(100),
+    "utmMedium" VARCHAR(100),
+    "utmCampaign" VARCHAR(100),
+    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- MarketingSpend: Tracking CAC inputs
+CREATE TABLE IF NOT EXISTS "MarketingSpend" (
+    id SERIAL PRIMARY KEY,
+    "date" DATE NOT NULL,
+    "amount" DECIMAL(15,2) DEFAULT 0.00,
+    "source" VARCHAR(100),
+    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Workflow: Active autonomous loops

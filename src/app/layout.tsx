@@ -19,6 +19,8 @@ export const metadata: Metadata = {
 
 import { AuthProvider } from "@/components/auth-provider";
 
+import AnalyticsTracker from "@/components/AnalyticsTracker";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,6 +30,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <AuthProvider>
+          <AnalyticsTracker />
           {children}
         </AuthProvider>
       </body>
