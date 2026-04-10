@@ -35,11 +35,23 @@
     z-index: 100;
     color: #0A0A0A;
     border-right: 1px solid #EAEAEA;
+    transition: filter 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:global(body.modal-open) .sidebar {
+    filter: blur(12px) grayscale(0.2);
+    transform: scale(0.98);
+    pointer-events: none;
+}
+
+:global(body.modal-open) .topbar {
+    filter: blur(8px);
+    pointer-events: none;
 }
 
 .sidebarBrand {
     margin-bottom: 56px;
-    padding-left: 12px;
+    padding: 0 12px;
 }
 
 .logo {
@@ -105,20 +117,40 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 14px 16px;
-    border-radius: 12px;
+    padding: 16px 20px;
+    border-radius: 16px;
     color: #64748B;
     font-weight: 800;
     font-size: 0.95rem;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    margin-bottom: 6px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    margin-bottom: 8px;
     text-decoration: none;
+    position: relative;
+    overflow: hidden;
 }
 
 .navLink:hover {
     color: #0A0A0A;
     background: #F8F9FA;
-    transform: translateX(4px);
+    transform: translateX(6px);
+}
+
+.navLinkActive {
+    background: #0A0A0A !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.2);
+}
+
+.navLinkActive::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 16px;
+    background: #34D186;
+    border-radius: 0 4px 4px 0;
 }
 
 .navLink svg {
@@ -126,16 +158,12 @@
     height: 20px;
     stroke-width: 2.5;
     color: #94A3B8;
-    transition: color 0.25s ease;
+    transition: all 0.3s ease;
 }
 
 .navLink:hover svg {
     color: #0A0A0A;
-}
-
-.navLinkActive {
-    background: #F0FAF5 !important;
-    color: #0A0A0A !important;
+    transform: scale(1.1);
 }
 
 .navLinkActive svg {
@@ -260,15 +288,15 @@
 }
 
 .topbar {
-    height: 80px;
-    min-height: 80px;
+    height: 90px;
+    min-height: 90px;
     flex-shrink: 0;
     padding: 0;
     display: flex;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -277,7 +305,7 @@
 .topbarInner {
     width: 100%;
     max-width: 1800px;
-    padding: 0 60px; /* Synchronized padding */
+    padding: 0 48px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -298,23 +326,24 @@
 }
 
 .searchInput {
-    width: 480px;
+    width: 420px;
     height: 52px;
     background: #F8F9FA;
     border: 1px solid #EAEAEA;
-    border-radius: 16px;
-    padding: 0 20px 0 56px;
-    font-size: 1rem;
+    border-radius: 18px;
+    padding: 0 24px 0 56px;
+    font-size: 0.95rem;
     font-weight: 800;
     color: #0A0A0A;
-    transition: all 0.25s ease;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .searchInput:focus {
     outline: none;
     background: #FFFFFF;
     border-color: #0A0A0A;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+    width: 480px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
 }
 
 .topbarContext {

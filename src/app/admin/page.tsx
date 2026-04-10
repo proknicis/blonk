@@ -30,10 +30,26 @@ export default function AdminControlPage() {
     const [configWorkflow, setConfigWorkflow] = useState<any>(null);
     const [configStep, setConfigStep] = useState(1);
     const [webhookUrl, setWebhookUrl] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
         fetchWorkflows();
     }, []);
+
+    useEffect(() => {
+        if (configWorkflow) {
+            document.body.classList.add('modal-open');
+        } else {
+            document.body.classList.remove('modal-open');
+        }
+        return () => document.body.classList.remove('modal-open');
+    }, [configWorkflow]);
+
+    const filteredWorkflows = workflows.filter(wf => 
+        wf.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        wf.requestedBy?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        wf.id.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     const fetchWorkflows = async () => {
         try {
@@ -45,6 +61,8 @@ export default function AdminControlPage() {
 
     const updateWebhook = async (id: string, url: string) => {
         setSavingId(id);
+        // Simulation delay for "institutional feel"
+        await new Promise(resolve => setTimeout(resolve, 1500));
         try {
             await fetch('/api/admin/workflows', {
                 method: 'POST',
@@ -186,9 +204,33 @@ export default function AdminControlPage() {
                         <h3 className={adminStyles.registryTitle}>Fleet Management</h3>
                         <p className={adminStyles.registrySubtitle}>Calibrate and sync autonomous loops with production nodes.</p>
                     </div>
-                    <button className={adminStyles.refreshBtn} onClick={fetchWorkflows}>
-                        <RefreshCcw size={14} /> Refresh Registry
-                    </button>
+                    <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                        <div style={{ position: 'relative' }}>
+                            <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }}>
+                                <Users size={16} />
+                            </div>
+                            <input 
+                                type="text" 
+                                placeholder="Filter registry..." 
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                style={{ 
+                                    padding: '12px 16px 12px 44px', 
+                                    borderRadius: '14px', 
+                                    border: '1px solid #EAEAEA', 
+                                    background: '#F8F9FA', 
+                                    fontSize: '0.9rem', 
+                                    fontWeight: 800, 
+                                    width: '260px',
+                                    outline: 'none',
+                                    transition: 'all 0.2s'
+                                }}
+                            />
+                        </div>
+                        <button className={adminStyles.refreshBtn} onClick={fetchWorkflows}>
+                            <RefreshCcw size={14} /> Refresh Registry
+                        </button>
+                    </div>
                 </div>
 
                 <div className={adminStyles.tableWrapper}>
@@ -213,16 +255,16 @@ export default function AdminControlPage() {
                                     </>
                                 ) : (
                                     <>
-                                        {workflows.length === 0 ? (
+                                        {filteredWorkflows.length === 0 ? (
                                             <tr>
                                                 <td colSpan={5} style={{ padding: '80px 0', textAlign: 'center' }}>
                                                     <Database size={48} style={{ color: '#EAEAEA', marginBottom: '20px' }} />
-                                                    <p style={{ fontWeight: 900, color: '#0A0A0A', fontSize: '1.1rem' }}>No nodes provisioned</p>
-                                                    <p style={{ color: '#94A3B8', fontWeight: 700 }}>Initialize your first operational instance from user requests.</p>
+                                                    <p style={{ fontWeight: 900, color: '#0A0A0A', fontSize: '1.1rem' }}>No nodes found</p>
+                                                    <p style={{ color: '#94A3B8', fontWeight: 700 }}>{searchQuery ? 'Try a different search query.' : 'Initialize your first operational instance from user requests.'}</p>
                                                 </td>
                                             </tr>
                                         ) : (
-                                            workflows.map(wf => (
+                                            filteredWorkflows.map(wf => (
                                                 <tr key={wf.id} className={adminStyles.registryRow}>
                                                     <td>
                                                         <div className={adminStyles.loopDetail}>
@@ -426,11 +468,26 @@ export default function AdminControlPage() {
                                         The loop is fully calibrated and ready for production deployment. Activating will initiate real-time telemetry and notify the requester.
                                     </p>
                                     
-                                    <div style={{ marginTop: '48px', padding: '24px', background: '#F8FAFC', borderRadius: '24px', border: '1px solid #F1F5F9', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                        <div style={{ width: '12px', height: '12px', background: '#34D186', borderRadius: '50%' }} />
-                                        <div>
-                                            <div style={{ fontSize: '0.75rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Target Endpoint</div>
-                                            <div style={{ fontSize: '1rem', fontWeight: 800, color: '#0A0A0A', fontFamily: 'monospace' }}>{webhookUrl || "No endpoint specified"}</div>
+                                    <div style={{ marginTop: '48px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                        <div style={{ padding: '24px', background: '#F8FAFC', borderRadius: '24px', border: '1px solid #F1F5F9', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                            <div style={{ width: '12px', height: '12px', background: '#34D186', borderRadius: '50%' }} />
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{ fontSize: '0.75rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Target Endpoint</div>
+                                                <div style={{ fontSize: '1rem', fontWeight: 800, color: '#0A0A0A', fontFamily: 'monospace' }}>{webhookUrl || "No endpoint specified"}</div>
+                                            </div>
+                                            <ShieldCheck size={20} color="#34D186" />
+                                        </div>
+
+                                        <div style={{ padding: '16px 24px', background: '#0A0A0A', borderRadius: '16px', textAlign: 'left' }}>
+                                            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '8px' }}>
+                                                <div style={{ width: '6px', height: '6px', background: '#34D186', borderRadius: '50%' }} />
+                                                <span style={{ fontSize: '0.7rem', color: '#34D186', fontWeight: 950, letterSpacing: '0.1em' }}>SYSTEM LOGS</span>
+                                            </div>
+                                            <div style={{ fontFamily: 'monospace', fontSize: '0.8rem', color: '#94A3B8', lineHeight: '1.4' }}>
+                                                <div>&gt; Parameters verified ... OK</div>
+                                                <div>&gt; Identity hash synced ... OK</div>
+                                                <div>&gt; Ready for broadcast ...</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
