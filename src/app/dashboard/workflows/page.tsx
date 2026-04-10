@@ -250,16 +250,16 @@ export default function WorkflowsPage() {
 
                         {/* Visual How It Works */}
                         <div className={styles.visualSteps}>
-                            <div className={styles.visualStep}>
+                            <div className={`${styles.visualStep} ${styles.visualStepActive}`}>
                                 <div className={styles.stepIconBox}>🔌</div>
                                 <div className={styles.stepLabel}>Connect</div>
                             </div>
-                            <div style={{ alignSelf: 'center', color: '#E2E8F0' }}>→</div>
+                            <div className={styles.stepConnector} />
                             <div className={styles.visualStep}>
                                 <div className={styles.stepIconBox}>⚙️</div>
                                 <div className={styles.stepLabel}>Configure</div>
                             </div>
-                            <div style={{ alignSelf: 'center', color: '#E2E8F0' }}>→</div>
+                            <div className={styles.stepConnector} />
                             <div className={styles.visualStep}>
                                 <div className={styles.stepIconBox}>🚀</div>
                                 <div className={styles.stepLabel}>Result</div>
@@ -268,8 +268,11 @@ export default function WorkflowsPage() {
 
                         {/* Requirements / Connections */}
                         {configureTemplate.parsedReqs && configureTemplate.parsedReqs.length > 0 && (
-                            <div style={{ marginBottom: '40px' }}>
-                                <h3 style={{ fontSize: '1.1rem', fontWeight: 950, color: '#0F172A', marginBottom: '20px' }}>1. Connect Services</h3>
+                            <div style={{ marginBottom: '64px' }}>
+                                <div className={styles.sectionHeader}>
+                                    <div className={styles.sectionNumber}>1</div>
+                                    <h3 className={styles.sectionTitle}>Connect Services</h3>
+                                </div>
                                 <div className={styles.requirementsList}>
                                     {configureTemplate.parsedReqs.map((req: any, idx: number) => (
                                         <div key={idx} className={styles.requirementCard}>
@@ -299,15 +302,18 @@ export default function WorkflowsPage() {
 
                         {/* Setup Guide */}
                         {configureTemplate.parsedGuide && configureTemplate.parsedGuide.length > 0 && (
-                            <div style={{ marginBottom: '40px' }}>
-                                <h3 style={{ fontSize: '1.1rem', fontWeight: 950, color: '#0F172A', marginBottom: '20px' }}>2. Setup Guide</h3>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', background: '#F8FAFC', padding: '32px', borderRadius: '32px', border: '1px solid #E2E8F0' }}>
+                            <div style={{ marginBottom: '64px' }}>
+                                <div className={styles.sectionHeader}>
+                                    <div className={styles.sectionNumber}>2</div>
+                                    <h3 className={styles.sectionTitle}>Setup Guide</h3>
+                                </div>
+                                <div className={styles.setupGuideContainer}>
                                     {configureTemplate.parsedGuide.map((step: any, idx: number) => (
-                                        <div key={idx} style={{ display: 'flex', gap: '20px' }}>
-                                            <div style={{ width: '32px', height: '32px', background: '#0F172A', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', flexShrink: 0 }}>{idx + 1}</div>
+                                        <div key={idx} className={styles.guideStep}>
+                                            <div className={styles.guideStepNumber}>{idx + 1}</div>
                                             <div>
-                                                <h4 style={{ margin: '0 0 8px 0', fontSize: '1rem', color: '#0F172A', fontWeight: 800 }}>{step.title}</h4>
-                                                <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748B', lineHeight: 1.6, fontWeight: 600 }}>{step.text}</p>
+                                                <h4 className={styles.guideStepTitle}>{step.title}</h4>
+                                                <p className={styles.guideStepText}>{step.text}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -317,17 +323,19 @@ export default function WorkflowsPage() {
 
                         {/* Configuration Form */}
                         {configureTemplate.parsedReqs && configureTemplate.parsedReqs.length > 0 && (
-                            <div style={{ marginBottom: '40px' }}>
-                                <h3 style={{ fontSize: '1.1rem', fontWeight: 950, color: '#0F172A', marginBottom: '20px' }}>3. Configuration</h3>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                            <div style={{ marginBottom: '64px' }}>
+                                <div className={styles.sectionHeader}>
+                                    <div className={styles.sectionNumber}>3</div>
+                                    <h3 className={styles.sectionTitle}>Configuration</h3>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                                     {configureTemplate.parsedReqs.map((req: any, idx: number) => (
                                         <div key={idx}>
-                                            <label style={{ display: 'block', fontWeight: 800, fontSize: '0.85rem', color: '#0F172A', marginBottom: '8px' }}>
+                                            <label className={styles.configLabel}>
                                                 {req.name} {req.required && <span style={{ color: '#EF4444' }}>*</span>}
                                             </label>
                                             <input 
-                                                className={styles.searchInput}
-                                                style={{ width: '100%', padding: '16px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#ffffff', fontWeight: 700 }}
+                                                className={styles.configInput}
                                                 type={req.type === 'file' ? 'file' : 'text'}
                                                 placeholder={req.example || `Paste your ${req.name} here...`}
                                                 value={req.type === 'file' ? undefined : (templateInputs[req.name] || '')}
