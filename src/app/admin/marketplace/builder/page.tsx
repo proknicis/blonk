@@ -150,6 +150,7 @@ export default function BuilderPage() {
                     featured: true,
                     requirements: formData.inputs,
                     setupGuide: formData.guide,
+                    productInfo: formData.productInfo,
                     webhookUrl: formData.webhookUrl,
                     status: formData.status
                 })

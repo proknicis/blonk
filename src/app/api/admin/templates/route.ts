@@ -18,7 +18,7 @@ export async function POST(request: Request) {
         const { name, sector, description, savings, complexity, icon, color, featured, requirements, setupGuide, productInfo, status } = body;
 
         await db.execute(
-            'INSERT INTO "WorkflowTemplate" (id, name, sector, description, savings, complexity, icon, color, featured, requirements, "setupGuide", "productInfo", status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)',
+            'INSERT INTO "WorkflowTemplate" (id, name, sector, description, savings, complexity, icon, color, featured, requirements, "setupGuide", "productInfo", status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11::jsonb, $12::jsonb, $13)',
             [
                 uuidv4(), 
                 name, 
