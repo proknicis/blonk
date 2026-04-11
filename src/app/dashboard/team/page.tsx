@@ -110,14 +110,26 @@ export default function TeamPage() {
     const activeToday = members.filter(m => m.status === 'Active').length;
 
     const getRoleStyles = (role: string) => {
-        if (role === 'OWNER') return { bg: '#0A0A0A', color: '#FFF' };
-        if (role === 'ADMIN') return { bg: '#EEF2FF', color: '#6366F1' };
-        if (role === 'OPERATOR') return { bg: '#FDF4FF', color: '#D946EF' };
-        return { bg: '#F8FAFC', color: '#64748B' }; // VIEW/MEMBER
+        if (role === 'OWNER') return { bg: 'rgba(255, 255, 255, 0.05)', color: '#FFFFFF', border: 'rgba(255, 255, 255, 0.1)' };
+        if (role === 'ADMIN') return { bg: 'rgba(52, 209, 134, 0.1)', color: '#34D186', border: 'rgba(52, 209, 134, 0.2)' };
+        if (role === 'OPERATOR') return { bg: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6', border: 'rgba(59, 130, 246, 0.2)' };
+        return { bg: 'rgba(255, 255, 255, 0.03)', color: 'rgba(255, 255, 255, 0.4)', border: 'rgba(255, 255, 255, 0.05)' }; // VIEW/MEMBER
     };
 
     return (
         <div className={styles.teamContainer}>
+            <div className={styles.headerSection}>
+                <div className={styles.headerLeft}>
+                    <h1>Team Command</h1>
+                    <p>Manage sovereign access and operational permissions.</p>
+                </div>
+                {(currentUserRole === 'OWNER' || currentUserRole === 'ADMIN') && (
+                    <button className={styles.btnPrimary} onClick={() => setShowInviteModal(true)}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                        Provision Member
+                    </button>
+                )}
+            </div>
 
             <div className={styles.statsGrid}>
                 <div className={styles.statCard}>
@@ -134,26 +146,26 @@ export default function TeamPage() {
                 </div>
             </div>
 
-            <div className={styles.tableWrapper}>
-                <div className={styles.controls}>
-                    <div className={styles.searchBox}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        <input 
-                            type="text" 
-                            placeholder="Search by name or email..." 
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                    </div>
-                    <select className={styles.filterSelect} value={roleFilter} onChange={e => setRoleFilter(e.target.value)}>
-                        <option value="ALL">All Roles</option>
-                        <option value="OWNER">Owner</option>
-                        <option value="ADMIN">Admin</option>
-                        <option value="OPERATOR">Operator</option>
-                        <option value="VIEWER">Viewer</option>
-                    </select>
+            <div className={styles.controls}>
+                <div className={styles.searchBox}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="3"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input 
+                        type="text" 
+                        placeholder="Search by name or email..." 
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
                 </div>
+                <select className={styles.filterSelect} value={roleFilter} onChange={e => setRoleFilter(e.target.value)}>
+                    <option value="ALL">All Roles</option>
+                    <option value="OWNER">Owner</option>
+                    <option value="ADMIN">Admin</option>
+                    <option value="OPERATOR">Operator</option>
+                    <option value="VIEWER">Viewer</option>
+                </select>
+            </div>
 
+            <div className={styles.tableWrapper}>
                 <table className={styles.teamTable}>
                     <thead>
                         <tr>
@@ -175,11 +187,11 @@ export default function TeamPage() {
                             ))
                         ) : filteredMembers.length === 0 ? (
                             <tr>
-                                <td colSpan={5} style={{ padding: '64px', textAlign: 'center' }}>
-                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="1.5" style={{ margin: '0 auto 16px', display: 'block' }}>
+                                <td colSpan={5} style={{ padding: '80px', textAlign: 'center' }}>
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1.5" style={{ margin: '0 auto 16px', display: 'block' }}>
                                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                                     </svg>
-                                    <p style={{ fontWeight: 800, fontSize: '1.1rem', color: '#64748B', margin: 0 }}>No members found.</p>
+                                    <p style={{ fontWeight: 800, fontSize: '1.1rem', color: "rgba(255,255,255,0.2)", margin: 0 }}>No members found in current sector.</p>
                                 </td>
                             </tr>
                         ) : (
@@ -189,7 +201,7 @@ export default function TeamPage() {
                                     <tr key={member.id} className={styles.teamRow}>
                                         <td>
                                             <div className={styles.userCell}>
-                                                <div className={styles.avatar} style={{ background: roleStyle.bg, color: roleStyle.color }}>
+                                                <div className={styles.avatar} style={{ background: roleStyle.bg, color: roleStyle.color, border: `1px solid ${roleStyle.border}` }}>
                                                     {(member.name || 'U').charAt(0).toUpperCase()}
                                                     <div className={`${styles.statusDot} ${member.status === 'Active' ? styles.statusActive : styles.statusOffline}`} />
                                                 </div>
@@ -200,7 +212,7 @@ export default function TeamPage() {
                                             </div>
                                         </td>
                                         <td>
-                                            <span className={styles.roleBadge} style={{ background: roleStyle.bg, color: roleStyle.color }}>
+                                            <span className={styles.roleBadge} style={{ background: roleStyle.bg, color: roleStyle.color, border: `1px solid ${roleStyle.border}` }}>
                                                 {member.role}
                                             </span>
                                         </td>
@@ -212,7 +224,7 @@ export default function TeamPage() {
                                                     ))}
                                                 </div>
                                             ) : (
-                                                <span style={{ color: '#94A3B8', fontSize: '0.85rem', fontWeight: 600 }}>Unassigned</span>
+                                                <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.85rem', fontWeight: 600 }}>Unassigned</span>
                                             )}
                                         </td>
                                         <td>
@@ -238,54 +250,56 @@ export default function TeamPage() {
 
             {showInviteModal && (
                 <ModalPortal>
-                    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(8px)' }}>
-                        <div style={{ background: '#ffffff', borderRadius: '32px', padding: '40px', width: '100%', maxWidth: '500px', boxShadow: '0 40px 100px rgba(0,0,0,0.1)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-                                <div>
-                                    <h2 style={{ fontSize: '1.5rem', fontWeight: 950, margin: 0, color: '#0F172A' }}>Invite Member</h2>
-                                    <p style={{ fontSize: '0.9rem', color: '#64748B', margin: '4px 0 0 0', fontWeight: 600 }}>Provision access to your automation platform.</p>
+                    <div className={styles.modalOverlay}>
+                        <div className={styles.modal}>
+                            <div className={styles.modalHeader}>
+                                <div className={styles.modalHeaderInfo}>
+                                    <h2>Invite Member</h2>
+                                    <p>Provision access to your automation platform.</p>
                                 </div>
-                                <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0F172A' }}>
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                                <div className={styles.modalHeaderIcon}>
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
                                 </div>
                             </div>
 
-                            <form onSubmit={handleInvite}>
-                                {inviteError && <div style={{ marginBottom: '16px', padding: '12px', background: '#FEF2F2', color: '#EF4444', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700 }}>{inviteError}</div>}
-                                
-                                <div style={{ marginBottom: '20px' }}>
-                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', marginBottom: '8px' }}>Full Name</label>
-                                    <input type="text" required value={inviteName} onChange={e => setInviteName(e.target.value)} placeholder="Jane Doe" style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#F8FAFC', outline: 'none', fontWeight: 600, fontSize: '0.95rem' }} />
-                                </div>
+                            <div className={styles.modalBody}>
+                                <form onSubmit={handleInvite}>
+                                    {inviteError && <div className={styles.errorMessage}>{inviteError}</div>}
+                                    
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.formLabel}>Full Name</label>
+                                        <input type="text" required className={styles.formInput} value={inviteName} onChange={e => setInviteName(e.target.value)} placeholder="Jane Doe" />
+                                    </div>
 
-                                <div style={{ marginBottom: '20px' }}>
-                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', marginBottom: '8px' }}>Email Address</label>
-                                    <input type="email" required value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} placeholder="colleague@company.com" style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#F8FAFC', outline: 'none', fontWeight: 600, fontSize: '0.95rem' }} />
-                                </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.formLabel}>Email Address</label>
+                                        <input type="email" required className={styles.formInput} value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} placeholder="colleague@company.com" />
+                                    </div>
 
-                                <div style={{ marginBottom: '20px' }}>
-                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', marginBottom: '8px' }}>Temporary Password</label>
-                                    <input type="password" required value={invitePassword} onChange={e => setInvitePassword(e.target.value)} placeholder="Provide a secure password" style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#F8FAFC', outline: 'none', fontWeight: 600, fontSize: '0.95rem' }} />
-                                </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.formLabel}>Temporary Password</label>
+                                        <input type="password" required className={styles.formInput} value={invitePassword} onChange={e => setInvitePassword(e.target.value)} placeholder="Provide a secure password" />
+                                    </div>
 
-                                <div style={{ marginBottom: '24px' }}>
-                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', marginBottom: '8px' }}>Role</label>
-                                    <select value={inviteRole} onChange={e => setInviteRole(e.target.value)} style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#F8FAFC', outline: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}>
-                                        <option value="ADMIN">Admin (Full Access)</option>
-                                        <option value="OPERATOR">Operator (Manage Workflows)</option>
-                                        <option value="VIEWER">Viewer (Read Only)</option>
-                                    </select>
-                                </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.formLabel}>Role</label>
+                                        <select className={styles.formSelect} value={inviteRole} onChange={e => setInviteRole(e.target.value)}>
+                                            <option value="ADMIN">Admin (Full Access)</option>
+                                            <option value="OPERATOR">Operator (Manage Workflows)</option>
+                                            <option value="VIEWER">Viewer (Read Only)</option>
+                                        </select>
+                                    </div>
 
-                                <div style={{ display: 'flex', gap: '12px' }}>
-                                    <button type="button" onClick={() => setShowInviteModal(false)} style={{ flex: 1, padding: '16px', borderRadius: '14px', border: '1px solid #E2E8F0', background: '#FFFFFF', color: '#0F172A', fontWeight: 900, cursor: 'pointer' }}>
-                                        Cancel
-                                    </button>
-                                    <button type="submit" disabled={inviteLoading} style={{ flex: 1, padding: '16px', borderRadius: '14px', border: 'none', background: '#0A0A0A', color: '#FFFFFF', fontWeight: 900, cursor: inviteLoading ? 'not-allowed' : 'pointer' }}>
-                                        {inviteLoading ? 'Provisioning...' : 'Provision Account'}
-                                    </button>
-                                </div>
-                            </form>
+                                    <div className={styles.modalActions}>
+                                        <button type="button" className={styles.btnCancel} onClick={() => setShowInviteModal(false)}>
+                                            Cancel
+                                        </button>
+                                        <button type="submit" className={styles.btnSubmit} disabled={inviteLoading}>
+                                            {inviteLoading ? 'Provisioning...' : 'Provision Account'}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </ModalPortal>

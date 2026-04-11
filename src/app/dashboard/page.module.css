@@ -102,15 +102,15 @@
     margin: 4px 0 0 0;
     font-size: 0.95rem;
     color: rgba(255, 255, 255, 0.4);
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .integrityMetrics {
-    padding: 12px 24px;
-    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 8px 32px;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     align-items: baseline;
-    gap: 8px;
+    gap: 12px;
 }
 
 .metricLabel {
@@ -326,8 +326,8 @@
     flex-shrink: 0;
 }
 
-.feedDotSuccess { background: #34D186; box-shadow: 0 0 0 4px #F0FAF5; }
-.feedDotError { background: #EF4444; box-shadow: 0 0 0 4px #FEF2F2; }
+.feedDotSuccess { background: #34D186; box-shadow: 0 0 0 4px rgba(52, 209, 134, 0.1); }
+.feedDotError { background: #EF4444; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1); }
 
 .feedContent {
     flex: 1;
@@ -336,13 +336,13 @@
 .feedTitle {
     font-size: 1rem;
     font-weight: 950;
-    color: #0A0A0A;
+    color: #FFFFFF;
     margin-bottom: 4px;
 }
 
 .feedMeta {
     font-size: 0.85rem;
-    color: #64748B;
+    color: rgba(255, 255, 255, 0.4);
     font-weight: 700;
     margin-bottom: 6px;
 }
@@ -350,15 +350,15 @@
 .feedTime {
     font-size: 0.75rem;
     font-weight: 950;
-    color: #94A3B8;
+    color: rgba(255, 255, 255, 0.2);
     text-transform: uppercase;
 }
 
 /* ONBOARDING STATE */
 
 .onboardingState {
-    background: #FFFFFF;
-    border: 1px dashed #CBD5E1;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
     border-radius: 36px;
     padding: 100px 40px;
     text-align: center;
@@ -370,7 +370,7 @@
 .onboardingIllustration {
     width: 80px;
     height: 80px;
-    background: #F0FAF5;
+    background: rgba(52, 209, 134, 0.1);
     border-radius: 20px;
     display: flex;
     align-items: center;
@@ -382,13 +382,13 @@
 .onboardingTitle {
     font-size: 2rem;
     font-weight: 950;
-    color: #0A0A0A;
+    color: #FFFFFF;
     margin-bottom: 16px;
 }
 
 .onboardingSubtitle {
     font-size: 1.1rem;
-    color: #64748B;
+    color: rgba(255, 255, 255, 0.4);
     max-width: 500px;
     line-height: 1.6;
     margin-bottom: 40px;
@@ -401,8 +401,8 @@
 }
 
 .btnInstitutional {
-    background: #0A0A0A;
-    color: #FFFFFF;
+    background: #FFFFFF;
+    color: #000000;
     padding: 18px 32px;
     border-radius: 16px;
     font-size: 1rem;
@@ -414,16 +414,16 @@
 .btnInstitutional:hover { background: #34D186; transform: translateY(-2px); }
 
 .btnOutline {
-    border: 1px solid #EAEAEA;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 18px 32px;
     border-radius: 16px;
     font-size: 1rem;
     font-weight: 950;
     text-decoration: none;
-    color: #0A0A0A;
+    color: #FFFFFF;
 }
 
-.btnOutline:hover { border-color: #0A0A0A; }
+.btnOutline:hover { border-color: #FFFFFF; background: rgba(255, 255, 255, 0.05); }
 
 @media (max-width: 1600px) {
     .metricsMatrix { grid-template-columns: repeat(2, 1fr); }
@@ -442,26 +442,26 @@
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    border: 1px solid #F1F5F9;
-    background: #FFFFFF;
-    color: #0A0A0A;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: #FFFFFF;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 .forceStartBtn:hover {
-    background: #0A0A0A;
-    border-color: #0A0A0A;
-    color: #34D186;
+    background: #FFFFFF;
+    border-color: #FFFFFF;
+    color: #000000;
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
 }
 
 .forceEndBtn:hover {
-    background: #0A0A0A;
-    border-color: #0A0A0A;
-    color: #EF4444;
+    background: #EF4444;
+    border-color: #EF4444;
+    color: #FFFFFF;
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
 }
 
 .forceStartBtn:active, .forceEndBtn:active {
@@ -476,7 +476,7 @@
 
 /* Skeleton loading utilities */
 .skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
+  background: linear-gradient(90deg, rgba(255,255,255,0.02) 25%, rgba(255,255,255,0.05) 37%, rgba(255,255,255,0.02) 63%);
   background-size: 400% 100%;
   animation: shimmer 1.2s ease-in-out infinite;
 }
@@ -489,6 +489,6 @@
 .skeletonCell {
   height: 20px;
   border-radius: 4px;
-  background-color: #e5e7eb;
+  background-color: rgba(255, 255, 255, 0.05);
   margin: 8px 0;
 }
