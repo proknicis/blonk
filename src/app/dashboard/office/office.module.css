@@ -7,7 +7,7 @@
     flex-direction: column;
     gap: 40px;
     animation: officeEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    color: #fff;
+    color: #111;
 }
 
 @keyframes officeEntrance {
@@ -23,9 +23,9 @@
 
 /* WORKSTATION: Modern Sovereign Card */
 .workstation {
-    background: rgba(255, 255, 255, 0.02);
+    background: #FFFFFF;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
     border-radius: 32px;
     padding: 32px;
     position: relative;
@@ -34,6 +34,7 @@
     flex-direction: column;
     cursor: pointer;
     overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
 .workstation::before {
@@ -49,14 +50,14 @@
 
 .workstationActive {
     border-color: rgba(52, 209, 134, 0.3);
-    background: rgba(52, 209, 134, 0.02);
+    background: rgba(52, 209, 134, 0.05);
 }
 
 .workstation:hover {
     transform: translateY(-8px);
-    border-color: rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.04);
-    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
+    border-color: rgba(0, 0, 0, 0.1);
+    background: #FFFFFF;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
 }
 
 .pulseDot {
@@ -78,7 +79,7 @@
 .modalOverlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(20px);
     display: flex;
     align-items: center;
@@ -94,12 +95,12 @@
 }
 
 .modalContent {
-    background: #050505;
+    background: #FFFFFF;
     width: 100%;
     max-width: 900px;
     max-height: 90vh;
     border-radius: 40px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.08);
     position: relative;
     overflow: hidden;
     display: flex;
@@ -116,9 +117,9 @@
     position: absolute;
     top: 32px;
     right: 32px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: #fff;
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    color: #111;
     width: 48px;
     height: 48px;
     border-radius: 50%;
@@ -131,13 +132,13 @@
 }
 
 .closeButton:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.1);
     transform: rotate(90deg);
 }
 
 .modalHeader {
     padding: 60px 60px 40px;
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.02), transparent);
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.01), transparent);
 }
 
 .modalBody {
@@ -154,8 +155,8 @@
 }
 
 .statCard {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.05);
     padding: 24px;
     border-radius: 24px;
 }
@@ -165,7 +166,7 @@
     align-items: center;
     font-size: 0.75rem;
     font-weight: 800;
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(0, 0, 0, 0.3);
     text-transform: uppercase;
     letter-spacing: 0.1em;
     margin-bottom: 12px;
@@ -174,22 +175,23 @@
 .statValue {
     font-size: 1.5rem;
     font-weight: 900;
-    color: #fff;
+    color: #111;
     letter-spacing: -0.02em;
 }
 
 .logItem {
-    background: rgba(255, 255, 255, 0.01);
-    border: 1px solid rgba(255, 255, 255, 0.03);
+    background: #FFFFFF;
+    border: 1px solid #F1F5F9;
     border-radius: 20px;
     padding: 20px;
     margin-bottom: 12px;
     transition: all 0.2s;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
 }
 
 .logItem:hover {
-    background: rgba(255, 255, 255, 0.02);
-    border-color: rgba(255, 255, 255, 0.08);
+    background: #FAFAFA;
+    border-color: #E2E8F0;
 }
 
 .logHeader {
@@ -202,7 +204,7 @@
 .logTime {
     font-size: 0.75rem;
     font-weight: 700;
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(0, 0, 0, 0.3);
 }
 
 .logStatus {
@@ -217,7 +219,7 @@
 .logMsg {
     font-size: 0.95rem;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(0, 0, 0, 0.8);
     line-height: 1.5;
 }
 

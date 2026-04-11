@@ -8,7 +8,7 @@
     display: flex;
     height: 100dvh;
     overflow: hidden;
-    background-color: #000;
+    background-color: #FAFAFA;
     position: relative;
     width: 100%;
 }
@@ -26,15 +26,15 @@
 .sidebar {
     width: 290px;
     flex-shrink: 0;
-    background: #050505;
+    background: #FFFFFF;
     display: flex;
     flex-direction: column;
     padding: 32px 24px;
     height: 100%;
     overflow-y: auto;
     z-index: 100;
-    color: #fff;
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    color: #111;
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
     transition: filter 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -58,7 +58,7 @@
     font-size: 2rem;
     font-weight: 950;
     letter-spacing: -0.06em;
-    color: #fff;
+    color: #111;
     text-decoration: none;
     display: flex;
     align-items: baseline;
@@ -119,7 +119,7 @@
     gap: 16px;
     padding: 16px 20px;
     border-radius: 16px;
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(0, 0, 0, 0.4);
     font-weight: 800;
     font-size: 0.95rem;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -130,15 +130,15 @@
 }
 
 .navLink:hover {
-    color: #fff;
-    background: rgba(255, 255, 255, 0.03);
+    color: #111;
+    background: rgba(0, 0, 0, 0.03);
     transform: translateX(6px);
 }
 
 .navLinkActive {
-    background: rgba(255, 255, 255, 0.05) !important;
-    color: #FFFFFF !important;
-    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.05) !important;
+    color: #111 !important;
+    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.1);
 }
 
 .navLinkActive::after {
@@ -275,10 +275,10 @@
     flex-direction: column;
     min-width: 0;
     height: 100%;
-    background-color: #000;
+    background-color: #FAFAFA;
     background-image: 
-        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+        linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
     background-size: 80px 80px; /* Modular Swiss Grid */
     position: relative;
     z-index: 10;
@@ -296,7 +296,7 @@
     justify-content: center;
     background: transparent;
     backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -328,22 +328,22 @@
 .searchInput {
     width: 420px;
     height: 52px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.05);
     border-radius: 18px;
     padding: 0 24px 0 56px;
     font-size: 0.95rem;
     font-weight: 800;
-    color: #FFFFFF;
+    color: #111;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .searchInput:focus {
     outline: none;
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(0, 0, 0, 0.04);
     border-color: rgba(52, 209, 134, 0.4);
     width: 480px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
 .topbarContext {
