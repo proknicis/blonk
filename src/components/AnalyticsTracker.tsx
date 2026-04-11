@@ -32,7 +32,7 @@ export default function AnalyticsTracker() {
         const source = searchParams.get("utm_source") || document.referrer || "direct";
 
         try {
-            await fetch("/api/analytics/track", {
+            await fetch("/api/telemetry/push", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

@@ -6,8 +6,9 @@
 .dashboard {
     display: flex;
     flex-direction: column;
-    gap: 48px;
+    gap: 40px;
     animation: dashboardFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    color: #fff;
 }
 
 @keyframes dashboardFadeIn {
@@ -24,7 +25,7 @@
     gap: 20px;
     font-size: 0.95rem;
     font-weight: 900;
-    color: #64748B;
+    color: rgba(255, 255, 255, 0.3);
     letter-spacing: -0.02em;
 }
 
@@ -34,6 +35,7 @@
     background: #34D186;
     border-radius: 50%;
     animation: loadingPulse 1.5s infinite ease-in-out;
+    box-shadow: 0 0 20px #34D186;
 }
 
 @keyframes loadingPulse {
@@ -47,11 +49,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #FFFFFF;
-    border: 1px solid #EAEAEA;
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 24px;
     padding: 32px 40px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
 }
 
 .integrityInfo {
@@ -67,8 +69,8 @@
     position: relative;
 }
 
-.statusIndicatorHealthy { background: #34D186; }
-.statusIndicatorCritical { background: #EF4444; }
+.statusIndicatorHealthy { background: #34D186; box-shadow: 0 0 15px #34D186; }
+.statusIndicatorCritical { background: #EF4444; box-shadow: 0 0 15px #EF4444; }
 
 .pulseEffect {
     position: absolute;
@@ -90,14 +92,18 @@
 
 .integrityTitle {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     font-weight: 950;
-    color: #0A0A0A;
+    color: #FFFFFF;
     letter-spacing: -0.03em;
 }
 
 .integritySubtitle {
     margin: 4px 0 0 0;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 700;
+}
     font-size: 0.85rem;
     color: #64748B;
     font-weight: 700;
@@ -105,7 +111,7 @@
 
 .integrityMetrics {
     padding: 12px 24px;
-    border-left: 1px solid #F1F5F9;
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
     align-items: baseline;
     gap: 8px;
@@ -114,15 +120,15 @@
 .metricLabel {
     font-size: 0.75rem;
     font-weight: 950;
-    color: #94A3B8;
+    color: rgba(255, 255, 255, 0.3);
     text-transform: uppercase;
     letter-spacing: 0.1em;
 }
 
 .metricValue {
-    font-size: 1.4rem;
+    font-size: 1.45rem;
     font-weight: 950;
-    color: #0A0A0A;
+    color: #FFFFFF;
 }
 
 /* METRICS CORE: Institutional Grid */
@@ -134,19 +140,31 @@
 }
 
 .metricCard {
-    background: #FFFFFF;
-    border: 1px solid #EAEAEA;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 32px;
     padding: 40px;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
     overflow: hidden;
 }
 
+.metricCard::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at top right, rgba(52, 209, 134, 0.03), transparent 70%);
+    pointer-events: none;
+}
+
 .metricCard:hover {
-    border-color: #0A0A0A;
-    transform: translateY(-4px);
-    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.04);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-6px);
+    background: rgba(255, 255, 255, 0.04);
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
 }
 
 .metricHeader {
@@ -159,7 +177,7 @@
 .label {
     font-size: 0.75rem;
     font-weight: 950;
-    color: #94A3B8;
+    color: rgba(255, 255, 255, 0.3);
     text-transform: uppercase;
     letter-spacing: 0.15em;
 }
@@ -171,13 +189,14 @@
     height: 8px;
     background: #34D186;
     border-radius: 50%;
+    box-shadow: 0 0 10px #34D186;
 }
 
 .value, .valueCritical {
     font-size: 2.8rem;
     font-weight: 950;
     letter-spacing: -0.06em;
-    color: #0A0A0A;
+    color: #FFFFFF;
     margin-bottom: 20px;
 }
 
@@ -185,7 +204,7 @@
 
 .trend {
     font-size: 0.85rem;
-    color: #64748B;
+    color: rgba(255, 255, 255, 0.4);
     font-weight: 800;
 }
 
@@ -196,17 +215,17 @@
     font-weight: 950;
 }
 
-.trendBadge { background: #F0FAF5; color: #34D186; }
-.neutralBadge { background: #F8FAFC; color: #64748B; }
+.trendBadge { background: rgba(52, 209, 134, 0.1); color: #34D186; }
+.neutralBadge { background: rgba(255, 255, 255, 0.03); color: rgba(255, 255, 255, 0.4); }
 
 /* ANALYTICS PROJECTION: Swiss Execution Chart */
 
 .projectionSection {
-    background: #FFFFFF;
-    border: 1px solid #EAEAEA;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 36px;
     padding: 48px;
-    height: auto; /* Reverting from min-height to allow full fluid expansion */
+    height: auto;
 }
 
 .sectionHeader {
@@ -219,7 +238,7 @@
 .sectionTitle {
     font-size: 1.5rem;
     font-weight: 950;
-    color: #0A0A0A;
+    color: #FFFFFF;
 }
 
 .projectionLegend {
@@ -228,7 +247,7 @@
     gap: 20px;
     font-size: 0.85rem;
     font-weight: 800;
-    color: #64748B;
+    color: rgba(255, 255, 255, 0.4);
 }
 
 .legendItem span {
@@ -243,7 +262,7 @@
 .chartWrapper {
     height: auto;
     width: 100%;
-    min-height: 500px; /* Ensures a baseline profile during async data syncs */
+    min-height: 500px;
 }
 
 /* COMMAND GRID: Active Components */
@@ -256,8 +275,8 @@
 }
 
 .activeWorkflows, .liveFeed {
-    background: #FFFFFF;
-    border: 1px solid #EAEAEA;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 36px;
     padding: 40px;
     min-width: 0;
@@ -274,7 +293,7 @@
 .cardTitle {
     font-size: 1.25rem;
     font-weight: 950;
-    color: #0A0A0A;
+    color: #FFFFFF;
 }
 
 .viewAllLink {

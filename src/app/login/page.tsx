@@ -88,17 +88,29 @@ function AuthContent() {
 
     return (
         <div className={styles.pageWrapper}>
+            {/* --- Decorative Floating Elements --- */}
+            <div style={{ position: 'absolute', top: '10%', right: '10%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(52, 209, 134, 0.05) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none', zIndex: 1 }}></div>
+            <div style={{ position: 'absolute', bottom: '5%', left: '30%', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none', zIndex: 1 }}></div>
+
             {/* --- Left Sidebar: Sovereign Branding --- */}
             <div className={styles.leftSidebar}>
                 <Link href="/" className={styles.logo}>
-                    BLONK<span className={styles.logo_dot}></span>
+                    <div className={styles.logo_dot}></div>
+                    BLONK
                 </Link>
                 <div className={styles.sidebarContent}>
                     <h1 className={styles.sidebarTitle}>Command<br />Terminal.</h1>
                     <p className={styles.sidebarText}>Establish your institutional identity and access high-stakes autonomous infrastructure for your firm.</p>
                 </div>
-                <div style={{ position: 'relative', marginTop: 'auto', zIndex: 10, fontSize: '0.75rem', fontWeight: 900, color: '#444', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
-                    Sovereign Fleet v3.1 / Secure
+                
+                <div style={{ marginTop: 'auto', zIndex: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                        <div style={{ width: '40px', height: '1px', background: 'rgba(255,255,255,0.2)' }}></div>
+                        <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#34D186', letterSpacing: '0.15em', textTransform: 'uppercase' }}>System Active</div>
+                    </div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 900, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+                        Sovereign Fleet v3.1 / Secure
+                    </div>
                 </div>
             </div>
 

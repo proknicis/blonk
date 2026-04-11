@@ -60,65 +60,68 @@ export default function OfficeClient({ initialWorkflows, initialFeed, userRole }
     return (
         <div className={styles.officeContainer}>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '32px' }}>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: '#F8FAFC', borderRadius: '100px', fontWeight: 900, fontSize: '0.85rem', color: '#0F172A', border: '1px solid #E2E8F0' }}>
-                    <div className={styles.pulseDot} style={{ background: '#34D186', width: '8px', height: '8px', borderRadius: '50%' }} />
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', background: 'rgba(255,255,255,0.02)', borderRadius: '100px', fontWeight: 950, fontSize: '0.8rem', color: '#fff', border: '1px solid rgba(255,255,255,0.05)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <div className={styles.pulseDot} />
                     {workflows.filter((a: any) => a.statusKey === 'running').length} Workflows Running
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '2.5fr 1fr', gap: '32px', alignItems: 'start' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <h3 style={{ fontSize: '0.9rem', fontWeight: 950, color: '#0F172A', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Active Workflows Grid</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '2.5fr 1fr', gap: '40px', alignItems: 'start' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <h3 style={{ fontSize: '0.85rem', fontWeight: 950, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.15em' }}>Active Workflows Grid</h3>
                     {workflows.length === 0 ? (
-                        <div style={{ padding: '64px', textAlign: 'center', background: '#F8FAFC', borderRadius: '24px', border: '1px dashed #CBD5E1' }}>
-                            <p style={{ color: '#64748B', fontWeight: 700 }}>No active workflows. Add one from the Marketplace.</p>
+                        <div style={{ padding: '80px', textAlign: 'center', background: 'rgba(255,255,255,0.01)', borderRadius: '32px', border: '1px dashed rgba(255,255,255,0.05)' }}>
+                            <p style={{ color: 'rgba(255,255,255,0.3)', fontWeight: 800 }}>No active workflows. Add one from the Marketplace.</p>
                         </div>
                     ) : (
-                        <div className={styles.officeGrid} style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))' }}>
+                        <div className={styles.officeGrid}>
                             {workflows.map((agent) => (
                                 <div
                                     key={agent.id}
                                     onClick={() => setSelectedWorkflow(agent)}
                                     className={`${styles.workstation} ${agent.statusKey === 'running' ? styles.workstationActive : ''}`}
-                                    style={{ 
-                                        padding: '32px', 
-                                        background: '#FFFFFF', 
-                                        borderRadius: '24px', 
-                                        border: agent.statusKey === 'running' ? '2px solid #34D186' : '1px solid #E2E8F0', 
-                                        display: 'flex', 
-                                        flexDirection: 'column', 
-                                        cursor: 'pointer'
-                                    }}
                                 >
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', width: '100%' }}>
-                                        <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: agent.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFF', fontWeight: 950, fontSize: '1.4rem', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px', width: '100%' }}>
+                                        <div style={{ width: '60px', height: '60px', borderRadius: '18px', background: agent.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFF', fontWeight: 950, fontSize: '1.5rem', boxShadow: `0 10px 30px ${agent.color}44` }}>
                                             {agent.initials}
                                         </div>
-                                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '100px', background: agent.statusKey === 'running' ? '#F0FAF5' : agent.statusKey === 'failed' ? '#FEF2F2' : '#F8FAFC', color: agent.statusKey === 'running' ? '#34D186' : agent.statusKey === 'failed' ? '#EF4444' : '#64748B', fontSize: '0.8rem', fontWeight: 900, textTransform: 'uppercase' }}>
-                                            {agent.statusKey === 'running' && <div className={styles.pulseDot} style={{ background: '#34D186', width: '6px', height: '6px', margin: 0, borderRadius: '50%' }} />}
+                                        <div style={{ 
+                                            display: 'inline-flex', 
+                                            alignItems: 'center', 
+                                            gap: '8px', 
+                                            padding: '8px 14px', 
+                                            borderRadius: '100px', 
+                                            background: agent.statusKey === 'running' ? 'rgba(52, 209, 134, 0.1)' : agent.statusKey === 'failed' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255,255,255,0.03)', 
+                                            color: agent.statusKey === 'running' ? '#34D186' : agent.statusKey === 'failed' ? '#EF4444' : 'rgba(255,255,255,0.4)', 
+                                            fontSize: '0.75rem', 
+                                            fontWeight: 950, 
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.05em'
+                                        }}>
+                                            {agent.statusKey === 'running' && <div className={styles.pulseDot} style={{ width: '6px', height: '6px', margin: 0 }} />}
                                             {agent.status}
                                         </div>
                                     </div>
 
-                                    <div style={{ marginBottom: '32px', textAlign: 'left', width: '100%' }}>
-                                        <h3 style={{ fontSize: '1.25rem', fontWeight: 950, color: '#0F172A', margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>{agent.name}</h3>
-                                        <p style={{ fontSize: '0.85rem', color: '#64748B', margin: 0, fontWeight: 700 }}>{agent.role}</p>
+                                    <div style={{ marginBottom: '40px', textAlign: 'left', width: '100%' }}>
+                                        <h3 style={{ fontSize: '1.4rem', fontWeight: 950, color: '#fff', margin: '0 0 8px 0', letterSpacing: '-0.03em' }}>{agent.name}</h3>
+                                        <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.4)', margin: 0, fontWeight: 700 }}>{agent.role}</p>
                                     </div>
 
-                                    <div style={{ display: 'flex', gap: '32px', borderTop: '1px solid #F1F5F9', paddingTop: '20px', marginTop: 'auto', width: '100%' }}>
+                                    <div style={{ display: 'flex', gap: '32px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '24px', marginTop: 'auto', width: '100%' }}>
                                         <div style={{ flex: 1 }}>
-                                            <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 900, textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '0.05em' }}>Yield</div>
-                                            <div style={{ fontSize: '1.1rem', color: '#0F172A', fontWeight: 950 }}>{agent.tasksCount} ops</div>
+                                            <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.2)', fontWeight: 900, textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.1em' }}>Yield</div>
+                                            <div style={{ fontSize: '1.2rem', color: '#fff', fontWeight: 950 }}>{agent.tasksCount} <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.3)' }}>ops</span></div>
                                         </div>
                                         <div style={{ flex: 1 }}>
-                                            <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 900, textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '0.05em' }}>Recent Sync</div>
-                                            <div style={{ fontSize: '1.1rem', color: '#0F172A', fontWeight: 950 }}>{isMounted && agent.lastRun ? new Date(agent.lastRun).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : agent.lastRun ? '...' : 'Never'}</div>
+                                            <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.2)', fontWeight: 900, textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.1em' }}>Recent Sync</div>
+                                            <div style={{ fontSize: '1.2rem', color: '#fff', fontWeight: 950 }}>{isMounted && agent.lastRun ? new Date(agent.lastRun).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : agent.lastRun ? '...' : 'Never'}</div>
                                         </div>
                                     </div>
                                     
-                                    <div style={{ marginTop: '24px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#94A3B8' }}>
-                                        <span style={{ fontSize: '0.75rem', fontWeight: 800 }}>View Performance Metrics</span>
-                                        <ChevronRight size={16} />
+                                    <div style={{ marginTop: '32px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'rgba(255,255,255,0.2)' }}>
+                                        <span style={{ fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>View Performance Metrics</span>
+                                        <ChevronRight size={14} />
                                     </div>
                                 </div>
                             ))}
@@ -126,19 +129,19 @@ export default function OfficeClient({ initialWorkflows, initialFeed, userRole }
                     )}
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <h3 style={{ fontSize: '0.9rem', fontWeight: 950, color: '#0F172A', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Activity Feed</h3>
-                    <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '24px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px', maxHeight: '800px', overflowY: 'auto' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <h3 style={{ fontSize: '0.85rem', fontWeight: 950, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.15em' }}>Activity Feed</h3>
+                    <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '32px', padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px', maxHeight: '800px', overflowY: 'auto', backdropFilter: 'blur(10px)' }}>
                         {initialFeed.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '40px 0', color: '#94A3B8', fontWeight: 600 }}>No recent activity.</div>
+                            <div style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(255,255,255,0.2)', fontWeight: 800 }}>No recent activity.</div>
                         ) : initialFeed.map((log: any, i: number) => (
-                            <div key={i} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', paddingBottom: '16px', borderBottom: i !== initialFeed.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
-                                <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: log.type === 'success' ? '#F0FAF5' : log.type === 'error' ? '#FEF2F2' : '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: log.type === 'success' ? '#34D186' : log.type === 'error' ? '#EF4444' : '#3B82F6' }} />
+                            <div key={i} style={{ display: 'flex', gap: '20px', alignItems: 'flex-start', paddingBottom: '20px', borderBottom: i !== initialFeed.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: log.type === 'success' ? 'rgba(52, 209, 134, 0.1)' : log.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: log.type === 'success' ? '#34D186' : log.type === 'error' ? '#EF4444' : '#3B82F6', boxShadow: `0 0 10px ${log.type === 'success' ? '#34D186' : log.type === 'error' ? '#EF4444' : '#3B82F6'}` }} />
                                 </div>
                                 <div>
-                                    <p style={{ margin: '0 0 4px 0', fontSize: '0.95rem', color: '#0F172A', fontWeight: 800 }}>{log.msg}</p>
-                                    <span style={{ fontSize: '0.75rem', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{log.time}</span>
+                                    <p style={{ margin: '0 0 6px 0', fontSize: '1rem', color: '#fff', fontWeight: 800, letterSpacing: '-0.01em' }}>{log.msg}</p>
+                                    <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{log.time}</span>
                                 </div>
                             </div>
                         ))}
@@ -160,14 +163,14 @@ export default function OfficeClient({ initialWorkflows, initialFeed, userRole }
                                         {selectedWorkflow.initials}
                                     </div>
                                     <div>
-                                        <h2 style={{ fontSize: '2.5rem', fontWeight: 950, color: '#0A0A0A', margin: 0, letterSpacing: '-0.05em' }}>{selectedWorkflow.name}</h2>
+                                        <h2 style={{ fontSize: '2.5rem', fontWeight: 950, color: '#fff', margin: 0, letterSpacing: '-0.05em' }}>{selectedWorkflow.name}</h2>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '8px' }}>
-                                            <span style={{ fontSize: '1rem', color: '#64748B', fontWeight: 800 }}>{selectedWorkflow.role}</span>
-                                            <div style={{ height: '4px', width: '4px', borderRadius: '50%', background: '#CBD5E1' }} />
+                                            <span style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.4)', fontWeight: 800 }}>{selectedWorkflow.role}</span>
+                                            <div style={{ height: '4px', width: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }} />
                                             <span style={{ 
                                                 fontSize: '0.85rem', 
                                                 fontWeight: 950, 
-                                                color: selectedWorkflow.statusKey === 'running' ? '#34D186' : selectedWorkflow.statusKey === 'failed' ? '#EF4444' : '#64748B',
+                                                color: selectedWorkflow.statusKey === 'running' ? '#34D186' : selectedWorkflow.statusKey === 'failed' ? '#EF4444' : 'rgba(255,255,255,0.4)',
                                                 textTransform: 'uppercase',
                                                 letterSpacing: '0.1em'
                                             }}>
@@ -196,7 +199,7 @@ export default function OfficeClient({ initialWorkflows, initialFeed, userRole }
 
                                 <div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                                        <h3 style={{ fontSize: '1.25rem', fontWeight: 950, color: '#0A0A0A', margin: 0 }}>Operational Logs</h3>
+                                        <h3 style={{ fontSize: '1.25rem', fontWeight: 950, color: '#fff', margin: 0 }}>Operational Logs</h3>
                                         <button 
                                             onClick={() => fetchLogs(selectedWorkflow.id)}
                                             style={{ background: 'none', border: 'none', color: '#34D186', fontSize: '0.85rem', fontWeight: 950, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
@@ -206,14 +209,14 @@ export default function OfficeClient({ initialWorkflows, initialFeed, userRole }
                                     </div>
 
                                     {isLoadingLogs ? (
-                                        <div style={{ padding: '40px', textAlign: 'center', color: '#94A3B8' }}>
+                                        <div style={{ padding: '40px', textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>
                                             <Activity className={styles.pulseDot} style={{ width: '24px', height: '24px', margin: '0 auto 16px auto' }} />
                                             <p style={{ fontWeight: 800 }}>Synchronizing Telemetry...</p>
                                         </div>
                                     ) : workflowLogs.length === 0 ? (
-                                        <div style={{ padding: '64px', textAlign: 'center', background: '#F8FAFC', borderRadius: '32px', border: '1px solid #E2E8F0' }}>
-                                            <AlertCircle size={32} style={{ color: '#CBD5E1', marginBottom: '16px' }} />
-                                            <p style={{ color: '#64748B', fontWeight: 700 }}>No telemetry logs detected for this workflow in the last 48 hours.</p>
+                                        <div style={{ padding: '64px', textAlign: 'center', background: 'rgba(255,255,255,0.01)', borderRadius: '32px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                            <AlertCircle size={32} style={{ color: 'rgba(255,255,255,0.1)', marginBottom: '16px' }} />
+                                            <p style={{ color: 'rgba(255,255,255,0.3)', fontWeight: 700 }}>No telemetry logs detected for this workflow in the last 48 hours.</p>
                                         </div>
                                     ) : (
                                         <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -236,10 +239,10 @@ export default function OfficeClient({ initialWorkflows, initialFeed, userRole }
                                 </div>
 
                                 {selectedWorkflow.statusKey === 'failed' && userRole !== 'VIEWER' && (
-                                    <div style={{ marginTop: 'auto', padding: '32px', background: '#FEF2F2', borderRadius: '32px', border: '1px solid #FECACA', textAlign: 'center' }}>
+                                    <div style={{ marginTop: 'auto', padding: '32px', background: 'rgba(239, 68, 68, 0.05)', borderRadius: '32px', border: '1px solid rgba(239, 68, 68, 0.1)', textAlign: 'center' }}>
                                         <h4 style={{ color: '#EF4444', fontWeight: 950, margin: '0 0 8px 0' }}>System Disruption Detected</h4>
-                                        <p style={{ color: '#B91C1C', fontSize: '0.9rem', fontWeight: 700, marginBottom: '20px' }}>This autonomous loop encountered a critical error during its last execution phase.</p>
-                                        <button style={{ background: '#EF4444', color: 'white', border: 'none', padding: '16px 32px', borderRadius: '16px', fontWeight: 950, cursor: 'pointer', transition: 'all 0.2s' }}>
+                                        <p style={{ color: 'rgba(239, 68, 68, 0.6)', fontSize: '0.9rem', fontWeight: 700, marginBottom: '20px' }}>This autonomous loop encountered a critical error during its last execution phase.</p>
+                                        <button style={{ background: '#EF4444', color: 'white', border: 'none', padding: '16px 32px', borderRadius: '16px', fontWeight: 950, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 10px 30px rgba(239, 68, 68, 0.3)' }}>
                                             Force Manual Reboot
                                         </button>
                                     </div>

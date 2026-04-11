@@ -8,7 +8,7 @@
     display: flex;
     height: 100dvh;
     overflow: hidden;
-    background-color: #FFFFFF;
+    background-color: #000;
     position: relative;
     width: 100%;
 }
@@ -17,24 +17,24 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    opacity: 0.015;
+    opacity: 0.03;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
     z-index: 1000;
 }
 
-/* SIDEBAR: Pure Institutional White */
+/* SIDEBAR: Sovereign Dark */
 .sidebar {
     width: 290px;
     flex-shrink: 0;
-    background: #FFFFFF;
+    background: #050505;
     display: flex;
     flex-direction: column;
     padding: 32px 24px;
     height: 100%;
     overflow-y: auto;
     z-index: 100;
-    color: #0A0A0A;
-    border-right: 1px solid #EAEAEA;
+    color: #fff;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
     transition: filter 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -58,7 +58,7 @@
     font-size: 2rem;
     font-weight: 950;
     letter-spacing: -0.06em;
-    color: #0A0A0A;
+    color: #fff;
     text-decoration: none;
     display: flex;
     align-items: baseline;
@@ -119,7 +119,7 @@
     gap: 16px;
     padding: 16px 20px;
     border-radius: 16px;
-    color: #64748B;
+    color: rgba(255, 255, 255, 0.4);
     font-weight: 800;
     font-size: 0.95rem;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -130,15 +130,15 @@
 }
 
 .navLink:hover {
-    color: #0A0A0A;
-    background: #F8F9FA;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.03);
     transform: translateX(6px);
 }
 
 .navLinkActive {
-    background: #0A0A0A !important;
+    background: rgba(255, 255, 255, 0.05) !important;
     color: #FFFFFF !important;
-    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.4);
 }
 
 .navLinkActive::after {
@@ -275,10 +275,10 @@
     flex-direction: column;
     min-width: 0;
     height: 100%;
-    background-color: #FFFFFF;
+    background-color: #000;
     background-image: 
-        linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
     background-size: 80px 80px; /* Modular Swiss Grid */
     position: relative;
     z-index: 10;
@@ -294,9 +294,9 @@
     padding: 0;
     display: flex;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(20px) saturate(180%);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background: transparent;
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -328,22 +328,22 @@
 .searchInput {
     width: 420px;
     height: 52px;
-    background: #F8F9FA;
-    border: 1px solid #EAEAEA;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 18px;
     padding: 0 24px 0 56px;
     font-size: 0.95rem;
     font-weight: 800;
-    color: #0A0A0A;
+    color: #FFFFFF;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .searchInput:focus {
     outline: none;
-    background: #FFFFFF;
-    border-color: #0A0A0A;
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(52, 209, 134, 0.4);
     width: 480px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
 }
 
 .topbarContext {
@@ -354,7 +354,7 @@
 .pageTitle {
     font-size: 1.5rem;
     font-weight: 950;
-    color: #0A0A0A;
+    color: #FFFFFF;
     letter-spacing: -0.04em;
     margin: 0;
 }
@@ -372,8 +372,8 @@
     padding: 0 24px;
     height: 48px;
     border-radius: 16px;
-    background: #0A0A0A;
-    color: #FFFFFF;
+    background: #FFFFFF;
+    color: #000000;
     font-weight: 950;
     font-size: 0.95rem;
     text-decoration: none;
@@ -392,20 +392,20 @@
     width: 48px;
     height: 48px;
     border-radius: 16px;
-    background: #FFFFFF;
-    border: 1px solid #EAEAEA;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #0A0A0A;
+    color: rgba(255, 255, 255, 0.4);
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     cursor: pointer;
 }
 
 .iconBtn:hover {
-    background: #0A0A0A;
+    background: rgba(255, 255, 255, 0.05);
     color: #FFFFFF;
-    border-color: #0A0A0A;
+    border-color: rgba(255, 255, 255, 0.1);
     transform: translateY(-2px);
 }
 
@@ -418,7 +418,7 @@
     align-items: center;
     gap: 16px;
     padding: 4px 4px 4px 20px;
-    border-left: 2px solid #F1F5F9;
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
     cursor: pointer;
     background: none;
     border-top: none;
@@ -428,7 +428,7 @@
 }
 
 .userProfile:hover {
-    background: #FAFAFA;
+    background: rgba(255, 255, 255, 0.03);
     border-radius: 16px;
 }
 
@@ -441,16 +441,16 @@
 .userData strong {
     font-size: 0.95rem;
     font-weight: 950;
-    color: #0A0A0A;
+    color: #FFFFFF;
     letter-spacing: -0.02em;
 }
 
 .userData span {
     font-size: 0.7rem;
-    font-weight: 800;
-    color: #94A3B8;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.3);
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
 }
 
 .avatar {
@@ -544,10 +544,10 @@
 
 /* PAGE CONTENT & TRANSITIONS */
 .pageContent {
-    padding: 40px 60px 80px 60px; /* Aligned with topbarInner padding */
+    padding: 48px;
     flex: 1;
     width: 100%;
-    max-width: 1800px;
+    max-width: 1600px;
     margin: 0 auto;
 }
 

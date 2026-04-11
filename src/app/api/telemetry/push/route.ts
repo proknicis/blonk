@@ -22,7 +22,7 @@ export async function POST(request: Request) {
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error('[Analytics] Tracking Error:', error);
+        console.error('[Telemetry] Tracking Error:', error);
         return NextResponse.json({ error: 'Failed' }, { status: 500 });
     }
 }

@@ -4,8 +4,9 @@
     padding: 24px;
     display: flex;
     flex-direction: column;
-    gap: 48px;
+    gap: 40px;
     animation: fadeIn 0.4s ease;
+    color: #fff;
 }
 
 @keyframes fadeIn {
@@ -13,30 +14,24 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-}
-
 .headerLeft h1 {
     font-size: 2.5rem;
     font-weight: 950;
     letter-spacing: -0.04em;
-    color: #0F172A;
+    color: #FFFFFF;
     margin: 0 0 8px 0;
 }
 
 .headerLeft p {
     font-size: 1.05rem;
-    color: #64748B;
+    color: rgba(255, 255, 255, 0.4);
     font-weight: 600;
     margin: 0;
 }
 
 .btnPrimary {
-    background: #000;
-    color: white;
+    background: #FFFFFF;
+    color: #000000;
     padding: 14px 24px;
     border-radius: 12px;
     font-size: 0.95rem;
@@ -50,8 +45,9 @@
 }
 
 .btnPrimary:hover {
+    background: #34D186;
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 25px rgba(52, 209, 134, 0.3);
 }
 
 .statsGrid {
@@ -61,14 +57,14 @@
 }
 
 .statCard {
-    background: #fff;
-    border: 1px solid #E2E8F0;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 20px;
     padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    backdrop-filter: blur(10px);
 }
 
 .statLabel {
@@ -76,23 +72,23 @@
     text-transform: uppercase;
     font-weight: 900;
     letter-spacing: 0.05em;
-    color: #94A3B8;
+    color: rgba(255, 255, 255, 0.3);
 }
 
 .statValue {
     font-size: 2rem;
     font-weight: 950;
-    color: #0F172A;
+    color: #FFFFFF;
 }
 
 .controls {
     display: flex;
     gap: 16px;
     justify-content: space-between;
-    background: #fff;
+    background: rgba(255, 255, 255, 0.02);
     padding: 16px;
     border-radius: 16px;
-    border: 1px solid #E2E8F0;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .searchBox {
@@ -100,10 +96,10 @@
     align-items: center;
     gap: 12px;
     flex: 1;
-    background: #F8FAFC;
+    background: rgba(255, 255, 255, 0.03);
     padding: 0 16px;
     border-radius: 12px;
-    border: 1px solid #E2E8F0;
+    border: 1px solid rgba(255, 255, 255, 0.05);
     min-height: 48px;
 }
 
@@ -114,13 +110,13 @@
     font-size: 0.95rem;
     font-weight: 600;
     width: 100%;
-    color: #0F172A;
+    color: #FFFFFF;
 }
 
 .filterSelect {
-    background: #F8FAFC;
-    border: 1px solid #E2E8F0;
-    color: #0F172A;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: #FFFFFF;
     font-weight: 700;
     padding: 0 16px;
     border-radius: 12px;
@@ -130,11 +126,11 @@
 }
 
 .tableWrapper {
-    background: #fff;
+    background: rgba(255, 255, 255, 0.02);
     border-radius: 24px;
-    border: 1px solid #E2E8F0;
+    border: 1px solid rgba(255, 255, 255, 0.05);
     overflow: hidden;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.02);
+    backdrop-filter: blur(10px);
 }
 
 .teamTable {
@@ -149,14 +145,14 @@
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #94A3B8;
-    background: #F8FAFC;
-    border-bottom: 1px solid #E2E8F0;
+    color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .teamTable td {
     padding: 24px;
-    border-bottom: 1px solid #F1F5F9;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
     vertical-align: middle;
 }
 
@@ -165,7 +161,7 @@
 }
 
 .teamRow:hover {
-    background: #FAFAFA;
+    background: rgba(255, 255, 255, 0.03);
 }
 
 .userCell {
@@ -184,7 +180,6 @@
     font-weight: 950;
     font-size: 1.1rem;
     position: relative;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
 .statusDot {
@@ -194,11 +189,11 @@
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    border: 2px solid #fff;
+    border: 2px solid #050505;
 }
 
-.statusActive { background: #34D186; }
-.statusOffline { background: #CBD5E1; }
+.statusActive { background: #34D186; box-shadow: 0 0 10px #34D186; }
+.statusOffline { background: rgba(255, 255, 255, 0.1); }
 
 .userInfo {
     display: flex;
@@ -208,12 +203,12 @@
 .userName {
     font-weight: 950;
     font-size: 1rem;
-    color: #0F172A;
+    color: #FFFFFF;
 }
 
 .userEmail {
     font-size: 0.85rem;
-    color: #64748B;
+    color: rgba(255, 255, 255, 0.4);
     font-weight: 600;
 }
 
@@ -232,8 +227,8 @@
 }
 
 .workflowPill {
-    background: #F1F5F9;
-    color: #334155;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.6);
     padding: 4px 10px;
     border-radius: 6px;
     font-size: 0.75rem;
@@ -249,20 +244,20 @@
 
 .activityText {
     font-size: 0.85rem;
-    color: #0F172A;
+    color: rgba(255, 255, 255, 0.8);
     font-weight: 700;
 }
 
 .activityTime {
     font-size: 0.75rem;
-    color: #94A3B8;
+    color: rgba(255, 255, 255, 0.3);
     font-weight: 600;
 }
 
 .actionBtn {
     background: none;
     border: none;
-    color: #94A3B8;
+    color: rgba(255, 255, 255, 0.2);
     cursor: pointer;
     padding: 8px;
     border-radius: 8px;
@@ -270,8 +265,8 @@
 }
 
 .actionBtn:hover {
-    background: #F1F5F9;
-    color: #0F172A;
+    background: rgba(255, 255, 255, 0.05);
+    color: #FFFFFF;
 }
 
 /* Modal styles included inside page.tsx instead */

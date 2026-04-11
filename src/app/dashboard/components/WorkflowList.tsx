@@ -60,9 +60,9 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                 
                 return (
                     <div key={i} className={styles.workflowItem} style={{ 
-                        background: '#FFFFFF',
-                        border: '1px solid #EAEAEA',
-                        borderRadius: '20px',
+                        background: 'rgba(255, 255, 255, 0.02)',
+                        border: '1px solid rgba(255, 255, 255, 0.05)',
+                        borderRadius: '24px',
                         padding: '24px',
                         marginBottom: '16px',
                         transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -73,9 +73,9 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div className={styles.workflowInfo}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
-                                    <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: isOnline ? '#34D186' : '#94A3B8' }} />
-                                    <strong style={{ fontSize: '1.25rem', fontWeight: 950, letterSpacing: '-0.04em', color: '#0A0A0A' }}>{wf.name}</strong>
-                                    <span style={{ fontSize: '0.65rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Autonomous Loop</span>
+                                    <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: isOnline ? '#34D186' : 'rgba(255,255,255,0.1)', boxShadow: isOnline ? '0 0 10px #34D186' : 'none' }} />
+                                    <strong style={{ fontSize: '1.25rem', fontWeight: 950, letterSpacing: '-0.04em', color: '#FFFFFF' }}>{wf.name}</strong>
+                                    <span style={{ fontSize: '0.65rem', fontWeight: 950, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Autonomous Loop</span>
                                 </div>
                                 <button 
                                     onClick={() => {
@@ -92,7 +92,7 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                                         }
                                         alert("Loop ID copied to clipboard!");
                                     }}
-                                    style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '100px', padding: '6px 14px', fontSize: '0.65rem', fontFamily: 'JetBrains Mono', fontWeight: 800, color: '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '100px', padding: '6px 14px', fontSize: '0.65rem', fontFamily: 'JetBrains Mono', fontWeight: 800, color: 'rgba(255,255,255,0.4)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                                 >
                                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                                     {wf.id?.substring(0, 8) || '...'}
@@ -101,10 +101,10 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                             
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <div style={{ textAlign: 'right', marginRight: '8px' }}>
-                                    <div style={{ fontSize: '0.7rem', fontWeight: 950, color: isOnline ? '#34D186' : '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                                    <div style={{ fontSize: '0.7rem', fontWeight: 950, color: isOnline ? '#34D186' : 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                                         {displayStatus}
                                     </div>
-                                    <div style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748B' }}>Live Status</div>
+                                    <div style={{ fontSize: '0.6rem', fontWeight: 800, color: 'rgba(255,255,255,0.2)' }}>Live Status</div>
                                 </div>
                                 
                                 <div style={{ display: 'flex', gap: '8px' }}>
@@ -113,6 +113,7 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                                         className={styles.forceStartBtn}
                                         onClick={() => runWorkflow(wf, 'START')}
                                         disabled={runningId === `${wf.id}-START`}
+                                        style={{ background: '#FFFFFF', color: '#000000', border: 'none' }}
                                     >
                                         {runningId === `${wf.id}-START` ? "..." : (
                                             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
@@ -124,6 +125,7 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                                         className={styles.forceEndBtn}
                                         onClick={() => runWorkflow(wf, 'STOP')}
                                         disabled={runningId === `${wf.id}-STOP`}
+                                        style={{ background: 'rgba(255,255,255,0.05)', color: '#FFFFFF', border: '1px solid rgba(255,255,255,0.1)' }}
                                     >
                                         {runningId === `${wf.id}-STOP` ? "..." : (
                                             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"></rect></svg>
@@ -139,21 +141,21 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                             gridTemplateColumns: 'repeat(3, 1fr)', 
                             gap: '12px',
                             padding: '16px',
-                            background: '#F8FAFC',
+                            background: 'rgba(255,255,255,0.01)',
                             borderRadius: '16px',
-                            border: '1px solid #E2E8F0'
+                            border: '1px solid rgba(255,255,255,0.03)'
                         }}>
                             <div>
-                                <div style={{ fontSize: '0.6rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Throughput</div>
-                                <div style={{ fontSize: '0.95rem', fontWeight: 950, color: '#0A0A0A' }}>{wf.performance?.toString().replace(/loops\/hr/gi, '') || '0'} <span style={{ opacity: 0.4 }}>OPS/HR</span></div>
+                                <div style={{ fontSize: '0.6rem', fontWeight: 950, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Throughput</div>
+                                <div style={{ fontSize: '0.95rem', fontWeight: 950, color: '#FFFFFF' }}>{wf.performance?.toString().replace(/loops\/hr/gi, '') || '0'} <span style={{ opacity: 0.2 }}>OPS/HR</span></div>
                             </div>
                             <div>
-                                <div style={{ fontSize: '0.6rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Autonomous Yield</div>
-                                <div style={{ fontSize: '0.95rem', fontWeight: 950, color: '#34D186' }}>{wf.tasksCount || '0'} <span style={{ opacity: 0.4 }}>DONE</span></div>
+                                <div style={{ fontSize: '0.6rem', fontWeight: 950, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Autonomous Yield</div>
+                                <div style={{ fontSize: '0.95rem', fontWeight: 950, color: '#34D186' }}>{wf.tasksCount || '0'} <span style={{ opacity: 0.2 }}>DONE</span></div>
                             </div>
                             <div>
-                                <div style={{ fontSize: '0.6rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Uptime Reliability</div>
-                                <div style={{ fontSize: '0.95rem', fontWeight: 950, color: '#0A0A0A' }}>100%</div>
+                                <div style={{ fontSize: '0.6rem', fontWeight: 950, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Uptime Reliability</div>
+                                <div style={{ fontSize: '0.95rem', fontWeight: 950, color: '#FFFFFF' }}>100%</div>
                             </div>
                         </div>
                     </div>

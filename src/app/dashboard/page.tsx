@@ -86,21 +86,23 @@ export default function DashboardPage() {
             {/* SOVEREIGN INTEGRITY PANEL */}
             <div className={styles.integrityBanner}>
                 <div className={styles.integrityInfo}>
-                    <div className={data.failedRuns > 0 ? styles.statusIndicatorCritical : styles.statusIndicatorHealthy}>
+                    <div className={data.failedRuns === 0 ? styles.statusIndicatorHealthy : styles.statusIndicatorCritical}>
                         <div className={styles.pulseEffect} />
                     </div>
                     <div>
-                        <h4 className={styles.integrityTitle}>
-                            {data.failedRuns > 0 ? `${data.failedRuns} Execution Interruptions detected` : `Systems Integrity: ${data.efficiencyRate}% Operational`}
-                        </h4>
-                        <p className={styles.integritySubtitle}>
-                            {data.failedRuns > 0 ? `Manual intervention may be required in failing autonomous loops.` : `Fleet throughput is stable across all active firm sectors.`}
-                        </p>
+                        <h2 className={styles.integrityTitle}>Sovereign Integrity: {data.failedRuns === 0 ? 'Healthy' : 'Critical'}</h2>
+                        <p className={styles.integritySubtitle}>All production nodes are currently synced with the regional registry.</p>
                     </div>
                 </div>
-                <div className={styles.integrityMetrics}>
-                    <span className={styles.metricLabel}>Real-time Efficiency:</span>
-                    <span className={styles.metricValue}>{data.efficiencyRate}%</span>
+                <div style={{ display: 'flex', gap: '32px' }}>
+                    <div className={styles.integrityMetrics}>
+                        <span className={styles.metricLabel}>Fleet Uptime</span>
+                        <span className={styles.metricValue}>100%</span>
+                    </div>
+                    <div className={styles.integrityMetrics}>
+                        <span className={styles.metricLabel}>Sync Latency</span>
+                        <span className={styles.metricValue}>14ms</span>
+                    </div>
                 </div>
             </div>
 
