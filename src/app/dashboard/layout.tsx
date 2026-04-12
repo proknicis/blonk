@@ -91,14 +91,15 @@ export default function DashboardLayout({
     };
 
     return (
-        <div className={styles.appShell} onMouseDownCapture={onShellMouseDownCapture}>
+        <div className={styles.appShell} onMouseDownCapture={onShellMouseDownCapture} style={{ backgroundColor: '#FAFAFA', color: '#111' }}>
             <div className={styles.noise} />
             
-            {/* SOVEREIGN SIDEBAR */}
-            <aside className={styles.sidebar}>
+            {/* SIDEBAR: Sovereign Institutional */}
+            <aside className={styles.sidebar} style={{ backgroundColor: '#FFFFFF', color: '#111', borderRight: '1px solid rgba(0,0,0,0.05)' }}>
                 <div className={styles.sidebarBrand}>
-                    <Link href="/" className={styles.logo}>
-                        <span className={styles.logoSquare}></span>BLONK
+                    <Link href="/dashboard" className={styles.logo} style={{ color: '#111' }}>
+                        <div className={styles.logo_dot} />
+                        BLONK
                     </Link>
                 </div>
 
@@ -107,27 +108,27 @@ export default function DashboardLayout({
                         <span className={styles.navGroupLabel}>Menu</span>
                         <ul>
                             <li>
-                                <Link href="/dashboard" className={`${styles.navLink} ${pathname === '/dashboard' ? styles.navLinkActive : ''}`}>
+                                <Link href="/dashboard" className={`${styles.navLink} ${pathname === '/dashboard' ? styles.navLinkActive : ''}`} style={{ color: pathname === '/dashboard' ? '#111' : 'rgba(0,0,0,0.4)' }}>
                                     <LayoutGrid size={20} /> Overview
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/office" className={`${styles.navLink} ${pathname === '/dashboard/office' ? styles.navLinkActive : ''}`}>
+                                <Link href="/dashboard/office" className={`${styles.navLink} ${pathname === '/dashboard/office' ? styles.navLinkActive : ''}`} style={{ color: pathname === '/dashboard/office' ? '#111' : 'rgba(0,0,0,0.4)' }}>
                                     <Monitor size={20} /> Mission Control
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/team" className={`${styles.navLink} ${pathname === '/dashboard/team' ? styles.navLinkActive : ''}`}>
+                                <Link href="/dashboard/team" className={`${styles.navLink} ${pathname === '/dashboard/team' ? styles.navLinkActive : ''}`} style={{ color: pathname === '/dashboard/team' ? '#111' : 'rgba(0,0,0,0.4)' }}>
                                     <Users size={20} /> Team
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/workflows" className={`${styles.navLink} ${pathname === '/dashboard/workflows' ? styles.navLinkActive : ''}`}>
+                                <Link href="/dashboard/workflows" className={`${styles.navLink} ${pathname === '/dashboard/workflows' ? styles.navLinkActive : ''}`} style={{ color: pathname === '/dashboard/workflows' ? '#111' : 'rgba(0,0,0,0.4)' }}>
                                     <Zap size={20} /> Marketplace
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/reports" className={`${styles.navLink} ${pathname === '/dashboard/reports' ? styles.navLinkActive : ''}`}>
+                                <Link href="/dashboard/reports" className={`${styles.navLink} ${pathname === '/dashboard/reports' ? styles.navLinkActive : ''}`} style={{ color: pathname === '/dashboard/reports' ? '#111' : 'rgba(0,0,0,0.4)' }}>
                                     <FileText size={20} /> Reports
                                 </Link>
                             </li>
@@ -138,7 +139,7 @@ export default function DashboardLayout({
                         <span className={styles.navGroupLabel}>App</span>
                         <ul>
                             <li>
-                                <Link href="/dashboard/settings" className={`${styles.navLink} ${pathname === '/dashboard/settings' ? styles.navLinkActive : ''}`}>
+                                <Link href="/dashboard/settings" className={`${styles.navLink} ${pathname === '/dashboard/settings' ? styles.navLinkActive : ''}`} style={{ color: pathname === '/dashboard/settings' ? '#111' : 'rgba(0,0,0,0.4)' }}>
                                     <Settings size={20} /> Settings
                                 </Link>
                             </li>
@@ -147,30 +148,41 @@ export default function DashboardLayout({
                 </nav>
 
                 <div className={styles.usageSection}>
-                     <div className={styles.usageCard}>
-                         <div className={styles.usagePlanTop}>
-                             <span className={styles.planBadge}>{user.role === 'OWNER' ? 'Institutional' : 'Standard'}</span>
-                             <div className={styles.tierDots}><span className={styles.tierDot}/><span className={styles.tierDot}/><span style={{width:'6px',height:'6px',background:'#E2E8F0',borderRadius:'1px'}}/></div>
-                         </div>
-                         <div className={styles.statLabel}>Monthly Throughput</div>
-                         <div className={styles.statValue}>1,240 / 5,000 OPS</div>
-                         <div className={styles.barContainer}><div className={styles.barFill} style={{width: '24.8%'}} /></div>
-                     </div>
+                    <div className={styles.usageCard} style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                        <div className={styles.usagePlanTop}>
+                            <span className={styles.planBadge} style={{ background: '#111', color: '#34D186' }}>Institutional</span>
+                            <div className={styles.tierDots}>
+                                <div className={styles.tierDot} />
+                                <div className={styles.tierDot} />
+                            </div>
+                        </div>
+                        <div style={{ marginBottom: '16px' }}>
+                            <div className={styles.statLabel}>Monthly Throughput</div>
+                            <div className={styles.statValue} style={{ color: '#111' }}>1,240 / 5,000 OPS</div>
+                        </div>
+                        <div style={{ height: '4px', background: '#E2E8F0', borderRadius: '10px', overflow: 'hidden' }}>
+                            <div style={{ height: '100%', width: '25%', background: '#34D186' }} />
+                        </div>
+                    </div>
                 </div>
             </aside>
 
-            <main className={styles.mainContent}>
-                {/* REMADE GLOBAL TOPBAR */}
-                <header className={styles.topbar}>
+            <main className={styles.mainContent} style={{ backgroundColor: '#FAFAFA' }}>
+                {/* TOPBAR: Identity & Orchestration */}
+                <header className={styles.topbar} style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                     <div className={styles.topbarInner}>
                         <div className={styles.topbarContext}>
-                            <h1 className={styles.pageTitle}>{getModuleTitle(pathname)}</h1>
+                            <h1 className={styles.pageTitle} style={{ color: '#111' }}>{getModuleTitle(pathname)}</h1>
                         </div>
 
-                        {/* Search Integration */}
                         <div className={styles.searchWrapper}>
-                             <Search className={styles.searchIcon} size={18} />
-                             <input type="text" placeholder="Search systems, loops, or co-pilots..." className={styles.searchInput} />
+                             <Search className={styles.searchIcon} size={18} style={{ color: 'rgba(0,0,0,0.2)' }} />
+                             <input 
+                                type="text" 
+                                placeholder="Search systems, loops, or co-pilots..." 
+                                className={styles.searchInput}
+                                style={{ background: 'rgba(0,0,0,0.02)', color: '#111', border: '1px solid rgba(0,0,0,0.05)' }}
+                             />
                         </div>
 
                         <div className={styles.topbarActions}>
@@ -191,7 +203,7 @@ export default function DashboardLayout({
                             )}
 
                             <div ref={notifsAnchorRef} className={styles.dropdownAnchor}>
-                                <button className={styles.iconBtn} onClick={() => setShowNotifs(!showNotifs)}>
+                                <button className={styles.iconBtn} onClick={() => setShowNotifs(!showNotifs)} style={{ background: 'rgba(0,0,0,0.02)', color: 'rgba(0,0,0,0.4)', border: '1px solid rgba(0,0,0,0.05)' }}>
                                     <Bell size={20} />
                                     {unreadCount > 0 && <span style={{ position: 'absolute', top: '12px', right: '12px', width: '8px', height: '8px', background: '#34D186', borderRadius: '50%', border: '2px solid #FFFFFF' }} />}
                                 </button>
@@ -214,12 +226,12 @@ export default function DashboardLayout({
                             </div>
 
                             <div ref={userMenuAnchorRef} className={styles.dropdownAnchor}>
-                                <button className={styles.userProfile} onClick={() => setShowUserMenu(!showUserMenu)}>
+                                <button className={styles.userProfile} onClick={() => setShowUserMenu(!showUserMenu)} style={{ borderLeft: '1px solid rgba(0,0,0,0.05)' }}>
                                     <div className={styles.userData}>
-                                        <strong>{user.name}</strong>
-                                        <span>{user.role}</span>
+                                        <strong style={{ color: '#111' }}>{user.name}</strong>
+                                        <span style={{ color: 'rgba(0,0,0,0.3)' }}>{user.role}</span>
                                     </div>
-                                    <div className={styles.avatar}>{user.name.charAt(0)}</div>
+                                    <div className={styles.avatar} style={{ background: '#111', color: '#FFF' }}>{user.name.charAt(0)}</div>
                                 </button>
                                 {showUserMenu && (
                                     <div className={styles.userDropdown}>

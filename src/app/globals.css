@@ -5,9 +5,9 @@
 @custom-variant dark (&:is(.dark-disabled *));
 
 :root {
-  --bg-main: #FFFFFF;
+  --bg-main: #FAFAFA;
   --bg-secondary: #FFFFFF;
-  --bg-dark: #FFFFFF;
+  --bg-dark: #FAFAFA;
   --bg-elevated: #FFFFFF;
 
   --text-main: #111111;
@@ -46,7 +46,7 @@
   --transition-fast: 0.2s ease;
   --transition-medium: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-slow: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-  --background: #FFFFFF !important;
+  --background: #FAFAFA !important;
   --foreground: #111111 !important;
   --card: #FFFFFF !important;
   --card-foreground: #111111 !important;
@@ -76,7 +76,7 @@
 }
 
 html, body {
-  background-color: #FFFFFF !important;
+  background-color: #FAFAFA !important;
   color: #111111 !important;
 }
 

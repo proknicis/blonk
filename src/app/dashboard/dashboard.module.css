@@ -8,7 +8,7 @@
     display: flex;
     height: 100dvh;
     overflow: hidden;
-    background-color: #FFFFFF !important;
+    background-color: #FAFAFA !important;
     position: relative;
     width: 100%;
 }
@@ -275,7 +275,7 @@
     flex-direction: column;
     min-width: 0;
     height: 100%;
-    background-color: #FFFFFF !important;
+    background-color: #FAFAFA !important;
     background-image: 
         linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
         linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px);

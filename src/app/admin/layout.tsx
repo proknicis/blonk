@@ -62,119 +62,46 @@ export default function AdminLayout({
     };
 
     return (
-        <div className={styles.appShell} onMouseDownCapture={onShellMouseDownCapture}>
-            <div className={styles.noise} />
-            
-            {/* SOVEREIGN ADMIN SIDEBAR */}
-            <aside className={styles.sidebar}>
-                <div className={styles.sidebarBrand}>
-                    <Link href="/admin" className={styles.logo}>
-                        <span className={styles.logoSquare}></span>BLONK<span style={{ color: '#34D186', marginLeft: '4px' }}>ADMN</span>
+        <div className={styles.adminShell} style={{ backgroundColor: '#FAFAFA', color: '#111' }}>
+            {/* SIDEBAR: Admin Controls */}
+            <aside className={styles.sidebar} style={{ backgroundColor: '#FFFFFF', color: '#111', borderRight: '1px solid rgba(0,0,0,0.05)' }}>
+                <div className={styles.logoSection}>
+                    <Link href="/admin" className={styles.logo} style={{ color: '#111' }}>
+                        BLONK <span style={{ color: '#34D186', fontSize: '0.8rem', verticalAlign: 'top', marginLeft: '4px' }}>ADMIN</span>
                     </Link>
                 </div>
 
-                <nav className={styles.sidebarNav}>
-                    <div className={styles.navGroup}>
-                        <span className={styles.navGroupLabel}>Operations</span>
-                        <ul>
-                            <li>
-                                <Link href="/admin" className={`${styles.navLink} ${pathname === '/admin' ? styles.navLinkActive : ''}`}>
-                                    <Database size={20} /> Loop Config
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/admin/analytics" className={`${styles.navLink} ${pathname === '/admin/analytics' ? styles.navLinkActive : ''}`}>
-                                    <BarChart3 size={20} /> Analytics
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/admin/marketplace" className={`${styles.navLink} ${pathname === '/admin/marketplace' ? styles.navLinkActive : ''}`}>
-                                    <Zap size={20} /> Marketplace
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/admin/users" className={`${styles.navLink} ${pathname === '/admin/users' ? styles.navLinkActive : ''}`}>
-                                    <Users size={20} /> User Registry
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div className={styles.navGroup}>
-                        <span className={styles.navGroupLabel}>System</span>
-                        <ul>
-                            <li>
-                                <Link href="/dashboard" className={styles.navLink}>
-                                    <Grid2X2 size={20} /> App Dashboard
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
+                <nav className={styles.nav}>
+                    <Link href="/admin" className={`${styles.navLink} ${pathname === '/admin' ? styles.navLinkActive : ''}`} style={{ color: pathname === '/admin' ? '#111' : 'rgba(0,0,0,0.4)' }}>
+                        <Shield size={18} /> Fleet Provisioning
+                    </Link>
+                    <Link href="/admin/users" className={`${styles.navLink} ${pathname === '/admin/users' ? styles.navLinkActive : ''}`} style={{ color: pathname === '/admin/users' ? '#111' : 'rgba(0,0,0,0.4)' }}>
+                        <Users size={18} /> User Management
+                    </Link>
+                    <Link href="/admin/marketplace" className={`${styles.navLink} ${pathname === '/admin/marketplace' ? styles.navLinkActive : ''}`} style={{ color: pathname === '/admin/marketplace' ? '#111' : 'rgba(0,0,0,0.4)' }}>
+                        <Zap size={18} /> Node Registry
+                    </Link>
+                    <Link href="/dashboard" className={styles.navLink} style={{ marginTop: 'auto', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '20px', color: 'rgba(0,0,0,0.4)' }}>
+                        <Monitor size={18} /> Exit Admin
+                    </Link>
                 </nav>
-
-                <div className={styles.usageSection}>
-                     <div className={styles.usageCard} style={{ borderColor: '#34D186', background: '#F0FAF5' }}>
-                         <div className={styles.usagePlanTop}>
-                             <span className={styles.planBadge} style={{ background: '#34D186', color: '#111' }}>SYSTEM ACTIVE</span>
-                             <div className={styles.tierDots}><span className={styles.tierDot}/><span className={styles.tierDot}/><span className={styles.tierDot}/></div>
-                         </div>
-                         <div className={styles.statLabel} style={{ color: '#059669' }}>Root Privilege</div>
-                         <div className={styles.statValue}>Sovereign Access</div>
-                     </div>
-                </div>
             </aside>
 
-            <main className={styles.mainContent}>
-                <header className={styles.topbar}>
-                    <div className={styles.topbarInner}>
-                        <div className={styles.topbarContext}>
-                            <h1 className={styles.pageTitle}>{getModuleTitle(pathname)}</h1>
-                        </div>
-
-                        <div className={styles.searchWrapper}>
-                             <Search className={styles.searchIcon} size={18} />
-                             <input type="text" placeholder="Search system records..." className={styles.searchInput} />
-                        </div>
-
-                        <div className={styles.topbarActions}>
-                            <button className={styles.iconBtn}>
-                                <Bell size={20} />
-                            </button>
-
-                            <div ref={userMenuAnchorRef} className={styles.dropdownAnchor}>
-                                <button className={styles.userProfile} onClick={() => setShowUserMenu(!showUserMenu)}>
-                                    <div className={styles.userData}>
-                                        <strong>{user.name}</strong>
-                                        <span>{user.role}</span>
-                                    </div>
-                                    <div className={styles.avatar} style={{ background: '#34D186' }}>{user.name.charAt(0)}</div>
-                                </button>
-                                {showUserMenu && (
-                                    <div className={styles.userDropdown}>
-                                        <div className={styles.userDropdownProfile}>
-                                            <div className={styles.userDropdownName}>{user.name}</div>
-                                            <div className={styles.userDropdownRole}>{user.role}</div>
-                                            <div className={styles.userDropdownEmail}>{user.email}</div>
-                                        </div>
-                                        <Link href="/dashboard/settings" className={styles.userDropdownLink} onClick={() => setShowUserMenu(false)}>
-                                            <Settings size={18} /> Settings
-                                        </Link>
-                                        <div className={styles.userDropdownDivider} />
-                                        <button className={`${styles.userDropdownLink} ${styles.logoutBtn}`} onClick={() => signOut({ callbackUrl: '/' })}>
-                                            <LogOut size={18} /> Log out
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
+            {/* MAIN ADMIN AREA */}
+            <main style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: '#FAFAFA' }}>
+                <header style={{ height: '80px', background: '#FFFFFF', borderBottom: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', padding: '0 40px', justifyContent: 'space-between' }}>
+                    <h2 style={{ fontSize: '1.25rem', fontWeight: 950, color: '#111', letterSpacing: '-0.02em' }}>Operations Control Panel</h2>
+                    <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#34D186', boxShadow: '0 0 10px #34D186' }} />
+                            <span style={{ fontSize: '0.75rem', fontWeight: 950, color: '#111' }}>REGIONAL CLUSTER: US-EAST-1</span>
                         </div>
                     </div>
                 </header>
-
-                <div className={styles.pageContent}>
+                <div style={{ flex: 1, overflowY: 'auto', padding: '40px' }}>
                     {children}
                 </div>
             </main>
-            <AiChat />
         </div>
     );
 }

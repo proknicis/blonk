@@ -124,7 +124,7 @@ export default function HomePage() {
                 </section>
             </div>
 
-            <footer style={{ padding: '80px 24px 40px', background: '#FAFAFA', borderTop: '1px solid #f0f0f0', width: '100%', maxWidth: 1400, margin: '0 auto' }}>
+            <footer style={{ padding: '80px 24px 40px', background: '#ffffff', borderTop: '1px solid #f0f0f0', width: '100%', maxWidth: 1400, margin: '0 auto' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 32 }}>
                     <div style={{ fontSize: '1.5rem', fontWeight: 950, letterSpacing: '-0.06em', color: '#111' }}>BLONK<span style={{ display: 'inline-block', width: 6, height: 6, background: '#34D186', marginLeft: 1, borderRadius: 1 }}></span></div>
                     <div style={{ display: 'flex', gap: 40, flexWrap: 'wrap' }}>

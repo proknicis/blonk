@@ -215,27 +215,27 @@ export default function AdminControlPage() {
     );
 
     return (
-        <div className={styles.dashboard}>
+        <div className={styles.dashboard} style={{ background: '#FAFAFA', minHeight: '100%' }}>
             {/* STATUS BANNER */}
-            <div className={adminStyles.integrityPanel}>
+            <div className={adminStyles.integrityPanel} style={{ background: '#FFFFFF', border: '1px solid rgba(0, 0, 0, 0.05)', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.02)' }}>
                 <div className={adminStyles.integrityHub}>
                     <div className={adminStyles.statusBeacon}>
-                        <div className={adminStyles.beaconPulse} />
+                        <div className={adminStyles.beaconPulse} style={{ background: '#34D186' }} />
                     </div>
                     <div>
-                        <h4 className={adminStyles.panelTitle}>Sovereign Fleet: Active</h4>
-                        <p className={adminStyles.panelSubtitle}>All production nodes are currently synced with the regional registry.</p>
+                        <h4 className={adminStyles.panelTitle} style={{ color: '#111' }}>Sovereign Fleet: Active</h4>
+                        <p className={adminStyles.panelSubtitle} style={{ color: 'rgba(0, 0, 0, 0.4)' }}>All production nodes are currently synced with the regional registry.</p>
                     </div>
                 </div>
                 <div className={adminStyles.hubMetrics}>
-                    <span className={adminStyles.hubLabel}>Total Nodes:</span>
-                    <span className={adminStyles.hubValue}>{isLoadingWorkflows ? <Skeleton width="30px" height="20px" /> : workflows.length}</span>
+                    <span className={adminStyles.hubLabel} style={{ color: 'rgba(0, 0, 0, 0.4)' }}>Total Nodes:</span>
+                    <span className={adminStyles.hubValue} style={{ color: '#111' }}>{isLoadingWorkflows ? <Skeleton width="30px" height="20px" /> : workflows.length}</span>
                 </div>
             </div>
 
             {/* QUICK METRICS */}
             <div className={adminStyles.metricMatrix}>
-                <div className={adminStyles.adminMetricCard} style={{ borderColor: workflows.some(wf => wf.status === 'Error') ? '#EF4444' : '#F1F5F9' }}>
+                <div className={adminStyles.adminMetricCard} style={{ background: '#FFFFFF', border: '1px solid rgba(0, 0, 0, 0.05)', borderColor: workflows.some(wf => wf.status === 'Error') ? '#EF4444' : 'rgba(0, 0, 0, 0.05)' }}>
                     <div className={adminStyles.metricMeta}>
                         <span className={adminStyles.metricTag}>SYSTEM ERRORS</span>
                         <TriangleAlert size={14} color="#EF4444" />
@@ -246,40 +246,40 @@ export default function AdminControlPage() {
                     <div className={adminStyles.metricDetail}>Nodes requiring attention</div>
                 </div>
 
-                <div className={adminStyles.adminMetricCard}>
+                <div className={adminStyles.adminMetricCard} style={{ background: '#FFFFFF', border: '1px solid rgba(0, 0, 0, 0.05)' }}>
                     <div className={adminStyles.metricMeta}>
                         <span className={adminStyles.metricTag}>ACTIVE SYNC</span>
                         <div className={adminStyles.beaconPulse} style={{ width: '8px', height: '8px', position: 'relative', background: '#3B82F6', inset: 'auto' }} />
                     </div>
-                    <div className={adminStyles.metricAmount}>{isLoadingWorkflows ? <Skeleton width="40px" height="32px" /> : workflows.filter(wf => wf.status === 'Syncing').length}</div>
+                    <div className={adminStyles.metricAmount} style={{ color: '#111' }}>{isLoadingWorkflows ? <Skeleton width="40px" height="32px" /> : workflows.filter(wf => wf.status === 'Syncing').length}</div>
                     <div className={adminStyles.metricDetail}>Ongoing provisioning</div>
                 </div>
 
-                <div className={adminStyles.adminMetricCard}>
+                <div className={adminStyles.adminMetricCard} style={{ background: '#FFFFFF', border: '1px solid rgba(0, 0, 0, 0.05)' }}>
                     <div className={adminStyles.metricMeta}>
                         <span className={adminStyles.metricTag}>HEALTH SCORE</span>
                         <ShieldCheck size={14} color="#34D186"/>
                     </div>
-                    <div className={adminStyles.metricAmount}>98.2%</div>
+                    <div className={adminStyles.metricAmount} style={{ color: '#111' }}>98.2%</div>
                     <div className={adminStyles.metricDetail}>Fleet integrity metrics</div>
                 </div>
 
-                <div className={adminStyles.adminMetricCard}>
+                <div className={adminStyles.adminMetricCard} style={{ background: '#FFFFFF', border: '1px solid rgba(0, 0, 0, 0.05)' }}>
                     <div className={adminStyles.metricMeta}>
                         <span className={adminStyles.metricTag}>STUCK STATES</span>
                         <Clock size={14} color="#F59E0B" />
                     </div>
-                    <div className={adminStyles.metricAmount}>{workflows.filter(wf => wf.status === 'Connecting').length}</div>
+                    <div className={adminStyles.metricAmount} style={{ color: '#111' }}>{workflows.filter(wf => wf.status === 'Connecting').length}</div>
                     <div className={adminStyles.metricDetail}>Long-running handshakes</div>
                 </div>
             </div>
 
             {/* MAIN PROVISIONING REGISTRY */}
-            <div className={adminStyles.registryCard}>
+            <div className={adminStyles.registryCard} style={{ background: '#FFFFFF', border: '1px solid rgba(0, 0, 0, 0.05)' }}>
                 <div className={adminStyles.registryHeader}>
                     <div>
-                        <h3 className={adminStyles.registryTitle}>Operations Control Panel</h3>
-                        <p className={adminStyles.registrySubtitle}>Real-time telemetry and granular fleet orchestration.</p>
+                        <h3 className={adminStyles.registryTitle} style={{ color: '#111' }}>Operations Control Panel</h3>
+                        <p className={adminStyles.registrySubtitle} style={{ color: 'rgba(0, 0, 0, 0.4)' }}>Real-time telemetry and granular fleet orchestration.</p>
                     </div>
                     <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                         <div className={adminStyles.filterBar} style={{ marginBottom: 0, borderBottom: 'none' }}>
