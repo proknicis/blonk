@@ -154,14 +154,14 @@
 }
 
 .modalHeader {
-    background: #0A0A0A;
+    background: #FFFFFF;
     background-image: 
         radial-gradient(circle at 0% 0%, rgba(52, 209, 134, 0.08) 0%, transparent 50%),
         url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
     padding: 48px;
-    color: white;
+    color: #111;
     position: relative;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .modalClose {
@@ -192,7 +192,7 @@
     font-weight: 950;
     letter-spacing: -0.05em;
     line-height: 1;
-    color: #FFFFFF;
+    color: #111;
 }
 
 .modalSubtitle {
@@ -289,7 +289,7 @@
 .parameterValue {
     font-size: 1rem;
     font-weight: 850;
-    color: #0A0A0A;
+    color: #111;
     font-family: 'JetBrains Mono', monospace;
     word-break: break-all;
     line-height: 1.2;
@@ -304,7 +304,7 @@
     display: block;
     font-size: 0.8rem;
     font-weight: 950;
-    color: #0A0A0A;
+    color: #111;
     margin-bottom: 12px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -318,7 +318,7 @@
     border-radius: 20px;
     font-size: 1.1rem;
     font-weight: 700;
-    color: #0A0A0A;
+    color: #111;
     transition: all 0.2s ease;
     outline: none;
 }
@@ -353,7 +353,7 @@
 .registryTitle {
     font-size: 1.6rem;
     font-weight: 950;
-    color: #0A0A0A;
+    color: #111;
     letter-spacing: -0.03em;
 }
 
@@ -380,7 +380,7 @@
 }
 
 .tabActive {
-    color: #0A0A0A;
+    color: #111;
 }
 
 .tabActive::after {
@@ -436,7 +436,7 @@
 .cardValue {
     font-size: 2.25rem;
     font-weight: 950;
-    color: #0A0A0A;
+    color: #111;
     letter-spacing: -0.04em;
 }
 
@@ -473,7 +473,7 @@
 .chartTitle {
     font-size: 1.4rem;
     font-weight: 950;
-    color: #0A0A0A;
+    color: #111;
     margin-bottom: 8px;
     letter-spacing: -0.03em;
 }
@@ -505,7 +505,7 @@
 .insightsTitle {
     font-size: 1.4rem;
     font-weight: 950;
-    color: #0A0A0A;
+    color: #111;
     margin-bottom: 24px;
     letter-spacing: -0.03em;
 }
@@ -539,7 +539,7 @@
 .insightText {
     font-size: 0.95rem;
     font-weight: 700;
-    color: #0A0A0A;
+    color: #111;
     line-height: 1.5;
 }
 
@@ -614,8 +614,8 @@
 }
 
 .refreshBtn:hover {
-    background: #0A0A0A;
-    border-color: #0A0A0A;
+    background: #111;
+    border-color: #111;
     transform: translateY(-2px);
     box-shadow: 0 10px 30px -10px rgba(52, 209, 134, 0.2);
 }
@@ -686,13 +686,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #0A0A0A;
+    color: #111;
 }
 
 .loopName {
     font-size: 0.95rem;
     font-weight: 950;
-    color: #0A0A0A;
+    color: #111;
     letter-spacing: -0.02em;
 }
 
@@ -714,7 +714,7 @@
 .requesterAvatar {
     width: 36px;
     height: 36px;
-    background: #0A0A0A;
+    background: #111;
     color: white;
     border-radius: 50%;
     display: flex;
@@ -727,7 +727,7 @@
 .requesterName {
     font-size: 0.9rem;
     font-weight: 850;
-    color: #0A0A0A;
+    color: #111;
 }
 
 .requesterEmail {
@@ -768,8 +768,8 @@
 }
 
 .copyAction:hover {
-    color: #0A0A0A;
-    border-color: #0A0A0A;
+    color: #111;
+    border-color: #111;
 }
 
 .statusBadge {
@@ -853,9 +853,9 @@
 }
 
 .filterBtnActive {
-    background: #0A0A0A;
+    background: #111;
     color: white;
-    border-color: #0A0A0A;
+    border-color: #111;
 }
 
 .actionIconBtn {
@@ -874,7 +874,7 @@
 
 .actionIconBtn:hover {
     background: #F1F5F9;
-    color: #0A0A0A;
+    color: #111;
     border-color: #E2E8F0;
 }
 
@@ -903,9 +903,9 @@
 }
 
 .actionBtnPrimary {
-    background: #0A0A0A;
+    background: #111;
     color: white;
-    border: 1px solid #0A0A0A;
+    border: 1px solid #111;
     padding: 0 24px;
     height: 44px;
     border-radius: 14px;
@@ -918,7 +918,7 @@
 
 .actionBtnPrimary:hover {
     background: #34D186;
-    color: #0A0A0A;
+    color: #111;
     border-color: #34D186;
     transform: translateY(-2px);
     box-shadow: 0 10px 25px -10px rgba(52, 209, 134, 0.4);
@@ -991,7 +991,7 @@
     font-size: 1.1rem;
     font-weight: 950;
     letter-spacing: -0.02em;
-    color: #0A0A0A;
+    color: #111;
 }
 
 .panelSubtitle {
@@ -1018,7 +1018,7 @@
 .hubValue {
     font-size: 1.5rem;
     font-weight: 950;
-    color: #0A0A0A;
+    color: #111;
 }
 
 .metricMatrix {
@@ -1039,7 +1039,7 @@
 }
 
 .adminMetricCard:hover {
-    border-color: #0A0A0A;
+    border-color: #111;
     transform: translateY(-8px);
     box-shadow: 0 40px 100px -20px rgba(0,0,0,0.08);
 }
@@ -1051,7 +1051,7 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: #0A0A0A;
+    background: #111;
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -1079,7 +1079,7 @@
     font-size: 3.5rem;
     font-weight: 950;
     letter-spacing: -0.06em;
-    color: #0A0A0A;
+    color: #111;
     line-height: 1;
     margin-bottom: 24px;
 }

@@ -295,7 +295,7 @@ export default function MarketplaceManagementPage() {
                                         <tr>
                                             <td colSpan={5} style={{ padding: '80px 0', textAlign: 'center' }}>
                                                 <Layers size={48} style={{ color: '#EAEAEA', marginBottom: '20px' }} />
-                                                <p style={{ fontWeight: 900, color: '#0A0A0A', fontSize: '1.1rem' }}>No protocols found</p>
+                                                <p style={{ fontWeight: 900, color: '#111', fontSize: '1.1rem' }}>No protocols found</p>
                                                 <p style={{ color: '#94A3B8', fontWeight: 700 }}>Adjust your search parameters or initialize a new loop.</p>
                                             </td>
                                         </tr>
@@ -337,14 +337,14 @@ export default function MarketplaceManagementPage() {
                                                             />
                                                         ) : (
                                                             <div 
-                                                                style={{ fontWeight: 950, color: '#0A0A0A', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                                                style={{ fontWeight: 950, color: '#111', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
                                                                 onClick={() => { setEditingPriceId(t.id); setTempPrice(String(t.price || 0)); }}
                                                             >
                                                                 €{parseFloat(t.price || 0).toFixed(2)} <Edit3 size={10} color="#94A3B8" />
                                                             </div>
                                                         )}
                                                         <div style={{ fontSize: '0.75rem', color: '#94A3B8', fontWeight: 700 }}>
-                                                            Revenue: <span style={{ color: '#0A0A0A' }}>€{(parseFloat(t.revenue) || 0).toLocaleString()}</span>
+                                                            Revenue: <span style={{ color: '#111' }}>€{(parseFloat(t.revenue) || 0).toLocaleString()}</span>
                                                         </div>
                                                         <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 600 }}>
                                                             {t.purchases || 0} sales

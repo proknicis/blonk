@@ -262,7 +262,7 @@
 .info h3 {
     font-size: 1.6rem;
     font-weight: 950;
-    color: #0A0A0A;
+    color: #111;
     margin-bottom: 8px;
     letter-spacing: -0.05em;
 }
@@ -286,7 +286,7 @@
     border-radius: 20px;
     font-size: 0.9rem;
     font-weight: 950;
-    color: #0A0A0A;
+    color: #111;
     border: 1px solid #EAEAEA;
     width: 100%;
 }
@@ -373,9 +373,9 @@
 }
 
 .closeButton:hover {
-    background: #0A0A0A;
+    background: #111;
     color: #FFFFFF;
-    border-color: #0A0A0A;
+    border-color: #111;
     transform: rotate(90deg);
 }
 

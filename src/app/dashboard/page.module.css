@@ -428,7 +428,7 @@
     color: #111;
 }
 
-.btnOutline:hover { border-color: #000; background: rgba(0, 0, 0, 0.05); }
+.btnOutline:hover { border-color: #111; background: rgba(0, 0, 0, 0.05); }
 
 @media (max-width: 1600px) {
     .metricsMatrix { grid-template-columns: repeat(2, 1fr); }

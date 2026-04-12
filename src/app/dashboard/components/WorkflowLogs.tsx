@@ -68,7 +68,7 @@ export default function WorkflowLogs() {
                                             <div style={{ width: '32px', height: '32px', background: '#F1F5F9', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg>
                                             </div>
-                                            <strong style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0A0A0A' }}>{log.workflowName}</strong>
+                                            <strong style={{ fontSize: '0.95rem', fontWeight: 900, color: '#111' }}>{log.workflowName}</strong>
                                         </div>
                                     </td>
                                     <td style={{ padding: '24px 20px' }}>

@@ -140,7 +140,7 @@ export default function ReportsPage() {
                             className={styles.btnPrimary}
                             onClick={() => generateReport("Quick Audit")}
                             disabled={isGenerating}
-                            style={{ padding: '12px 24px', borderRadius: '12px', background: '#0A0A0A', color: '#FFFFFF', fontWeight: 950, fontSize: '0.85rem', border: 'none', cursor: 'pointer' }}
+                            style={{ padding: '12px 24px', borderRadius: '12px', background: '#111', color: '#FFFFFF', fontWeight: 950, fontSize: '0.85rem', border: 'none', cursor: 'pointer' }}
                         >
                             {isGenerating ? "Generating..." : "+ New Report"}
                         </button>

@@ -115,7 +115,7 @@ export default function AdminLayout({
                 <div className={styles.usageSection}>
                      <div className={styles.usageCard} style={{ borderColor: '#34D186', background: '#F0FAF5' }}>
                          <div className={styles.usagePlanTop}>
-                             <span className={styles.planBadge} style={{ background: '#34D186', color: '#0A0A0A' }}>SYSTEM ACTIVE</span>
+                             <span className={styles.planBadge} style={{ background: '#34D186', color: '#111' }}>SYSTEM ACTIVE</span>
                              <div className={styles.tierDots}><span className={styles.tierDot}/><span className={styles.tierDot}/><span className={styles.tierDot}/></div>
                          </div>
                          <div className={styles.statLabel} style={{ color: '#059669' }}>Root Privilege</div>

@@ -240,7 +240,7 @@ function SettingsContent() {
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', background: '#F8FAFC', borderRadius: '14px', border: '1px solid #E2E8F0' }}>
                             <Shield size={16} color="#34D186" />
-                            <span style={{ fontSize: '0.8rem', fontWeight: 950, color: '#0A0A0A', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Vault Encrypted</span>
+                            <span style={{ fontSize: '0.8rem', fontWeight: 950, color: '#111', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Vault Encrypted</span>
                         </div>
                     </div>
 
@@ -363,10 +363,10 @@ function SettingsContent() {
                                     <tr key={member.id}>
                                         <td>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: member.role === 'OWNER' ? '#0A0A0A' : '#F0FAF5', color: member.role === 'OWNER' ? '#FFFFFF' : '#34D186', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 950, fontSize: '0.9rem' }}>
+                                                <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: member.role === 'OWNER' ? '#111' : '#F0FAF5', color: member.role === 'OWNER' ? '#FFFFFF' : '#34D186', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 950, fontSize: '0.9rem' }}>
                                                     {(member.name || 'O').charAt(0).toUpperCase()}
                                                 </div>
-                                                <span style={{ fontWeight: 950, color: '#0A0A0A' }}>{member.name}</span>
+                                                <span style={{ fontWeight: 950, color: '#111' }}>{member.name}</span>
                                             </div>
                                         </td>
                                         <td style={{ color: '#64748B' }}>{member.email}</td>
@@ -442,7 +442,7 @@ function SettingsContent() {
                                     <tr key={inv.id}>
                                         <td>{inv.invoiceNumber}</td>
                                         <td>{new Date(inv.date).toLocaleDateString()}</td>
-                                        <td style={{ fontWeight: 950, color: '#0A0A0A' }}>{inv.amount}</td>
+                                        <td style={{ fontWeight: 950, color: '#111' }}>{inv.amount}</td>
                                         <td><span className={styles.statusPaid}>COMMITTED</span></td>
                                         <td style={{ textAlign: 'right' }}><button className={styles.downloadBtn}><Download size={18} /></button></td>
                                     </tr>

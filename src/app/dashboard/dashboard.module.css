@@ -1,7 +1,7 @@
 /* 
   BLONK | INSTITUTIONAL DASHBOARD CORE
   Aesthetic: Elite Sovereign UI
-  Color Palette: Pure White (#FFFFFF), Deep Carbon (#0A0A0A), Institutional Emerald (#34D186)
+  Color Palette: Pure White (#FFFFFF), Deep Carbon (#111), Institutional Emerald (#34D186)
 */
 
 .appShell {
@@ -354,7 +354,7 @@
 .pageTitle {
     font-size: 1.5rem;
     font-weight: 950;
-    color: #FFFFFF;
+    color: #111;
     letter-spacing: -0.04em;
     margin: 0;
 }
@@ -373,7 +373,7 @@
     height: 48px;
     border-radius: 16px;
     background: #FFFFFF;
-    color: #000000;
+    color: #111;
     font-weight: 950;
     font-size: 0.95rem;
     text-decoration: none;
@@ -515,7 +515,7 @@
 
 .dropdownItemTitle {
     font-weight: 950;
-    color: #0A0A0A;
+    color: #111;
     margin-bottom: 4px;
 }
 
@@ -538,7 +538,7 @@
     border-radius: 12px;
     background: #F8F9FA;
     border: 1px solid #EAEAEA;
-    color: #0A0A0A;
+    color: #111;
     font-weight: 950;
     cursor: pointer;
 }
@@ -571,7 +571,7 @@
 .userDropdownName {
     font-size: 1.25rem;
     font-weight: 950;
-    color: #0A0A0A;
+    color: #111;
     margin-bottom: 4px;
     letter-spacing: -0.04em;
 }
@@ -593,7 +593,7 @@
     padding: 16px 20px;
     border-radius: 18px;
     font-weight: 900;
-    color: #0A0A0A;
+    color: #111;
     display: flex;
     align-items: center;
     gap: 16px;
@@ -613,7 +613,7 @@
 }
 
 .userDropdownLink:hover svg {
-    color: #0A0A0A;
+    color: #111;
 }
 
 .userDropdownDivider {

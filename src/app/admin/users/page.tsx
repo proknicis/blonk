@@ -54,12 +54,12 @@ export default function AdminUsersPage() {
             <ModalPortal>
                 <div className={adminStyles.modalOverlay} onClick={onClose} style={{ zIndex: 10000 }}>
                     <div className={adminStyles.modal} onClick={e => e.stopPropagation()}>
-                        <div className={adminStyles.modalHeader} style={{ background: '#0A0A0A', backgroundImage: 'none' }}>
+                        <div className={adminStyles.modalHeader} style={{ background: '#111', backgroundImage: 'none' }}>
                             <button className={adminStyles.modalClose} onClick={onClose}>
                                 <X size={20} />
                             </button>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-                                <div className={adminStyles.requesterAvatar} style={{ width: '100px', height: '100px', fontSize: '2.5rem', background: '#34D186', color: '#0A0A0A' }}>
+                                <div className={adminStyles.requesterAvatar} style={{ width: '100px', height: '100px', fontSize: '2.5rem', background: '#34D186', color: '#111' }}>
                                     {user.name?.charAt(0) || "U"}
                                 </div>
                                 <div>
@@ -74,7 +74,7 @@ export default function AdminUsersPage() {
                                             {user.tier || 'Free'}
                                         </span>
                                         {parseFloat(user.totalSpend) > 5000 && (
-                                            <span className={adminStyles.tierBadge} style={{ background: '#34D186', color: '#0A0A0A', padding: '6px 16px', fontSize: '0.8rem', fontWeight: 950 }}>
+                                            <span className={adminStyles.tierBadge} style={{ background: '#34D186', color: '#111', padding: '6px 16px', fontSize: '0.8rem', fontWeight: 950 }}>
                                                 HIGH VALUE
                                             </span>
                                         )}
@@ -154,7 +154,7 @@ export default function AdminUsersPage() {
 
                             {modalTab === "Workflows" && (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                                    <div className={adminStyles.parameterCard} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', background: '#0A0A0A', color: 'white' }}>
+                                    <div className={adminStyles.parameterCard} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', background: '#111', color: 'white' }}>
                                         <div>
                                             <span className={adminStyles.parameterLabel} style={{ color: '#94A3B8' }}>Active Deployments</span>
                                             <span className={adminStyles.parameterValue} style={{ fontSize: '1.5rem', color: '#34D186' }}>{user.workflowsUsed || 0} Pipelines</span>
@@ -168,7 +168,7 @@ export default function AdminUsersPage() {
                                                 <div key={i} className={adminStyles.workflowChip} style={{ padding: '16px', justifyContent: 'space-between', borderRadius: '12px', background: '#F8FAFC' }}>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                                         <div style={{ width: '8px', height: '8px', background: '#34D186', borderRadius: '50%' }} />
-                                                        <span style={{ fontWeight: 800, color: '#0A0A0A' }}>{w}</span>
+                                                        <span style={{ fontWeight: 800, color: '#111' }}>{w}</span>
                                                     </div>
                                                     <span style={{ color: '#64748B', fontSize: '0.75rem', fontWeight: 900 }}>INSTALLED</span>
                                                 </div>
@@ -188,7 +188,7 @@ export default function AdminUsersPage() {
                                     <div className={adminStyles.parameterCard} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', background: '#F0FAF5', borderColor: '#34D186' }}>
                                         <div>
                                             <span className={adminStyles.parameterLabel} style={{ color: '#059669' }}>Institutional Value</span>
-                                            <span className={adminStyles.parameterValue} style={{ color: '#0A0A0A', fontSize: '2rem' }}>
+                                            <span className={adminStyles.parameterValue} style={{ color: '#111', fontSize: '2rem' }}>
                                                 €{(parseFloat(user.totalSpend) || 0).toLocaleString()}
                                             </span>
                                         </div>
@@ -254,7 +254,7 @@ export default function AdminUsersPage() {
                                         ].map((log, i) => (
                                             <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #F1F5F9' }}>
                                                 <div>
-                                                    <div style={{ fontWeight: 800, color: '#0A0A0A', fontSize: '0.9rem' }}>{log.action}</div>
+                                                    <div style={{ fontWeight: 800, color: '#111', fontSize: '0.9rem' }}>{log.action}</div>
                                                     <div style={{ fontSize: '0.75rem', color: '#94A3B8', fontWeight: 700 }}>{log.time}</div>
                                                 </div>
                                                 <div style={{ color: '#34D186', fontSize: '0.7rem', fontWeight: 950 }}>{log.status}</div>
@@ -286,7 +286,7 @@ export default function AdminUsersPage() {
                                     {user.status === 'Suspended' ? 'Re-Activate Account' : 'Suspend Account Access'}
                                 </button>
                             </div>
-                            <button className={adminStyles.refreshBtn} onClick={onClose} style={{ height: '52px', background: 'white', border: '1px solid #EAEAEA', color: '#0A0A0A' }}>
+                            <button className={adminStyles.refreshBtn} onClick={onClose} style={{ height: '52px', background: 'white', border: '1px solid #EAEAEA', color: '#111' }}>
                                 Close Registry Entry
                             </button>
                         </div>
@@ -528,7 +528,7 @@ export default function AdminUsersPage() {
                                         <tr>
                                             <td colSpan={7} style={{ padding: '80px 0', textAlign: 'center' }}>
                                                 <Users size={48} style={{ color: '#EAEAEA', marginBottom: '20px' }} />
-                                                <p style={{ fontWeight: 900, color: '#0A0A0A', fontSize: '1.1rem' }}>No users found</p>
+                                                <p style={{ fontWeight: 900, color: '#111', fontSize: '1.1rem' }}>No users found</p>
                                                 <p style={{ color: '#94A3B8', fontWeight: 700 }}>Adjust your parameters to locate the operator.</p>
                                             </td>
                                         </tr>

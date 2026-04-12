@@ -90,7 +90,7 @@ export default function FleetVelocityChart({ initialData }: { initialData: Chart
                        <TrendingUp size={24} style={{ margin: 'auto' }}/>
                    </div>
                    <div>
-                       <h4 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 950, color: '#0A0A0A', letterSpacing: '-0.04em' }}>Fleet Velocity</h4>
+                       <h4 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 950, color: '#111', letterSpacing: '-0.04em' }}>Fleet Velocity</h4>
                        <span style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 700 }}>Autonomous data throughput across active sectors</span>
                    </div>
                 </div>
@@ -104,7 +104,7 @@ export default function FleetVelocityChart({ initialData }: { initialData: Chart
                                 padding: '8px 16px',
                                 borderRadius: '10px',
                                 border: 'none',
-                                background: range === r ? '#0A0A0A' : 'transparent',
+                                background: range === r ? '#111' : 'transparent',
                                 color: range === r ? '#FFFFFF' : '#64748B',
                                 fontSize: '0.75rem',
                                 fontWeight: 950,
@@ -189,7 +189,7 @@ export default function FleetVelocityChart({ initialData }: { initialData: Chart
                            x1={(hoverIndex / (chartLines[0].data.length - 1)) * 1000} 
                            y1="0" x2={(hoverIndex / (chartLines[0].data.length - 1)) * 1000} 
                            y2="240" 
-                           stroke="#0A0A0A" 
+                           stroke="#111" 
                            strokeWidth="1" 
                         />
                     )}
@@ -202,7 +202,7 @@ export default function FleetVelocityChart({ initialData }: { initialData: Chart
                         top: '-60px',
                         left: `${(hoverIndex / (chartLines[0].data.length - 1)) * 100}%`,
                         transform: 'translateX(-50%)',
-                        background: '#0A0A0A',
+                        background: '#111',
                         color: '#FFFFFF',
                         padding: '12px 18px',
                         borderRadius: '12px',
@@ -248,14 +248,14 @@ export default function FleetVelocityChart({ initialData }: { initialData: Chart
                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                    <div style={{ width: '12px', height: '12px', borderRadius: '4px', background: '#34D186' }} />
                    <div>
-                       <div style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0A0A0A' }}>Sovereign Flow</div>
+                       <div style={{ fontSize: '0.85rem', fontWeight: 950, color: '#111' }}>Sovereign Flow</div>
                        <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 700 }}>Primary Loop Throughput</div>
                    </div>
                </div>
                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                    <div style={{ width: '12px', height: '12px', borderRadius: '4px', background: '#0EA5E9' }} />
                    <div>
-                       <div style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0A0A0A' }}>Subsystem Mirror</div>
+                       <div style={{ fontSize: '0.85rem', fontWeight: 950, color: '#111' }}>Subsystem Mirror</div>
                        <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 700 }}>Mirrored Data Sync</div>
                    </div>
                </div>

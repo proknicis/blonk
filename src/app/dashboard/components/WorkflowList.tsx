@@ -113,7 +113,7 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                                         className={styles.forceStartBtn}
                                         onClick={() => runWorkflow(wf, 'START')}
                                         disabled={runningId === `${wf.id}-START`}
-                                        style={{ background: '#FFFFFF', color: '#000000', border: 'none' }}
+                                        style={{ background: '#FFFFFF', color: '#111', border: 'none' }}
                                     >
                                         {runningId === `${wf.id}-START` ? "..." : (
                                             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>

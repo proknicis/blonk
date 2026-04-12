@@ -404,13 +404,13 @@ export default function WorkflowsPage() {
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                             <div style={{ background: '#F8FAFC', padding: '24px', borderRadius: '24px', border: '1px solid #E2E8F0' }}>
-                                <h3 style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0A0A0A', marginTop: 0, marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Trigger & Action Diagram</h3>
+                                <h3 style={{ fontSize: '0.85rem', fontWeight: 950, color: '#111', marginTop: 0, marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Trigger & Action Diagram</h3>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                     {previewTemplate.blueprint.logic.map((step: string, idx: number) => (
                                         <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                             <div style={{ display: 'flex', gap: '16px', alignItems: 'center', width: '100%', background: '#FFFFFF', padding: '16px', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
                                                 <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: idx === 0 ? '#FEF3C7' : '#F0FAF5', color: idx === 0 ? '#D97706' : '#34D186', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{idx === 0 ? '⚡' : '→'}</div>
-                                                <p style={{ margin: 0, fontSize: '0.95rem', color: '#0A0A0A', fontWeight: 800 }}>{step}</p>
+                                                <p style={{ margin: 0, fontSize: '0.95rem', color: '#111', fontWeight: 800 }}>{step}</p>
                                             </div>
                                             {idx < previewTemplate.blueprint.logic.length - 1 && <div style={{ width: '2px', height: '16px', background: '#CBD5E1', alignSelf: 'center' }}></div>}
                                         </div>
@@ -424,12 +424,12 @@ export default function WorkflowsPage() {
                                 </div>
                                 <div style={{ padding: '24px', background: '#FAFAFA', borderRadius: '20px', border: '1px solid #EAEAEA' }}>
                                     <label style={{ fontSize: '0.75rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Execution Precision</label>
-                                    <div style={{ fontSize: '1.5rem', fontWeight: 950, color: '#0A0A0A' }}>{previewTemplate.blueprint.impact.accuracy}</div>
+                                    <div style={{ fontSize: '1.5rem', fontWeight: 950, color: '#111' }}>{previewTemplate.blueprint.impact.accuracy}</div>
                                 </div>
                             </div>
                         </div>
                         <div style={{ display: 'flex', gap: '12px', marginTop: '40px' }}>
-                            <button className={styles.btnPrimary} style={{ flex: 1, padding: '18px', borderRadius: '18px', fontWeight: 950, background: '#0A0A0A', color: 'white' }} onClick={() => { setPreviewTemplate(null); handleAddClick(previewTemplate); }}>Use Template</button>
+                            <button className={styles.btnPrimary} style={{ flex: 1, padding: '18px', borderRadius: '18px', fontWeight: 950, background: '#111', color: 'white' }} onClick={() => { setPreviewTemplate(null); handleAddClick(previewTemplate); }}>Use Template</button>
                         </div>
                         </div>
                     </div>

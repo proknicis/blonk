@@ -240,7 +240,7 @@ export default function AdminControlPage() {
                         <span className={adminStyles.metricTag}>SYSTEM ERRORS</span>
                         <TriangleAlert size={14} color="#EF4444" />
                     </div>
-                    <div className={adminStyles.metricAmount} style={{ color: workflows.some(wf => wf.status === 'Error') ? '#EF4444' : '#0A0A0A' }}>
+                    <div className={adminStyles.metricAmount} style={{ color: workflows.some(wf => wf.status === 'Error') ? '#EF4444' : '#111' }}>
                         {isLoadingWorkflows ? <Skeleton width="40px" height="32px" /> : workflows.filter(wf => wf.status === 'Error').length}
                     </div>
                     <div className={adminStyles.metricDetail}>Nodes requiring attention</div>
@@ -343,7 +343,7 @@ export default function AdminControlPage() {
                                             <tr>
                                                 <td colSpan={5} style={{ padding: '80px 0', textAlign: 'center' }}>
                                                     <Database size={48} style={{ color: '#EAEAEA', marginBottom: '20px' }} />
-                                                    <p style={{ fontWeight: 900, color: '#0A0A0A', fontSize: '1.1rem' }}>No operational nodes found</p>
+                                                    <p style={{ fontWeight: 900, color: '#111', fontSize: '1.1rem' }}>No operational nodes found</p>
                                                 </td>
                                             </tr>
                                         ) : (
@@ -353,7 +353,7 @@ export default function AdminControlPage() {
                                                     <tr key={wf.id} className={adminStyles.registryRow} style={{ background: wf.status === 'Error' ? 'rgba(239, 68, 68, 0.02)' : 'transparent' }}>
                                                         <td>
                                                             <div className={adminStyles.loopDetail}>
-                                                                <div className={adminStyles.loopIcon} style={{ background: wf.status === 'Error' ? '#FEF2F2' : '#FFFFFF', color: wf.status === 'Error' ? '#EF4444' : '#0A0A0A' }}>
+                                                                <div className={adminStyles.loopIcon} style={{ background: wf.status === 'Error' ? '#FEF2F2' : '#FFFFFF', color: wf.status === 'Error' ? '#EF4444' : '#111' }}>
                                                                     <Zap size={18} />
                                                                 </div>
                                                                 <div>
@@ -373,7 +373,7 @@ export default function AdminControlPage() {
                                                                 <div>
                                                                     <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                                                                         <span className={adminStyles.requesterName} style={{ fontSize: '0.85rem' }}>{wf.requestedBy}</span>
-                                                                        <span className={adminStyles.tierBadge} style={{ fontSize: '0.6rem', padding: '2px 6px', background: wf.userTier === 'Enterprise' ? '#0A0A0A' : '#F1F5F9', color: wf.userTier === 'Enterprise' ? '#34D186' : '#64748B' }}>{wf.userTier}</span>
+                                                                        <span className={adminStyles.tierBadge} style={{ fontSize: '0.6rem', padding: '2px 6px', background: wf.userTier === 'Enterprise' ? '#111' : '#F1F5F9', color: wf.userTier === 'Enterprise' ? '#34D186' : '#64748B' }}>{wf.userTier}</span>
                                                                     </div>
                                                                     <div className={adminStyles.requesterEmail} style={{ fontSize: '0.7rem' }}>{wf.workflowCount} workflows active</div>
                                                                 </div>
@@ -386,7 +386,7 @@ export default function AdminControlPage() {
                                                                         {sd.icon}
                                                                         <span>{wf.status}</span>
                                                                     </div>
-                                                                    <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#0A0A0A' }}>{wf.progress}%</span>
+                                                                    <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#111' }}>{wf.progress}%</span>
                                                                 </div>
                                                                 <div style={{ height: '6px', width: '100%', background: '#F1F5F9', borderRadius: '10px', overflow: 'hidden' }}>
                                                                     <div style={{ height: '100%', width: `${wf.progress}%`, background: sd.color, transition: 'width 1s cubic-bezier(0.16, 1, 0.3, 1)' }} />
@@ -401,7 +401,7 @@ export default function AdminControlPage() {
                                                         </td>
                                                         <td>
                                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                                <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0A0A0A' }}>
+                                                                <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#111' }}>
                                                                     {wf.status === 'Ready' ? 'Operational' : 'Calibrating node...'}
                                                                 </div>
                                                                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -553,10 +553,10 @@ export default function AdminControlPage() {
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                                             <div style={{ width: '40px', height: '40px', background: '#F8F9FA', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                <Database size={20} color="#0A0A0A" />
+                                                <Database size={20} color="#111" />
                                             </div>
                                             <div>
-                                                <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#0A0A0A', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Inbound Parameters</h4>
+                                                <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#111', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Inbound Parameters</h4>
                                                 <div style={{ fontSize: '0.75rem', color: '#94A3B8', fontWeight: 800 }}>Pre-configured node variables</div>
                                             </div>
                                         </div>
@@ -582,7 +582,7 @@ export default function AdminControlPage() {
                                                         <div style={{ width: '64px', height: '64px', background: '#FFFFFF', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
                                                             <Database size={28} style={{ color: '#E2E8F0' }} />
                                                         </div>
-                                                        <h5 style={{ fontSize: '1.1rem', color: '#0A0A0A', fontWeight: 950, margin: '0 0 8px' }}>No custom data</h5>
+                                                        <h5 style={{ fontSize: '1.1rem', color: '#111', fontWeight: 950, margin: '0 0 8px' }}>No custom data</h5>
                                                         <p style={{ fontSize: '0.9rem', color: '#94A3B8', fontWeight: 750, margin: 0, maxWidth: '240px', marginInline: 'auto', lineHeight: '1.5' }}>This node instance is operating with default system parameters.</p>
                                                     </div>
                                                 );
@@ -608,11 +608,11 @@ export default function AdminControlPage() {
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
                                     <div>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                                            <ShieldCheck size={18} color="#0A0A0A" />
-                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#0A0A0A', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Sovereign Loop Identity</h4>
+                                            <ShieldCheck size={18} color="#111" />
+                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#111', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Sovereign Loop Identity</h4>
                                         </div>
                                         <div style={{ display: 'flex', gap: '12px' }}>
-                                            <div style={{ flex: 1, padding: '24px', borderRadius: '24px', background: '#F8FAFC', border: '2px solid #F1F5F9', fontSize: '1.25rem', fontWeight: 950, color: '#0A0A0A', fontFamily: 'monospace', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                            <div style={{ flex: 1, padding: '24px', borderRadius: '24px', background: '#F8FAFC', border: '2px solid #F1F5F9', fontSize: '1.25rem', fontWeight: 950, color: '#111', fontFamily: 'monospace', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                                 <span>{configWorkflow.id.substring(0, 8)}...{configWorkflow.id.substring(configWorkflow.id.length - 8)}</span>
                                                 <div style={{ color: '#34D186', fontSize: '0.75rem', fontWeight: 950, background: 'rgba(52, 209, 134, 0.1)', padding: '4px 12px', borderRadius: '100px' }}>SECURE</div>
                                             </div>
@@ -628,8 +628,8 @@ export default function AdminControlPage() {
 
                                     <div className={adminStyles.inputWrapper}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                                            <Link2 size={18} color="#0A0A0A" />
-                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#0A0A0A', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Production Endpoint</h4>
+                                            <Link2 size={18} color="#111" />
+                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#111', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Production Endpoint</h4>
                                         </div>
                                         <input 
                                             type="text" 
@@ -649,9 +649,9 @@ export default function AdminControlPage() {
                                 <div style={{ textAlign: 'center', padding: '40px 0' }}>
                                     <div style={{ width: '120px', height: '120px', background: 'rgba(52, 209, 134, 0.1)', color: '#34D186', borderRadius: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 40px', position: 'relative' }}>
                                         <CheckCircle2 size={56} strokeWidth={2.5} />
-                                        <div style={{ position: 'absolute', top: -10, right: -10, background: '#0A0A0A', color: 'white', fontSize: '0.7rem', fontWeight: 950, padding: '6px 14px', borderRadius: '100px' }}>READY</div>
+                                        <div style={{ position: 'absolute', top: -10, right: -10, background: '#111', color: 'white', fontSize: '0.7rem', fontWeight: 950, padding: '6px 14px', borderRadius: '100px' }}>READY</div>
                                     </div>
-                                    <h4 style={{ margin: 0, fontSize: '2.25rem', color: '#0A0A0A', fontWeight: 950, letterSpacing: '-0.04em' }}>Authorization Verified</h4>
+                                    <h4 style={{ margin: 0, fontSize: '2.25rem', color: '#111', fontWeight: 950, letterSpacing: '-0.04em' }}>Authorization Verified</h4>
                                     <p style={{ fontSize: '1.1rem', color: '#64748B', maxWidth: '420px', margin: '24px auto 0', lineHeight: '1.6', fontWeight: 700 }}>
                                         The loop is fully calibrated and ready for production deployment. Activating will initiate real-time telemetry and notify the requester.
                                     </p>
@@ -661,12 +661,12 @@ export default function AdminControlPage() {
                                             <div style={{ width: '12px', height: '12px', background: '#34D186', borderRadius: '50%' }} />
                                             <div style={{ flex: 1 }}>
                                                 <div style={{ fontSize: '0.75rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Target Endpoint</div>
-                                                <div style={{ fontSize: '1rem', fontWeight: 800, color: '#0A0A0A', fontFamily: 'monospace' }}>{webhookUrl || "No endpoint specified"}</div>
+                                                <div style={{ fontSize: '1rem', fontWeight: 800, color: '#111', fontFamily: 'monospace' }}>{webhookUrl || "No endpoint specified"}</div>
                                             </div>
                                             <ShieldCheck size={20} color="#34D186" />
                                         </div>
 
-                                        <div style={{ padding: '16px 24px', background: '#0A0A0A', borderRadius: '16px', textAlign: 'left' }}>
+                                        <div style={{ padding: '16px 24px', background: '#111', borderRadius: '16px', textAlign: 'left' }}>
                                             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '8px' }}>
                                                 <div style={{ width: '6px', height: '6px', background: '#34D186', borderRadius: '50%' }} />
                                                 <span style={{ fontSize: '0.7rem', color: '#34D186', fontWeight: 950, letterSpacing: '0.1em' }}>SYSTEM LOGS</span>
@@ -704,8 +704,8 @@ export default function AdminControlPage() {
                             <button 
                                 className={styles.btnInstitutional} 
                                 style={{ 
-                                    background: configStep === 3 ? '#34D186' : '#0A0A0A', 
-                                    color: configStep === 3 ? '#0A0A0A' : '#FFFFFF', 
+                                    background: configStep === 3 ? '#34D186' : '#111', 
+                                    color: configStep === 3 ? '#111' : '#FFFFFF', 
                                     minWidth: '240px', 
                                     height: '56px', 
                                     borderRadius: '18px', 
@@ -747,7 +747,7 @@ export default function AdminControlPage() {
             {viewingLogs && (
                 <div className={adminStyles.modalOverlay} onClick={() => setViewingLogs(null)}>
                     <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '800px' }}>
-                        <div className={adminStyles.modalHeader} style={{ background: '#0A0A0A', backgroundImage: 'none', borderBottom: '1px solid #222' }}>
+                        <div className={adminStyles.modalHeader} style={{ background: '#111', backgroundImage: 'none', borderBottom: '1px solid #EAEAEA' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
@@ -762,7 +762,7 @@ export default function AdminControlPage() {
                                 </button>
                             </div>
                         </div>
-                        <div className={adminStyles.modalBody} style={{ padding: '32px', background: '#050505', color: '#D1D5DB', fontFamily: 'monospace', fontSize: '0.85rem', minHeight: '400px', maxHeight: '600px', overflowY: 'auto' }}>
+                        <div className={adminStyles.modalBody} style={{ padding: '32px', background: '#FAFAFA', color: '#D1D5DB', fontFamily: 'monospace', fontSize: '0.85rem', minHeight: '400px', maxHeight: '600px', overflowY: 'auto' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                 {[
                                     { time: '14:22:01', type: 'SYS', msg: 'Initializing production handshake...' },
@@ -772,7 +772,7 @@ export default function AdminControlPage() {
                                     viewingLogs.status === 'Error' ? { time: new Date(viewingLogs.updatedAt).toLocaleTimeString(), type: 'ERR', msg: viewingLogs.errorMessage || 'Unknown system error during handshake.', color: '#EF4444' } : null,
                                     (viewingLogs.status === 'Ready' || viewingLogs.status === 'Active') ? { time: new Date(viewingLogs.updatedAt).toLocaleTimeString(), type: 'OK', msg: 'Node heartbeat established. Operational.', color: '#34D186' } : null,
                                 ].filter(Boolean).map((log: any, i) => (
-                                    <div key={i} style={{ display: 'flex', gap: '16px', borderLeft: `2px solid ${log.color || '#222'}`, paddingLeft: '16px' }}>
+                                    <div key={i} style={{ display: 'flex', gap: '16px', borderLeft: `2px solid ${log.color || '#EAEAEA'}`, paddingLeft: '16px' }}>
                                         <span style={{ color: '#4B5563', flexShrink: 0 }}>[{log.time}]</span>
                                         <span style={{ color: log.color || '#34D186', fontWeight: 900, width: '45px', flexShrink: 0 }}>{log.type}</span>
                                         <span style={{ color: log.color || '#D1D5DB' }}>{log.msg}</span>
@@ -784,8 +784,8 @@ export default function AdminControlPage() {
                                 </div>
                             </div>
                         </div>
-                        <div className={adminStyles.modalFooter} style={{ background: '#0A0A0A', borderTop: '1px solid #222' }}>
-                            <button className={adminStyles.refreshBtn} style={{ background: '#111', borderColor: '#222' }}>
+                        <div className={adminStyles.modalFooter} style={{ background: '#111', borderTop: '1px solid #EAEAEA' }}>
+                            <button className={adminStyles.refreshBtn} style={{ background: '#111', borderColor: '#EAEAEA' }}>
                                 <RefreshCcw size={14} /> Clear Buffer
                             </button>
                             <button 

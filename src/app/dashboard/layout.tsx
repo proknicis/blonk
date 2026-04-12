@@ -178,7 +178,7 @@ export default function DashboardLayout({
                                 <button 
                                     className={styles.createWorkflowBtn} 
                                     onClick={() => window.dispatchEvent(new CustomEvent('OPEN_INVITE_MODAL'))}
-                                    style={{ background: '#34D186', color: '#0A0A0A' }}
+                                    style={{ background: '#34D186', color: '#111' }}
                                 >
                                     <Users size={16} /> Invite Member
                                 </button>

@@ -38,10 +38,10 @@
     letter-spacing: -0.02em;
 }
 
-.tab:hover { color: #0A0A0A; }
+.tab:hover { color: #111; }
 
 .activeTab {
-    color: #0A0A0A;
+    color: #111;
 }
 
 .activeTab::after {
@@ -70,7 +70,7 @@
 .section h2 {
     font-size: 1.5rem;
     font-weight: 950;
-    color: #0A0A0A;
+    color: #111;
     margin: 0;
     letter-spacing: -0.04em;
 }
@@ -99,13 +99,13 @@
     padding: 18px 24px;
     font-size: 1rem;
     font-weight: 800;
-    color: #0A0A0A;
+    color: #111;
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .input:focus {
     background: #FFFFFF;
-    border-color: #0A0A0A;
+    border-color: #111;
     outline: none;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
 }
@@ -127,7 +127,7 @@
     display: block;
     font-size: 1rem;
     font-weight: 950;
-    color: #0A0A0A;
+    color: #111;
     margin-bottom: 4px;
 }
 
@@ -193,7 +193,7 @@ input:checked + .slider:before { transform: translateX(24px); }
 }
 
 .institutionCard:hover, .infrastructureCard:hover {
-    border-color: #0A0A0A;
+    border-color: #111;
     transform: translateY(-4px);
     box-shadow: 0 40px 100px rgba(0, 0, 0, 0.04);
 }
@@ -348,12 +348,12 @@ input:checked + .slider:before { transform: translateX(24px); }
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #0A0A0A;
+    color: #111;
     cursor: pointer;
     transition: all 0.25s ease;
 }
 
-.downloadBtn:hover { border-color: #0A0A0A; background: #FFFFFF; }
+.downloadBtn:hover { border-color: #111; background: #FFFFFF; }
 
 @media (max-width: 1200px) {
     .planGrid { grid-template-columns: 1fr; }
