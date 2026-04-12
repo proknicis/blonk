@@ -108,7 +108,7 @@ export default function ReportsPage() {
             <div className={styles.reportsGrid}>
                 {reportTemplates.map((template) => (
                     <div key={template.id} className={styles.reportCard}>
-                        <div className={styles.cardIcon} style={{ background: template.color, color: template.text }}>
+                        <div className={styles.cardIcon}>
                             {template.icon}
                         </div>
                         <div className={styles.cardContent}>
@@ -131,16 +131,15 @@ export default function ReportsPage() {
 
             <div className={styles.historySection}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-                    <h2 className={styles.sectionTitle} style={{ margin: 0 }}>Recent Generations</h2>
+                    <h2 className={styles.sectionTitle}>Recent Generations</h2>
                     <div style={{ display: 'flex', gap: '12px' }}>
-                         <a className={styles.btnOutline as unknown as string} href={exportHref} style={{ padding: '12px 24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', fontWeight: 900, fontSize: '0.85rem' }}>
+                         <a className={styles.rowActionBtn} href={exportHref}>
                             Export All
                         </a>
                         <button
-                            className={styles.btnPrimary}
+                            className={styles.actionBtn}
                             onClick={() => generateReport("Quick Audit")}
                             disabled={isGenerating}
-                            style={{ padding: '12px 24px', borderRadius: '12px', background: '#111', color: '#FFFFFF', fontWeight: 950, fontSize: '0.85rem', border: 'none', cursor: 'pointer' }}
                         >
                             {isGenerating ? "Generating..." : "+ New Report"}
                         </button>
@@ -183,7 +182,7 @@ export default function ReportsPage() {
                                 <tr key={i}>
                                     <td>
                                         <div className={styles.reportName}>
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#949A97" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ opacity: 0.3 }}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
                                             <strong>{report.title || report.name}</strong>
                                         </div>
                                     </td>
@@ -192,7 +191,7 @@ export default function ReportsPage() {
                                     <td><span className={`${styles.statusPill} ${styles.statusReady}`}>{report.status || 'Success'}</span></td>
                                     <td className={styles.rowActions}>
                                         <button className={styles.rowActionBtn} onClick={() => setSelectedReport(report)}>View</button>
-                                        <a className={styles.rowActionBtn as unknown as string} href={`/api/reports/download?id=${encodeURIComponent(report.id)}`}>
+                                        <a className={styles.rowActionBtn} href={`/api/reports/download?id=${encodeURIComponent(report.id)}`}>
                                             Download
                                         </a>
                                     </td>
@@ -201,7 +200,7 @@ export default function ReportsPage() {
                         )}
                         {!isLoading && history.length === 0 && (
                             <tr>
-                                <td colSpan={5} style={{ textAlign: 'center', padding: '100px 0', color: '#94A3B8' }}>
+                                <td colSpan={5} style={{ textAlign: 'center', padding: '100px 0', opacity: 0.5 }}>
                                     <div style={{ fontWeight: 800 }}>No reports generated yet.</div>
                                 </td>
                             </tr>
@@ -212,11 +211,11 @@ export default function ReportsPage() {
 
             {selectedReport && (
                 <ModalPortal>
-                    <div className={styles.modalOverlay} onClick={() => setSelectedReport(null)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(12px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div className={styles.modalOverlay} onClick={() => setSelectedReport(null)}>
                         <div className={styles.modal} onClick={e => e.stopPropagation()}>
                             <div className={styles.modalHeader}>
                                 <h2>{selectedReport.title || selectedReport.name}</h2>
-                                <button className={styles.closeBtn} onClick={() => setSelectedReport(null)}>&times;</button>
+                                <button style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: 'var(--foreground)', opacity: 0.5 }} onClick={() => setSelectedReport(null)}>&times;</button>
                             </div>
                             <div className={styles.modalContent}>
                                 <div className={styles.reportMeta}>
@@ -225,8 +224,8 @@ export default function ReportsPage() {
                                     <span><strong>ID:</strong> {selectedReport.id.substring(0, 8)}</span>
                                 </div>
                                 <div className={styles.reportData}>
-                                    <h3>Operational Metrics Summary</h3>
-                                    <p>{selectedReport.result || selectedReport.content}</p>
+                                    <h3 style={{ fontSize: '1.1rem', fontWeight: 950, marginBottom: '16px' }}>Operational Metrics Summary</h3>
+                                    <p style={{ lineHeight: 1.6, color: 'var(--muted-foreground)', marginBottom: '32px' }}>{selectedReport.result || selectedReport.content}</p>
 
                                     <div className={styles.summaryBox}>
                                         <div>
@@ -244,9 +243,9 @@ export default function ReportsPage() {
                                     </div>
                                 </div>
                             </div>
-                            <div className={styles.modalFooter}>
-                                <button className={styles.btnOutline} onClick={() => setSelectedReport(null)}>Close</button>
-                                <a className={styles.btnPrimary as unknown as string} href={`/api/reports/download?id=${encodeURIComponent(selectedReport.id)}`}>
+                            <div style={{ padding: '32px 40px', borderTop: '1px solid var(--border)', display: 'flex', gap: '12px' }}>
+                                <button className={styles.rowActionBtn} style={{ flex: 1, padding: '12px' }} onClick={() => setSelectedReport(null)}>Close</button>
+                                <a className={styles.actionBtn} style={{ flex: 1, textAlign: 'center' }} href={`/api/reports/download?id=${encodeURIComponent(selectedReport.id)}`}>
                                     Download TXT
                                 </a>
                             </div>

@@ -91,13 +91,13 @@ export default function DashboardLayout({
     };
 
     return (
-        <div className={styles.appShell} onMouseDownCapture={onShellMouseDownCapture} style={{ backgroundColor: '#FAFAFA', color: '#111' }}>
+        <div className={styles.appShell} onMouseDownCapture={onShellMouseDownCapture}>
             <div className={styles.noise} />
             
             {/* SIDEBAR: Sovereign Institutional */}
-            <aside className={styles.sidebar} style={{ backgroundColor: '#FFFFFF', color: '#111', borderRight: '1px solid rgba(0,0,0,0.05)' }}>
+            <aside className={styles.sidebar}>
                 <div className={styles.sidebarBrand}>
-                    <Link href="/dashboard" className={styles.logo} style={{ color: '#111' }}>
+                    <Link href="/dashboard" className={styles.logo}>
                         <div className={styles.logo_dot} />
                         BLONK
                     </Link>
@@ -108,27 +108,27 @@ export default function DashboardLayout({
                         <span className={styles.navGroupLabel}>Menu</span>
                         <ul>
                             <li>
-                                <Link href="/dashboard" className={`${styles.navLink} ${pathname === '/dashboard' ? styles.navLinkActive : ''}`} style={{ color: pathname === '/dashboard' ? '#111' : 'rgba(0,0,0,0.4)' }}>
+                                <Link href="/dashboard" className={`${styles.navLink} ${pathname === '/dashboard' ? styles.navLinkActive : ''}`}>
                                     <LayoutGrid size={20} /> Overview
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/office" className={`${styles.navLink} ${pathname === '/dashboard/office' ? styles.navLinkActive : ''}`} style={{ color: pathname === '/dashboard/office' ? '#111' : 'rgba(0,0,0,0.4)' }}>
+                                <Link href="/dashboard/office" className={`${styles.navLink} ${pathname === '/dashboard/office' ? styles.navLinkActive : ''}`}>
                                     <Monitor size={20} /> Mission Control
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/team" className={`${styles.navLink} ${pathname === '/dashboard/team' ? styles.navLinkActive : ''}`} style={{ color: pathname === '/dashboard/team' ? '#111' : 'rgba(0,0,0,0.4)' }}>
+                                <Link href="/dashboard/team" className={`${styles.navLink} ${pathname === '/dashboard/team' ? styles.navLinkActive : ''}`}>
                                     <Users size={20} /> Team
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/workflows" className={`${styles.navLink} ${pathname === '/dashboard/workflows' ? styles.navLinkActive : ''}`} style={{ color: pathname === '/dashboard/workflows' ? '#111' : 'rgba(0,0,0,0.4)' }}>
+                                <Link href="/dashboard/workflows" className={`${styles.navLink} ${pathname === '/dashboard/workflows' ? styles.navLinkActive : ''}`}>
                                     <Zap size={20} /> Marketplace
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/reports" className={`${styles.navLink} ${pathname === '/dashboard/reports' ? styles.navLinkActive : ''}`} style={{ color: pathname === '/dashboard/reports' ? '#111' : 'rgba(0,0,0,0.4)' }}>
+                                <Link href="/dashboard/reports" className={`${styles.navLink} ${pathname === '/dashboard/reports' ? styles.navLinkActive : ''}`}>
                                     <FileText size={20} /> Reports
                                 </Link>
                             </li>
@@ -139,7 +139,7 @@ export default function DashboardLayout({
                         <span className={styles.navGroupLabel}>App</span>
                         <ul>
                             <li>
-                                <Link href="/dashboard/settings" className={`${styles.navLink} ${pathname === '/dashboard/settings' ? styles.navLinkActive : ''}`} style={{ color: pathname === '/dashboard/settings' ? '#111' : 'rgba(0,0,0,0.4)' }}>
+                                <Link href="/dashboard/settings" className={`${styles.navLink} ${pathname === '/dashboard/settings' ? styles.navLinkActive : ''}`}>
                                     <Settings size={20} /> Settings
                                 </Link>
                             </li>
@@ -148,9 +148,9 @@ export default function DashboardLayout({
                 </nav>
 
                 <div className={styles.usageSection}>
-                    <div className={styles.usageCard} style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                    <div className={styles.usageCard}>
                         <div className={styles.usagePlanTop}>
-                            <span className={styles.planBadge} style={{ background: '#111', color: '#34D186' }}>Institutional</span>
+                            <span className={styles.planBadge}>Institutional</span>
                             <div className={styles.tierDots}>
                                 <div className={styles.tierDot} />
                                 <div className={styles.tierDot} />
@@ -158,30 +158,29 @@ export default function DashboardLayout({
                         </div>
                         <div style={{ marginBottom: '16px' }}>
                             <div className={styles.statLabel}>Monthly Throughput</div>
-                            <div className={styles.statValue} style={{ color: '#111' }}>1,240 / 5,000 OPS</div>
+                            <div className={styles.statValue}>1,240 / 5,000 OPS</div>
                         </div>
-                        <div style={{ height: '4px', background: '#E2E8F0', borderRadius: '10px', overflow: 'hidden' }}>
-                            <div style={{ height: '100%', width: '25%', background: '#34D186' }} />
+                        <div className={styles.barContainer}>
+                            <div className={styles.barFill} style={{ width: '25%' }} />
                         </div>
                     </div>
                 </div>
             </aside>
 
-            <main className={styles.mainContent} style={{ backgroundColor: '#FAFAFA' }}>
+            <main className={styles.mainContent}>
                 {/* TOPBAR: Identity & Orchestration */}
-                <header className={styles.topbar} style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                <header className={styles.topbar}>
                     <div className={styles.topbarInner}>
                         <div className={styles.topbarContext}>
-                            <h1 className={styles.pageTitle} style={{ color: '#111' }}>{getModuleTitle(pathname)}</h1>
+                            <h1 className={styles.pageTitle}>{getModuleTitle(pathname)}</h1>
                         </div>
 
                         <div className={styles.searchWrapper}>
-                             <Search className={styles.searchIcon} size={18} style={{ color: 'rgba(0,0,0,0.2)' }} />
+                             <Search className={styles.searchIcon} size={18} />
                              <input 
                                 type="text" 
                                 placeholder="Search systems, loops, or co-pilots..." 
                                 className={styles.searchInput}
-                                style={{ background: 'rgba(0,0,0,0.02)', color: '#111', border: '1px solid rgba(0,0,0,0.05)' }}
                              />
                         </div>
 
@@ -190,7 +189,7 @@ export default function DashboardLayout({
                                 <button 
                                     className={styles.createWorkflowBtn} 
                                     onClick={() => window.dispatchEvent(new CustomEvent('OPEN_INVITE_MODAL'))}
-                                    style={{ background: '#34D186', color: '#111' }}
+                                    style={{ background: 'var(--accent)', color: 'var(--accent-foreground)' }}
                                 >
                                     <Users size={16} /> Invite Member
                                 </button>
@@ -203,14 +202,14 @@ export default function DashboardLayout({
                             )}
 
                             <div ref={notifsAnchorRef} className={styles.dropdownAnchor}>
-                                <button className={styles.iconBtn} onClick={() => setShowNotifs(!showNotifs)} style={{ background: 'rgba(0,0,0,0.02)', color: 'rgba(0,0,0,0.4)', border: '1px solid rgba(0,0,0,0.05)' }}>
+                                <button className={styles.iconBtn} onClick={() => setShowNotifs(!showNotifs)}>
                                     <Bell size={20} />
-                                    {unreadCount > 0 && <span style={{ position: 'absolute', top: '12px', right: '12px', width: '8px', height: '8px', background: '#34D186', borderRadius: '50%', border: '2px solid #FFFFFF' }} />}
+                                    {unreadCount > 0 && <span className={styles.notifBadge} />}
                                 </button>
                                 {showNotifs && (
                                     <div className={styles.dropdown}>
                                         <div className={styles.dropdownTitle}>Notifications</div>
-                                        {notifications.length === 0 ? <div style={{padding: '20px', textAlign: 'center', fontSize: '0.85rem', color: '#64748B'}}>No new alerts</div> : (
+                                        {notifications.length === 0 ? <div className={styles.emptyNotifs}>No new alerts</div> : (
                                             <div className={styles.dropdownList}>
                                                 {notifications.slice(0, 5).map((n, i) => (
                                                     <div key={i} className={styles.notificationItem}>
@@ -226,12 +225,12 @@ export default function DashboardLayout({
                             </div>
 
                             <div ref={userMenuAnchorRef} className={styles.dropdownAnchor}>
-                                <button className={styles.userProfile} onClick={() => setShowUserMenu(!showUserMenu)} style={{ borderLeft: '1px solid rgba(0,0,0,0.05)' }}>
+                                <button className={styles.userProfile} onClick={() => setShowUserMenu(!showUserMenu)}>
                                     <div className={styles.userData}>
-                                        <strong style={{ color: '#111' }}>{user.name}</strong>
-                                        <span style={{ color: 'rgba(0,0,0,0.3)' }}>{user.role}</span>
+                                        <strong>{user.name}</strong>
+                                        <span>{user.role}</span>
                                     </div>
-                                    <div className={styles.avatar} style={{ background: '#111', color: '#FFF' }}>{user.name.charAt(0)}</div>
+                                    <div className={styles.avatar}>{user.name.charAt(0)}</div>
                                 </button>
                                 {showUserMenu && (
                                     <div className={styles.userDropdown}>

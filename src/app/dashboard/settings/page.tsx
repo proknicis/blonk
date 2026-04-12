@@ -236,11 +236,11 @@ function SettingsContent() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
                             <h2>Configuration & Guardrails</h2>
-                            <p style={{ margin: '8px 0 0 0', color: '#64748B', fontWeight: 700, fontSize: '0.9rem' }}>Manage your administrative vault and autonomous operating parameters.</p>
+                            <p className={styles.planDescription}>Manage your administrative vault and autonomous operating parameters.</p>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', background: '#F8FAFC', borderRadius: '14px', border: '1px solid #E2E8F0' }}>
-                            <Shield size={16} color="#34D186" />
-                            <span style={{ fontSize: '0.8rem', fontWeight: 950, color: '#111', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Vault Encrypted</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', background: 'var(--muted)', borderRadius: '14px', border: '1px solid var(--border)' }}>
+                            <Shield size={16} color="var(--accent)" />
+                            <span style={{ fontSize: '0.8rem', fontWeight: 950, color: 'var(--foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Vault Encrypted</span>
                         </div>
                     </div>
 
@@ -277,7 +277,7 @@ function SettingsContent() {
                         </div>
                     </div>
 
-                    <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: '40px' }}>
+                    <div style={{ borderTop: '1px solid var(--border)', paddingTop: '40px' }}>
                         <h3 style={{ fontSize: '1.25rem', fontWeight: 950, marginBottom: '24px' }}>Autonomous Logic</h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             <div className={styles.toggleField}>
@@ -325,11 +325,11 @@ function SettingsContent() {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
                                 <h2>Operator Provisioning</h2>
-                                <p style={{ margin: '8px 0 0 0', color: '#64748B', fontWeight: 700, fontSize: '0.9rem' }}>Deploy new co-pilots with specialized administrative credentials.</p>
+                                <p className={styles.planDescription}>Deploy new co-pilots with specialized administrative credentials.</p>
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', background: '#F0FAF5', borderRadius: '14px', border: '1px solid #34D18633' }}>
-                                <Users size={16} color="#34D186" />
-                                <span style={{ fontSize: '0.8rem', fontWeight: 950, color: '#34D186', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{members.length} Active</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', background: 'var(--accent-muted)', borderRadius: '14px', border: '1px solid var(--accent)' }}>
+                                <Users size={16} color="var(--accent)" />
+                                <span style={{ fontSize: '0.8rem', fontWeight: 950, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{members.length} Active</span>
                             </div>
                         </div>
 
@@ -363,19 +363,30 @@ function SettingsContent() {
                                     <tr key={member.id}>
                                         <td>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: member.role === 'OWNER' ? '#111' : '#F0FAF5', color: member.role === 'OWNER' ? '#FFFFFF' : '#34D186', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 950, fontSize: '0.9rem' }}>
+                                                <div style={{ 
+                                                    width: '38px', 
+                                                    height: '38px', 
+                                                    borderRadius: '10px', 
+                                                    background: member.role === 'OWNER' ? 'var(--primary)' : 'var(--accent-muted)', 
+                                                    color: member.role === 'OWNER' ? 'var(--primary-foreground)' : 'var(--accent)', 
+                                                    display: 'flex', 
+                                                    alignItems: 'center', 
+                                                    justifyContent: 'center', 
+                                                    fontWeight: 950, 
+                                                    fontSize: '0.9rem' 
+                                                }}>
                                                     {(member.name || 'O').charAt(0).toUpperCase()}
                                                 </div>
-                                                <span style={{ fontWeight: 950, color: '#111' }}>{member.name}</span>
+                                                <span style={{ fontWeight: 950, color: 'var(--foreground)' }}>{member.name}</span>
                                             </div>
                                         </td>
-                                        <td style={{ color: '#64748B' }}>{member.email}</td>
+                                        <td style={{ color: 'var(--muted-foreground)' }}>{member.email}</td>
                                         <td>
-                                            <span style={{ padding: '6px 12px', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 950, background: '#F0FAF5', color: '#34D186', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{member.role}</span>
+                                            <span className={styles.statusPaid}>{member.role}</span>
                                         </td>
                                         <td style={{ textAlign: 'right' }}>
                                             {member.role !== 'OWNER' && (
-                                                <button onClick={() => handleRemoveMember(member.id, member.name)} style={{ background: 'none', border: 'none', color: '#EF4444', fontWeight: 950, fontSize: '0.8rem', cursor: 'pointer' }}>Eject Member</button>
+                                                <button onClick={() => handleRemoveMember(member.id, member.name)} style={{ background: 'none', border: 'none', color: 'var(--destructive)', fontWeight: 950, fontSize: '0.8rem', cursor: 'pointer' }}>Eject Member</button>
                                             )}
                                         </td>
                                     </tr>
@@ -392,7 +403,7 @@ function SettingsContent() {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
                             <div>
                                 <h2>Infrastructure Commitment</h2>
-                                <p style={{ margin: '8px 0 0 0', color: '#64748B', fontWeight: 700, fontSize: '0.9rem' }}>Select the operational capacity that aligns with your firm's administrative volume.</p>
+                                <p className={styles.planDescription}>Select the operational capacity that aligns with your firm's administrative volume.</p>
                             </div>
                         </div>
 
@@ -402,11 +413,11 @@ function SettingsContent() {
                                 <div className={styles.planPricing}><span className={styles.planAmount}>$833</span><span className={styles.planPeriod}>/mo</span></div>
                                 <p className={styles.planDescription}>The definitive operating layer for autonomous personnel management.</p>
                                 <ul className={styles.featureList}>
-                                    <li className={styles.featureItem}><Check size={18} color="#34D186" /> Unlimited Audit Loops</li>
-                                    <li className={styles.featureItem}><Check size={18} color="#34D186" /> Sovereign Data Backbone</li>
-                                    <li className={styles.featureItem}><Check size={18} color="#34D186" /> SOC-2 Compliance Core</li>
+                                    <li className={styles.featureItem}><Check size={18} color="var(--accent)" /> Unlimited Audit Loops</li>
+                                    <li className={styles.featureItem}><Check size={18} color="var(--accent)" /> Sovereign Data Backbone</li>
+                                    <li className={styles.featureItem}><Check size={18} color="var(--accent)" /> SOC-2 Compliance Core</li>
                                 </ul>
-                                <button className={styles.btnInstitutional} onClick={() => handlePlanSwitch('Institutional')} disabled={currentPlan === 'Institutional'}>
+                                <button className={`${styles.btnPrimary} ${styles.btnInstitutional}`} onClick={() => handlePlanSwitch('Institutional')} disabled={currentPlan === 'Institutional'}>
                                     {currentPlan === 'Institutional' ? "Active Directive" : "Commit to Institutional"}
                                 </button>
                             </div>
@@ -416,11 +427,11 @@ function SettingsContent() {
                                 <div className={styles.planPricing}><span className={styles.planAmount}>Contact</span></div>
                                 <p className={styles.planDescription}>Custom infrastructure scaling for global legal and accounting entities.</p>
                                 <ul className={styles.featureList}>
-                                    <li className={styles.featureItem}><Check size={18} color="#34D186" /> Private Subsystem Mirroring</li>
-                                    <li className={styles.featureItem}><Check size={18} color="#34D186" /> 24/7 Loop Reliability Engineers</li>
-                                    <li className={styles.featureItem}><Check size={18} color="#34D186" /> Custom Regulatory Adapters</li>
+                                    <li className={styles.featureItem}><Check size={18} color="var(--accent)" /> Private Subsystem Mirroring</li>
+                                    <li className={styles.featureItem}><Check size={18} color="var(--accent)" /> 24/7 Loop Reliability Engineers</li>
+                                    <li className={styles.featureItem}><Check size={18} color="var(--accent)" /> Custom Regulatory Adapters</li>
                                 </ul>
-                                <button className={styles.btnInfrastructure} onClick={() => window.open('mailto:architecture@blonk.ai')}>Inquire for Infrastructure</button>
+                                <button className={`${styles.btnPrimary} ${styles.btnInfrastructure}`} onClick={() => window.open('mailto:architecture@blonk.ai')}>Inquire for Infrastructure</button>
                             </div>
                         </div>
                     </div>
@@ -442,12 +453,12 @@ function SettingsContent() {
                                     <tr key={inv.id}>
                                         <td>{inv.invoiceNumber}</td>
                                         <td>{new Date(inv.date).toLocaleDateString()}</td>
-                                        <td style={{ fontWeight: 950, color: '#111' }}>{inv.amount}</td>
+                                        <td style={{ fontWeight: 950, color: 'var(--foreground)' }}>{inv.amount}</td>
                                         <td><span className={styles.statusPaid}>COMMITTED</span></td>
                                         <td style={{ textAlign: 'right' }}><button className={styles.downloadBtn}><Download size={18} /></button></td>
                                     </tr>
                                 )) : (
-                                    <tr><td colSpan={5} style={{ textAlign: 'center', padding: '60px' }}>No historical commitment records found.</td></tr>
+                                    <tr><td colSpan={5} style={{ textAlign: 'center', padding: '60px', opacity: 0.5 }}>No historical commitment records found.</td></tr>
                                 )}
                             </tbody>
                         </table>

@@ -59,26 +59,16 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                 const displayStatus = (isOnline && isStale) ? 'Standby' : (wf.status || 'Passive');
                 
                 return (
-                    <div key={i} className={styles.workflowItem} style={{ 
-                        background: '#FFFFFF',
-                        border: '1px solid rgba(0, 0, 0, 0.05)',
-                        borderRadius: '24px',
-                        padding: '24px',
-                        marginBottom: '16px',
-                        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '20px',
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.02)'
-                    }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div key={i} className={styles.workflowItem}>
+                        <div className={styles.workflowHeader}>
                             <div className={styles.workflowInfo}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
-                                    <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: isOnline ? '#34D186' : 'rgba(0,0,0,0.1)', boxShadow: isOnline ? '0 0 10px #34D186' : 'none' }} />
-                                    <strong style={{ fontSize: '1.25rem', fontWeight: 950, letterSpacing: '-0.04em', color: '#111' }}>{wf.name}</strong>
-                                    <span style={{ fontSize: '0.65rem', fontWeight: 950, color: 'rgba(0,0,0,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Autonomous Loop</span>
+                                    <div className={isOnline ? styles.activeDot : ''} style={!isOnline ? { width: '8px', height: '8px', borderRadius: '2px', background: 'var(--muted)' } : {}} />
+                                    <strong className={styles.workflowTitle}>{wf.name}</strong>
+                                    <span className={styles.workflowBadge}>Autonomous Loop</span>
                                 </div>
                                 <button 
+                                    className={styles.loopIdBtn}
                                     onClick={() => {
                                         const text = wf.id;
                                         if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -93,19 +83,18 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                                         }
                                         alert("Loop ID copied to clipboard!");
                                     }}
-                                    style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '100px', padding: '6px 14px', fontSize: '0.65rem', fontFamily: 'JetBrains Mono', fontWeight: 800, color: 'rgba(0,0,0,0.4)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                                 >
                                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                                     {wf.id?.substring(0, 8) || '...'}
                                 </button>
                             </div>
                             
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <div style={{ textAlign: 'right', marginRight: '8px' }}>
-                                    <div style={{ fontSize: '0.7rem', fontWeight: 950, color: isOnline ? '#34D186' : 'rgba(0, 0, 0, 0.3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                <div style={{ textAlign: 'right' }}>
+                                    <div className={styles.statusText} style={{ color: isOnline ? 'var(--accent)' : 'var(--muted-foreground)' }}>
                                         {displayStatus}
                                     </div>
-                                    <div style={{ fontSize: '0.6rem', fontWeight: 800, color: 'rgba(0, 0, 0, 0.2)' }}>Live Status</div>
+                                    <div className={styles.statusSubtext}>Live Status</div>
                                 </div>
                                 
                                 <div style={{ display: 'flex', gap: '8px' }}>
@@ -114,49 +103,45 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                                         className={styles.forceStartBtn}
                                         onClick={() => runWorkflow(wf, 'START')}
                                         disabled={runningId === `${wf.id}-START`}
-                                        style={{ background: '#111', color: '#FFFFFF', border: 'none' }}
                                     >
                                         {runningId === `${wf.id}-START` ? "..." : (
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
                                         )}
-                                        <span style={{ fontSize: '0.7rem', fontWeight: 950, marginLeft: '4px' }}>START</span>
+                                        START
                                     </button>
                                     <button
                                         title="Force End"
                                         className={styles.forceEndBtn}
                                         onClick={() => runWorkflow(wf, 'STOP')}
                                         disabled={runningId === `${wf.id}-STOP`}
-                                        style={{ background: 'rgba(0, 0, 0, 0.05)', color: '#111', border: '1px solid rgba(0, 0, 0, 0.1)' }}
                                     >
                                         {runningId === `${wf.id}-STOP` ? "..." : (
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"></rect></svg>
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"></rect></svg>
                                         )}
-                                        <span style={{ fontSize: '0.7rem', fontWeight: 950, marginLeft: '4px' }}>END</span>
+                                        END
                                     </button>
                                 </div>
                             </div>
                         </div>
 
-                        <div style={{ 
-                            display: 'grid', 
-                            gridTemplateColumns: 'repeat(3, 1fr)', 
-                            gap: '12px',
-                            padding: '16px',
-                            background: '#FAFAFA',
-                            borderRadius: '16px',
-                            border: '1px solid rgba(0, 0, 0, 0.03)'
-                        }}>
+                        <div className={styles.metricsRow}>
                             <div>
-                                <div style={{ fontSize: '0.6rem', fontWeight: 950, color: 'rgba(0, 0, 0, 0.2)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Throughput</div>
-                                <div style={{ fontSize: '0.95rem', fontWeight: 950, color: '#111' }}>{wf.performance?.toString().replace(/loops\/hr/gi, '') || '0'} <span style={{ opacity: 0.2 }}>OPS/HR</span></div>
+                                <div className={styles.metricMiniLabel}>Throughput</div>
+                                <div className={styles.metricMiniValue}>
+                                    {wf.performance?.toString().replace(/loops\/hr/gi, '') || '0'} 
+                                    <span className={styles.metricMiniUnit}> OPS/HR</span>
+                                </div>
                             </div>
                             <div>
-                                <div style={{ fontSize: '0.6rem', fontWeight: 950, color: 'rgba(0, 0, 0, 0.2)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Autonomous Yield</div>
-                                <div style={{ fontSize: '0.95rem', fontWeight: 950, color: '#34D186' }}>{wf.tasksCount || '0'} <span style={{ opacity: 0.2 }}>DONE</span></div>
+                                <div className={styles.metricMiniLabel}>Autonomous Yield</div>
+                                <div className={styles.metricMiniValue} style={{ color: 'var(--accent)' }}>
+                                    {wf.tasksCount || '0'} 
+                                    <span className={styles.metricMiniUnit}> DONE</span>
+                                </div>
                             </div>
                             <div>
-                                <div style={{ fontSize: '0.6rem', fontWeight: 950, color: 'rgba(0, 0, 0, 0.2)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Uptime Reliability</div>
-                                <div style={{ fontSize: '0.95rem', fontWeight: 950, color: '#111' }}>100%</div>
+                                <div className={styles.metricMiniLabel}>Reliability</div>
+                                <div className={styles.metricMiniValue}>100%</div>
                             </div>
                         </div>
                     </div>

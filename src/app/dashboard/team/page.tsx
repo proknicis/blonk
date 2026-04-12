@@ -148,7 +148,7 @@ export default function TeamPage() {
 
             <div className={styles.controls}>
                 <div className={styles.searchBox}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="3"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ opacity: 0.2 }}><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                     <input 
                         type="text" 
                         placeholder="Search by name or email..." 
@@ -187,21 +187,28 @@ export default function TeamPage() {
                             ))
                         ) : filteredMembers.length === 0 ? (
                             <tr>
-                                <td colSpan={5} style={{ padding: '80px', textAlign: 'center' }}>
-                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1.5" style={{ margin: '0 auto 16px', display: 'block' }}>
+                                <td colSpan={5} style={{ padding: '80px', textAlign: 'center', opacity: 0.3 }}>
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ margin: '0 auto 16px', display: 'block' }}>
                                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                                     </svg>
-                                    <p style={{ fontWeight: 800, fontSize: '1.1rem', color: "rgba(255,255,255,0.2)", margin: 0 }}>No members found in current sector.</p>
+                                    <p style={{ fontWeight: 800, fontSize: '1.1rem', margin: 0 }}>No members found in current sector.</p>
                                 </td>
                             </tr>
                         ) : (
                             filteredMembers.map((member: any) => {
-                                const roleStyle = getRoleStyles(member.role);
+                                const role = member.role;
+                                const isOwner = role === 'OWNER';
+                                const isAdmin = role === 'ADMIN';
+                                const isOperator = role === 'OPERATOR';
+                                
                                 return (
                                     <tr key={member.id} className={styles.teamRow}>
                                         <td>
                                             <div className={styles.userCell}>
-                                                <div className={styles.avatar} style={{ background: roleStyle.bg, color: roleStyle.color, border: `1px solid ${roleStyle.border}` }}>
+                                                <div className={styles.avatar} style={{ 
+                                                    background: isOwner ? 'var(--primary)' : isAdmin ? 'var(--accent-muted)' : 'var(--muted)',
+                                                    color: isOwner ? 'var(--primary-foreground)' : isAdmin ? 'var(--accent)' : 'var(--foreground)'
+                                                }}>
                                                     {(member.name || 'U').charAt(0).toUpperCase()}
                                                     <div className={`${styles.statusDot} ${member.status === 'Active' ? styles.statusActive : styles.statusOffline}`} />
                                                 </div>
@@ -212,7 +219,10 @@ export default function TeamPage() {
                                             </div>
                                         </td>
                                         <td>
-                                            <span className={styles.roleBadge} style={{ background: roleStyle.bg, color: roleStyle.color, border: `1px solid ${roleStyle.border}` }}>
+                                            <span className={styles.roleBadge} style={{
+                                                borderColor: isOwner ? 'var(--primary)' : isAdmin ? 'var(--accent)' : 'var(--border)',
+                                                color: isOwner ? 'var(--primary)' : isAdmin ? 'var(--accent)' : 'var(--muted-foreground)'
+                                            }}>
                                                 {member.role}
                                             </span>
                                         </td>
@@ -224,7 +234,7 @@ export default function TeamPage() {
                                                     ))}
                                                 </div>
                                             ) : (
-                                                <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.85rem', fontWeight: 600 }}>Unassigned</span>
+                                                <span style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', fontWeight: 600, opacity: 0.5 }}>Unassigned</span>
                                             )}
                                         </td>
                                         <td>
@@ -253,11 +263,11 @@ export default function TeamPage() {
                     <div className={styles.modalOverlay}>
                         <div className={styles.modal}>
                             <div className={styles.modalHeader}>
-                                <div className={styles.modalHeaderInfo}>
+                                <div>
                                     <h2>Invite Member</h2>
-                                    <p>Provision access to your automation platform.</p>
+                                    <p style={{ margin: '8px 0 0 0', color: 'var(--muted-foreground)', fontWeight: 700 }}>Provision access to your automation platform.</p>
                                 </div>
-                                <div className={styles.modalHeaderIcon}>
+                                <div style={{ color: 'var(--accent)' }}>
                                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
                                 </div>
                             </div>

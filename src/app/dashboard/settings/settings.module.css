@@ -1,6 +1,7 @@
 /* 
-  BLONK | SOVEREIGN SETTINGS VAULT
+  BLONK | SETTINGS VAULT
   Institutional Configuration Interface
+  Uses Global Design System Variables
 */
 
 .container {
@@ -16,12 +17,11 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* SOVEREIGN TABS: Navigation Module */
-
+/* NAVIGATION TABS */
 .tabs {
     display: flex;
     gap: 40px;
-    border-bottom: 1px solid #F1F5F9;
+    border-bottom: 1px solid var(--border);
     padding-bottom: 4px;
 }
 
@@ -31,17 +31,17 @@
     padding: 12px 4px;
     font-size: 1rem;
     font-weight: 950;
-    color: #94A3B8;
+    color: var(--muted-foreground);
     cursor: pointer;
     position: relative;
     transition: all 0.25s ease;
     letter-spacing: -0.02em;
 }
 
-.tab:hover { color: #111; }
+.tab:hover { color: var(--foreground); }
 
 .activeTab {
-    color: #111;
+    color: var(--foreground);
 }
 
 .activeTab::after {
@@ -51,32 +51,31 @@
     left: 0;
     width: 100%;
     height: 3px;
-    background: #34D186;
+    background: var(--accent);
     border-radius: 100px;
 }
 
-/* CONFIGURATION SECTIONS: Modular Containers */
-
+/* CONFIGURATION SECTIONS */
 .section {
-    background: #FFFFFF;
-    border: 1px solid #EAEAEA;
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: 36px;
     padding: 48px;
     display: flex;
     flex-direction: column;
     gap: 40px;
+    box-shadow: var(--shadow-sm);
 }
 
 .section h2 {
     font-size: 1.5rem;
     font-weight: 950;
-    color: #111;
+    color: var(--foreground);
     margin: 0;
     letter-spacing: -0.04em;
 }
 
-/* FORM FIELDS: Precision Inputs */
-
+/* FORM FIELDS */
 .field {
     display: flex;
     flex-direction: column;
@@ -86,60 +85,57 @@
 .field label {
     font-size: 0.75rem;
     font-weight: 950;
-    color: #94A3B8;
+    color: var(--muted-foreground);
     text-transform: uppercase;
     letter-spacing: 0.15em;
+    opacity: 0.7;
 }
 
 .input {
     width: 100%;
-    background: #F8FAFC;
-    border: 1px solid #F1F5F9;
+    background: var(--background);
+    border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 18px 24px;
+    padding: 16px 24px;
     font-size: 1rem;
-    font-weight: 800;
-    color: #111;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    font-weight: 700;
+    color: var(--foreground);
+    transition: all 0.25s ease;
+    outline: none;
 }
 
 .input:focus {
-    background: #FFFFFF;
-    border-color: #111;
-    outline: none;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
 }
 
-.input::placeholder { color: #CBD5E1; }
-
-/* OPERATIONAL GUARDRAILS: Interaction Toggles */
-
+/* INTERACTION TOGGLES */
 .toggleField {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 24px;
-    background: #F8FAFC;
+    background: var(--background);
     border-radius: 20px;
+    border: 1px solid var(--border);
 }
 
 .toggleInfo strong {
     display: block;
     font-size: 1rem;
     font-weight: 950;
-    color: #111;
+    color: var(--foreground);
     margin-bottom: 4px;
 }
 
 .toggleInfo p {
     margin: 0;
     font-size: 0.85rem;
-    color: #64748B;
+    color: var(--muted-foreground);
     font-weight: 700;
 }
 
-/* SWITCH COMPONENT: Hardware Aesthetic */
-
+/* SWITCH COMPONENT */
 .switch {
     width: 52px;
     height: 28px;
@@ -152,7 +148,7 @@
 .slider {
     position: absolute;
     inset: 0;
-    background: #E2E8F0;
+    background: var(--border);
     border-radius: 100px;
     cursor: pointer;
     transition: 0.3s;
@@ -165,16 +161,15 @@
     width: 20px;
     left: 4px;
     bottom: 4px;
-    background: #FFFFFF;
+    background: white;
     border-radius: 50%;
     transition: 0.3s;
 }
 
-input:checked + .slider { background: #34D186; }
+input:checked + .slider { background: var(--accent); }
 input:checked + .slider:before { transform: translateX(24px); }
 
-/* BILLING MODULE: Infrastructure Cards */
-
+/* INFRASTRUCTURE CARDS */
 .planGrid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -182,80 +177,68 @@ input:checked + .slider:before { transform: translateX(24px); }
 }
 
 .institutionCard, .infrastructureCard {
-    background: #FFFFFF;
-    border: 1px solid #EAEAEA;
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: 36px;
     padding: 48px;
     display: flex;
     flex-direction: column;
     gap: 32px;
     transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
 }
 
 .institutionCard:hover, .infrastructureCard:hover {
-    border-color: #111;
+    border-color: var(--accent);
     transform: translateY(-4px);
-    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.04);
+    box-shadow: var(--shadow-md);
 }
 
 .planLabel {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 950;
-    color: #34D186;
+    color: var(--accent);
     text-transform: uppercase;
     letter-spacing: 0.2em;
-    background: #F0FAF5;
-    padding: 8px 16px;
+    background: var(--accent-muted);
+    padding: 6px 16px;
     border-radius: 100px;
+    display: inline-block;
 }
 
 .enterpriseBadge {
     display: inline-block;
     align-self: flex-start;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 950;
-    background: #111;
-    color: #FFFFFF;
-    padding: 8px 16px;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    padding: 6px 16px;
     border-radius: 100px;
     text-transform: uppercase;
     letter-spacing: 0.15em;
-}
-
-.planPricing {
-    display: flex;
-    align-items: baseline;
-    gap: 4px;
 }
 
 .planAmount {
     font-size: 3.5rem;
     font-weight: 950;
     letter-spacing: -0.06em;
-    color: #111;
+    color: var(--foreground);
 }
 
 .planPeriod {
     font-size: 1.1rem;
     font-weight: 950;
-    color: #94A3B8;
+    color: var(--muted-foreground);
+    opacity: 0.6;
 }
 
 .planDescription {
     margin: 0;
     font-size: 1.1rem;
-    color: #64748B;
+    color: var(--muted-foreground);
     line-height: 1.6;
     font-weight: 700;
-}
-
-.featureList {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
 }
 
 .featureItem {
@@ -264,96 +247,89 @@ input:checked + .slider:before { transform: translateX(24px); }
     gap: 16px;
     font-size: 1rem;
     font-weight: 800;
-    color: #111;
+    color: var(--foreground);
 }
 
-.planIcon { color: #34D186; width: 20px; flex-shrink: 0; }
-
-/* BUTTONS: Primary Controls */
-
-.btnPrimary, .btnInstitutional, .btnInfrastructure {
-    width: 100%;
-    padding: 20px;
-    border-radius: 20px;
+/* BUTTONS */
+.btnPrimary {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    padding: 18px 32px;
+    border-radius: 18px;
     font-size: 1rem;
     font-weight: 950;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     border: none;
-    text-align: center;
+    transition: all 0.2s ease;
 }
 
-.btnPrimary { background: #111; color: #FFFFFF; }
-.btnPrimary:hover { transform: translateY(-2px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); }
-
-.btnInstitutional { background: #F0FAF5; color: #34D186; }
-.btnInstitutional:hover { background: #34D186; color: #FFFFFF; }
-
-.btnInfrastructure { background: #111; color: #FFFFFF; }
-
-.footer {
-    display: flex;
-    justify-content: flex-end;
+.btnPrimary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
-/* TABLES: Historical Tracking */
+.btnInstitutional {
+    background: var(--accent-muted);
+    color: var(--accent);
+}
 
+.btnInfrastructure {
+    background: var(--primary);
+    color: var(--primary-foreground);
+}
+
+/* TABLES */
 .billTable {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 12px;
-    margin-top: -12px;
+    border-collapse: collapse;
 }
 
 .billTable th {
-    padding: 0 24px 16px;
+    padding: 16px 24px;
     text-align: left;
     font-size: 0.75rem;
     font-weight: 950;
-    color: #94A3B8;
+    color: var(--muted-foreground);
     text-transform: uppercase;
     letter-spacing: 0.15em;
+    opacity: 0.6;
 }
 
 .billTable td {
-    padding: 24px;
-    background: #FFFFFF;
-    border-top: 1px solid #F1F5F9;
-    border-bottom: 1px solid #F1F5F9;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
     font-size: 1rem;
-    font-weight: 800;
-    color: #64748B;
+    font-weight: 700;
+    color: var(--foreground);
 }
 
-.billTable tr td:first-child { border-left: 1px solid #F1F5F9; border-radius: 20px 0 0 20px; }
-.billTable tr td:last-child { border-right: 1px solid #F1F5F9; border-radius: 0 20px 20px 0; }
-
-.statusPill {
-    padding: 8px 16px;
-    border-radius: 100px;
-    font-size: 0.75rem;
+.statusPaid {
+    background: var(--accent-muted);
+    color: var(--accent);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.7rem;
     font-weight: 950;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
 }
-
-.statusPaid { background: #F0FAF5; color: #34D186; }
 
 .downloadBtn {
-    background: #F8FAFC;
-    border: 1px solid #E2E8F0;
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
+    background: var(--background);
+    border: 1px solid var(--border);
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #111;
+    color: var(--foreground);
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: all 0.2s;
 }
 
-.downloadBtn:hover { border-color: #111; background: #FFFFFF; }
+.downloadBtn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
 
 @media (max-width: 1200px) {
     .planGrid { grid-template-columns: 1fr; }

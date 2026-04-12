@@ -3,23 +3,6 @@
     animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.header {
-    margin-bottom: 48px;
-}
-
-.header h1 {
-    font-size: 2.2rem;
-    font-weight: 900;
-    margin-bottom: 12px;
-    letter-spacing: -0.04em;
-}
-
-.header p {
-    font-size: 1.1rem;
-    color: #949A97;
-    font-weight: 600;
-}
-
 .grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -27,37 +10,39 @@
 }
 
 .card {
-    background: white;
+    background: var(--card);
     padding: 32px;
-    border-radius: 24px;
-    border: 1px solid #EDEDED;
+    border-radius: 32px;
+    border: 1px solid var(--border);
     transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
 }
 
 .card:hover {
-    border-color: #34D186;
+    border-color: var(--accent);
     transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04);
+    box-shadow: var(--shadow-md);
 }
 
 .card h3 {
     font-size: 1.25rem;
-    font-weight: 850;
+    font-weight: 950;
     margin-bottom: 16px;
     display: flex;
     align-items: center;
     gap: 12px;
+    color: var(--foreground);
 }
 
 .card h3 svg {
-    color: #34D186;
+    color: var(--accent);
 }
 
 .card p {
     font-size: 1rem;
-    color: #6F7371;
+    color: var(--muted-foreground);
     line-height: 1.6;
-    font-weight: 500;
+    font-weight: 700;
 }
 
 .faqSection {
@@ -66,30 +51,33 @@
 
 .faqTitle {
     font-size: 1.5rem;
-    font-weight: 900;
+    font-weight: 950;
     margin-bottom: 32px;
+    color: var(--foreground);
+    letter-spacing: -0.04em;
 }
 
 .faqItem {
-    background: white;
-    border: 1px solid #EDEDED;
-    border-radius: 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
     padding: 24px;
     margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
 }
 
 .faqItem h4 {
     font-size: 1.05rem;
-    font-weight: 800;
+    font-weight: 950;
     margin-bottom: 8px;
-    color: #101112;
+    color: var(--foreground);
 }
 
 .faqItem p {
     font-size: 0.95rem;
-    color: #6F7371;
+    color: var(--muted-foreground);
     line-height: 1.5;
-    font-weight: 500;
+    font-weight: 700;
 }
 
 @keyframes fadeIn {
@@ -97,7 +85,6 @@
         opacity: 0;
         transform: translateY(20px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);

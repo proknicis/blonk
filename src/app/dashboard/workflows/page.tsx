@@ -181,7 +181,7 @@ export default function WorkflowsPage() {
                         <div key={wf.id} className={styles.workflowCard}>
                             {wf.featured === 1 && <div className={styles.cardFeatured}>Featured</div>}
                             <div className={styles.cardHeader}>
-                                <div className={styles.iconContainer} style={{ backgroundColor: wf.color || '#F8F9FA' }}>
+                                <div className={styles.iconContainer}>
                                     <span style={{ fontSize: '32px' }}>{wf.icon || '⚙️'}</span>
                                 </div>
                                 <h3>{wf.name}</h3>
@@ -195,7 +195,7 @@ export default function WorkflowsPage() {
                                 </div>
                                 <div className={styles.metaItem}>
                                     <label>Value</label>
-                                    <span style={{ color: '#34D186', fontWeight: 950 }}>Saves {wf.savings || '10h/mo'}</span>
+                                    <span style={{ color: 'var(--accent)', fontWeight: 950 }}>Saves {wf.savings || '10h/mo'}</span>
                                 </div>
                                 <div className={styles.metaItem}>
                                     <label>Adoption</label>
@@ -214,7 +214,7 @@ export default function WorkflowsPage() {
                         </div>
                     ))}
                     {filteredTemplates.length === 0 && (
-                        <div style={{ textAlign: 'center', gridColumn: '1 / -1', padding: '100px 0', color: '#94A3B8' }}>
+                        <div style={{ textAlign: 'center', gridColumn: '1 / -1', padding: '100px 0', opacity: 0.5 }}>
                             <div style={{ fontWeight: 800 }}>No workflows match your search.</div>
                         </div>
                     )}
@@ -235,15 +235,15 @@ export default function WorkflowsPage() {
                         {/* Header */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                                <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: '#F1F5F9', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px' }}>
+                                <div className={styles.iconContainer}>
                                     {configureTemplate.icon || '⚙️'}
                                 </div>
                                 <div>
-                                    <h2 style={{ fontSize: '1.75rem', fontWeight: 950, margin: 0, letterSpacing: '-0.04em', color: '#0F172A' }}>Set up {configureTemplate.name}</h2>
-                                    <p style={{ fontSize: '0.95rem', color: '#64748B', margin: 0, fontWeight: 700 }}>Follow these simple steps to start automating.</p>
+                                    <h2 className={styles.sectionTitle}>Set up {configureTemplate.name}</h2>
+                                    <p className={styles.guideStepText}>Follow these simple steps to start automating.</p>
                                 </div>
                             </div>
-                            <button onClick={() => setConfigureTemplate(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}>
+                            <button onClick={() => setConfigureTemplate(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.4 }}>
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                             </button>
                         </div>
@@ -268,7 +268,7 @@ export default function WorkflowsPage() {
 
                         {/* Requirements / Connections */}
                         {configureTemplate.parsedReqs && configureTemplate.parsedReqs.length > 0 && (
-                            <div style={{ marginBottom: '64px' }}>
+                            <div style={{ marginBottom: '48px' }}>
                                 <div className={styles.sectionHeader}>
                                     <div className={styles.sectionNumber}>1</div>
                                     <h3 className={styles.sectionTitle}>Connect Services</h3>
@@ -276,7 +276,7 @@ export default function WorkflowsPage() {
                                 <div className={styles.requirementsList}>
                                     {configureTemplate.parsedReqs.map((req: any, idx: number) => (
                                         <div key={idx} className={styles.requirementCard}>
-                                            <div className={styles.reqService}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                                                 <div className={styles.reqIcon}>
                                                     {req.name.toLowerCase().includes('stripe') ? '💳' : 
                                                      req.name.toLowerCase().includes('google') ? '🔍' : 
@@ -285,14 +285,13 @@ export default function WorkflowsPage() {
                                                 <div>
                                                     <div className={styles.reqName}>{req.name}</div>
                                                     <div className={styles.helpLink} onClick={() => setHelpStep(req)}>
-                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                                                         Where to find this?
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className={styles.reqActions}>
-                                                <button className={`${styles.btnAction} ${styles.btnGet}`} onClick={() => setHelpStep(req)}>Get API Key</button>
-                                                <button className={`${styles.btnAction} ${styles.btnConnect}`} onClick={() => setHelpStep(req)}>Connect</button>
+                                            <div style={{ display: 'flex', gap: '12px' }}>
+                                                <button className={styles.btnSecondary} onClick={() => setHelpStep(req)}>Get API Key</button>
+                                                <button className={styles.btnPrimary} onClick={() => setHelpStep(req)}>Connect</button>
                                             </div>
                                         </div>
                                     ))}
@@ -302,7 +301,7 @@ export default function WorkflowsPage() {
 
                         {/* Setup Guide */}
                         {configureTemplate.parsedGuide && configureTemplate.parsedGuide.length > 0 && (
-                            <div style={{ marginBottom: '64px' }}>
+                            <div style={{ marginBottom: '48px' }}>
                                 <div className={styles.sectionHeader}>
                                     <div className={styles.sectionNumber}>2</div>
                                     <h3 className={styles.sectionTitle}>Setup Guide</h3>
@@ -323,16 +322,16 @@ export default function WorkflowsPage() {
 
                         {/* Configuration Form */}
                         {configureTemplate.parsedReqs && configureTemplate.parsedReqs.length > 0 && (
-                            <div style={{ marginBottom: '64px' }}>
+                            <div style={{ marginBottom: '48px' }}>
                                 <div className={styles.sectionHeader}>
                                     <div className={styles.sectionNumber}>3</div>
                                     <h3 className={styles.sectionTitle}>Configuration</h3>
                                 </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                                     {configureTemplate.parsedReqs.map((req: any, idx: number) => (
                                         <div key={idx}>
                                             <label className={styles.configLabel}>
-                                                {req.name} {req.required && <span style={{ color: '#EF4444' }}>*</span>}
+                                                {req.name} {req.required && <span style={{ color: 'var(--destructive)' }}>*</span>}
                                             </label>
                                             <input 
                                                 className={styles.configInput}
@@ -348,7 +347,7 @@ export default function WorkflowsPage() {
                         )}
 
                         {/* Footer */}
-                        <div style={{ display: 'flex', gap: '16px', marginTop: '48px', paddingTop: '32px', borderTop: '1px solid #F1F5F9' }}>
+                        <div style={{ display: 'flex', gap: '16px', marginTop: '48px', paddingTop: '32px', borderTop: '1px solid var(--border)' }}>
                             <button className={styles.btnSecondary} style={{ flex: 1 }} onClick={() => setConfigureTemplate(null)}>Cancel</button>
                             <button className={styles.btnPrimary} style={{ flex: 1 }} disabled={isDeploying} onClick={() => deployWorkflow(configureTemplate, templateInputs)}>
                                 {isDeploying ? 'Deploying...' : 'Deploy Automation'}
@@ -359,24 +358,21 @@ export default function WorkflowsPage() {
 
                     {/* API Guide Modal */}
                     {helpStep && (
-                        <div className={styles.guideModal} style={{ zIndex: 1100, background: 'rgba(15, 23, 42, 0.6)' }}>
-                            <div className={styles.guideContainer} style={{ maxWidth: '500px', padding: '40px' }}>
+                        <div className={styles.guideModal} style={{ zIndex: 1100, background: 'rgba(0,0,0,0.6)' }}>
+                            <div className={styles.guideContainer} style={{ maxWidth: '500px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                                    <h3 style={{ fontSize: '1.25rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>Guide: {helpStep.name}</h3>
-                                    <button onClick={() => setHelpStep(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}>
+                                    <h3 className={styles.sectionTitle}>Guide: {helpStep.name}</h3>
+                                    <button onClick={() => setHelpStep(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.4 }}>
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                                     </button>
                                 </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                                    <div style={{ background: '#F8FAFC', borderRadius: '16px', padding: '20px', border: '1px solid #E2E8F0' }}>
-                                        <p style={{ margin: 0, fontSize: '0.95rem', color: '#475569', lineHeight: 1.6, fontWeight: 600 }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                                    <div style={{ background: 'var(--muted)', borderRadius: '16px', padding: '20px', border: '1px solid var(--border)' }}>
+                                        <p className={styles.guideStepText}>
                                             {helpStep.help || `To find your ${helpStep.name}, log in to your service dashboard, navigate to Settings or API section, and copy the value provided.`}
                                         </p>
                                     </div>
-                                    <div style={{ height: '200px', background: '#F1F5F9', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px dashed #CBD5E1' }}>
-                                        <span style={{ fontSize: '0.8rem', color: '#94A3B8', fontWeight: 800, textTransform: 'uppercase' }}>Screenshot Placeholder</span>
-                                    </div>
-                                    <button className={styles.btnPrimary} onClick={() => setHelpStep(null)}>Got it, I have the key</button>
+                                    <button className={styles.btnPrimary} onClick={() => setHelpStep(null)}>Got it</button>
                                 </div>
                             </div>
                         </div>
@@ -386,55 +382,56 @@ export default function WorkflowsPage() {
 
             {previewTemplate && (
                 <ModalPortal>
-                    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(12px)' }}>
-                        <div style={{ background: '#ffffff', borderRadius: '40px', padding: '48px', width: '100%', maxWidth: '700px', boxShadow: '0 40px 100px rgba(0,0,0,0.3)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                    <div className={styles.guideModal}>
+                        <div className={styles.guideContainer} style={{ maxWidth: '700px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                                <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: '#F1F5F9', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px' }}>
+                                <div className={styles.iconContainer}>
                                     {previewTemplate.icon || '⚙️'}
                                 </div>
                                 <div>
-                                    <h2 style={{ fontSize: '1.75rem', fontWeight: 950, margin: 0, letterSpacing: '-0.04em', color: '#0F172A' }}>{previewTemplate.name}</h2>
-                                    <p style={{ fontSize: '0.95rem', color: '#64748B', margin: 0, fontWeight: 700 }}>Workflow Preview</p>
+                                    <h2 className={styles.sectionTitle}>{previewTemplate.name}</h2>
+                                    <p className={styles.guideStepText}>Workflow Preview</p>
                                 </div>
                             </div>
-                            <button onClick={() => setPreviewTemplate(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}>
+                            <button onClick={() => setPreviewTemplate(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.4 }}>
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                             </button>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                            <div style={{ background: '#F8FAFC', padding: '24px', borderRadius: '24px', border: '1px solid #E2E8F0' }}>
-                                <h3 style={{ fontSize: '0.85rem', fontWeight: 950, color: '#111', marginTop: 0, marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Trigger & Action Diagram</h3>
+                            <div style={{ background: 'var(--muted)', padding: '24px', borderRadius: '24px', border: '1px solid var(--border)' }}>
+                                <h3 className={styles.metricLabel} style={{ marginBottom: '20px', display: 'block' }}>Trigger & Action Diagram</h3>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                     {previewTemplate.blueprint.logic.map((step: string, idx: number) => (
                                         <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                            <div style={{ display: 'flex', gap: '16px', alignItems: 'center', width: '100%', background: '#FFFFFF', padding: '16px', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
-                                                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: idx === 0 ? '#FEF3C7' : '#F0FAF5', color: idx === 0 ? '#D97706' : '#34D186', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{idx === 0 ? '⚡' : '→'}</div>
-                                                <p style={{ margin: 0, fontSize: '0.95rem', color: '#111', fontWeight: 800 }}>{step}</p>
+                                            <div style={{ display: 'flex', gap: '16px', alignItems: 'center', width: '100%', background: 'var(--card)', padding: '16px', borderRadius: '16px', border: '1px solid var(--border)' }}>
+                                                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: idx === 0 ? 'var(--accent-muted)' : 'var(--muted)', color: idx === 0 ? 'var(--accent)' : 'var(--muted-foreground)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{idx === 0 ? '⚡' : '→'}</div>
+                                                <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--foreground)', fontWeight: 800 }}>{step}</p>
                                             </div>
-                                            {idx < previewTemplate.blueprint.logic.length - 1 && <div style={{ width: '2px', height: '16px', background: '#CBD5E1', alignSelf: 'center' }}></div>}
+                                            {idx < previewTemplate.blueprint.logic.length - 1 && <div style={{ width: '2px', height: '16px', background: 'var(--border)', alignSelf: 'center' }}></div>}
                                         </div>
                                     ))}
                                 </div>
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                                <div style={{ padding: '24px', background: '#FAFAFA', borderRadius: '20px', border: '1px solid #EAEAEA' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Projected Savings</label>
-                                    <div style={{ fontSize: '1.5rem', fontWeight: 950, color: '#34D186' }}>{previewTemplate.blueprint.impact.time}</div>
+                                <div style={{ padding: '24px', background: 'var(--muted)', borderRadius: '20px', border: '1px solid var(--border)' }}>
+                                    <label className={styles.metricLabel}>Projected Savings</label>
+                                    <div style={{ fontSize: '1.5rem', fontWeight: 950, color: 'var(--accent)' }}>{previewTemplate.blueprint.impact.time}</div>
                                 </div>
-                                <div style={{ padding: '24px', background: '#FAFAFA', borderRadius: '20px', border: '1px solid #EAEAEA' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Execution Precision</label>
-                                    <div style={{ fontSize: '1.5rem', fontWeight: 950, color: '#111' }}>{previewTemplate.blueprint.impact.accuracy}</div>
+                                <div style={{ padding: '24px', background: 'var(--muted)', borderRadius: '20px', border: '1px solid var(--border)' }}>
+                                    <label className={styles.metricLabel}>Precision</label>
+                                    <div style={{ fontSize: '1.5rem', fontWeight: 950, color: 'var(--foreground)' }}>{previewTemplate.blueprint.impact.accuracy}</div>
                                 </div>
                             </div>
                         </div>
                         <div style={{ display: 'flex', gap: '12px', marginTop: '40px' }}>
-                            <button className={styles.btnPrimary} style={{ flex: 1, padding: '18px', borderRadius: '18px', fontWeight: 950, background: '#111', color: 'white' }} onClick={() => { setPreviewTemplate(null); handleAddClick(previewTemplate); }}>Use Template</button>
+                            <button className={styles.btnPrimary} onClick={() => { setPreviewTemplate(null); handleAddClick(previewTemplate); }}>Use Template</button>
                         </div>
                         </div>
                     </div>
                 </ModalPortal>
             )}
+        </div>
         </div>
     );
 }

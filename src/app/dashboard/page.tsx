@@ -81,78 +81,78 @@ export default function DashboardPage() {
     const isEmpty = data.totalWorkflows === 0;
 
     return (
-        <div className={styles.dashboard} style={{ backgroundColor: '#FAFAFA', minHeight: '100%' }}>
+        <div className={styles.dashboard}>
             
             {/* SOVEREIGN INTEGRITY PANEL */}
-            <div className={styles.integrityBanner} style={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(0, 0, 0, 0.05)', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.02)' }}>
+            <div className={styles.integrityBanner}>
                 <div className={styles.integrityInfo}>
                     <div className={data.failedRuns === 0 ? styles.statusIndicatorHealthy : styles.statusIndicatorCritical}>
-                        <div className={styles.pulseEffect} style={{ backgroundColor: data.failedRuns === 0 ? '#34D186' : '#EF4444' }} />
+                        <div className={styles.pulseEffect} />
                     </div>
                     <div>
-                        <h2 className={styles.integrityTitle} style={{ color: '#111' }}>Sovereign Integrity: {data.failedRuns === 0 ? 'Healthy' : 'Critical'}</h2>
-                        <p className={styles.integritySubtitle} style={{ color: 'rgba(0, 0, 0, 0.4)' }}>All production nodes are currently synced with the regional registry.</p>
+                        <h2 className={styles.integrityTitle}>Sovereign Integrity: {data.failedRuns === 0 ? 'Healthy' : 'Critical'}</h2>
+                        <p className={styles.integritySubtitle}>All production nodes are currently synced with the regional registry.</p>
                     </div>
                 </div>
-                <div style={{ display: 'flex', gap: '32px' }}>
+                <div className={styles.integrityMetricsContainer}>
                     <div className={styles.integrityMetrics}>
-                        <span className={styles.metricLabel} style={{ color: 'rgba(0, 0, 0, 0.3)' }}>Fleet Uptime</span>
-                        <span className={styles.metricValue} style={{ color: '#111' }}>100%</span>
+                        <span className={styles.metricLabel}>Fleet Uptime</span>
+                        <span className={styles.metricValue}>100%</span>
                     </div>
                     <div className={styles.integrityMetrics}>
-                        <span className={styles.metricLabel} style={{ color: 'rgba(0, 0, 0, 0.3)' }}>Sync Latency</span>
-                        <span className={styles.metricValue} style={{ color: '#111' }}>14ms</span>
+                        <span className={styles.metricLabel}>Sync Latency</span>
+                        <span className={styles.metricValue}>14ms</span>
                     </div>
                 </div>
             </div>
 
             {/* METRICS CORE */}
             <div className={styles.metricsMatrix}>
-                <div className={styles.metricCard} style={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(0, 0, 0, 0.05)' }}>
+                <div className={styles.metricCard}>
                     <div className={styles.metricHeader}>
-                        <span className={styles.label} style={{ color: 'rgba(0, 0, 0, 0.3)' }}>Fleet Operations</span>
+                        <span className={styles.label}>Fleet Operations</span>
                         <Zap size={14} className={styles.accentIcon} />
                     </div>
-                    <div className={styles.value} style={{ color: '#111' }}>{data.totalTasks.toLocaleString()}</div>
-                    <div className={styles.trend} style={{ color: 'rgba(0, 0, 0, 0.4)' }}>Total tasks automated</div>
+                    <div className={styles.value}>{data.totalTasks.toLocaleString()}</div>
+                    <div className={styles.trend}>Total tasks automated</div>
                 </div>
 
-                <div className={styles.metricCard} style={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(0, 0, 0, 0.05)' }}>
+                <div className={styles.metricCard}>
                     <div className={styles.metricHeader}>
-                        <span className={styles.label} style={{ color: 'rgba(0, 0, 0, 0.3)' }}>Capacity Saved</span>
-                        <span className={styles.neutralBadge} style={{ background: 'rgba(0, 0, 0, 0.03)', color: 'rgba(0, 0, 0, 0.4)' }}>Real-time</span>
+                        <span className={styles.label}>Capacity Saved</span>
+                        <span className={styles.neutralBadge}>Real-time</span>
                     </div>
-                    <div className={styles.value} style={{ color: '#111' }}>{data.timeSavedHours}h</div>
-                    <div className={styles.trend} style={{ color: 'rgba(0, 0, 0, 0.4)' }}>Hours reclaimed to date</div>
+                    <div className={styles.value}>{data.timeSavedHours}h</div>
+                    <div className={styles.trend}>Hours reclaimed to date</div>
                 </div>
 
-                <div className={styles.metricCard} style={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(0, 0, 0, 0.05)' }}>
+                <div className={styles.metricCard}>
                     <div className={styles.metricHeader}>
-                        <span className={styles.label} style={{ color: 'rgba(0, 0, 0, 0.3)' }}>Active Loops</span>
-                        <div className={styles.activeDot} style={{ background: '#34D186', boxShadow: '0 0 10px #34D186' }} />
+                        <span className={styles.label}>Active Loops</span>
+                        <div className={styles.activeDot} />
                     </div>
-                    <div className={styles.value} style={{ color: '#111' }}>{data.activeAgents} / {data.totalWorkflows}</div>
-                    <div className={styles.trend} style={{ color: 'rgba(0, 0, 0, 0.4)' }}>Running workflow units</div>
+                    <div className={styles.value}>{data.activeAgents} / {data.totalWorkflows}</div>
+                    <div className={styles.trend}>Running workflow units</div>
                 </div>
 
-                <div className={styles.metricCard} style={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(0, 0, 0, 0.05)' }}>
+                <div className={styles.metricCard}>
                     <div className={styles.metricHeader}>
-                        <span className={styles.label} style={{ color: 'rgba(0, 0, 0, 0.3)' }}>Disruption Events</span>
-                        {data.failedRuns === 0 ? <ShieldCheck size={14} color="#34D186"/> : <ShieldAlert size={14} color="#EF4444"/>}
+                        <span className={styles.label}>Disruption Events</span>
+                        {data.failedRuns === 0 ? <ShieldCheck size={14} color="var(--accent)"/> : <ShieldAlert size={14} color="var(--destructive)"/>}
                     </div>
-                    <div className={data.failedRuns > 0 ? styles.valueCritical : styles.value} style={{ color: data.failedRuns > 0 ? '#EF4444' : '#111' }}>
+                    <div className={data.failedRuns > 0 ? styles.valueCritical : styles.value}>
                         {data.failedRuns}
                     </div>
-                    <div className={styles.trend} style={{ color: 'rgba(0, 0, 0, 0.4)' }}>Failures in last 24h</div>
+                    <div className={styles.trend}>Failures in last 24h</div>
                 </div>
             </div>
 
             {/* ANALYTICS PROJECTION */}
-            <div className={styles.projectionSection} style={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(0, 0, 0, 0.05)', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.02)' }}>
+            <div className={styles.projectionSection}>
                 <div className={styles.sectionHeader}>
-                    <h3 className={styles.sectionTitle} style={{ color: '#111' }}>Fleet Velocity Projection</h3>
+                    <h3 className={styles.sectionTitle}>Fleet Velocity Projection</h3>
                     <div className={styles.projectionLegend}>
-                        <div className={styles.legendItem} style={{ color: 'rgba(0, 0, 0, 0.4)' }}><span style={{ background: '#34D186' }} /> Real Throughput (24h Window)</div>
+                        <div className={styles.legendItem}><span /> Real Throughput (24h Window)</div>
                     </div>
                 </div>
                 <div className={styles.chartWrapper}>
@@ -178,19 +178,19 @@ export default function DashboardPage() {
                 </div>
             ) : (
                 <div className={styles.commandGrid}>
-                    <div className={styles.activeWorkflows} style={{ background: '#FFFFFF', border: '1px solid rgba(0, 0, 0, 0.05)', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.02)' }}>
+                    <div className={styles.activeWorkflows}>
                         <div className={styles.cardHeader}>
-                            <h3 className={styles.cardTitle} style={{ color: '#111' }}>Operational Loops</h3>
-                            <Link href="/dashboard/workflows" className={styles.viewAllLink} style={{ color: '#34D186', fontWeight: 800 }}>
+                            <h3 className={styles.cardTitle}>Operational Loops</h3>
+                            <Link href="/dashboard/workflows" className={styles.viewAllLink}>
                                 Marketplace <ArrowUpRight size={14} />
                             </Link>
                         </div>
                         <WorkflowList workflows={data.topWorkflows} />
                     </div>
 
-                    <div className={styles.liveFeed} style={{ background: '#FFFFFF', border: '1px solid rgba(0, 0, 0, 0.05)', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.02)' }}>
+                    <div className={styles.liveFeed}>
                         <div className={styles.cardHeader}>
-                            <h3 className={styles.cardTitle} style={{ color: '#111' }}>Intelligence Feed</h3>
+                            <h3 className={styles.cardTitle}>Intelligence Feed</h3>
                         </div>
                         <div className={styles.feedWrapper}>
                             {data.intelligenceFeed && data.intelligenceFeed.length > 0 ? (
@@ -198,16 +198,16 @@ export default function DashboardPage() {
                                     <div key={idx} className={styles.feedItem}>
                                         <div className={item.type === 'error' ? styles.feedDotError : styles.feedDotSuccess} />
                                         <div className={styles.feedContent}>
-                                            <div className={styles.feedTitle} style={{ color: '#111' }}>{item.title}</div>
-                                            <div className={styles.feedMeta} style={{ color: 'rgba(0, 0, 0, 0.4)' }}>{item.meta}</div>
-                                            <div className={styles.feedTime} style={{ color: 'rgba(0, 0, 0, 0.2)' }}>{item.time}</div>
+                                            <div className={styles.feedTitle}>{item.title}</div>
+                                            <div className={styles.feedMeta}>{item.meta}</div>
+                                            <div className={styles.feedTime}>{item.time}</div>
                                         </div>
                                     </div>
                                 ))
                             ) : (
-                                <div style={{ textAlign: 'center', padding: '40px 0', color: '#94A3B8' }}>
-                                    <Activity size={32} style={{ marginBottom: '16px', opacity: 0.5 }} />
-                                    <p style={{ fontWeight: 800 }}>No recent operational activity detected</p>
+                                <div className={styles.emptyFeed}>
+                                    <Activity size={32} />
+                                    <p>No recent operational activity detected</p>
                                 </div>
                             )}
                         </div>
