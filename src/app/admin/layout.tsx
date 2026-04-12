@@ -58,51 +58,50 @@ export default function AdminLayout({
         if (path === '/admin/analytics') return 'Analytics Overview';
         if (path === '/admin/marketplace') return 'Marketplace Management';
         if (path === '/admin/users') return 'User Directory';
-        return 'System Control';
+        return 'Operations Control Panel';
     };
 
     return (
-        <div className={styles.adminShell} style={{ backgroundColor: '#FAFAFA', color: '#111' }}>
+        <div className={styles.adminShell} style={{ background: 'var(--background)', color: 'var(--foreground)' }}>
             {/* SIDEBAR: Admin Controls */}
-            <aside className={styles.sidebar} style={{ backgroundColor: '#FFFFFF', color: '#111', borderRight: '1px solid rgba(0,0,0,0.05)' }}>
+            <aside className={styles.sidebar} style={{ background: 'var(--card)', borderRight: '1px solid var(--border)' }}>
                 <div className={styles.logoSection}>
-                    <Link href="/admin" className={styles.logo} style={{ color: '#111' }}>
-                        BLONK <span style={{ color: '#34D186', fontSize: '0.8rem', verticalAlign: 'top', marginLeft: '4px' }}>ADMIN</span>
+                    <Link href="/admin" className={styles.logo} style={{ color: 'var(--foreground)' }}>
+                        BLONK <span style={{ color: 'var(--accent)', fontSize: '0.75rem', verticalAlign: 'top', marginLeft: '4px', fontWeight: 950 }}>ADMIN</span>
                     </Link>
                 </div>
 
                 <nav className={styles.nav}>
-                    <Link href="/admin" className={`${styles.navLink} ${pathname === '/admin' ? styles.navLinkActive : ''}`} style={{ color: pathname === '/admin' ? '#111' : 'rgba(0,0,0,0.4)' }}>
-                        <Shield size={18} /> Fleet Provisioning
+                    <Link href="/admin" className={`${styles.navLink} ${pathname === '/admin' ? styles.navLinkActive : ''}`} style={{ color: pathname === '/admin' ? 'var(--foreground)' : 'var(--muted-foreground)' }}>
+                        <Shield size={18} /> <span>Provisioning</span>
                     </Link>
-                    <Link href="/admin/users" className={`${styles.navLink} ${pathname === '/admin/users' ? styles.navLinkActive : ''}`} style={{ color: pathname === '/admin/users' ? '#111' : 'rgba(0,0,0,0.4)' }}>
-                        <Users size={18} /> User Management
+                    <Link href="/admin/users" className={`${styles.navLink} ${pathname === '/admin/users' ? styles.navLinkActive : ''}`} style={{ color: pathname === '/admin/users' ? 'var(--foreground)' : 'var(--muted-foreground)' }}>
+                        <Users size={18} /> <span>Operators</span>
                     </Link>
-                    <Link href="/admin/marketplace" className={`${styles.navLink} ${pathname === '/admin/marketplace' ? styles.navLinkActive : ''}`} style={{ color: pathname === '/admin/marketplace' ? '#111' : 'rgba(0,0,0,0.4)' }}>
-                        <Zap size={18} /> Node Registry
+                    <Link href="/admin/marketplace" className={`${styles.navLink} ${pathname === '/admin/marketplace' ? styles.navLinkActive : ''}`} style={{ color: pathname === '/admin/marketplace' ? 'var(--foreground)' : 'var(--muted-foreground)' }}>
+                        <Zap size={18} /> <span>Registry</span>
                     </Link>
-                    <Link href="/dashboard" className={styles.navLink} style={{ marginTop: 'auto', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '20px', color: 'rgba(0,0,0,0.4)' }}>
-                        <Monitor size={18} /> Exit Admin
+                    <Link href="/dashboard" className={styles.navLink} style={{ marginTop: 'auto', borderTop: '1px solid var(--border)', paddingTop: '24px', color: 'var(--muted-foreground)' }}>
+                        <Monitor size={18} /> <span>Exit Control</span>
                     </Link>
                 </nav>
             </aside>
 
             {/* MAIN ADMIN AREA */}
-            <main style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: '#FAFAFA' }}>
-                <header style={{ height: '80px', background: '#FFFFFF', borderBottom: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', padding: '0 40px', justifyContent: 'space-between' }}>
-                    <h2 style={{ fontSize: '1.25rem', fontWeight: 950, color: '#111', letterSpacing: '-0.02em' }}>Operations Control Panel</h2>
+            <main style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+                <header style={{ height: '80px', background: 'var(--card)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', padding: '0 48px', justifyContent: 'space-between' }}>
+                    <h2 style={{ fontSize: '1.2rem', fontWeight: 950, color: 'var(--foreground)', letterSpacing: '-0.02em' }}>{getModuleTitle(pathname)}</h2>
                     <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#34D186', boxShadow: '0 0 10px #34D186' }} />
-                            <span style={{ fontSize: '0.75rem', fontWeight: 950, color: '#111' }}>REGIONAL CLUSTER: US-EAST-1</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--muted)', padding: '6px 16px', borderRadius: '100px', border: '1px solid var(--border)' }}>
+                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 10px var(--accent)' }} />
+                            <span style={{ fontSize: '0.7rem', fontWeight: 950, color: 'var(--foreground)', letterSpacing: '0.05em' }}>NODE CLUSTER: GLOBAL_ALPHA</span>
                         </div>
                     </div>
                 </header>
-                <div style={{ flex: 1, overflowY: 'auto', padding: '40px' }}>
+                <div style={{ flex: 1, overflowY: 'auto', padding: '48px' }}>
                     {children}
                 </div>
             </main>
         </div>
     );
 }
-
