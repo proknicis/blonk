@@ -10,7 +10,7 @@ async function checkSchema() {
         const res = await pool.query(`
             SELECT column_name, data_type 
             FROM information_schema.columns 
-            WHERE table_name = 'WorkflowTemplate'
+            WHERE table_name = 'WorkflowLog'
             ORDER BY ordinal_position
         `);
         console.log('Schema:', JSON.stringify(res.rows, null, 2));
