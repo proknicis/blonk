@@ -10,6 +10,17 @@
     color: #111;
 }
 
+.activityBadge {
+    padding: 6px 14px;
+    background: #111;
+    color: #34D186;
+    border-radius: 8px;
+    font-size: 0.65rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
 @keyframes officeEntrance {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }

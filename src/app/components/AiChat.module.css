@@ -12,25 +12,26 @@
     width: 64px;
     height: 64px;
     border-radius: 20px; /* Square branding */
-    background: #0A0A0A;
-    color: white;
-    border: none;
+    background: #FFFFFF;
+    color: #111;
+    border: 1px solid rgba(0, 0, 0, 0.05);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     outline: none;
 }
 
 .fab:hover {
     transform: scale(1.1) translateY(-4px);
-    background: #000;
+    background: #FAFAFA;
 }
 
 .fabOpen {
     background: #FF5F56; /* Alert red */
+    color: white;
     box-shadow: 0 12px 32px rgba(255, 95, 86, 0.3);
 }
 
@@ -39,7 +40,7 @@
     top: -8px;
     right: -8px;
     background: #34D186;
-    color: #0A0A0A;
+    color: white;
     font-size: 10px;
     font-weight: 950;
     padding: 4px 8px;
@@ -58,7 +59,7 @@
     max-height: 640px;
     border-radius: 28px;
     background: #FFFFFF;
-    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.1);
     border: 1px solid #EAEAEA;
     display: flex;
     flex-direction: column;
@@ -74,7 +75,8 @@
 /* Header: Institutional Carbon */
 .panelHeader {
     padding: 24px 28px;
-    background: #0A0A0A;
+    background: #FFFFFF;
+    border-bottom: 1px solid #F1F5F9;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -87,15 +89,19 @@
     gap: 16px;
 }
 
-.avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
-    background: rgba(52, 209, 134, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(52, 209, 134, 0.2);
+.title {
+    font-size: 1.1rem;
+    font-weight: 950;
+    color: #111;
+    letter-spacing: -0.02em;
+}
+
+.status {
+    font-size: 0.75rem;
+    color: #34D186;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
 }
 
 .avatar svg {
@@ -174,7 +180,7 @@
     width: 32px;
     height: 32px;
     border-radius: 10px;
-    background: #0A0A0A;
+    background: #F8F9FA;
     color: #34D186;
     font-size: 0.65rem;
     font-weight: 950;
@@ -182,6 +188,7 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    border: 1px solid #EAEAEA;
 }
 
 .bubble {
@@ -195,13 +202,13 @@
 
 .assistantMessage .bubble {
     background: #F8F9FA;
-    color: #0A0A0A;
+    color: #111;
     border: 1px solid #EAEAEA;
     border-top-left-radius: 4px;
 }
 
 .userMessage .bubble {
-    background: #0A0A0A;
+    background: #34D186;
     color: #FFFFFF;
     border-top-right-radius: 4px;
 }
@@ -228,46 +235,45 @@
 }
 
 .suggestion:hover {
-    border-color: #0A0A0A;
-    color: #0A0A0A;
+    border-color: #34D186;
+    color: #111;
     background: #FAFAFA;
     transform: translateX(6px);
 }
 
 /* Input Bar */
 .inputBar {
-    padding: 24px 28px;
+    padding: 24px;
+    background: #FAFAFA;
     border-top: 1px solid #F1F5F9;
     display: flex;
     gap: 16px;
     align-items: center;
-    background: #FFFFFF;
 }
 
 .input {
     flex: 1;
-    padding: 14px 20px;
-    border: 1px solid #EAEAEA;
+    padding: 16px 20px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
     border-radius: 16px;
-    font-size: 1rem;
-    font-weight: 800;
+    color: #111;
+    font-size: 0.95rem;
+    font-weight: 700;
     outline: none;
-    transition: all 0.2s;
-    background: #F8F9FA;
-    color: #0A0A0A;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .input:focus {
-    border-color: #0A0A0A;
-    background: #FFFFFF;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    border-color: #34D186;
+    box-shadow: 0 0 0 4px rgba(52, 209, 134, 0.1);
 }
 
 .sendBtn {
     width: 48px;
     height: 48px;
     border-radius: 14px;
-    background: #0A0A0A;
+    background: #111;
     color: white;
     border: none;
     cursor: pointer;

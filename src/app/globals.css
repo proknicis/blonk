@@ -7,16 +7,16 @@
 :root {
   --bg-main: #FAFAFA;
   --bg-secondary: #FFFFFF;
-  --bg-dark: #0A0A0B; /* Deeper black */
+  --bg-dark: #FFFFFF; /* Changed from black to white */
   --bg-elevated: #FFFFFF;
 
   --text-main: #101112;
   --text-secondary: #475569;
   --text-muted: #94A3B8;
-  --text-on-dark: #F8FAFC;
+  --text-on-dark: #101112; /* Changed from white to dark text */
 
   --accent-primary: #34D186;
-  --accent-secondary: #0D2B1E; /* Deep Dark Green instead of Blue */
+  --accent-secondary: #F0F9F4; /* Changed from deep green to light green tint */
   --accent-glow: rgba(52, 209, 134, 0.4);
   --accent-gradient: linear-gradient(135deg, #34D186 0%, #1A4D35 100%);
 

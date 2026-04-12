@@ -158,16 +158,17 @@
 }
 
 .filterSelect option {
-    background: #0A0A0A;
-    color: #FFFFFF;
+    background: #FFFFFF;
+    color: #111;
 }
 
 .tableWrapper {
-    background: rgba(255, 255, 255, 0.02);
+    background: #FFFFFF;
     border-radius: 36px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
     overflow: hidden;
     backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
 .teamTable {
@@ -182,14 +183,14 @@
     font-weight: 950;
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    color: rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.02);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: rgba(0, 0, 0, 0.3);
+    background: #FAFAFA;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .teamTable td {
     padding: 28px 32px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
     vertical-align: middle;
 }
 
@@ -198,7 +199,7 @@
 }
 
 .teamRow:hover {
-    background: rgba(255, 255, 255, 0.03);
+    background: #FAFAFA;
 }
 
 .userCell {
@@ -217,7 +218,7 @@
     font-weight: 950;
     font-size: 1.15rem;
     position: relative;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .statusDot {
@@ -227,11 +228,11 @@
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    border: 3px solid #050505;
+    border: 3px solid #FFFFFF;
 }
 
 .statusActive { background: #34D186; box-shadow: 0 0 10px #34D186; }
-.statusOffline { background: rgba(255, 255, 255, 0.1); }
+.statusOffline { background: rgba(0, 0, 0, 0.1); }
 
 .userInfo {
     display: flex;
@@ -242,7 +243,7 @@
 .userName {
     font-weight: 950;
     font-size: 1.05rem;
-    color: #FFFFFF;
+    color: #111;
     letter-spacing: -0.02em;
 }
 
@@ -253,12 +254,14 @@
 }
 
 .roleBadge {
-    padding: 8px 16px;
-    border-radius: 12px;
-    font-size: 0.7rem;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.65rem;
     font-weight: 950;
     text-transform: uppercase;
     letter-spacing: 0.1em;
+    background: #111;
+    color: #34D186;
 }
 
 .workflowsList {

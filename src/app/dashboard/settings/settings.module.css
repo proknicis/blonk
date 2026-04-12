@@ -214,7 +214,7 @@ input:checked + .slider:before { transform: translateX(24px); }
     align-self: flex-start;
     font-size: 0.75rem;
     font-weight: 950;
-    background: #0A0A0A;
+    background: #111;
     color: #FFFFFF;
     padding: 8px 16px;
     border-radius: 100px;
@@ -232,7 +232,7 @@ input:checked + .slider:before { transform: translateX(24px); }
     font-size: 3.5rem;
     font-weight: 950;
     letter-spacing: -0.06em;
-    color: #0A0A0A;
+    color: #111;
 }
 
 .planPeriod {
@@ -264,7 +264,7 @@ input:checked + .slider:before { transform: translateX(24px); }
     gap: 16px;
     font-size: 1rem;
     font-weight: 800;
-    color: #0A0A0A;
+    color: #111;
 }
 
 .planIcon { color: #34D186; width: 20px; flex-shrink: 0; }
@@ -283,13 +283,13 @@ input:checked + .slider:before { transform: translateX(24px); }
     text-align: center;
 }
 
-.btnPrimary { background: #0A0A0A; color: #FFFFFF; }
+.btnPrimary { background: #111; color: #FFFFFF; }
 .btnPrimary:hover { transform: translateY(-2px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); }
 
 .btnInstitutional { background: #F0FAF5; color: #34D186; }
 .btnInstitutional:hover { background: #34D186; color: #FFFFFF; }
 
-.btnInfrastructure { background: #0A0A0A; color: #FFFFFF; }
+.btnInfrastructure { background: #111; color: #FFFFFF; }
 
 .footer {
     display: flex;
