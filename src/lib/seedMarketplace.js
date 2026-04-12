@@ -15,7 +15,7 @@ async function seedTemplates() {
             icon: "⚡",
             sector: "General",
             savings: "15h/week",
-            status: "Published",
+            status: "Live",
             featured: 1,
             requirements: JSON.stringify([{ name: "CRM API Key", required: true, help: "Found in your CRM settings under Integrations > API" }]),
             setupGuide: JSON.stringify([{ title: "Connect CRM", text: "Paste your API key in the configuration field below." }])
@@ -26,7 +26,7 @@ async function seedTemplates() {
             icon: "🤝",
             sector: "IT",
             savings: "5h/week",
-            status: "Published",
+            status: "Live",
             featured: 0,
             requirements: JSON.stringify([{ name: "Slack Token", required: true }, { name: "Google Drive Folder ID", required: true }]),
             setupGuide: JSON.stringify([{ title: "Auth Slack", text: "Authorize the Blonk bot in your Slack workspace." }])
@@ -37,7 +37,7 @@ async function seedTemplates() {
             icon: "🧾",
             sector: "Accounting",
             savings: "20h/month",
-            status: "Published",
+            status: "Live",
             featured: 1,
             requirements: JSON.stringify([{ name: "Accounting API Key", required: true }]),
             setupGuide: JSON.stringify([{ title: "Connect Xero/QuickBooks", text: "Establish a secure bridge to your ledger." }])
@@ -48,7 +48,7 @@ async function seedTemplates() {
             icon: "⚖️",
             sector: "Law",
             savings: "40h/case",
-            status: "Published",
+            status: "Live",
             featured: 0,
             requirements: JSON.stringify([{ name: "Document Store URL", required: true }]),
             setupGuide: JSON.stringify([{ title: "Point to Storage", text: "Provide the endpoint for your document repository." }])

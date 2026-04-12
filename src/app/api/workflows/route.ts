@@ -11,8 +11,8 @@ export async function GET() {
         const teamId = (session.user as any).teamId;
         if (!teamId) return NextResponse.json({ error: 'Missing Team Anchor' }, { status: 400 });
 
-        // Fetch marketplace templates (only published ones)
-        const templates = await db.query('SELECT * FROM "WorkflowTemplate" WHERE status = \'Published\' OR status IS NULL');
+        // Fetch marketplace templates (Published or Live)
+        const templates = await db.query('SELECT * FROM "WorkflowTemplate" WHERE status IN (\'Published\', \'Live\') OR status IS NULL');
 
         // Fetch active/pending workflows for the current firm unit (team)
         const activeWorkflows = await db.query('SELECT name FROM "Workflow" WHERE "teamId" = $1', [teamId]);
