@@ -432,6 +432,5 @@ export default function WorkflowsPage() {
                 </ModalPortal>
             )}
         </div>
-        </div>
     );
 }
