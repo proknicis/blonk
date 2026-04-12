@@ -2,21 +2,21 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:is(.dark-disabled *));
 
 :root {
-  --bg-main: #FAFAFA;
+  --bg-main: #FFFFFF;
   --bg-secondary: #FFFFFF;
-  --bg-dark: #FFFFFF; /* Changed from black to white */
+  --bg-dark: #FFFFFF;
   --bg-elevated: #FFFFFF;
 
-  --text-main: #101112;
+  --text-main: #111111;
   --text-secondary: #475569;
   --text-muted: #94A3B8;
-  --text-on-dark: #101112; /* Changed from white to dark text */
+  --text-on-dark: #111111;
 
   --accent-primary: #34D186;
-  --accent-secondary: #F0F9F4; /* Changed from deep green to light green tint */
+  --accent-secondary: #F0F9F4;
   --accent-glow: rgba(52, 209, 134, 0.4);
   --accent-gradient: linear-gradient(135deg, #34D186 0%, #1A4D35 100%);
 
@@ -46,38 +46,42 @@
   --transition-fast: 0.2s ease;
   --transition-medium: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-slow: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --background: #FFFFFF !important;
+  --foreground: #111111 !important;
+  --card: #FFFFFF !important;
+  --card-foreground: #111111 !important;
+  --popover: #FFFFFF !important;
+  --popover-foreground: #111111 !important;
+  --primary: #111111 !important;
+  --primary-foreground: #FFFFFF !important;
+  --secondary: #F8FAFC !important;
+  --secondary-foreground: #111111 !important;
+  --muted: #F8FAFC !important;
+  --muted-foreground: #64748B !important;
+  --accent: #F8FAFC !important;
+  --accent-foreground: #111111 !important;
+  --destructive: #EF4444 !important;
+  --border: #E2E8F0 !important;
+  --input: #E2E8F0 !important;
+  --ring: #34D186 !important;
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: #FFFFFF !important;
+  --sidebar-foreground: #111111 !important;
+  --sidebar-primary: #111111 !important;
+  --sidebar-primary-foreground: #FFFFFF !important;
+  --sidebar-accent: #F8FAFC !important;
+  --sidebar-accent-foreground: #111111 !important;
+  --sidebar-border: #E2E8F0 !important;
+  --sidebar-ring: #34D186 !important;
+}
+
+html, body {
+  background-color: #FFFFFF !important;
+  color: #111111 !important;
+}
+
+* {
+  border-color: var(--border-color) !important;
 }
 
 .glass-card {
