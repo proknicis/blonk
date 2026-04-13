@@ -213,31 +213,37 @@ export default function AdminControlPage() {
 
     return (
         <div className={styles.dashboard}>
-            {/* STATUS BANNER */}
+            {/* SOVEREIGN INTEGRITY PANEL */}
             <div className={adminStyles.integrityPanel}>
                 <div className={adminStyles.integrityHub}>
-                    <div className={adminStyles.statusBeacon}>
+                    <div className={workflows.some(wf => wf.status === 'Error') ? adminStyles.statusIndicatorCritical : adminStyles.statusIndicatorHealthy}>
                         <div className={adminStyles.beaconPulse} />
                     </div>
                     <div>
-                        <h4 className={adminStyles.panelTitle}>Sovereign Fleet: Active</h4>
+                        <h2 className={adminStyles.panelTitle}>Sovereign Fleet: {workflows.some(wf => wf.status === 'Error') ? 'Critical' : 'Operational'}</h2>
                         <p className={adminStyles.panelSubtitle}>All production nodes are currently synced with the regional registry.</p>
                     </div>
                 </div>
                 <div className={adminStyles.hubMetrics}>
-                    <span className={adminStyles.hubLabel}>Total Nodes:</span>
-                    <span className={adminStyles.hubValue}>{isLoadingWorkflows ? <Skeleton width="30px" height="24px" /> : workflows.length}</span>
+                    <div className={adminStyles.hubItem}>
+                        <span className={adminStyles.hubLabel}>Active Nodes</span>
+                        <span className={adminStyles.hubValue}>{isLoadingWorkflows ? <Skeleton width="30px" height="24px" /> : workflows.length}</span>
+                    </div>
+                    <div className={adminStyles.hubItem}>
+                        <span className={adminStyles.hubLabel}>Avg Latency</span>
+                        <span className={adminStyles.hubValue}>14ms</span>
+                    </div>
                 </div>
             </div>
 
-            {/* QUICK METRICS */}
+            {/* METRICS CORE */}
             <div className={adminStyles.metricMatrix}>
-                <div className={adminStyles.adminMetricCard} style={{ borderColor: workflows.some(wf => wf.status === 'Error') ? 'var(--destructive)' : 'var(--border)' }}>
+                <div className={adminStyles.adminMetricCard}>
                     <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>SYSTEM ERRORS</span>
+                        <span className={adminStyles.metricTag}>System Errors</span>
                         <TriangleAlert size={14} color="var(--destructive)" />
                     </div>
-                    <div className={adminStyles.metricAmount} style={{ color: workflows.some(wf => wf.status === 'Error') ? 'var(--destructive)' : 'var(--foreground)' }}>
+                    <div className={workflows.some(wf => wf.status === 'Error') ? adminStyles.metricAmount : adminStyles.metricAmount}>
                         {isLoadingWorkflows ? <Skeleton width="40px" height="40px" /> : workflows.filter(wf => wf.status === 'Error').length}
                     </div>
                     <div className={adminStyles.metricDetail}>Nodes requiring attention</div>
@@ -245,8 +251,8 @@ export default function AdminControlPage() {
 
                 <div className={adminStyles.adminMetricCard}>
                     <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>ACTIVE SYNC</span>
-                        <div className={adminStyles.beaconPulse} style={{ width: '8px', height: '8px', background: 'var(--accent)' }} />
+                        <span className={adminStyles.metricTag}>Active Sync</span>
+                        <div style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '50%', boxShadow: '0 0 10px var(--accent)' }} />
                     </div>
                     <div className={adminStyles.metricAmount}>{isLoadingWorkflows ? <Skeleton width="40px" height="40px" /> : workflows.filter(wf => wf.status === 'Syncing').length}</div>
                     <div className={adminStyles.metricDetail}>Ongoing provisioning</div>
@@ -254,24 +260,24 @@ export default function AdminControlPage() {
 
                 <div className={adminStyles.adminMetricCard}>
                     <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>HEALTH SCORE</span>
+                        <span className={adminStyles.metricTag}>Fleet Health</span>
                         <ShieldCheck size={14} color="var(--accent)"/>
                     </div>
                     <div className={adminStyles.metricAmount}>98.2%</div>
-                    <div className={adminStyles.metricDetail}>Fleet integrity metrics</div>
+                    <div className={adminStyles.metricDetail}>Integrity metrics aggregate</div>
                 </div>
 
                 <div className={adminStyles.adminMetricCard}>
                     <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>STUCK STATES</span>
+                        <span className={adminStyles.metricTag}>Stuck Handshakes</span>
                         <Clock size={14} color="var(--warning)" />
                     </div>
                     <div className={adminStyles.metricAmount}>{workflows.filter(wf => wf.status === 'Connecting').length}</div>
-                    <div className={adminStyles.metricDetail}>Long-running handshakes</div>
+                    <div className={adminStyles.metricDetail}>Stalled connections (24h)</div>
                 </div>
             </div>
 
-            {/* MAIN PROVISIONING REGISTRY */}
+            {/* OPERATIONS REGISTRY SECTION */}
             <div className={adminStyles.registryCard}>
                 <div className={adminStyles.registryHeader}>
                     <div>
@@ -300,7 +306,7 @@ export default function AdminControlPage() {
                                 className={adminStyles.searchField}
                             />
                         </div>
-                        <button className={adminStyles.refreshBtn} onClick={fetchWorkflows} style={{ padding: '12px' }}>
+                        <button className={adminStyles.refreshBtn} onClick={fetchWorkflows}>
                             <RefreshCcw size={16} className={isLoadingWorkflows ? styles.spinning : ''} />
                         </button>
                     </div>
