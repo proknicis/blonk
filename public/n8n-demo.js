@@ -1,7 +1,7 @@
 /**
- * BLONK | Sovereign Protocol Orchestration Suite v6.3
- * Professional-grade visualization for industrial multi-node ecosystems.
- * Optimized for massive coordinate spreads and architectural annotations.
+ * BLONK | Sovereign Protocol Orchestration Suite v6.4
+ * Hardened for industrial-scale rendering and architectural documentation.
+ * Resolves SVG path distortion and implements Markdown-lite formatting.
  */
 
 class N8nDemoComponent extends HTMLElement {
@@ -30,7 +30,7 @@ class N8nDemoComponent extends HTMLElement {
     this.initPanning();
     this.initZooming();
     window.addEventListener('resize', () => {
-      this.state.offsetX = 0; this.state.offsetY = 0; // Re-center on resize
+      this.state.offsetX = 0; this.state.offsetY = 0;
       this.render();
     });
   }
@@ -62,9 +62,9 @@ class N8nDemoComponent extends HTMLElement {
   initZooming() {
     this.shadowRoot.querySelector('.canvas')?.addEventListener('wheel', (e) => {
       e.preventDefault();
-      const delta = e.deltaY > 0 ? -0.06 : 0.06;
+      const delta = e.deltaY > 0 ? -0.08 : 0.08;
       const oldZoom = this.state.zoom;
-      const newZoom = Math.min(Math.max(oldZoom + delta, 0.01), 3.0); // Allow extreme zoom-out
+      const newZoom = Math.min(Math.max(oldZoom + delta, 0.005), 4.0);
       const rect = this.shadowRoot.querySelector('.canvas').getBoundingClientRect();
       const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
@@ -94,7 +94,6 @@ class N8nDemoComponent extends HTMLElement {
 
     const { nodes = [], connections = {} } = workflow;
 
-    // Industrial Bounding Box Logic
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     nodes.forEach(node => {
       if (node.position && Array.isArray(node.position)) {
@@ -108,7 +107,6 @@ class N8nDemoComponent extends HTMLElement {
     const canvasWidth = this.offsetWidth || 800;
     const canvasHeight = this.offsetHeight || 600;
 
-    // Zoom-to-Fit Orchestration
     if (this.state.offsetX === 0 && this.state.offsetY === 0 && minX !== Infinity) {
       const wW = maxX - minX; const wH = maxY - minY;
       const sX = (canvasWidth - 100) / wW; const sY = (canvasHeight - 100) / wH;
@@ -144,15 +142,16 @@ class N8nDemoComponent extends HTMLElement {
           position: absolute; background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px;
           padding: 10px 14px; min-width: 220px; display: flex; align-items: center; gap: 12px;
           pointer-events: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-          z-index: 10; transition: border-color 0.2s;
+          z-index: 10;
         }
-        .node:hover { border-color: #3B82F6; z-index: 100 !important; }
 
         .sticky-note {
-          position: absolute; border: 1px solid rgba(0,0,0,0.05); border-radius: 8px; padding: 24px;
-          color: #475569; font-size: 0.85rem; line-height: 1.6; pointer-events: auto;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.01); z-index: 1; overflow: hidden; font-weight: 500;
+          position: absolute; border: 1px solid rgba(0,0,0,0.05); border-radius: 12px; padding: 32px;
+          color: #334155; font-size: 0.95rem; line-height: 1.7; pointer-events: auto;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.02); z-index: 1; overflow-y: auto;
         }
+        .sticky-note b { font-weight: 850; color: #0F172A; display: block; margin-top: 12px; margin-bottom: 4px; }
+        .sticky-note b:first-child { margin-top: 0; }
 
         .node-icon { 
           width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
@@ -163,32 +162,32 @@ class N8nDemoComponent extends HTMLElement {
         .icon-logic { background: #F8FAFC; color: #6366F1; }
         .icon-data { background: #FFFBEB; color: #D97706; }
 
-        .node-info { display: flex; flex-direction: column; gap: 1px; overflow: hidden; }
+        .node-info { display: flex; flex-direction: column; overflow: hidden; }
         .node-name { font-size: 0.85rem; font-weight: 800; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .node-type { font-size: 0.65rem; color: #94A3B8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
 
-        .connection-svg { position: absolute; width: 100000px; height: 100000px; top: -50000px; left: -50000px; pointer-events: none; z-index: 5; }
-        .path-line { fill: none; stroke: #CBD5E1; stroke-width: 2.5; stroke-linecap: round; }
-        .path-active { stroke: #3B82F6; stroke-width: 2.5; stroke-dasharray: 4 40; animation: flow 5s linear infinite; }
+        /* SVG Path Hardening */
+        .connection-svg { position: absolute; width: 200%; height: 200%; top: -50%; left: -50%; pointer-events: none; z-index: 5; overflow: visible; }
+        .path-line { fill: none !important; stroke: #CBD5E1; stroke-width: 2.5; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+        .path-active { fill: none !important; stroke: #3B82F6; stroke-width: 2.5; stroke-dasharray: 4 40; animation: flow 5s linear infinite; vector-effect: non-scaling-stroke; }
         @keyframes flow { from { stroke-dashoffset: 44; } to { stroke-dashoffset: 0; } }
 
         .hud { position: absolute; top: 24px; left: 24px; right: 24px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; z-index: 1000; }
-        .badge { background: rgba(255,255,255,0.9); backdrop-filter: blur(12px); border: 1px solid #E2E8F0; padding: 10px 20px; border-radius: 100px; display: flex; align-items: center; gap: 12px; pointer-events: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.05); font-size: 0.8rem; font-weight: 800; color: #0F172A; }
+        .badge { background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border: 1px solid #E2E8F0; padding: 10px 24px; border-radius: 100px; display: flex; align-items: center; gap: 12px; pointer-events: auto; box-shadow: 0 8px 16px rgba(0,0,0,0.06); font-size: 0.8rem; font-weight: 800; color: #0F172A; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #10B981; }
-        .scale-info { color: #3B82F6; padding-left: 12px; border-left: 1px solid #E2E8F0; }
       </style>
 
       <div class="canvas">
         <div class="hud">
           <div class="badge">
             <div class="status-dot"></div>
-            <span>${workflow.name || 'Sovereign View'}</span>
-            <span class="scale-info">${Math.round(this.state.zoom * 100)}% Focus</span>
+            <span>${workflow.name || 'Protocol Engine'}</span>
+            <span style="color: #64748B; padding-left: 12px; border-left: 1px solid #E2E8F0;">${Math.round(this.state.zoom * 100)}%</span>
           </div>
         </div>
 
         <div class="view-container">
-          <svg class="connection-svg" viewBox="-50000 -50000 100000 100000">
+          <svg class="connection-svg">
             ${this.renderConnections(nodes, connections)}
           </svg>
 
@@ -200,9 +199,18 @@ class N8nDemoComponent extends HTMLElement {
               const bgCols = ['#FEF9C3', '#FFEDD5', '#F3E8FF', '#FCE7F3', '#ECFDF5', '#F1F5F9', '#DBEAFE'];
               let bg = node.parameters?.color || 1;
               if (typeof bg === 'number') bg = bgCols[bg - 1] || bgCols[0];
+              
+              // Markdown-lite formatting
+              let content = node.parameters?.content || '';
+              content = content
+                .replace(/^##\s+(.*)$/gm, '<b>$1</b>')
+                .replace(/^###\s+(.*)$/gm, '<b>$1</b>')
+                .replace(/^-\s+(.*)$/gm, '• $1')
+                .replace(/\n/g, '<br>');
+
               return `
-                <div class="sticky-note" style="left: ${x}px; top: ${y}px; width: ${node.parameters?.width || 340}px; height: ${node.parameters?.height || 220}px; background: ${bg}; opacity: 0.8;">
-                  ${(node.parameters?.content || '').replace(/\n/g, '<br>')}
+                <div class="sticky-note" style="left: ${x}px; top: ${y}px; width: ${node.parameters?.width || 340}px; height: ${node.parameters?.height || 220}px; background: ${bg};">
+                  ${content}
                 </div>
               `;
             }
@@ -233,6 +241,10 @@ class N8nDemoComponent extends HTMLElement {
        nodeMap[n.name] = n;
     });
     
+    // Industrial coordinate offset to keep SVG numbers manageable
+    const viewX = this.state.offsetX;
+    const viewY = this.state.offsetY;
+
     Object.keys(connections).forEach(srcKey => {
       const srcNode = nodeMap[srcKey];
       if (!srcNode || srcNode.type.includes('sticky')) return;
@@ -246,12 +258,14 @@ class N8nDemoComponent extends HTMLElement {
           const sX = srcNode.position[0] + 220; 
           const sY = srcNode.position[1] + 32;
           const eX = targetNode.position[0];
-          const eY = targetNode.position[1] + (targetNode.type.includes('sticky') ? 40 : 32);
+          const eY = targetNode.position[1] + 32;
 
-          const cpX = sX + (eX - sX) * 0.45;
+          const dist = Math.abs(eX - sX);
+          const cpX = sX + Math.min(dist * 0.5, 150); // Limit curve pull for industrial spreads
+
           html += `
-            <path d="M ${sX} ${sY} C ${cpX} ${sY}, ${cpX} ${eY}, ${eX} ${eY}" class="path-line" />
-            <path d="M ${sX} ${sY} C ${cpX} ${sY}, ${cpX} ${eY}, ${eX} ${eY}" class="path-active" />
+            <path d="M ${sX} ${sY} C ${cpX} ${sY}, ${sX + (eX - sX) * 0.5} ${eY}, ${eX} ${eY}" class="path-line" fill="none" />
+            <path d="M ${sX} ${sY} C ${cpX} ${sY}, ${sX + (eX - sX) * 0.5} ${eY}, ${eX} ${eY}" class="path-active" fill="none" />
           `;
         });
       });
