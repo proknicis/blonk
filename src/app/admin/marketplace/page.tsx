@@ -27,6 +27,20 @@ import {
 import { Skeleton } from "../../components/Skeleton";
 import adminStyles from "../admin.module.css";
 
+export default function MarketplaceManagementPage() {
+    const router = useRouter();
+    const [templates, setTemplates] = useState<any[]>([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [isLoading, setIsLoading] = useState(true);
+    const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
+    const [tempPrice, setTempPrice] = useState("");
+    const [stats, setStats] = useState({
+        total: 0,
+        published: 0,
+        totalRevenue: 0,
+        avgConversion: 0
+    });
+
     const [previewingTemplate, setPreviewingTemplate] = useState<any>(null);
     const [isPreviewLoading, setIsPreviewLoading] = useState(false);
 
