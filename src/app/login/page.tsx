@@ -89,8 +89,8 @@ function AuthContent() {
     return (
         <div className={styles.pageWrapper}>
             {/* --- Decorative Floating Elements --- */}
-            <div style={{ position: 'absolute', top: '10%', right: '10%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(52, 209, 134, 0.05) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none', zIndex: 1 }}></div>
-            <div style={{ position: 'absolute', bottom: '5%', left: '30%', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none', zIndex: 1 }}></div>
+            <div style={{ position: 'absolute', top: '10%', right: '10%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(52, 209, 134, 0.08) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none', zIndex: 1 }}></div>
+            <div style={{ position: 'absolute', bottom: '5%', left: '30%', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(0, 0, 0, 0.02) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none', zIndex: 1 }}></div>
 
             {/* --- Left Sidebar: Sovereign Branding --- */}
             <div className={styles.leftSidebar}>
@@ -105,10 +105,10 @@ function AuthContent() {
                 
                 <div style={{ marginTop: 'auto', zIndex: 10 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-                        <div style={{ width: '40px', height: '1px', background: 'rgba(255,255,255,0.2)' }}></div>
-                        <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#34D186', letterSpacing: '0.15em', textTransform: 'uppercase' }}>System Active</div>
+                        <div style={{ width: '40px', height: '1px', background: 'var(--border)' }}></div>
+                        <div style={{ fontSize: '0.7rem', fontWeight: 900, color: 'var(--accent)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>System Active</div>
                     </div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 900, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 900, color: 'var(--muted-foreground)', opacity: 0.4, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
                         Sovereign Fleet v3.1 / Secure
                     </div>
                 </div>
@@ -223,8 +223,8 @@ function AuthContent() {
                         Google Identity Pulse
                     </button>
 
-                    <div style={{ marginTop: 40, textAlign: 'center', fontSize: '0.85rem', color: '#666' }}>
-                        By establishing access, you agree to the <Link href="/terms" style={{ color: '#aaa', textDecoration: 'none', fontWeight: 700 }}>Institutional Protocols</Link>.
+                    <div style={{ marginTop: 40, textAlign: 'center', fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>
+                        By establishing access, you agree to the <Link href="/terms" style={{ color: 'var(--foreground)', textDecoration: 'none', fontWeight: 700 }}>Institutional Protocols</Link>.
                     </div>
                 </div>
             </div>
@@ -234,7 +234,7 @@ function AuthContent() {
 
 export default function AuthPage() {
     return (
-        <Suspense fallback={<div className={styles.pageWrapper}><p style={{ color: 'white', padding: 40 }}>Initializing institutional authentication gateway...</p></div>}>
+        <Suspense fallback={<div className={styles.pageWrapper}><p style={{ color: 'var(--muted-foreground)', padding: 40 }}>Initializing institutional authentication gateway...</p></div>}>
             <AuthContent />
         </Suspense>
     );
