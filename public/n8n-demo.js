@@ -58,6 +58,20 @@ class N8nDemoComponent extends HTMLElement {
 
     const { nodes = [], connections = {} } = workflow;
 
+    // Normalize positions (handling negative coordinates from n8n exports)
+    let minX = Infinity;
+    let minY = Infinity;
+    
+    nodes.forEach(node => {
+      if (node.position && Array.isArray(node.position)) {
+        minX = Math.min(minX, node.position[0]);
+        minY = Math.min(minY, node.position[1]);
+      }
+    });
+
+    const offsetX = minX === Infinity ? 0 : (60 - minX);
+    const offsetY = minY === Infinity ? 0 : (100 - minY);
+
     this.shadowRoot.innerHTML = `
       <style>
         :host {
@@ -93,6 +107,12 @@ class N8nDemoComponent extends HTMLElement {
           align-items: center;
           gap: 12px;
           z-index: 10;
+          transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .node:hover {
+          transform: translateY(-2px);
+          border-color: #34D186;
         }
 
         .node-icon {
@@ -104,6 +124,7 @@ class N8nDemoComponent extends HTMLElement {
           align-items: center;
           justify-content: center;
           color: white;
+          font-size: 1rem;
         }
 
         .node-info {
@@ -112,21 +133,18 @@ class N8nDemoComponent extends HTMLElement {
         }
 
         .node-name {
-          font-size: 0.85rem;
+          font-size: 0.8rem;
           font-weight: 700;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 120px;
         }
 
         .node-type {
-          font-size: 0.7rem;
+          font-size: 0.65rem;
           color: #64748B;
-        }
-
-        .connection-line {
-          position: absolute;
-          height: 2px;
-          background: #CBD5E1;
-          transform-origin: 0 0;
-          z-index: 5;
+          font-weight: 500;
         }
 
         .toolbar {
@@ -168,10 +186,10 @@ class N8nDemoComponent extends HTMLElement {
           border: 1px solid #E0E7FF;
         }
 
-        /* Mock specific icons */
-        .icon-webhook { background: #FF4F81; }
-        .icon-code { background: #4F46E5; }
-        .icon-db { background: #F59E0B; }
+        /* Institutional icons */
+        .icon-trigger { background: #FF4F81; }
+        .icon-logic { background: #4F46E5; }
+        .icon-integration { background: #F59E0B; }
       </style>
 
       <div class="canvas">
@@ -180,19 +198,24 @@ class N8nDemoComponent extends HTMLElement {
           <div class="tool-btn">Node Library</div>
         </div>
 
-        ${nodes.length > 0 ? nodes.map((node, i) => `
-          <div class="node" style="left: ${node.position?.[0] || (100 + i * 200)}px; top: ${node.position?.[1] || 150}px;">
-            <div class="node-icon icon-${node.type?.toLowerCase()}">
-              ${this.getIcon(node.type)}
+        ${nodes.length > 0 ? nodes.map((node, i) => {
+          const x = node.position ? (node.position[0] + offsetX) : (100 + i * 200);
+          const y = node.position ? (node.position[1] + offsetY) : 150;
+          
+          return `
+            <div class="node" style="left: ${x}px; top: ${y}px;">
+              <div class="node-icon">
+                ${this.getIcon(node.type)}
+              </div>
+              <div class="node-info">
+                <span class="node-name" title="${node.name}">${node.name}</span>
+                <span class="node-type">${node.type.split('.').pop()}</span>
+              </div>
             </div>
-            <div class="node-info">
-              <span class="node-name">${node.name}</span>
-              <span class="node-type">${node.type}</span>
-            </div>
-          </div>
-        `).join('') : `
+          `;
+        }).join('') : `
           <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #94A3B8; font-weight: 600;">
-            No nodes configured in this template.
+            No nodes found in protocol definition.
           </div>
         `}
 
