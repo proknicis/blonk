@@ -43,6 +43,7 @@ function BuilderContent() {
         guide: [] as { title: string, text: string, image?: string, video?: string }[],
         webhookUrl: "", // Handled manually later, keeping in state for schema compatibility
         status: "Draft",
+        workflow: "", // n8n JSON definition
         productInfo: {
             valueProp: "",
             targetUser: "SME Owners",
@@ -74,6 +75,7 @@ function BuilderContent() {
                     guide: Array.isArray(data.setupGuide) ? data.setupGuide : [],
                     webhookUrl: data.webhookUrl || "",
                     status: data.status || "Draft",
+                    workflow: data.workflow || "",
                     productInfo: data.productInfo || {
                         valueProp: "",
                         targetUser: "SME Owners",
@@ -196,7 +198,8 @@ function BuilderContent() {
                     setupGuide: formData.guide,
                     productInfo: formData.productInfo,
                     webhookUrl: formData.webhookUrl,
-                    status: formData.status
+                    status: formData.status,
+                    workflow: formData.workflow
                 })
             });
             if (res.ok) {
@@ -357,6 +360,21 @@ function BuilderContent() {
                                         </button>
                                     </label>
                                     <textarea className={styles.textarea} value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Explain how this automation works and what it delivers..." />
+                                </div>
+
+                                <div className={styles.formGroup} style={{ border: '2px dashed var(--accent)', padding: '24px', borderRadius: '16px', background: 'var(--accent-muted)' }}>
+                                    <label className={styles.label} style={{ color: 'var(--accent)', fontWeight: 950 }}>
+                                        Backend Protocol (n8n Workflow JSON)
+                                        <span className={styles.helpText}>(Pasted from "Export -> To File" in n8n)</span>
+                                    </label>
+                                    <textarea 
+                                        className={styles.textarea} 
+                                        style={{ fontFamily: 'monospace', fontSize: '0.8rem', minHeight: '180px' }}
+                                        value={formData.workflow} 
+                                        onChange={e => setFormData({...formData, workflow: e.target.value})} 
+                                        placeholder='{"nodes": [...], "connections": {...}}' 
+                                    />
+                                    <p style={{ margin: '12px 0 0', fontSize: '0.7rem', color: 'var(--accent)', fontWeight: 800 }}>This JSON definition powers the administrative preview and deployment logic.</p>
                                 </div>
 
                                 <div className={styles.formRow}>
