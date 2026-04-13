@@ -4,6 +4,225 @@
   Synced with User Dashboard for Visual Parity
 */
 
+.adminShell {
+    display: flex;
+    height: 100dvh;
+    overflow: hidden;
+    background: var(--background);
+    width: 100%;
+}
+
+.sidebar {
+    width: 290px;
+    flex-shrink: 0;
+    background: var(--sidebar);
+    display: flex;
+    flex-direction: column;
+    padding: 32px 24px;
+    height: 100%;
+    border-right: 1px solid var(--sidebar-border);
+    z-index: 100;
+}
+
+.logoSection {
+    margin-bottom: 56px;
+    padding: 0 12px;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 950;
+    text-decoration: none;
+    color: var(--foreground);
+    letter-spacing: -0.05em;
+    display: flex;
+    align-items: center;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+
+.navLink {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border-radius: 16px;
+    color: var(--muted-foreground);
+    font-weight: 800;
+    font-size: 0.95rem;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.navLink:hover {
+    color: var(--foreground);
+    background: var(--muted);
+    transform: translateX(6px);
+}
+
+.navLinkActive {
+    background: var(--sidebar-accent) !important;
+    color: var(--foreground) !important;
+    box-shadow: var(--shadow-sm);
+}
+
+.navLinkActive::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 16px;
+    background: var(--accent);
+    border-radius: 0 4px 4px 0;
+}
+
+.navLink svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2.5;
+    color: inherit;
+    opacity: 0.6;
+}
+
+.navLinkActive svg {
+    color: var(--accent) !important;
+    opacity: 1;
+}
+
+.navGroup {
+    margin-bottom: 48px;
+}
+
+.navGroupLabel {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--muted-foreground);
+    margin-bottom: 24px;
+    padding-left: 14px;
+    opacity: 0.8;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar li {
+    margin-bottom: 8px;
+}
+
+/* USAGE MONITOR */
+.usageSection {
+    margin-top: auto;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+}
+
+.usageCard {
+    background: var(--sidebar-accent);
+    border-radius: 20px;
+    padding: 24px;
+    border: 1px solid var(--sidebar-border);
+}
+
+.planBadge {
+    font-size: 0.65rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 4px 12px;
+    background: var(--sidebar-primary);
+    color: var(--accent);
+    border-radius: 100px;
+}
+
+.usagePlanTop {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    align-items: center;
+}
+
+.tierDots {
+    display: flex;
+    gap: 6px;
+}
+
+.tierDot {
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 1px;
+}
+
+.statLabel {
+    font-size: 0.7rem;
+    font-weight: 950;
+    color: var(--muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.statValue {
+    font-size: 0.85rem;
+    font-weight: 950;
+    color: var(--foreground);
+}
+
+.barContainer {
+    width: 100%;
+    height: 6px;
+    background: var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.barFill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 10px;
+}
+
+.mainContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.adminHeader {
+    height: 90px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 48px;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+.contentArea {
+    flex: 1;
+    overflow-y: auto;
+    padding: 48px;
+    scrollbar-gutter: stable;
+}
+
 .dashboard {
     display: flex;
     flex-direction: column;
