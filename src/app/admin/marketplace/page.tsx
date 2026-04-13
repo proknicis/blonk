@@ -27,22 +27,17 @@ import {
 import { Skeleton } from "../../components/Skeleton";
 import adminStyles from "../admin.module.css";
 
-export default function MarketplaceManagementPage() {
-    const router = useRouter();
-    const [templates, setTemplates] = useState<any[]>([]);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [isLoading, setIsLoading] = useState(true);
-    const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
-    const [tempPrice, setTempPrice] = useState("");
-    const [stats, setStats] = useState({
-        total: 0,
-        published: 0,
-        totalRevenue: 0,
-        avgConversion: 0
-    });
+    const [previewingTemplate, setPreviewingTemplate] = useState<any>(null);
+    const [isPreviewLoading, setIsPreviewLoading] = useState(false);
 
     useEffect(() => {
         fetchTemplates();
+        const script = document.createElement("script");
+        script.src = "/n8n-demo.js";
+        script.type = "module";
+        script.async = true;
+        document.body.appendChild(script);
+        return () => { document.body.removeChild(script); };
     }, []);
 
     const fetchTemplates = async () => {
@@ -82,7 +77,7 @@ export default function MarketplaceManagementPage() {
 
     const duplicateTemplate = async (template: any) => {
         try {
-            const { id, createdAt, ...rest } = template;
+            const { id, createdAt, updatedAt, ...rest } = template;
             const res = await fetch('/api/admin/templates', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -103,23 +98,18 @@ export default function MarketplaceManagementPage() {
         } catch (e) { console.error(e); }
     };
 
-    const toggleFeatured = async (template: any) => {
-        try {
-            const res = await fetch('/api/admin/templates', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...template, featured: !template.featured })
-            });
-            if (res.ok) fetchTemplates();
-        } catch (e) { console.error(e); }
-    };
-
     const deleteTemplate = async (id: string) => {
-        if (!confirm("Permanently delete this template?")) return;
+        if (!confirm("Permanently delete this administrative template?")) return;
         try {
             const res = await fetch(`/api/admin/templates?id=${id}`, { method: 'DELETE' });
             if (res.ok) fetchTemplates();
         } catch (e) { console.error(e); }
+    };
+
+    const handlePreview = (template: any) => {
+        setIsPreviewLoading(true);
+        setPreviewingTemplate(template);
+        setTimeout(() => setIsPreviewLoading(false), 800);
     };
 
     const filteredTemplates = templates.filter(t => 
@@ -146,18 +136,21 @@ export default function MarketplaceManagementPage() {
     );
 
     return (
-        <div className={styles.dashboard}>
+        <div className={adminStyles.dashboard}>
             <div className={adminStyles.integrityPanel}>
                 <div className={adminStyles.integrityHub}>
-                    <div className={adminStyles.statusBeacon}><div className={adminStyles.beaconPulse} /></div>
+                    <div className={adminStyles.statusIndicatorHealthy}><div className={adminStyles.beaconPulse} /></div>
                     <div>
-                        <h4 className={adminStyles.panelTitle}>Marketplace Registry: Synchronized</h4>
+                        <h2 className={adminStyles.panelTitle}>Marketplace Registry: Synchronized</h2>
                         <p className={adminStyles.panelSubtitle}>Template library is globally distributed across firm nodes.</p>
                     </div>
                 </div>
                 <div className={adminStyles.hubMetrics}>
-                    <button className={adminStyles.refreshBtn} style={{ background: 'var(--foreground)', color: 'var(--background)', border: 'none' }} onClick={() => router.push("/admin/marketplace/builder")}>
-                        <Plus size={16} /> Provision New Protocol
+                    <button className={adminStyles.refreshBtn} onClick={fetchTemplates} style={{ width: '48px', height: '48px', marginRight: '12px' }}>
+                        <RefreshCcw size={18} className={isLoading ? styles.spinning : ''} />
+                    </button>
+                    <button className={adminStyles.refreshBtn} style={{ width: 'auto', padding: '0 24px', background: 'var(--foreground)', color: 'var(--background)', border: 'none' }} onClick={() => router.push("/admin/marketplace/builder")}>
+                        <Plus size={16} style={{ marginRight: '8px' }} /> Provision Protocol
                     </button>
                 </div>
             </div>
@@ -165,38 +158,38 @@ export default function MarketplaceManagementPage() {
             <div className={adminStyles.metricMatrix}>
                 <div className={adminStyles.adminMetricCard}>
                     <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>LIBRARY ASSETS</span>
+                        <span className={adminStyles.metricTag}>Library Assets</span>
                         <Layers size={14} />
                     </div>
                     <div className={adminStyles.metricAmount}>{isLoading ? <Skeleton width="40px" height="40px" /> : stats.total}</div>
-                    <div className={adminStyles.metricDetail}>Provisioned protocols</div>
+                    <div className={adminStyles.metricDetail}>Provisioned marketplace protocols</div>
                 </div>
 
                 <div className={adminStyles.adminMetricCard}>
                     <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>TOTAL REVENUE</span>
+                        <span className={adminStyles.metricTag}>Total Liquidity</span>
                         <Euro size={14} color="var(--accent)" />
                     </div>
                     <div className={adminStyles.metricAmount}>{isLoading ? <Skeleton width="40px" height="40px" /> : `€${stats.totalRevenue.toLocaleString()}`}</div>
-                    <div className={adminStyles.metricDetail}>Marketplace liquidity</div>
+                    <div className={adminStyles.metricDetail}>Aggregate platform revenue</div>
                 </div>
 
                 <div className={adminStyles.adminMetricCard}>
                     <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>AVG CONVERSION</span>
+                        <span className={adminStyles.metricTag}>Avg Conversion</span>
                         <TrendingUp size={14} color="var(--accent)"/>
                     </div>
                     <div className={adminStyles.metricAmount}>{isLoading ? <Skeleton width="80px" height="40px" /> : `${stats.avgConversion.toFixed(1)}%`}</div>
-                    <div className={adminStyles.metricDetail}>Visitor to buyer ratio</div>
+                    <div className={adminStyles.metricDetail}>Investor to operator conversion</div>
                 </div>
 
                 <div className={adminStyles.adminMetricCard}>
                     <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>SECURITY STATE</span>
-                        <ShieldCheck size={14} />
+                        <span className={adminStyles.metricTag}>Protocol State</span>
+                        <ShieldCheck size={14} color="var(--accent)" />
                     </div>
                     <div className={adminStyles.metricAmount}>V3.4</div>
-                    <div className={adminStyles.metricDetail}>Protocol encryption version</div>
+                    <div className={adminStyles.metricDetail}>Sovereign encryption standards</div>
                 </div>
             </div>
 
@@ -206,13 +199,12 @@ export default function MarketplaceManagementPage() {
                         <h3 className={adminStyles.registryTitle}>Protocol Catalog</h3>
                         <p className={adminStyles.registrySubtitle}>Orchestrate the institutional marketplace library.</p>
                     </div>
-                    <div style={{ position: 'relative' }}>
-                        <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} />
+                    <div className={adminStyles.searchContainer}>
+                        <Search size={18} className={adminStyles.searchIcon} />
                         <input 
                             type="text" 
-                            placeholder="Filter protocols..." 
-                            className={adminStyles.mainInput} 
-                            style={{ padding: '12px 16px 12px 48px', width: '320px', borderRadius: '16px' }}
+                            placeholder="Filter protocols by name or sector..." 
+                            className={adminStyles.searchField} 
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                         />
@@ -224,15 +216,16 @@ export default function MarketplaceManagementPage() {
                         <thead>
                             <tr>
                                 <th className={adminStyles.registryTH}>Protocol Product</th>
-                                <th className={adminStyles.registryTH}>Price & Yield</th>
+                                <th className={adminStyles.registryTH}>Monetization</th>
                                 <th className={adminStyles.registryTH}>Conversion</th>
-                                <th className={adminStyles.registryTH}>Sovereign Status</th>
+                                <th className={adminStyles.registryTH}>Operational State</th>
                                 <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Controls</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <>
+                                    <SkeletonRow />
                                     <SkeletonRow />
                                     <SkeletonRow />
                                 </>
@@ -249,46 +242,57 @@ export default function MarketplaceManagementPage() {
                                                         <div className={adminStyles.loopName}>{t.name}</div>
                                                         {t.featured && <Star size={14} color="var(--accent)" fill="var(--accent)" />}
                                                     </div>
-                                                    <div className={adminStyles.identityHash} style={{ width: 'fit-content', marginTop: '4px' }}>{t.sector?.toUpperCase() || "GENERAL"}</div>
+                                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
+                                                        <code className={adminStyles.identityHash}>{t.sector?.toUpperCase() || "GENERAL"}</code>
+                                                        <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>ID: {t.id.substring(0, 8)}</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <div style={{ fontWeight: 800, color: 'var(--foreground)' }}>
+                                            <div style={{ fontWeight: 950, color: 'var(--foreground)' }}>
                                                 {editingPriceId === t.id ? (
                                                     <input 
                                                         autoFocus
-                                                        style={{ background: 'var(--muted)', border: '1px solid var(--border)', padding: '4px 8px', borderRadius: '6px', width: '80px', color: 'var(--foreground)' }}
+                                                        style={{ background: 'var(--muted)', border: '1px solid var(--border)', padding: '6px 12px', borderRadius: '8px', width: '100px', color: 'var(--foreground)', fontWeight: 950, outline: 'none' }}
                                                         value={tempPrice}
                                                         onChange={e => setTempPrice(e.target.value)}
                                                         onBlur={() => updatePrice(t, tempPrice)}
+                                                        onKeyDown={e => e.key === 'Enter' && updatePrice(t, tempPrice)}
                                                     />
                                                 ) : (
-                                                    <div onClick={() => { setEditingPriceId(t.id); setTempPrice(String(t.price || 0)); }} style={{ cursor: 'pointer' }}>
-                                                        €{parseFloat(t.price || 0).toFixed(2)}
+                                                    <div onClick={() => { setEditingPriceId(t.id); setTempPrice(String(t.price || 0)); }} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                        <Euro size={14} color="var(--muted-foreground)" />
+                                                        {parseFloat(t.price || 0).toFixed(2)}
                                                     </div>
                                                 )}
                                             </div>
-                                            <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)' }}>Yield: €{(parseFloat(t.revenue) || 0).toLocaleString()}</div>
+                                            <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800, marginTop: '2px' }}>Revenue: €{(parseFloat(t.revenue) || 0).toLocaleString()}</div>
                                         </td>
-                                        <td><div style={{ fontWeight: 950, color: 'var(--accent)' }}>{parseFloat(t.conversionRate || 0).toFixed(1)}%</div></td>
                                         <td>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                <select 
-                                                    style={{ background: 'var(--muted)', border: '1px solid var(--border)', color: 'var(--foreground)', fontSize: '0.75rem', padding: '6px 12px', borderRadius: '100px', fontWeight: 950 }}
-                                                    value={t.status}
-                                                    onChange={(e) => toggleStatus(t, e.target.value)}
-                                                >
-                                                    <option value="Draft">DRAFT</option>
-                                                    <option value="Live">LIVE</option>
-                                                    <option value="Hidden">HIDDEN</option>
-                                                </select>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <div style={{ fontWeight: 950, color: 'var(--accent)' }}>{parseFloat(t.conversionRate || 0).toFixed(1)}%</div>
+                                                <TrendingUp size={12} color="var(--accent)" />
                                             </div>
                                         </td>
                                         <td>
+                                            <select 
+                                                className={adminStyles.filterBtn}
+                                                style={{ padding: '6px 16px', borderRadius: '100px', border: '1px solid var(--border)', background: t.status === 'Live' ? 'var(--accent-muted)' : 'var(--muted)', color: t.status === 'Live' ? 'var(--accent)' : 'var(--muted-foreground)', fontWeight: 950, fontSize: '0.7rem' }}
+                                                value={t.status}
+                                                onChange={(e) => toggleStatus(t, e.target.value)}
+                                            >
+                                                <option value="Draft">DRAFT</option>
+                                                <option value="Live">LIVE</option>
+                                                <option value="Hidden">HIDDEN</option>
+                                            </select>
+                                        </td>
+                                        <td>
                                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                <button className={adminStyles.actionIconBtn} onClick={() => router.push(`/admin/marketplace/builder?id=${t.id}`)}><Edit3 size={16} /></button>
-                                                <button className={adminStyles.actionIconBtn} style={{ color: 'var(--destructive)' }} onClick={() => deleteTemplate(t.id)}><Trash2 size={16} /></button>
+                                                <button className={adminStyles.actionIconBtn} onClick={() => handlePreview(t)} title="Preview Workflow"><Eye size={16} /></button>
+                                                <button className={adminStyles.actionIconBtn} onClick={() => duplicateTemplate(t)} title="Clone Protocol"><Copy size={16} /></button>
+                                                <button className={adminStyles.actionIconBtn} onClick={() => router.push(`/admin/marketplace/builder?id=${t.id}`)} title="Edit Configuration"><Edit3 size={16} /></button>
+                                                <button className={adminStyles.actionIconBtn} style={{ color: 'var(--destructive)' }} onClick={() => deleteTemplate(t.id)} title="Purge Protocol"><Trash2 size={16} /></button>
                                             </div>
                                         </td>
                                     </tr>
@@ -298,6 +302,59 @@ export default function MarketplaceManagementPage() {
                     </table>
                 </div>
             </div>
+
+            {/* PROTOCOL PREVIEW MODAL */}
+            {previewingTemplate && (
+                <div className={adminStyles.modalOverlay} onClick={() => setPreviewingTemplate(null)}>
+                    <div className={adminStyles.modal} style={{ maxWidth: '1000px' }} onClick={e => e.stopPropagation()}>
+                        <div className={adminStyles.modalHeader} style={{ padding: '32px 48px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                                        <div style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '50%', boxShadow: '0 0 10px var(--accent)' }} />
+                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--muted-foreground)' }}>Protocol Preview</span>
+                                    </div>
+                                    <h3 className={adminStyles.modalTitle} style={{ fontSize: '1.75rem' }}>{previewingTemplate.name}</h3>
+                                    <p className={adminStyles.modalSubtitle}>Sovereign n8n Workflow Visualization</p>
+                                </div>
+                                <button className={adminStyles.refreshBtn} onClick={() => setPreviewingTemplate(null)} style={{ border: 'none', background: 'var(--muted)' }}>
+                                    <Plus size={20} style={{ transform: 'rotate(45deg)' }} />
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className={adminStyles.modalBody} style={{ padding: '0', position: 'relative', height: '600px', background: '#FAFAFA' }}>
+                            {isPreviewLoading ? (
+                                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--card)', zIndex: 10 }}>
+                                    <RefreshCcw size={40} className={styles.spinning} color="var(--accent)" />
+                                    <p style={{ marginTop: '24px', fontWeight: 950, color: 'var(--foreground)', letterSpacing: '-0.02em' }}>Initializing Preview Engine...</p>
+                                </div>
+                            ) : (
+                                <div style={{ width: '100%', height: '100%', borderRadius: '0 0 40px 40px', overflow: 'hidden', boxShadow: 'inset 0 0 40px rgba(0,0,0,0.05)' }}>
+                                    {/* @ts-ignore */}
+                                    <n8n-demo 
+                                        workflow={JSON.stringify(typeof previewingTemplate.workflow === 'string' ? JSON.parse(previewingTemplate.workflow) : (previewingTemplate.workflow || { 
+                                            nodes: [
+                                                { name: 'Onboarding Webhook', type: 'Webhook', position: [100, 250] },
+                                                { name: 'Protocol Logic', type: 'Code', position: [350, 250] },
+                                                { name: 'Secure Database', type: 'MySQL', position: [600, 250] }
+                                            ]
+                                        }))}
+                                    />
+                                    {/* Fallback if logic requires it */}
+                                    <noscript>Preview not available</noscript>
+                                </div>
+                            )}
+                        </div>
+                        
+                        <div className={adminStyles.modalFooter} style={{ padding: '24px 48px' }}>
+                             <button className={adminStyles.refreshBtn} style={{ width: 'auto', padding: '0 32px', height: '52px', borderRadius: '16px', background: 'var(--foreground)', color: 'var(--background)' }} onClick={() => router.push(`/admin/marketplace/builder?id=${previewingTemplate.id}`)}>
+                                Edit Configuration
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
