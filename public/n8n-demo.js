@@ -1,7 +1,6 @@
 /**
  * BLONK | Sovereign Protocol Orchestration Engine
- * A high-fidelity, interactive visualization suite for complex automation protocols.
- * Features: Multi-layer grid, Panning, SVG Connectivity, and Institutional Design System.
+ * A high-fidelity, interactive visualization suite with Panning and Zooming capabilities.
  */
 
 class N8nDemoComponent extends HTMLElement {
@@ -33,6 +32,7 @@ class N8nDemoComponent extends HTMLElement {
   connectedCallback() {
     this.render();
     this.initPanning();
+    this.initZooming();
   }
 
   initPanning() {
@@ -40,7 +40,7 @@ class N8nDemoComponent extends HTMLElement {
     if (!canvas) return;
 
     const handleMouseDown = (e) => {
-      if (e.target.closest('.node') || e.target.closest('.toolbar')) return;
+      if (e.target.closest('.node')) return;
       this.state.isDragging = true;
       this.state.startX = e.clientX;
       this.state.startY = e.clientY;
@@ -68,14 +68,39 @@ class N8nDemoComponent extends HTMLElement {
     window.addEventListener('mouseup', handleMouseUp);
   }
 
+  initZooming() {
+    const canvas = this.shadowRoot.querySelector('.canvas');
+    if (!canvas) return;
+
+    canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -0.1 : 0.1;
+      const oldZoom = this.state.zoom;
+      const newZoom = Math.min(Math.max(oldZoom + delta, 0.2), 2.5);
+      
+      // Calculate mouse position relative to canvas
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      // Adjust offsets to zoom into mouse position
+      this.state.offsetX -= (mouseX - this.state.offsetX) * (newZoom / oldZoom - 1);
+      this.state.offsetY -= (mouseY - this.state.offsetY) * (newZoom / oldZoom - 1);
+      
+      this.state.zoom = newZoom;
+      this.updateTransform();
+    }, { passive: false });
+  }
+
   updateTransform() {
     const container = this.shadowRoot.querySelector('.view-container');
     const canvas = this.shadowRoot.querySelector('.canvas');
     if (container) {
-      container.style.transform = `translate(${this.state.offsetX}px, ${this.state.offsetY}px)`;
+      container.style.transform = `translate(${this.state.offsetX}px, ${this.state.offsetY}px) scale(${this.state.zoom})`;
     }
     if (canvas) {
       canvas.style.backgroundPosition = `${this.state.offsetX}px ${this.state.offsetY}px`;
+      canvas.style.backgroundSize = `${100 * this.state.zoom}px ${100 * this.state.zoom}px, ${100 * this.state.zoom}px ${100 * this.state.zoom}px, ${20 * this.state.zoom}px ${20 * this.state.zoom}px, ${20 * this.state.zoom}px ${20 * this.state.zoom}px`;
     }
   }
 
@@ -96,7 +121,7 @@ class N8nDemoComponent extends HTMLElement {
 
     const { nodes = [], connections = {} } = workflow;
 
-    // Initial View Normalization
+    // Zoom-to-Fit Orchestration: Calculate Bounding Box
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     nodes.forEach(node => {
       if (node.position && Array.isArray(node.position)) {
@@ -107,181 +132,92 @@ class N8nDemoComponent extends HTMLElement {
 
     const canvasWidth = this.offsetWidth || 800;
     const canvasHeight = 600;
-    
-    if (this.state.offsetX === 0 && this.state.offsetY === 0 && minX !== Infinity) {
-      this.state.offsetX = (canvasWidth / 2) - ((maxX + minX) / 2) - 100;
-      this.state.offsetY = (canvasHeight / 2) - ((maxY + minY) / 2) - 50;
+    const padding = 80;
+
+    if (minX !== Infinity) {
+      const workflowWidth = (maxX - minX) + 200; // +200 for node width
+      const workflowHeight = (maxY - minY) + 100; // +100 for node height
+      
+      const scaleX = (canvasWidth - padding) / workflowWidth;
+      const scaleY = (canvasHeight - padding) / workflowHeight;
+      const autoZoom = Math.min(Math.max(Math.min(scaleX, scaleY), 0.3), 1);
+      
+      this.state.zoom = autoZoom;
+      this.state.offsetX = (canvasWidth / 2) - (((maxX + minX + 200) / 2) * autoZoom);
+      this.state.offsetY = (canvasHeight / 2) - (((maxY + minY + 80) / 2) * autoZoom);
     }
 
     this.shadowRoot.innerHTML = `
       <style>
         :host {
-          display: block;
-          width: 100%;
-          height: 600px;
-          background: #F8FAFC;
+          display: block; width: 100%; height: 600px; background: #F8FAFC;
           font-family: 'Outfit', 'Inter', system-ui, sans-serif;
-          color: #0F172A;
-          position: relative;
-          overflow: hidden;
-          user-select: none;
-          --accent: #3A81F1;
-          --border: #E2E8F0;
+          position: relative; overflow: hidden; user-select: none;
         }
 
         .canvas {
-          width: 100%;
-          height: 100%;
-          background-color: #F8FAFC;
+          width: 100%; height: 100%; cursor: grab;
           background-image: 
-            linear-gradient(var(--border) 1px, transparent 1px),
-            linear-gradient(90deg, var(--border) 1px, transparent 1px),
-            linear-gradient(rgba(226, 232, 240, 0.3) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(226, 232, 240, 0.3) 1px, transparent 1px);
-          background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+            linear-gradient(#E2E8F0 1px, transparent 1px), linear-gradient(90deg, #E2E8F0 1px, transparent 1px),
+            linear-gradient(rgba(226, 232, 240, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(226, 232, 240, 0.3) 1px, transparent 1px);
+          background-size: ${100 * this.state.zoom}px ${100 * this.state.zoom}px, ${100 * this.state.zoom}px ${100 * this.state.zoom}px, ${20 * this.state.zoom}px ${20 * this.state.zoom}px, ${20 * this.state.zoom}px ${20 * this.state.zoom}px;
           background-position: ${this.state.offsetX}px ${this.state.offsetY}px;
-          position: relative;
-          cursor: grab;
         }
 
         .view-container {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 0;
-          height: 0;
-          pointer-events: none;
-          transform: translate(${this.state.offsetX}px, ${this.state.offsetY}px);
+          position: absolute; top: 0; left: 0; width: 0; height: 0; pointer-events: none;
+          transform-origin: 0 0;
+          transform: translate(${this.state.offsetX}px, ${this.state.offsetY}px) scale(${this.state.zoom});
         }
 
         .node {
-          position: absolute;
-          background: #FFFFFF;
-          border: 1px solid var(--border);
-          border-radius: 12px;
-          padding: 10px 14px;
-          min-width: 180px;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          pointer-events: auto;
-          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          position: absolute; background: white; border: 1.5px solid #E2E8F0; border-radius: 12px;
+          padding: 10px 14px; min-width: 180px; display: flex; align-items: center; gap: 12px;
+          pointer-events: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+          transition: border-color 0.2s, transform 0.2s;
         }
 
-        .node:hover {
-          border-color: var(--accent);
-          box-shadow: 0 10px 15px -3px rgba(0,0,0,0.08);
-          transform: translateY(-2px);
-          z-index: 50;
-        }
+        .node:hover { border-color: #3B82F6; transform: translateY(-2px); z-index: 100; }
 
-        .node-icon {
-          width: 36px;
-          height: 36px;
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-          background: #F1F5F9;
-          color: #64748B;
-        }
-
-        .icon-trigger { background: #EEF2FF; color: var(--accent); }
+        .node-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .icon-trigger { background: #EEF2FF; color: #3B82F6; }
         .icon-integration { background: #ECFDF5; color: #10B981; }
         .icon-logic { background: #F8FAFC; color: #475569; }
         .icon-data { background: #FFFBEB; color: #D97706; }
 
         .node-info { display: flex; flex-direction: column; overflow: hidden; }
-        .node-name { font-size: 0.8rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.01em; }
-        .node-type { font-size: 0.6rem; color: #94A3B8; font-weight: 650; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 1px; }
+        .node-name { font-size: 0.8rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #1E293B; }
+        .node-type { font-size: 0.6rem; color: #94A3B8; font-weight: 650; text-transform: uppercase; margin-top: 1px; }
 
-        .connection-svg {
-          position: absolute;
-          width: 20000px; height: 20000px;
-          top: -10000px; left: -10000px;
-          pointer-events: none;
-          z-index: 0;
-        }
-
-        .path-line {
-          fill: none;
-          stroke: #CBD5E1;
-          stroke-width: 2;
-          stroke-dasharray: 4 4;
-          animation: flow 40s linear infinite;
-        }
-
+        .connection-svg { position: absolute; width: 20000px; height: 20000px; top: -10000px; left: -10000px; pointer-events: none; }
+        .path-line { fill: none; stroke: #CBD5E1; stroke-width: 2; stroke-dasharray: 4 4; animation: flow 40s linear infinite; }
         @keyframes flow { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
 
-        .toolbar {
-          position: absolute;
-          top: 24px; left: 24px;
-          display: flex; gap: 8px;
-          z-index: 100;
+        .zoom-indicator {
+          position: absolute; bottom: 24px; left: 24px;
+          background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(8px);
+          border: 1px solid #E2E8F0; padding: 6px 12px; border-radius: 100px;
+          font-size: 0.65rem; font-weight: 950; color: #64748B;
         }
-
-        .tool-btn {
-          height: 38px;
-          padding: 0 16px;
-          background: rgba(255, 255, 255, 0.8);
-          backdrop-filter: blur(12px);
-          border: 1px solid var(--border);
-          border-radius: 100px;
-          font-size: 0.7rem;
-          font-weight: 800;
-          color: #475569;
-          cursor: pointer;
-          display: flex; align-items: center; gap: 8px;
-          box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-          transition: all 0.2s;
-        }
-
-        .tool-btn:hover { background: #FFFFFF; color: var(--accent); border-color: var(--accent); }
-
-        .btn-primary { background: var(--accent); color: white; border: none; }
-        .btn-primary:hover { background: #2A6BCC; color: white; }
 
         .breadcrumb {
-          position: absolute;
-          top: 24px; right: 24px;
-          background: rgba(255, 255, 255, 0.8);
-          backdrop-filter: blur(12px);
-          border: 1px solid var(--border);
-          padding: 8px 16px;
-          border-radius: 100px;
-          display: flex; align-items: center; gap: 12px;
-          z-index: 100;
+          position: absolute; top: 24px; right: 24px;
+          background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(8px);
+          border: 1px solid #E2E8F0; padding: 8px 16px; border-radius: 100px;
+          display: flex; align-items: center; gap: 12px; z-index: 100;
         }
 
-        .status-badge {
-          font-size: 0.6rem;
-          font-weight: 950;
-          text-transform: uppercase;
-          color: #10B981;
-          background: #ECFDF5;
-          padding: 2px 8px;
-          border-radius: 4px;
-        }
-
+        .status-badge { font-size: 0.6rem; font-weight: 950; text-transform: uppercase; color: #10B981; background: #ECFDF5; padding: 2px 8px; border-radius: 4px; }
         .workflow-name { font-size: 0.75rem; font-weight: 800; color: #1E293B; }
       </style>
 
       <div class="canvas">
-        <div class="toolbar">
-          <button class="tool-btn btn-primary">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-            Execute
-          </button>
-          <button class="tool-btn">Node Library</button>
-          <button class="tool-btn">Inspect Protocol</button>
-        </div>
-
         <div class="breadcrumb">
           <span class="status-badge">Live</span>
           <span class="workflow-name">${workflow.name || 'Autonomous Protocol'}</span>
         </div>
+
+        <div class="zoom-indicator">Scale: ${Math.round(this.state.zoom * 100)}%</div>
 
         <div class="view-container">
           <svg class="connection-svg" viewBox="-10000 -10000 20000 20000">
@@ -313,6 +249,9 @@ class N8nDemoComponent extends HTMLElement {
         </div>
       </div>
     `;
+    
+    this.initPanning();
+    this.initZooming();
   }
 
   renderConnections(nodes, connections) {
