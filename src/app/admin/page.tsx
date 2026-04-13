@@ -290,21 +290,14 @@ export default function AdminControlPage() {
                                 </button>
                             ))}
                         </div>
-                        <div style={{ position: 'relative' }}>
-                            <Search size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} />
+                        <div className={adminStyles.searchContainer}>
+                            <Search className={adminStyles.searchIcon} size={18} />
                             <input 
                                 type="text" 
-                                placeholder="Search nodes..." 
+                                placeholder="Search nodes by name or ID..." 
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className={adminStyles.mainInput}
-                                style={{ 
-                                    padding: '12px 16px 12px 48px', 
-                                    borderRadius: '16px', 
-                                    fontSize: '0.9rem', 
-                                    width: '240px',
-                                    height: 'auto'
-                                }}
+                                className={adminStyles.searchField}
                             />
                         </div>
                         <button className={adminStyles.refreshBtn} onClick={fetchWorkflows} style={{ padding: '12px' }}>

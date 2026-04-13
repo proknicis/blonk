@@ -6,19 +6,27 @@
 
 .adminShell {
     display: flex;
-    min-height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
     background: var(--background);
+    width: 100%;
 }
 
 .sidebar {
-    width: 280px;
+    width: 290px;
+    flex-shrink: 0;
     background: var(--card);
-    color: var(--foreground);
-    padding: 32px;
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    padding: 32px 24px;
+    height: 100%;
     border-right: 1px solid var(--border);
+    z-index: 100;
+}
+
+.logoSection {
+    margin-bottom: 56px;
+    padding: 0 12px;
 }
 
 .logo {
@@ -50,14 +58,31 @@
     box-shadow: var(--shadow-sm);
 }
 
-.main {
+.mainContent {
     flex: 1;
-    padding: 48px;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--background);
 }
 
-.header {
-    margin-bottom: 40px;
+.adminHeader {
+    height: 90px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 48px;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+.contentArea {
+    flex: 1;
+    overflow-y: auto;
+    padding: 48px;
+    scrollbar-gutter: stable;
 }
 
 .header h1 {
@@ -306,18 +331,20 @@
     border-radius: 40px;
     padding: 48px;
     box-shadow: var(--shadow-premium);
+    margin-bottom: 48px;
 }
 
 .registryHeader {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-end;
     margin-bottom: 48px;
-    gap: 24px;
+    gap: 32px;
+    flex-wrap: wrap;
 }
 
 .registryTitle {
-    font-size: 1.6rem;
+    font-size: 1.8rem;
     font-weight: 950;
     color: var(--foreground);
     letter-spacing: -0.04em;
@@ -374,11 +401,11 @@
     white-space: nowrap;
 }
 
-.registryTH:first-child { width: 30%; }
-.registryTH:nth-child(2) { width: 30%; }
-.registryTH:nth-child(3) { width: 20%; }
-.registryTH:nth-child(4) { width: 10%; }
-.registryTH:last-child { width: 10%; }
+.registryTH:first-child { min-width: 280px; }
+.registryTH:nth-child(2) { min-width: 280px; }
+.registryTH:nth-child(3) { min-width: 200px; }
+.registryTH:nth-child(4) { min-width: 180px; }
+.registryTH:last-child { min-width: 120px; }
 
 .registryRow td {
     padding: 24px 16px;
@@ -536,18 +563,59 @@
 .hubMetrics {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
+    background: var(--muted);
+    padding: 8px 16px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
 }
 
-.hubLabel { font-size: 0.85rem; font-weight: 900; color: var(--muted-foreground); }
-.hubValue { font-size: 1.25rem; font-weight: 950; color: var(--foreground); }
+.hubLabel { font-size: 0.7rem; font-weight: 950; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.1em; }
+.hubValue { font-size: 1.1rem; font-weight: 950; color: var(--foreground); }
+
+/* Search Implementation */
+.searchContainer {
+    position: relative;
+    flex: 1;
+    min-width: 300px;
+    max-width: 480px;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted-foreground);
+    pointer-events: none;
+}
+
+.searchField {
+    width: 100%;
+    height: 52px;
+    background: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 0 24px 0 56px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--foreground);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    outline: none;
+}
+
+.searchField:focus {
+    background: var(--card);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-muted);
+}
 
 /* Quick Metrics Matrix */
 .metricMatrix {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 24px;
-    margin-bottom: 48px;
+    margin-bottom: 40px;
 }
 
 .adminMetricCard {
@@ -628,3 +696,50 @@
 }
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Responsiveness */
+@media (max-width: 1400px) {
+    .registryHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 24px;
+    }
+    
+    .registryHeader > div:last-child {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 900px) {
+    .metricMatrix {
+        grid-template-columns: 1fr;
+    }
+    
+    .integrityPanel {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 24px;
+    }
+    
+    .hubMetrics {
+        padding-top: 24px;
+        width: 100%;
+        border-top: 1px solid var(--border);
+    }
+    
+    .registryCard {
+        padding: 32px 24px;
+    }
+
+    .registryHeader > div:last-child {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .filterBar {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 8px;
+    }
+}
