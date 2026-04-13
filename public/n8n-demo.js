@@ -1,7 +1,7 @@
 /**
- * BLONK | Sovereign Protocol Orchestration Suite v6.4
- * Hardened for industrial-scale rendering and architectural documentation.
- * Resolves SVG path distortion and implements Markdown-lite formatting.
+ * BLONK | Sovereign Protocol Orchestration Suite v6.5
+ * Institutional High-Contrast Adaptive Rendering Engine.
+ * Optimized for legibility across variable-luminance documentation assets.
  */
 
 class N8nDemoComponent extends HTMLElement {
@@ -20,7 +20,7 @@ class N8nDemoComponent extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
     if (name === 'workflow' && newValue !== this.state.activeWorkflow) {
       this.state.activeWorkflow = newValue;
-      this.state.offsetX = 0; this.state.offsetY = 0; // Force re-center
+      this.state.offsetX = 0; this.state.offsetY = 0;
       this.render();
     }
   }
@@ -29,10 +29,7 @@ class N8nDemoComponent extends HTMLElement {
     this.render();
     this.initPanning();
     this.initZooming();
-    window.addEventListener('resize', () => {
-      this.state.offsetX = 0; this.state.offsetY = 0;
-      this.render();
-    });
+    window.addEventListener('resize', () => { this.render(); });
   }
 
   initPanning() {
@@ -62,7 +59,7 @@ class N8nDemoComponent extends HTMLElement {
   initZooming() {
     this.shadowRoot.querySelector('.canvas')?.addEventListener('wheel', (e) => {
       e.preventDefault();
-      const delta = e.deltaY > 0 ? -0.08 : 0.08;
+      const delta = e.deltaY > 0 ? -0.1 : 0.1;
       const oldZoom = this.state.zoom;
       const newZoom = Math.min(Math.max(oldZoom + delta, 0.005), 4.0);
       const rect = this.shadowRoot.querySelector('.canvas').getBoundingClientRect();
@@ -84,6 +81,15 @@ class N8nDemoComponent extends HTMLElement {
       const sz1 = 100 * this.state.zoom; const sz2 = 20 * this.state.zoom;
       canvas.style.backgroundSize = `${sz1}px ${sz1}px, ${sz1}px ${sz1}px, ${sz2}px ${sz2}px, ${sz2}px ${sz2}px`;
     }
+  }
+
+  getLuminance(hex) {
+    if (!hex || hex[0] !== '#') return 1; // Default Light
+    const rgb = parseInt(hex.substring(1), 16);
+    const r = (rgb >> 16) & 0xff;
+    const g = (rgb >>  8) & 0xff;
+    const b = (rgb >>  0) & 0xff;
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
   }
 
   render() {
@@ -109,8 +115,8 @@ class N8nDemoComponent extends HTMLElement {
 
     if (this.state.offsetX === 0 && this.state.offsetY === 0 && minX !== Infinity) {
       const wW = maxX - minX; const wH = maxY - minY;
-      const sX = (canvasWidth - 100) / wW; const sY = (canvasHeight - 100) / wH;
-      this.state.zoom = Math.min(Math.max(Math.min(sX, sY), 0.02), 1.0);
+      const sX = (canvasWidth - 100) / (wW || 1); const sY = (canvasHeight - 100) / (wH || 1);
+      this.state.zoom = Math.min(Math.max(Math.min(sX, sY), 0.01), 1.0);
       this.state.offsetX = (canvasWidth / 2) - (((maxX + minX) / 2) * this.state.zoom);
       this.state.offsetY = (canvasHeight / 2) - (((maxY + minY) / 2) * this.state.zoom);
     }
@@ -141,21 +147,20 @@ class N8nDemoComponent extends HTMLElement {
         .node {
           position: absolute; background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px;
           padding: 10px 14px; min-width: 220px; display: flex; align-items: center; gap: 12px;
-          pointer-events: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+          pointer-events: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.03);
           z-index: 10;
         }
 
         .sticky-note {
-          position: absolute; border: 1px solid rgba(0,0,0,0.05); border-radius: 12px; padding: 32px;
-          color: #334155; font-size: 0.95rem; line-height: 1.7; pointer-events: auto;
-          box-shadow: 0 1px 2px rgba(0,0,0,0.02); z-index: 1; overflow-y: auto;
+          position: absolute; border: 1px solid rgba(0,0,0,0.05); border-radius: 16px; padding: 32px;
+          font-size: 0.95rem; line-height: 1.7; pointer-events: auto;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.04); z-index: 1; overflow-y: hidden;
         }
-        .sticky-note b { font-weight: 850; color: #0F172A; display: block; margin-top: 12px; margin-bottom: 4px; }
+        .sticky-note b { font-weight: 850; display: block; margin-top: 14px; margin-bottom: 6px; }
         .sticky-note b:first-child { margin-top: 0; }
 
         .node-icon { 
           width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-          background: #F1F5F9; color: #64748B;
         }
         .icon-trigger { background: #EEF2FF; color: #3B82F6; }
         .icon-integration { background: #ECFDF5; color: #10B981; }
@@ -166,23 +171,21 @@ class N8nDemoComponent extends HTMLElement {
         .node-name { font-size: 0.85rem; font-weight: 800; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .node-type { font-size: 0.65rem; color: #94A3B8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
 
-        /* SVG Path Hardening */
         .connection-svg { position: absolute; width: 200%; height: 200%; top: -50%; left: -50%; pointer-events: none; z-index: 5; overflow: visible; }
         .path-line { fill: none !important; stroke: #CBD5E1; stroke-width: 2.5; stroke-linecap: round; vector-effect: non-scaling-stroke; }
         .path-active { fill: none !important; stroke: #3B82F6; stroke-width: 2.5; stroke-dasharray: 4 40; animation: flow 5s linear infinite; vector-effect: non-scaling-stroke; }
         @keyframes flow { from { stroke-dashoffset: 44; } to { stroke-dashoffset: 0; } }
 
-        .hud { position: absolute; top: 24px; left: 24px; right: 24px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; z-index: 1000; }
-        .badge { background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border: 1px solid #E2E8F0; padding: 10px 24px; border-radius: 100px; display: flex; align-items: center; gap: 12px; pointer-events: auto; box-shadow: 0 8px 16px rgba(0,0,0,0.06); font-size: 0.8rem; font-weight: 800; color: #0F172A; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #10B981; }
+        .hud { position: absolute; top: 24px; left: 24px; pointer-events: none; z-index: 1000; }
+        .badge { background: rgba(255,255,255,0.98); border: 1px solid #E2E8F0; padding: 10px 24px; border-radius: 100px; display: flex; align-items: center; gap: 12px; pointer-events: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.05); font-size: 0.8rem; font-weight: 850; color: #0F172A; }
       </style>
 
       <div class="canvas">
         <div class="hud">
           <div class="badge">
-            <div class="status-dot"></div>
+            <span style="color: #10B981;">●</span>
             <span>${workflow.name || 'Protocol Engine'}</span>
-            <span style="color: #64748B; padding-left: 12px; border-left: 1px solid #E2E8F0;">${Math.round(this.state.zoom * 100)}%</span>
+            <span style="color: #94A3B8; margin-left: 8px;">${Math.round(this.state.zoom * 100)}%</span>
           </div>
         </div>
 
@@ -196,20 +199,24 @@ class N8nDemoComponent extends HTMLElement {
             const y = node.position ? node.position[1] : 200;
             
             if (node.type.includes('stickyNote')) {
-              const bgCols = ['#FEF9C3', '#FFEDD5', '#F3E8FF', '#FCE7F3', '#ECFDF5', '#F1F5F9', '#DBEAFE'];
+              const bgCols = ['#FFF9C4', '#FFE0B2', '#F8BBD0', '#E1BEE7', '#C8E6C9', '#B3E5FC', '#CFD8DC'];
               let bg = node.parameters?.color || 1;
               if (typeof bg === 'number') bg = bgCols[bg - 1] || bgCols[0];
-              
-              // Markdown-lite formatting
+              if (typeof bg === 'string' && !bg.startsWith('#') && isNaN(bg)) bg = '#FEF9C3'; 
+
+              const lum = this.getLuminance(bg);
+              const textColor = lum > 0.6 ? '#1E293B' : '#F8FAFC';
+              const headerColor = lum > 0.6 ? '#0F172A' : '#FFFFFF';
+
               let content = node.parameters?.content || '';
               content = content
-                .replace(/^##\s+(.*)$/gm, '<b>$1</b>')
-                .replace(/^###\s+(.*)$/gm, '<b>$1</b>')
+                .replace(/^##\s+(.*)$/gm, `<b style="color: ${headerColor}">$1</b>`)
+                .replace(/^###\s+(.*)$/gm, `<b style="color: ${headerColor}">$1</b>`)
                 .replace(/^-\s+(.*)$/gm, '• $1')
                 .replace(/\n/g, '<br>');
 
               return `
-                <div class="sticky-note" style="left: ${x}px; top: ${y}px; width: ${node.parameters?.width || 340}px; height: ${node.parameters?.height || 220}px; background: ${bg};">
+                <div class="sticky-note" style="left: ${x}px; top: ${y}px; width: ${node.parameters?.width || 340}px; height: ${node.parameters?.height || 220}px; background: ${bg}; color: ${textColor};">
                   ${content}
                 </div>
               `;
@@ -236,15 +243,8 @@ class N8nDemoComponent extends HTMLElement {
   renderConnections(nodes, connections) {
     let html = '';
     const nodeMap = {}; 
-    nodes.forEach(n => {
-       nodeMap[n.id] = n;
-       nodeMap[n.name] = n;
-    });
+    nodes.forEach(n => { nodeMap[n.id] = n; nodeMap[n.name] = n; });
     
-    // Industrial coordinate offset to keep SVG numbers manageable
-    const viewX = this.state.offsetX;
-    const viewY = this.state.offsetY;
-
     Object.keys(connections).forEach(srcKey => {
       const srcNode = nodeMap[srcKey];
       if (!srcNode || srcNode.type.includes('sticky')) return;
@@ -261,11 +261,11 @@ class N8nDemoComponent extends HTMLElement {
           const eY = targetNode.position[1] + 32;
 
           const dist = Math.abs(eX - sX);
-          const cpX = sX + Math.min(dist * 0.5, 150); // Limit curve pull for industrial spreads
+          const cpX = sX + Math.min(dist * 0.5, 100);
 
           html += `
-            <path d="M ${sX} ${sY} C ${cpX} ${sY}, ${sX + (eX - sX) * 0.5} ${eY}, ${eX} ${eY}" class="path-line" fill="none" />
-            <path d="M ${sX} ${sY} C ${cpX} ${sY}, ${sX + (eX - sX) * 0.5} ${eY}, ${eX} ${eY}" class="path-active" fill="none" />
+            <path d="M ${sX} ${sY} C ${cpX} ${sY}, ${sX + (eX - sX) * 0.5} ${eY}, ${eX} ${eY}" class="path-line" />
+            <path d="M ${sX} ${sY} C ${cpX} ${sY}, ${sX + (eX - sX) * 0.5} ${eY}, ${eX} ${eY}" class="path-active" />
           `;
         });
       });
