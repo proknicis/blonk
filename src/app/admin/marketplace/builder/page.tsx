@@ -365,7 +365,7 @@ function BuilderContent() {
                                 <div className={styles.formGroup} style={{ border: '2px dashed var(--accent)', padding: '24px', borderRadius: '16px', background: 'var(--accent-muted)' }}>
                                     <label className={styles.label} style={{ color: 'var(--accent)', fontWeight: 950 }}>
                                         Backend Protocol (n8n Workflow JSON)
-                                        <span className={styles.helpText}>(Pasted from "Export -> To File" in n8n)</span>
+                                        <span className={styles.helpText}>(Pasted from "Export -&gt; To File" in n8n)</span>
                                     </label>
                                     <textarea 
                                         className={styles.textarea} 
