@@ -1,6 +1,6 @@
 /**
  * BLONK | Institutional Protocol Visualization Engine
- * High-fidelity rendering of n8n workflow archetypes for sovereign dashboards.
+ * Panning-enabled high-fidelity rendering of n8n workflow archetypes.
  */
 
 class N8nDemoComponent extends HTMLElement {
@@ -10,7 +10,11 @@ class N8nDemoComponent extends HTMLElement {
     this.state = {
       offsetX: 0,
       offsetY: 0,
-      zoom: 1
+      isDragging: false,
+      startX: 0,
+      startY: 0,
+      baseX: 0,
+      baseY: 0
     };
   }
 
@@ -26,6 +30,53 @@ class N8nDemoComponent extends HTMLElement {
 
   connectedCallback() {
     this.render();
+    this.initPanning();
+  }
+
+  initPanning() {
+    const canvas = this.shadowRoot.querySelector('.canvas');
+    if (!canvas) return;
+
+    const handleMouseDown = (e) => {
+      // Only drag if clicking the canvas background, not nodes
+      if (e.target.closest('.node')) return;
+      
+      this.state.isDragging = true;
+      this.state.startX = e.clientX;
+      this.state.startY = e.clientY;
+      this.state.baseX = this.state.offsetX;
+      this.state.baseY = this.state.offsetY;
+      canvas.style.cursor = 'grabbing';
+    };
+
+    const handleMouseMove = (e) => {
+      if (!this.state.isDragging) return;
+      
+      const dx = e.clientX - this.state.startX;
+      const dy = e.clientY - this.state.startY;
+      
+      this.state.offsetX = this.state.baseX + dx;
+      this.state.offsetY = this.state.baseY + dy;
+      
+      this.updateTransform();
+    };
+
+    const handleMouseUp = () => {
+      if (!this.state.isDragging) return;
+      this.state.isDragging = false;
+      canvas.style.cursor = 'grab';
+    };
+
+    canvas.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mousemove', (e) => handleMouseMove(e));
+    window.addEventListener('mouseup', () => handleMouseUp());
+  }
+
+  updateTransform() {
+    const container = this.shadowRoot.querySelector('.view-container');
+    if (container) {
+      container.style.transform = `translate(${this.state.offsetX}px, ${this.state.offsetY}px)`;
+    }
   }
 
   render() {
@@ -45,7 +96,7 @@ class N8nDemoComponent extends HTMLElement {
 
     const { nodes = [], connections = {} } = workflow;
 
-    // Coordinate Normalization
+    // Initial Coordinate Normalization
     let minX = Infinity;
     let minY = Infinity;
     let maxX = -Infinity;
@@ -60,18 +111,18 @@ class N8nDemoComponent extends HTMLElement {
       }
     });
 
-    // Centralize the view
     const canvasWidth = this.offsetWidth || 800;
     const canvasHeight = 600;
-    
     const workflowWidth = maxX - minX;
     const workflowHeight = maxY - minY;
     
-    const centerX = (canvasWidth - 180) / 2;
-    const centerY = (canvasHeight - 100) / 2;
-    
-    const offsetBaseX = minX === Infinity ? 100 : (centerX - (workflowWidth / 2) - minX);
-    const offsetBaseY = minY === Infinity ? 100 : (centerY - (workflowHeight / 2) - minY);
+    // Set initial offsets if they haven't been touched yet
+    if (this.state.offsetX === 0 && this.state.offsetY === 0 && minX !== Infinity) {
+      const centerX = (canvasWidth - 200) / 2;
+      const centerY = (canvasHeight - 100) / 2;
+      this.state.offsetX = (centerX - (workflowWidth / 2) - minX);
+      this.state.offsetY = (centerY - (workflowHeight / 2) - minY);
+    }
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -94,7 +145,18 @@ class N8nDemoComponent extends HTMLElement {
             radial-gradient(#E2E8F0 1px, transparent 1px);
           background-size: 24px 24px;
           position: relative;
-          overflow: visible;
+          cursor: grab;
+          background-position: ${this.state.offsetX % 24}px ${this.state.offsetY % 24}px;
+        }
+
+        .view-container {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          pointer-events: none;
+          transform: translate(${this.state.offsetX}px, ${this.state.offsetY}px);
         }
 
         .node {
@@ -107,15 +169,16 @@ class N8nDemoComponent extends HTMLElement {
           display: flex;
           align-items: center;
           gap: 14px;
-          z-index: 10;
-          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          pointer-events: auto;
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+          transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
         }
 
         .node:hover {
           border-color: #3B82F6;
-          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
           transform: translateY(-2px);
+          z-index: 50;
         }
 
         .node-icon-wrapper {
@@ -146,7 +209,6 @@ class N8nDemoComponent extends HTMLElement {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
-          letter-spacing: -0.01em;
         }
 
         .node-type {
@@ -154,17 +216,15 @@ class N8nDemoComponent extends HTMLElement {
           color: #64748B;
           font-weight: 600;
           text-transform: uppercase;
-          letter-spacing: 0.05em;
         }
 
         .connection-svg {
           position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
+          width: 20000px;
+          height: 20000px;
+          top: -10000px;
+          left: -10000px;
           pointer-events: none;
-          z-index: 5;
         }
 
         .path-line {
@@ -199,18 +259,7 @@ class N8nDemoComponent extends HTMLElement {
           font-weight: 700;
           color: #475569;
           cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 8px;
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-          transition: all 0.2s;
-        }
-
-        .tool-btn:hover {
-          background: #FFFFFF;
-          border-color: #CBD5E1;
-          color: #0F172A;
-          transform: translateY(-1px);
         }
 
         .status-pill {
@@ -223,25 +272,12 @@ class N8nDemoComponent extends HTMLElement {
           border-radius: 100px;
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 12px;
           z-index: 100;
         }
 
-        .status-dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: #10B981;
-          box-shadow: 0 0 8px #10B981;
-        }
-
-        .status-text {
-          font-size: 0.65rem;
-          font-weight: 950;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          color: #64748B;
-        }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #10B981; box-shadow: 0 0 8px #10B981; }
+        .status-text { font-size: 0.65rem; font-weight: 950; text-transform: uppercase; color: #64748B; letter-spacing: 0.05em; }
       </style>
 
       <div class="canvas">
@@ -250,42 +286,46 @@ class N8nDemoComponent extends HTMLElement {
           <div class="tool-btn">Node Library</div>
         </div>
 
-        <svg class="connection-svg">
-          <defs>
-            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-              <polygon points="0 0, 10 3.5, 0 7" fill="#CBD5E1" />
-            </marker>
-          </defs>
-          ${this.renderConnections(nodes, connections, offsetBaseX, offsetBaseY)}
-        </svg>
+        <div class="view-container">
+          <svg class="connection-svg" viewBox="-10000 -10000 20000 20000">
+            <defs>
+              <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="#CBD5E1" />
+              </marker>
+            </defs>
+            ${this.renderConnections(nodes, connections)}
+          </svg>
 
-        ${nodes.map((node, i) => {
-          const x = node.position ? (node.position[0] + offsetBaseX) : (100 + i * 250);
-          const y = node.position ? (node.position[1] + offsetBaseY) : 250;
-          const category = this.getCategory(node.type);
-          
-          return `
-            <div class="node" style="left: ${x}px; top: ${y}px;" data-id="${node.id}">
-              <div class="node-icon-wrapper icon-${category}">
-                ${this.getRawIcon(node.type)}
+          ${nodes.map((node, i) => {
+            const x = node.position ? node.position[0] : (i * 250);
+            const y = node.position ? node.position[1] : 250;
+            const category = this.getCategory(node.type);
+            
+            return `
+              <div class="node" style="left: ${x}px; top: ${y}px;">
+                <div class="node-icon-wrapper icon-${category}">
+                  ${this.getRawIcon(node.type)}
+                </div>
+                <div class="node-info">
+                  <span class="node-name">${node.name}</span>
+                  <span class="node-type">${node.type.split('.').pop()}</span>
+                </div>
               </div>
-              <div class="node-info">
-                <span class="node-name">${node.name}</span>
-                <span class="node-type">${node.type.split('.').pop()}</span>
-              </div>
-            </div>
-          `;
-        }).join('')}
+            `;
+          }).join('')}
+        </div>
 
         <div class="status-pill">
           <div class="status-dot"></div>
-          <span class="status-text">Synchronized Protocol v4.2</span>
+          <span class="status-text">Synchronized Engine v4.2</span>
         </div>
       </div>
     `;
+    
+    this.initPanning();
   }
 
-  renderConnections(nodes, connections, offsetX, offsetY) {
+  renderConnections(nodes, connections) {
     let paths = '';
     const nodeMap = {};
     nodes.forEach(n => nodeMap[n.name] = n);
@@ -300,22 +340,15 @@ class N8nDemoComponent extends HTMLElement {
           const targetNode = nodeMap[target.node];
           if (!targetNode) return;
 
-          const startX = sourceNode.position[0] + offsetX + 200; // Right side of node
-          const startY = sourceNode.position[1] + offsetY + 32;  // Vertical center
-          
-          const endX = targetNode.position[0] + offsetX;      // Left side of node
-          const endY = targetNode.position[1] + offsetY + 32;
+          const startX = sourceNode.position[0] + 200;
+          const startY = sourceNode.position[1] + 32;
+          const endX = targetNode.position[0];
+          const endY = targetNode.position[1] + 32;
 
           const cp1X = startX + (endX - startX) / 2;
           const cp2X = startX + (endX - startX) / 2;
 
-          paths += `
-            <path 
-              d="M ${startX} ${startY} C ${cp1X} ${startY}, ${cp2X} ${endY}, ${endX} ${endY}" 
-              class="path-line" 
-              marker-end="url(#arrowhead)"
-            />
-          `;
+          paths += `<path d="M ${startX} ${startY} C ${cp1X} ${startY}, ${cp2X} ${endY}, ${endX} ${endY}" class="path-line" marker-end="url(#arrowhead)" />`;
         });
       });
     });
@@ -334,39 +367,21 @@ class N8nDemoComponent extends HTMLElement {
 
   getRawIcon(type) {
     const t = type.toLowerCase();
-    if (t.includes('trigger')) {
-      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>`;
-    }
-    if (t.includes('httprequest') || t.includes('webhook')) {
-      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
-    }
-    if (t.includes('googlesheets') || t.includes('db')) {
-      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>`;
-    }
-    if (t.includes('if')) {
-      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10l5 5 5-5"/></svg>`;
-    }
-    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>`;
+    if (t.includes('trigger')) return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>`;
+    if (t.includes('httprequest') || t.includes('webhook')) return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
+    if (t.includes('googlesheets') || t.includes('db')) return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>`;
+    if (t.includes('if')) return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 10l5 5 5-5"/></svg>`;
+    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>`;
   }
 
   renderError() {
     this.shadowRoot.innerHTML = `
       <style>
-        .error {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          height: 100%;
-          background: #FAFAFA;
-          color: #64748B;
-          font-family: inherit;
-        }
+        .error { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; font-family: sans-serif; }
       </style>
       <div class="error">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px; opacity: 0.5;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <div style="font-weight: 800; color: #1e293b;">Protocol Definition Missing</div>
-        <div style="font-size: 0.8rem; margin-top: 8px;">Ensure the JSON structure is properly synchronized.</div>
+        <div style="font-weight: 800; color: #1e293b;">Protocol Engine Offline</div>
+        <div style="font-size: 0.8rem; color: #64748B; margin-top: 8px;">Synchronize JSON definition to enable visualization.</div>
       </div>
     `;
   }
