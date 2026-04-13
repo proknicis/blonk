@@ -52,6 +52,12 @@ export default function WorkflowsPage() {
 
     useEffect(() => {
         fetchMarketplace();
+        const script = document.createElement("script");
+        script.src = "/n8n-demo.js";
+        script.type = "module";
+        script.async = true;
+        document.body.appendChild(script);
+        return () => { document.body.removeChild(script); };
     }, []);
 
     const fetchMarketplace = async () => {
@@ -399,20 +405,30 @@ export default function WorkflowsPage() {
                             </button>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                            <div style={{ background: 'var(--muted)', padding: '24px', borderRadius: '24px', border: '1px solid var(--border)' }}>
-                                <h3 className={styles.metricLabel} style={{ marginBottom: '20px', display: 'block' }}>Trigger & Action Diagram</h3>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                    {previewTemplate.blueprint.logic.map((step: string, idx: number) => (
-                                        <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                            <div style={{ display: 'flex', gap: '16px', alignItems: 'center', width: '100%', background: 'var(--card)', padding: '16px', borderRadius: '16px', border: '1px solid var(--border)' }}>
-                                                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: idx === 0 ? 'var(--accent-muted)' : 'var(--muted)', color: idx === 0 ? 'var(--accent)' : 'var(--muted-foreground)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{idx === 0 ? '⚡' : '→'}</div>
-                                                <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--foreground)', fontWeight: 800 }}>{step}</p>
-                                            </div>
-                                            {idx < previewTemplate.blueprint.logic.length - 1 && <div style={{ width: '2px', height: '16px', background: 'var(--border)', alignSelf: 'center' }}></div>}
-                                        </div>
-                                    ))}
+                            {previewTemplate.workflow ? (
+                                <div style={{ width: '100%', height: '500px', background: '#FAFAFA', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'inset 0 0 40px rgba(0,0,0,0.05)' }}>
+                                    {/* @ts-ignore */}
+                                    <n8n-demo 
+                                        workflow={JSON.stringify(typeof previewTemplate.workflow === 'string' ? JSON.parse(previewTemplate.workflow) : (previewTemplate.workflow || {}))}
+                                    />
                                 </div>
-                            </div>
+                            ) : (
+                                <div style={{ background: 'var(--muted)', padding: '24px', borderRadius: '24px', border: '1px solid var(--border)' }}>
+                                    <h3 className={styles.metricLabel} style={{ marginBottom: '20px', display: 'block' }}>Trigger & Action Diagram</h3>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        {previewTemplate.blueprint.logic.map((step: string, idx: number) => (
+                                            <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                                <div style={{ display: 'flex', gap: '16px', alignItems: 'center', width: '100%', background: 'var(--card)', padding: '16px', borderRadius: '16px', border: '1px solid var(--border)' }}>
+                                                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: idx === 0 ? 'var(--accent-muted)' : 'var(--muted)', color: idx === 0 ? 'var(--accent)' : 'var(--muted-foreground)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{idx === 0 ? '⚡' : '→'}</div>
+                                                    <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--foreground)', fontWeight: 800 }}>{step}</p>
+                                                </div>
+                                                {idx < previewTemplate.blueprint.logic.length - 1 && <div style={{ width: '2px', height: '16px', background: 'var(--border)', alignSelf: 'center' }}></div>}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                                 <div style={{ padding: '24px', background: 'var(--muted)', borderRadius: '20px', border: '1px solid var(--border)' }}>
                                     <label className={styles.metricLabel}>Projected Savings</label>
