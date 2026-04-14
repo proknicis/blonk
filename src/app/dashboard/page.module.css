@@ -484,6 +484,27 @@
     margin-bottom: 40px;
 }
 
+.onboardingTitle {
+    font-size: 1.5rem;
+    font-weight: 950;
+    margin: 0 0 16px 0;
+    color: var(--foreground);
+}
+
+.onboardingSubtitle {
+    color: var(--muted-foreground);
+    max-width: 600px;
+    line-height: 1.6;
+    margin: 0 0 40px 0;
+}
+
+.onboardingActions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    align-items: center;
+}
+
 .btnInstitutional {
     background: var(--primary);
     color: var(--primary-foreground);
