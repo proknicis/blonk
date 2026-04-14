@@ -1,7 +1,7 @@
 /**
- * BLONK | Sovereign Protocol Orchestration Suite v6.7
- * Multi-Layer Industrial Rendering Engine.
- * Optimized for massive background annotations and complex logic layering.
+ * BLONK | Sovereign Protocol Orchestration Suite v6.8
+ * Kinetic Flow Visualization Engine.
+ * Features automated connection labeling and directional pulse indicators.
  */
 
 class N8nDemoComponent extends HTMLElement {
@@ -57,25 +57,21 @@ class N8nDemoComponent extends HTMLElement {
   initPanning() {
     const canvas = this.shadowRoot.querySelector('.canvas');
     if (!canvas) return;
-    const handleMouseDown = (e) => {
-      // Allow dragging even if clicking on sticky notes (as they act as background)
+    canvas.addEventListener('mousedown', (e) => {
       if (e.target.closest('.node')) return;
       this.state.isDragging = true;
       this.state.startX = e.clientX; this.state.startY = e.clientY;
       this.state.baseX = this.state.targetX; this.state.baseY = this.state.targetY;
       canvas.style.cursor = 'grabbing';
-    };
-    const handleMouseMove = (e) => {
+    });
+    window.addEventListener('mousemove', (e) => {
       if (!this.state.isDragging) return;
       this.state.targetX = this.state.baseX + (e.clientX - this.state.startX);
       this.state.targetY = this.state.baseY + (e.clientY - this.state.startY);
-    };
-    const handleMouseUp = () => {
+    });
+    window.addEventListener('mouseup', () => {
       this.state.isDragging = false; canvas.style.cursor = 'grab';
-    };
-    canvas.addEventListener('mousedown', handleMouseDown);
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+    });
   }
 
   initZooming() {
@@ -83,7 +79,7 @@ class N8nDemoComponent extends HTMLElement {
       e.preventDefault();
       const delta = e.deltaY > 0 ? 0.85 : 1.15;
       const oldZoom = this.state.targetZoom;
-      const newZoom = Math.min(Math.max(oldZoom * delta, 0.002), 5.0); // Ultra-macro support
+      const newZoom = Math.min(Math.max(oldZoom * delta, 0.002), 5.0);
       const rect = this.shadowRoot.querySelector('.canvas').getBoundingClientRect();
       const mouseX = e.clientX - rect.left; const mouseY = e.clientY - rect.top;
       this.state.targetX -= (mouseX - this.state.targetX) * (newZoom / oldZoom - 1);
@@ -108,9 +104,7 @@ class N8nDemoComponent extends HTMLElement {
   getLuminance(hex) {
     if (!hex || hex[0] !== '#') return 1;
     const rgb = parseInt(hex.substring(1), 16);
-    const r = (rgb >> 16) & 0xff;
-    const g = (rgb >>  8) & 0xff;
-    const b = (rgb >>  0) & 0xff;
+    const r = (rgb >> 16) & 0xff; const g = (rgb >>  8) & 0xff; const b = (rgb >>  0) & 0xff;
     return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
   }
 
@@ -121,27 +115,23 @@ class N8nDemoComponent extends HTMLElement {
     if (!workflow || !workflow.nodes) { this.renderError(); return; }
 
     const { nodes = [], connections = {} } = workflow;
-
-    // Split nodes into functional layers
     const stickyNodes = nodes.filter(n => (n.type || '').includes('stickyNote'));
     const logicNodes = nodes.filter(n => !(n.type || '').includes('stickyNote'));
 
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     nodes.forEach(node => {
       if (node.position && Array.isArray(node.position)) {
-        const w = (node.type || '').includes('sticky') ? (node.parameters?.width || 340) : 220;
-        const h = (node.type || '').includes('sticky') ? (node.parameters?.height || 220) : 80;
+        const w = (node.type || '').includes('sticky') ? (node.parameters?.width || 340) : 240;
+        const h = (node.type || '').includes('sticky') ? (node.parameters?.height || 220) : 100;
         minX = Math.min(minX, node.position[0]); minY = Math.min(minY, node.position[1]);
         maxX = Math.max(maxX, node.position[0] + w); maxY = Math.max(maxY, node.position[1] + h);
       }
     });
 
-    const canvasWidth = this.offsetWidth || 800;
-    const canvasHeight = this.offsetHeight || 600;
-
+    const canvasWidth = this.offsetWidth || 800; const canvasHeight = this.offsetHeight || 600;
     if (this.state.targetX === 0 && this.state.targetY === 0 && minX !== Infinity) {
       const wW = maxX - minX; const wH = maxY - minY;
-      const sX = (canvasWidth - 200) / (wW || 1); const sY = (canvasHeight - 200) / (wH || 1);
+      const sX = (canvasWidth - 250) / (wW || 1); const sY = (canvasHeight - 250) / (wH || 1);
       this.state.targetZoom = this.state.zoom = Math.min(Math.max(Math.min(sX, sY), 0.01), 1.0);
       this.state.targetX = this.state.offsetX = (canvasWidth / 2) - (((maxX + minX) / 2) * this.state.zoom);
       this.state.targetY = this.state.offsetY = (canvasHeight / 2) - (((maxY + minY) / 2) * this.state.zoom);
@@ -155,61 +145,47 @@ class N8nDemoComponent extends HTMLElement {
           position: relative; overflow: hidden; user-select: none;
         }
 
-        .canvas {
-          width: 100%; height: 100%; cursor: grab; background: #FFFFFF;
-          background-image: 
-            linear-gradient(#F1F5F9 1px, transparent 1px), linear-gradient(90deg, #F1F5F9 1px, transparent 1px),
-            linear-gradient(rgba(241, 245, 249, 0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(241, 245, 249, 0.4) 1px, transparent 1px);
-        }
+        .canvas { width: 100%; height: 100%; cursor: grab; background: #FFFFFF; background-image: linear-gradient(#F1F5F9 1px, transparent 1px), linear-gradient(90deg, #F1F5F9 1px, transparent 1px), linear-gradient(rgba(241, 245, 249, 0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(241, 245, 249, 0.4) 1px, transparent 1px); }
+        .view-container { position: absolute; top: 0; left: 0; width: 0; height: 0; pointer-events: none; transform-origin: 0 0; will-change: transform; }
 
-        .view-container {
-          position: absolute; top: 0; left: 0; width: 0; height: 0; pointer-events: none;
-          transform-origin: 0 0; will-change: transform;
-        }
+        .node { position: absolute; background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 14px; padding: 14px 20px; min-width: 260px; display: flex; align-items: center; gap: 16px; pointer-events: auto; box-shadow: 0 6px 18px rgba(0,0,0,0.03); z-index: 200; transition: border-color 0.2s, box-shadow 0.2s; }
+        .node:hover { border-color: #3B82F6; box-shadow: 0 12px 36px rgba(59, 130, 246, 0.12); z-index: 2000 !important; }
 
-        .node {
-          position: absolute; background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px;
-          padding: 12px 18px; min-width: 240px; display: flex; align-items: center; gap: 14px;
-          pointer-events: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.03); z-index: 100;
-        }
-        .node:hover { border-color: #3B82F6; box-shadow: 0 12px 32px rgba(59, 130, 246, 0.1); z-index: 1000 !important; }
-
-        .sticky-note {
-          position: absolute; border: 1px solid rgba(0,0,0,0.05); border-radius: 16px; padding: 40px;
-          font-size: 1rem; line-height: 1.75; pointer-events: auto;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.03); z-index: 10; overflow-y: auto;
-        }
-        .sticky-note b { font-weight: 850; display: block; margin-top: 18px; margin-bottom: 8px; }
+        .sticky-note { position: absolute; border: 1px solid rgba(0,0,0,0.05); border-radius: 16px; padding: 44px; font-size: 1rem; line-height: 1.8; pointer-events: auto; box-shadow: 0 4px 24px rgba(0,0,0,0.04); z-index: 10; overflow-y: auto; }
+        .sticky-note b { font-weight: 850; display: block; margin-top: 20px; margin-bottom: 8px; }
         .sticky-note b:first-child { margin-top: 0; }
-        /* Professional Scrollbar */
         .sticky-note::-webkit-scrollbar { width: 6px; }
-        .sticky-note::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.05); border-radius: 10px; }
+        .sticky-note::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.06); border-radius: 10px; }
 
-        .node-icon { 
-          width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-        }
+        .node-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .icon-trigger { background: #EEF2FF; color: #3B82F6; }
         .icon-integration { background: #ECFDF5; color: #10B981; }
         .icon-logic { background: #F8FAFC; color: #6366F1; }
         .icon-data { background: #FFFBEB; color: #D97706; }
 
         .node-info { display: flex; flex-direction: column; overflow: hidden; }
-        .node-name { font-size: 0.95rem; font-weight: 850; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .node-type { font-size: 0.72rem; color: #94A3B8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .node-name { font-size: 1rem; font-weight: 850; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .node-type { font-size: 0.75rem; color: #94A3B8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
 
         .connection-svg { position: absolute; width: 600%; height: 600%; top: -250%; left: -250%; pointer-events: none; z-index: 50; overflow: visible; }
-        .path-line { fill: none !important; stroke: #E2E8F0; stroke-width: 2.5; stroke-linecap: round; vector-effect: non-scaling-stroke; }
-        .path-active { fill: none !important; stroke: #3B82F6; stroke-width: 2.5; stroke-dasharray: 4 40; animation: flow 5s linear infinite; vector-effect: non-scaling-stroke; }
-        @keyframes flow { from { stroke-dashoffset: 44; } to { stroke-dashoffset: 0; } }
+        .path-line { fill: none !important; stroke: #CBD5E1; stroke-width: 2.5; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+        .path-active { fill: none !important; stroke: #3B82F6; stroke-width: 2.5; stroke-dasharray: 6 36; animation: flow 4s linear infinite; vector-effect: non-scaling-stroke; }
+        @keyframes flow { from { stroke-dashoffset: 42; } to { stroke-dashoffset: 0; } }
+
+        .conn-label { position: absolute; background: #64748B; color: #FFFFFF; font-size: 0.65rem; font-weight: 950; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 150; pointer-events: none; }
+        .label-positive { background: #10B981; }
+        .label-negative { background: #EF4444; }
 
         .hud { position: absolute; top: 24px; left: 24px; pointer-events: none; z-index: 10000; }
-        .badge { background: rgba(255,255,255,0.98); border: 1px solid #E2E8F0; padding: 12px 28px; border-radius: 100px; display: flex; align-items: center; gap: 14px; pointer-events: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.06); font-size: 0.85rem; font-weight: 900; color: #0F172A; }
+        .badge { background: rgba(255,255,255,0.98); border: 1.5px solid #E2E8F0; padding: 14px 32px; border-radius: 100px; display: flex; align-items: center; gap: 16px; pointer-events: auto; box-shadow: 0 12px 48px rgba(0,0,0,0.08); font-size: 0.95rem; font-weight: 900; color: #0F172A; }
+        .live-dot { width: 10px; height: 10px; background: #10B981; border-radius: 50%; box-shadow: 0 0 10px #10B981; animation: pulse 2.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
       </style>
 
       <div class="canvas">
         <div class="hud">
           <div class="badge">
-            <span style="color: #10B981;">●</span>
+            <div class="live-dot"></div>
             <span>${workflow.name || 'Protocol Suite'}</span>
             <span style="color: #CBD5E1;">|</span>
             <span class="zoom-val" style="color: #3B82F6;">${Math.round(this.state.zoom * 100)}%</span>
@@ -233,7 +209,7 @@ class N8nDemoComponent extends HTMLElement {
               .replace(/^##\s+(.*)$/gm, `<b style="color: ${headerColor}">$1</b>`)
               .replace(/^###\s+(.*)$/gm, `<b style="color: ${headerColor}">$1</b>`)
               .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-              .replace(/^-\s+(.*)$/gm, '• $1')
+              .replace(/^-\s+(.*)$/gm, '<span style="color: #64748B; margin-right: 8px;">•</span> $1')
               .replace(/\n/g, '<br>');
 
             return `
@@ -243,10 +219,11 @@ class N8nDemoComponent extends HTMLElement {
             `;
           }).join('')}
 
-          <!-- Layer 2: Global Vector Paths -->
+          <!-- Layer 2: Vector Data Flows & Labels -->
           <svg class="connection-svg">
-            ${this.renderConnections(nodes, connections)}
+            ${this.renderConnectionsData(nodes, connections).svg}
           </svg>
+          ${this.renderConnectionsData(nodes, connections).labels}
 
           <!-- Layer 3: Logic Nodes -->
           ${logicNodes.map((node, i) => {
@@ -269,8 +246,8 @@ class N8nDemoComponent extends HTMLElement {
     this.updateTransform();
   }
 
-  renderConnections(nodes, connections) {
-    let html = '';
+  renderConnectionsData(nodes, connections) {
+    let svgHtml = ''; let labelHtml = '';
     const nodeMap = {}; 
     nodes.forEach(n => { nodeMap[n.id] = n; nodeMap[n.name] = n; });
     
@@ -278,22 +255,34 @@ class N8nDemoComponent extends HTMLElement {
       const srcNode = nodeMap[srcKey];
       if (!srcNode || (srcNode.type || '').includes('sticky')) return;
       const outputs = connections[srcKey].main || [];
-      outputs.forEach((outputGroup) => {
+      outputs.forEach((outputGroup, outputIndex) => {
         outputGroup.forEach(target => {
           const targetNode = nodeMap[target.node];
           if (!targetNode) return;
-          const sX = srcNode.position[0] + 240; const sY = srcNode.position[1] + 35;
-          const eX = targetNode.position[0]; const eY = targetNode.position[1] + 35;
+          
+          const sX = srcNode.position[0] + 260; const sY = srcNode.position[1] + 40;
+          const eX = targetNode.position[0]; const eY = targetNode.position[1] + 40;
           const dist = Math.abs(eX - sX);
           const cpX = sX + Math.min(dist * 0.4, 150);
-          html += `
+          
+          svgHtml += `
             <path d="M ${sX} ${sY} C ${cpX} ${sY}, ${sX + (eX - sX) * 0.5} ${eY}, ${eX} ${eY}" class="path-line" />
             <path d="M ${sX} ${sY} C ${cpX} ${sY}, ${sX + (eX - sX) * 0.5} ${eY}, ${eX} ${eY}" class="path-active" />
           `;
+
+          // Handle IF labels (index 0 = True, 1 = False in n8n v2)
+          if ((srcNode.type || '').includes('.if') || (srcNode.type || '').includes('.filter')) {
+            const labelText = outputIndex === 0 ? 'True' : 'False';
+            const labelClass = outputIndex === 0 ? 'label-positive' : 'label-negative';
+            const midX = sX + (eX - sX) * 0.3;
+            // Linear interpolate for label vertical position roughly along the curve
+            const midY = sY + (eY - sY) * 0.3;
+            labelHtml += `<div class="conn-label ${labelClass}" style="left: ${midX}px; top: ${midY - 14}px;">${labelText}</div>`;
+          }
         });
       });
     });
-    return html;
+    return { svg: svgHtml, labels: labelHtml };
   }
 
   getCategory(type) {
@@ -310,7 +299,7 @@ class N8nDemoComponent extends HTMLElement {
     if (t.includes('trigger')) return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" ${common}><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>`;
     if (t.includes('http') || t.includes('webhook')) return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" ${common}><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
     if (t.includes('sheets') || t.includes('db') || t.includes('sql') || t.includes('gmail')) return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" ${common}><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>`;
-    return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" ${common}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>`;
+    return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" ${common}><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z"/></svg>`;
   }
 
   renderError() {
