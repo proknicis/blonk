@@ -129,7 +129,7 @@ export default function HomePage() {
 
                 {/* ── HERO — Video Only ── */}
                 <section className={styles.heroVideo}>
-                    <HeroVideo speed={0.75} />
+                    <HeroVideo speed={1} />
                     <div className={styles.heroFade} />
                     <div className={styles.heroCta}>
                         <Link href="/login" className={styles.heroCtaBtn}>
