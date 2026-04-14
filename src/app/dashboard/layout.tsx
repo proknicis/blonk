@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import styles from "./dashboard.module.css";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import AiChat from "../components/AiChat";
 import { Search, Bell, Menu, User, Settings, LogOut, FileText, LayoutGrid, Zap, Users, Monitor, ExternalLink } from "lucide-react";
 
@@ -24,6 +24,9 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
+    const router = useRouter();
+    const { data: session, status } = useSession();
+
     const [showNotifs, setShowNotifs] = useState(false);
     const [showUserMenu, setShowUserMenu] = useState(false);
     const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -35,8 +38,17 @@ export default function DashboardLayout({
 
     const unreadCount = notifications.length;
 
+    // Strict Institutional Gate: Force exit if unauthenticated
+    useEffect(() => {
+        if (status === "unauthenticated") {
+            router.replace("/login");
+        }
+    }, [status, router]);
+
     useEffect(() => {
         let isMounted = true;
+        if (status !== "authenticated") return; // Bypass sync if unauthorized
+
         (async () => {
             try {
                 const [userRes, notifsRes] = await Promise.all([
@@ -65,7 +77,7 @@ export default function DashboardLayout({
             }
         })();
         return () => { isMounted = false; };
-    }, []);
+    }, [status]);
 
     const onShellMouseDownCapture = (e: React.MouseEvent) => {
         if (!showNotifs && !showUserMenu) return;
