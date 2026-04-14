@@ -65,64 +65,33 @@ export default function HomePage() {
         <div className={styles.container}>
             <div className={styles.mainContent}>
 
-                {/* ── HERO ── */}
-                <main className={styles.hero}>
-                    <div className={styles.big_title_wrapper}>
-                        <h1 className={styles.big_title}>
-                            BLONK<span className={styles.title_dot}></span>
-                        </h1>
+                {/* ── HERO — Video Only ── */}
+                <section className={styles.heroVideo}>
+                    <video
+                        className={styles.heroBgVideo}
+                        src="/hero-video.mp4"
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                    />
+                    {/* Gradient fade to next section */}
+                    <div className={styles.heroFade} />
+                    {/* Floating logo */}
+                    <div className={styles.heroLogo}>
+                        BLONK<span className={styles.heroLogoDot} />
                     </div>
-
-                    <div className={styles.video_wrapper}>
-                        <video 
-                            className={styles.hero_video}
-                            src="/hero-video.mp4" 
-                            autoPlay 
-                            loop 
-                            muted 
-                            playsInline
-                            poster="/n8n-demo.png"
-                        >
-                            Your browser does not support the video tag.
-                        </video>
+                    {/* Floating bottom CTA */}
+                    <div className={styles.heroCta}>
+                        <Link href="/login" className={styles.heroCtaBtn}>
+                            Start saving time
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </Link>
                     </div>
-
-                    <div className={styles.hero_bottom}>
-                        <div className={styles.feature_pills}>
-                            <div className={styles.feature_pill}>
-                                <i className={styles.check_icon}>✓</i> No technical skills needed
-                            </div>
-                            <div className={styles.feature_pill}>
-                                <i className={styles.check_icon}>✓</i> Full audit trail included
-                            </div>
-                            <div className={styles.feature_pill}>
-                                <i className={styles.check_icon}>✓</i> Instant error alerts
-                            </div>
-                        </div>
-
-                        <div className={styles.cta_center}>
-                            <Link href="/login" className={styles.cta_button}>
-                                <span className={styles.cta_text}>See how it works</span>
-                                <div className={styles.arrow_circle}>
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                        <polyline points="12 5 19 12 12 19"></polyline>
-                                    </svg>
-                                </div>
-                            </Link>
-                        </div>
-
-                        <div className={styles.desc_right}>
-                            <h3 className={styles.desc_h3}>
-                                Your team loses 30+ hours<br/>a week to admin work.
-                            </h3>
-                            <p className={styles.desc_p}>
-                                Blonk handles the repetitive tasks that slow down lawyers, accountants, and HR teams — 
-                                so your people can focus on work that actually bills.
-                            </p>
-                        </div>
-                    </div>
-                </main>
+                </section>
 
                 {/* ── DASHBOARD PREVIEW ── */}
                 <section style={{ padding: '80px 24px 120px', background: '#fafafa', borderTop: '1px solid #f0f0f0' }}>

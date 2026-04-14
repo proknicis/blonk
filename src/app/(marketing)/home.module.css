@@ -22,70 +22,96 @@
     flex-direction: column;
 }
 
-.hero {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 260px 24px 140px;
+/* ── FULLSCREEN VIDEO HERO ── */
+.heroVideo {
     position: relative;
-    text-align: center;
     width: 100%;
-}
-
-.big_title_wrapper {
-    position: relative;
-    margin-bottom: 120px;
-    user-select: none;
-    display: flex;
-    justify-content: center;
-}
-
-.big_title {
-    font-size: clamp(8rem, 26vw, 32rem);
-    font-weight: 1000;
-    letter-spacing: -0.07em;
-    line-height: 0.75;
-    color: #000;
-    margin: 0;
-    text-transform: uppercase;
-    display: inline-flex;
-    align-items: baseline;
-    /* Clean, extremely subtle glitch */
-    text-shadow: 
-        0.5px 0 0 rgba(255, 0, 150, 0.3), 
-        -0.5px 0 0 rgba(0, 255, 255, 0.3);
-}
-
-.title_dot {
-    display: inline-block;
-    width: 0.12em;
-    height: 0.12em;
-    background-color: var(--accent-primary);
-    margin-left: 0.04em;
-    border-radius: 1px;
-    vertical-align: baseline; /* Perfectly align with bottom of letters */
-}
-
-.video_wrapper {
-    width: 100%;
-    max-width: 1000px;
-    margin: -40px auto 40px; /* Slight overlap with title area for depth, pushing bottom text down */
-    border-radius: 24px;
+    height: 100vh;
+    min-height: 600px;
     overflow: hidden;
-    background: #111; /* Fallback before video loads */
-    box-shadow: 0 40px 120px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05); /* Premium glass/depth shadow */
-    aspect-ratio: 16 / 9;
-    position: relative;
-    z-index: 10;
+    background: #000;
 }
 
-.hero_video {
+.heroBgVideo {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
+}
+
+.heroFade {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 260px;
+    background: linear-gradient(to bottom, transparent, #ffffff);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.heroLogo {
+    position: absolute;
+    top: 40px;
+    left: 48px;
+    z-index: 10;
+    font-size: 1.5rem;
+    font-weight: 950;
+    letter-spacing: -0.06em;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+    mix-blend-mode: normal;
+}
+
+.heroLogoDot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #34D186;
+    border-radius: 2px;
+    margin-left: 3px;
+    align-self: flex-end;
+    margin-bottom: 4px;
+}
+
+.heroCta {
+    position: absolute;
+    bottom: 56px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+}
+
+.heroCtaBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.35);
+    color: #fff;
+    padding: 16px 32px;
+    border-radius: 100px;
+    font-size: 1rem;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+
+.heroCtaBtn:hover {
+    background: rgba(52, 209, 134, 0.9);
+    border-color: transparent;
+    color: #111;
+    transform: scale(1.03);
+    box-shadow: 0 12px 40px rgba(52,209,134,0.3);
 }
 
 /* --- People Removed (Portraits styles removed) --- */
