@@ -33,6 +33,13 @@ import {
 import { Skeleton } from "../../components/Skeleton";
 import ModalPortal from "../../components/ModalPortal";
 
+const getUserStatus = (u: any) => {
+    if (u.status === 'Suspended' || u.status === 'Blocked') return 'Suspended';
+    if (!u.lastActive) return 'Inactive';
+    const diffDays = (new Date().getTime() - new Date(u.lastActive).getTime()) / (1000 * 3600 * 24);
+    return diffDays > 7 ? 'Inactive' : 'Active';
+};
+
 export default function AdminUsersPage() {
     const [users, setUsers] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
