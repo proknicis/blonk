@@ -16,6 +16,22 @@ import styles from "./reports.module.css";
 export default function ReportsClient({ metrics, chartData, throughputData, departmentData }: any) {
     const [timeframe, setTimeframe] = useState("30D");
     
+    // Process real throughput data into an SVG string path
+    const w = 800;
+    const h = 200;
+    const maxVal = Math.max(...throughputData, 10);
+    const minVal = 0;
+    
+    const points = throughputData.map((val: number, i: number) => {
+        const x = throughputData.length > 1 ? (i / (throughputData.length - 1)) * w : 0;
+        const y = h - 20 - ((val - minVal) / (maxVal - minVal)) * (h - 40);
+        return `${x},${y}`;
+    });
+    
+    const pathLine = points.length > 0 ? `M${points[0]} ` + points.slice(1).map((p: string) => `L${p}`).join(" ") : `M0,180 L800,180`;
+    const pathArea = `${pathLine} L${w},${h} L0,${h} Z`;
+
+    
     return (
         <div className={styles.container}>
             <div className={styles.header}>
@@ -89,8 +105,8 @@ export default function ReportsClient({ metrics, chartData, throughputData, depa
                                 </feMerge>
                             </filter>
                         </defs>
-                        <path d="M0,180 L80,120 L160,140 L240,60 L320,100 L400,30 L480,80 L560,20 L640,50 L720,10 L800,40 L800,200 L0,200 Z" fill="url(#glow)" />
-                        <path d="M0,180 L80,120 L160,140 L240,60 L320,100 L400,30 L480,80 L560,20 L640,50 L720,10 L800,40" fill="none" stroke="#10b981" strokeWidth="3" filter="url(#glowEffect)" />
+                        <path d={pathArea} fill="url(#glow)" />
+                        <path d={pathLine} fill="none" stroke="#10b981" strokeWidth="3" filter="url(#glowEffect)" />
                     </svg>
                 </div>
             </div>
