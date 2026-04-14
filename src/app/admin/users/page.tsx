@@ -33,6 +33,9 @@ import {
 import { Skeleton } from "../../components/Skeleton";
 import ModalPortal from "../../components/ModalPortal";
 
+import { Skeleton } from "../../components/Skeleton";
+import ModalPortal from "../../components/ModalPortal";
+
 const getUserStatus = (u: any) => {
     if (u.status === 'Suspended' || u.status === 'Blocked') return 'Suspended';
     if (!u.lastActive) return 'Inactive';
@@ -40,20 +43,17 @@ const getUserStatus = (u: any) => {
     return diffDays > 7 ? 'Inactive' : 'Active';
 };
 
-export default function AdminUsersPage() {
-    const [users, setUsers] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [updatingId, setUpdatingId] = useState<string | null>(null);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [selectedUser, setSelectedUser] = useState<any>(null);
-    const [activeFilter, setActiveFilter] = useState("All");
-    const [modalTab, setModalTab] = useState("Overview");
-    const [isInviting, setIsInviting] = useState(false);
-    const [inviteForm, setInviteForm] = useState({ email: "", role: "Operator", workflows: "" });
-
-    useEffect(() => {
-        fetchUsers();
-    }, []);
+const SkeletonRow = () => (
+    <tr className={adminStyles.registryRow}>
+        <td><Skeleton width="180px" height="40px" borderRadius="12px" /></td>
+        <td><Skeleton width="100px" height="24px" /></td>
+        <td><Skeleton width="80px" height="24px" /></td>
+        <td><Skeleton width="60px" height="24px" /></td>
+        <td><Skeleton width="100px" height="24px" /></td>
+        <td><Skeleton width="100px" height="32px" borderRadius="20px" /></td>
+        <td style={{ textAlign: 'right' }}><Skeleton width="80px" height="38px" borderRadius="10px" /></td>
+    </tr>
+);
 
 const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTab }: any) => {
     if (!user) return null;
@@ -248,7 +248,7 @@ const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTa
 
                     <div className={adminStyles.modalFooter} style={{ padding: '48px 64px', background: 'var(--muted)', borderTop: '1px solid var(--border)' }}>
                         <div style={{ display: 'flex', gap: '16px' }}>
-                            <button type="button" className={adminStyles.refreshBtn} style={{ background: 'var(--foreground)', color: 'var(--background)', width: 'auto', padding: '0 32px' }} onClick={() => setSelectedUser(null)}>
+                            <button type="button" className={adminStyles.refreshBtn} style={{ background: 'var(--foreground)', color: 'var(--background)', width: 'auto', padding: '0 32px' }} onClick={() => onClose()}>
                                 <UserCheck size={18} style={{ marginRight: '8px' }} /> Update Profile
                             </button>
                             <button type="button" className={adminStyles.refreshBtn} style={{ width: 'auto', padding: '0 24px' }} onClick={() => updateUser(user.id, { status: user.status === 'Suspended' ? 'Active' : 'Suspended' })}>
@@ -270,21 +270,44 @@ const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTa
         </ModalPortal>
     );
 };
+
+export default function AdminUsersPage() {
+    const [users, setUsers] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [updatingId, setUpdatingId] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedUser, setSelectedUser] = useState<any>(null);
+    const [activeFilter, setActiveFilter] = useState("All");
+    const [modalTab, setModalTab] = useState("Overview");
+    const [isInviting, setIsInviting] = useState(false);
+    const [inviteForm, setInviteForm] = useState({ email: "", role: "Operator", workflows: "" });
+
     const fetchUsers = async () => {
+        setIsLoading(true);
         try {
+            console.log("[AdminUsers] Fetching fleet operators...");
             const res = await fetch('/api/admin/users');
             if (!res.ok) throw new Error(`Status ${res.status}`);
             const data = await res.json();
+            console.log("[AdminUsers] Sync complete, records:", data?.length);
             if (Array.isArray(data)) setUsers(data);
         } catch (error: any) { 
-            console.error("Registry sync failure:", error);
-            alert("Institutional Alert: Failed to synchronize user registry. Check connection.");
+            console.error("[AdminUsers] Registry sync failure:", error);
+            if (error.message.includes("401")) {
+                console.warn("[AdminUsers] Unauthorized access detected.");
+                // alert("Authentication Blockade: Your session has expired or lacks authority.");
+            }
         } finally { setIsLoading(false); }
     };
+
+    useEffect(() => {
+        fetchUsers();
+    }, []);
 
     const updateUser = async (id: string, updates: any) => {
         setUpdatingId(id);
         try {
+            console.log("[AdminUsers] Dispatched mutation for:", id, updates);
             const res = await fetch('/api/admin/users', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -298,9 +321,9 @@ const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTa
             if (selectedUser && selectedUser.id === id) {
                 setSelectedUser({ ...selectedUser, ...updates });
             }
-            fetchUsers();
+            await fetchUsers();
         } catch (error: any) { 
-            console.error("Identity update failure:", error);
+            console.error("[AdminUsers] Identity update failure:", error);
             alert(`Sovereign Decree Failure: ${error.message}`);
         } finally { setUpdatingId(null); }
     };
@@ -308,18 +331,18 @@ const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTa
     const deleteUser = async (id: string) => {
         if (!confirm("Permanently revoke access for this operator? This action is irreversible.")) return;
         try {
+            console.log("[AdminUsers] Initializing decommissioning for:", id);
             const res = await fetch(`/api/admin/users?id=${id}`, { method: 'DELETE' });
             if (!res.ok) {
                 const err = await res.json();
                 throw new Error(err.error || `Deletion failed: ${res.status}`);
             }
-            fetchUsers();
+            await fetchUsers();
         } catch (error: any) { 
-            console.error("Operator decommissioning failure:", error);
+            console.error("[AdminUsers] Operator decommissioning failure:", error);
             alert(`Fleet Decommissioning Failure: ${error.message}`);
         }
     };
-
 
     const filteredUsers = users.filter(u => {
         const matchesSearch = u.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -342,25 +365,13 @@ const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTa
         if (!inviteForm.email) return;
         setUpdatingId("inviting");
         try {
-            // Simulated invite logic
+            console.log("[AdminUsers] Dispatching sovereign invite to:", inviteForm.email);
             await new Promise(r => setTimeout(r, 1000));
             alert(`Sovereign Invite Dispatched to ${inviteForm.email}. Protocol initialized.`);
             setIsInviting(false);
             setInviteForm({ email: "", role: "Operator", workflows: "" });
         } finally { setUpdatingId(null); }
     };
-
-    const SkeletonRow = () => (
-        <tr className={adminStyles.registryRow}>
-            <td><Skeleton width="180px" height="40px" borderRadius="12px" /></td>
-            <td><Skeleton width="100px" height="24px" /></td>
-            <td><Skeleton width="80px" height="24px" /></td>
-            <td><Skeleton width="60px" height="24px" /></td>
-            <td><Skeleton width="100px" height="24px" /></td>
-            <td><Skeleton width="100px" height="32px" borderRadius="20px" /></td>
-            <td style={{ textAlign: 'right' }}><Skeleton width="80px" height="38px" borderRadius="10px" /></td>
-        </tr>
-    );
 
     return (
         <div className={styles.dashboard}>
@@ -375,8 +386,10 @@ const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTa
                     </div>
                 </div>
                 <div className={adminStyles.hubMetrics}>
-                    <span className={adminStyles.hubLabel}>Total Operators:</span>
-                    <span className={adminStyles.hubValue}>{isLoading ? <Skeleton width="30px" height="24px" /> : users.length}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                        <span className={adminStyles.hubLabel}>Total Operators</span>
+                        <span className={adminStyles.hubValue}>{isLoading ? <Skeleton width="30px" height="24px" /> : users.length}</span>
+                    </div>
                 </div>
             </div>
 
@@ -388,7 +401,7 @@ const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTa
                     </div>
                     <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                         <div style={{ position: 'relative' }}>
-                            <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} />
+                            <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)', pointerEvents: 'none' }} />
                             <input 
                                 type="text" 
                                 placeholder="Search operators..." 
@@ -398,7 +411,15 @@ const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTa
                                 onChange={e => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <button className={adminStyles.refreshBtn} style={{ background: 'var(--foreground)', color: 'var(--background)', width: 'auto', padding: '0 24px', border: 'none' }} onClick={() => setIsInviting(true)}>
+                        <button 
+                            type="button"
+                            className={adminStyles.refreshBtn} 
+                            style={{ background: 'var(--foreground)', color: 'var(--background)', width: 'auto', padding: '0 24px', border: 'none', fontWeight: 950 }} 
+                            onClick={() => {
+                                console.log("[AdminUsers] Invite flow triggered");
+                                setIsInviting(true);
+                            }}
+                        >
                             Invite Operator
                         </button>
                     </div>
@@ -408,6 +429,7 @@ const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTa
                     {["All", "Active", "Inactive", "Blocked", "Trial", "High Spend"].map(f => (
                         <button 
                             key={f}
+                            type="button"
                             className={`${adminStyles.filterBtn} ${activeFilter === f ? adminStyles.filterBtnActive : ''}`}
                             onClick={() => setActiveFilter(f)}
                             style={{ padding: '8px 20px', borderRadius: '100px', fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase' }}
@@ -475,6 +497,7 @@ const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTa
                                                     className={adminStyles.actionIconBtn} 
                                                     onClick={(e) => {
                                                         e.stopPropagation();
+                                                        console.log("[AdminUsers] Record detail focus:", u.id);
                                                         setSelectedUser(u);
                                                     }}
                                                 >
@@ -505,7 +528,10 @@ const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTa
             {selectedUser && (
                 <UserModal 
                     user={selectedUser} 
-                    onClose={() => setSelectedUser(null)} 
+                    onClose={() => {
+                        console.log("[AdminUsers] Closing record view");
+                        setSelectedUser(null);
+                    }} 
                     updateUser={updateUser}
                     updatingId={updatingId}
                     modalTab={modalTab}
@@ -554,8 +580,9 @@ const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTa
                                 </div>
                             </div>
                             <div className={adminStyles.modalFooter}>
-                                <button className={adminStyles.refreshBtn} onClick={() => setIsInviting(false)}>Cancel</button>
+                                <button type="button" className={adminStyles.refreshBtn} onClick={() => setIsInviting(false)}>Cancel</button>
                                 <button 
+                                    type="button"
                                     className={adminStyles.refreshBtn} 
                                     style={{ background: 'var(--foreground)', color: 'var(--background)' }}
                                     onClick={inviteOperator}
