@@ -33,9 +33,6 @@ import {
 import { Skeleton } from "../../components/Skeleton";
 import ModalPortal from "../../components/ModalPortal";
 
-import { Skeleton } from "../../components/Skeleton";
-import ModalPortal from "../../components/ModalPortal";
-
 const getUserStatus = (u: any) => {
     if (u.status === 'Suspended' || u.status === 'Blocked') return 'Suspended';
     if (!u.lastActive) return 'Inactive';
