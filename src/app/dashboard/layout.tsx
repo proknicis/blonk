@@ -99,9 +99,12 @@ export default function DashboardLayout({
     const getModuleTitle = (path: string) => {
         if (path === '/dashboard') return 'Fleet Overview';
         if (path === '/dashboard/office') return 'Mission Control';
+        if (path === '/dashboard/lab') return 'The Lab';
         if (path === '/dashboard/team') return 'Strategic Personnel';
         if (path === '/dashboard/workflows') return 'Marketplace';
+        if (path === '/dashboard/audit') return 'Audit Vault';
         if (path === '/dashboard/reports') return 'Intelligence Reports';
+        if (path === '/dashboard/sovereignty') return 'Sovereignty Settings';
         if (path === '/dashboard/settings') return 'System Control';
         if (path === '/dashboard/help') return 'Support Hub';
         return 'Command Console';
@@ -121,8 +124,9 @@ export default function DashboardLayout({
                 </div>
 
                 <nav className={styles.sidebarNav}>
+                    {/* OPERATIONS */}
                     <div className={styles.navGroup}>
-                        <span className={styles.navGroupLabel}>Menu</span>
+                        <span className={styles.navGroupLabel}>Operations</span>
                         <ul>
                             <li>
                                 <Link href="/dashboard" className={`${styles.navLink} ${pathname === '/dashboard' ? styles.navLinkActive : ''}`}>
@@ -135,13 +139,37 @@ export default function DashboardLayout({
                                 </Link>
                             </li>
                             <li>
+                                <Link href="/dashboard/lab" className={`${styles.navLink} ${pathname === '/dashboard/lab' ? styles.navLinkActive : ''}`}>
+                                    <Zap size={20} /> The Lab
+                                </Link>
+                            </li>
+                        </ul>
+                    </div>
+
+                    {/* RESOURCES */}
+                    <div className={styles.navGroup}>
+                        <span className={styles.navGroupLabel}>Resources</span>
+                        <ul>
+                            <li>
                                 <Link href="/dashboard/team" className={`${styles.navLink} ${pathname === '/dashboard/team' ? styles.navLinkActive : ''}`}>
                                     <Users size={20} /> Team
                                 </Link>
                             </li>
                             <li>
                                 <Link href="/dashboard/workflows" className={`${styles.navLink} ${pathname === '/dashboard/workflows' ? styles.navLinkActive : ''}`}>
-                                    <Zap size={20} /> Marketplace
+                                    <ExternalLink size={20} /> Marketplace
+                                </Link>
+                            </li>
+                        </ul>
+                    </div>
+
+                    {/* COMPLIANCE */}
+                    <div className={styles.navGroup}>
+                        <span className={styles.navGroupLabel}>Compliance</span>
+                        <ul>
+                            <li>
+                                <Link href="/dashboard/audit" className={`${styles.navLink} ${pathname === '/dashboard/audit' ? styles.navLinkActive : ''}`}>
+                                    <FileText size={20} /> Audit Vault
                                 </Link>
                             </li>
                             <li>
@@ -149,15 +177,9 @@ export default function DashboardLayout({
                                     <FileText size={20} /> Reports
                                 </Link>
                             </li>
-                        </ul>
-                    </div>
-
-                    <div className={styles.navGroup}>
-                        <span className={styles.navGroupLabel}>App</span>
-                        <ul>
                             <li>
-                                <Link href="/dashboard/settings" className={`${styles.navLink} ${pathname === '/dashboard/settings' ? styles.navLinkActive : ''}`}>
-                                    <Settings size={20} /> Settings
+                                <Link href="/dashboard/sovereignty" className={`${styles.navLink} ${pathname === '/dashboard/sovereignty' ? styles.navLinkActive : ''}`}>
+                                    <Settings size={20} /> Sovereignty
                                 </Link>
                             </li>
                         </ul>
