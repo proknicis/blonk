@@ -46,150 +46,152 @@ export default function AdminUsersPage() {
         fetchUsers();
     }, []);
 
-    const UserModal = ({ user, onClose }: { user: any, onClose: () => void }) => {
-        if (!user) return null;
-        const status = getUserStatus(user);
-
-        return (
-            <ModalPortal>
-                <div className={adminStyles.modalOverlay} onClick={onClose}>
-                    <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '800px' }}>
-                        <div className={adminStyles.modalHeader} style={{ background: 'var(--foreground)', color: 'var(--background)' }}>
-                            <button className={adminStyles.modalClose} onClick={onClose} style={{ color: 'var(--background)', borderColor: 'rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)' }}>
-                                <X size={20} />
-                            </button>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-                                <div className={adminStyles.requesterAvatar} style={{ width: '80px', height: '80px', fontSize: '2rem', background: 'var(--accent)', color: 'var(--foreground)', border: 'none' }}>
-                                    {user.name?.charAt(0) || "U"}
-                                </div>
-                                <div>
-                                    <h2 className={adminStyles.modalTitle} style={{ color: 'var(--background)', fontSize: '2rem' }}>{user.name}</h2>
-                                    <p className={adminStyles.modalSubtitle} style={{ color: 'rgba(255,255,255,0.6)' }}>{user.email}</p>
-                                    <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-                                        <span className={adminStyles.tierBadge} style={{ background: 'var(--accent)', color: 'var(--foreground)' }}>
-                                            {user.tier || 'Free'} TIER
-                                        </span>
-                                        <span className={adminStyles.tierBadge} style={{ background: 'rgba(255,255,255,0.1)', color: 'white' }}>
-                                            {user.role}
-                                        </span>
-                                    </div>
-                                </div>
+const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTab }: any) => {
+    if (!user) return null;
+    
+    return (
+        <ModalPortal>
+            <div className={adminStyles.modalOverlay} onClick={onClose}>
+                <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '800px' }}>
+                    <div className={adminStyles.modalHeader} style={{ background: 'var(--foreground)', color: 'var(--background)' }}>
+                        <button type="button" className={adminStyles.modalClose} onClick={onClose} style={{ color: 'var(--background)', borderColor: 'rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)' }}>
+                            <X size={20} />
+                        </button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+                            <div className={adminStyles.requesterAvatar} style={{ width: '80px', height: '80px', fontSize: '2rem', background: 'var(--accent)', color: 'var(--foreground)', border: 'none' }}>
+                                {user.name?.charAt(0) || "U"}
                             </div>
-
-                            <div className={adminStyles.tabsContainer} style={{ margin: '40px 0 0', border: 'none', gap: '32px' }}>
-                                {["Overview", "Firm Context", "Workflows", "Activity"].map(tab => (
-                                    <button 
-                                        key={tab}
-                                        className={`${adminStyles.tab} ${modalTab === tab ? adminStyles.tabActive : ''}`}
-                                        onClick={() => setModalTab(tab)}
-                                        style={{ 
-                                            color: modalTab === tab ? 'var(--accent)' : 'rgba(255,255,255,0.4)',
-                                            paddingBottom: '12px'
-                                        }}
-                                    >
-                                        {tab}
-                                    </button>
-                                ))}
+                            <div>
+                                <h2 className={adminStyles.modalTitle} style={{ color: 'var(--background)', fontSize: '2rem' }}>{user.name}</h2>
+                                <p className={adminStyles.modalSubtitle} style={{ color: 'rgba(255,255,255,0.6)' }}>{user.email}</p>
+                                <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                                    <span className={adminStyles.tierBadge} style={{ background: 'var(--accent)', color: 'var(--foreground)' }}>
+                                        {user.tier || 'Free'} TIER
+                                    </span>
+                                    <span className={adminStyles.tierBadge} style={{ background: 'rgba(255,255,255,0.1)', color: 'white' }}>
+                                        {user.role}
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
-                        <div className={adminStyles.modalBody}>
-                            {modalTab === "Overview" && (
-                                <div className={adminStyles.parameterGrid}>
-                                    <div className={adminStyles.parameterCard}>
-                                        <span className={adminStyles.parameterLabel}>System Identity</span>
-                                        <span className={adminStyles.parameterValue}>{user.id}</span>
-                                    </div>
-                                    <div className={adminStyles.parameterCard}>
-                                        <span className={adminStyles.parameterLabel}>Provisioned Role</span>
-                                        <span className={adminStyles.parameterValue} style={{ color: 'var(--accent)' }}>{user.role}</span>
-                                    </div>
-                                    <div className={adminStyles.parameterCard}>
-                                        <span className={adminStyles.parameterLabel}>Onboarding Protocol</span>
-                                        <span className={adminStyles.parameterValue}>{new Date(user.createdAt).toLocaleDateString()}</span>
-                                    </div>
-                                    <div className={adminStyles.parameterCard}>
-                                        <span className={adminStyles.parameterLabel}>Last Sync</span>
-                                        <span className={adminStyles.parameterValue}>{user.lastActive ? new Date(user.lastActive).toLocaleTimeString() : 'N/A'}</span>
-                                    </div>
-                                </div>
-                            )}
-
-                            {modalTab === "Firm Context" && (
-                                <div className={adminStyles.parameterGrid} style={{ gridTemplateColumns: '1fr' }}>
-                                    <div className={adminStyles.parameterCard} style={{ borderColor: 'var(--accent)' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <div>
-                                                <span className={adminStyles.parameterLabel}>Anchored Institution</span>
-                                                <span className={adminStyles.parameterValue} style={{ fontSize: '1.5rem' }}>{user.firmName || "Independent Operator"}</span>
-                                            </div>
-                                            <Building2 size={32} color="var(--accent)" />
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {modalTab === "Workflows" && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                                    <div className={adminStyles.parameterCard} style={{ background: 'var(--foreground)', color: 'var(--background)' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <div>
-                                                <span className={adminStyles.parameterLabel} style={{ color: 'rgba(255,255,255,0.4)' }}>Active Deployments</span>
-                                                <span className={adminStyles.parameterValue} style={{ fontSize: '1.5rem', color: 'var(--accent)' }}>{user.workflowsUsed || 0} Pipelines</span>
-                                            </div>
-                                            <Zap size={32} color="var(--accent)" />
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {modalTab === "Activity" && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                    {[
-                                        { action: "API Authentication", time: "10m ago", status: "Success" },
-                                        { action: "Workflow Deployment", time: "2h ago", status: "Success" },
-                                        { action: "Institutional Login", time: "Yesterday", status: "Success" },
-                                    ].map((log, i) => (
-                                        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', background: 'var(--muted)', borderRadius: '12px', border: '1px solid var(--border)' }}>
-                                            <div>
-                                                <div style={{ fontWeight: 800, color: 'var(--foreground)' }}>{log.action}</div>
-                                                <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>{log.time}</div>
-                                            </div>
-                                            <div style={{ color: 'var(--accent)', fontSize: '0.7rem', fontWeight: 950 }}>{log.status}</div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-
-                        <div className={adminStyles.modalFooter}>
-                            <div style={{ display: 'flex', gap: '12px' }}>
+                        <div className={adminStyles.tabsContainer} style={{ margin: '40px 0 0', border: 'none', gap: '32px' }}>
+                            {["Overview", "Firm Context", "Workflows", "Activity"].map(tab => (
                                 <button 
-                                    className={adminStyles.actionIconBtn} 
-                                    style={{ width: 'auto', padding: '0 20px' }}
-                                    onClick={() => updateUser(user.id, { status: 'Active' })}
-                                    disabled={updatingId === user.id}
+                                    key={tab}
+                                    type="button"
+                                    className={`${adminStyles.tab} ${modalTab === tab ? adminStyles.tabActive : ''}`}
+                                    onClick={() => setModalTab(tab)}
+                                    style={{ 
+                                        color: modalTab === tab ? 'var(--accent)' : 'rgba(255,255,255,0.4)',
+                                        paddingBottom: '12px'
+                                    }}
                                 >
-                                    <Key size={16} style={{ marginRight: '8px' }} /> Restore
+                                    {tab}
                                 </button>
-                                <button 
-                                    className={adminStyles.actionIconBtn} 
-                                    style={{ width: 'auto', padding: '0 20px', color: 'var(--destructive)' }}
-                                    onClick={() => updateUser(user.id, { status: 'Suspended' })}
-                                    disabled={updatingId === user.id}
-                                >
-                                    <ShieldAlert size={16} style={{ marginRight: '8px' }} /> Suspend
-                                </button>
-                            </div>
-                            <button className={adminStyles.refreshBtn} onClick={onClose}>
-                                Close Registry
-                            </button>
+                            ))}
                         </div>
                     </div>
+
+                    <div className={adminStyles.modalBody}>
+                        {modalTab === "Overview" && (
+                            <div className={adminStyles.parameterGrid}>
+                                <div className={adminStyles.parameterCard}>
+                                    <span className={adminStyles.parameterLabel}>System Identity</span>
+                                    <span className={adminStyles.parameterValue}>{user.id}</span>
+                                </div>
+                                <div className={adminStyles.parameterCard}>
+                                    <span className={adminStyles.parameterLabel}>Provisioned Role</span>
+                                    <span className={adminStyles.parameterValue} style={{ color: 'var(--accent)' }}>{user.role}</span>
+                                </div>
+                                <div className={adminStyles.parameterCard}>
+                                    <span className={adminStyles.parameterLabel}>Onboarding Protocol</span>
+                                    <span className={adminStyles.parameterValue}>{new Date(user.createdAt).toLocaleDateString()}</span>
+                                </div>
+                                <div className={adminStyles.parameterCard}>
+                                    <span className={adminStyles.parameterLabel}>Last Sync</span>
+                                    <span className={adminStyles.parameterValue}>{user.lastActive ? new Date(user.lastActive).toLocaleTimeString() : 'N/A'}</span>
+                                </div>
+                            </div>
+                        )}
+
+                        {modalTab === "Firm Context" && (
+                            <div className={adminStyles.parameterGrid} style={{ gridTemplateColumns: '1fr' }}>
+                                <div className={adminStyles.parameterCard} style={{ borderColor: 'var(--accent)' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div>
+                                            <span className={adminStyles.parameterLabel}>Anchored Institution</span>
+                                            <span className={adminStyles.parameterValue} style={{ fontSize: '1.5rem' }}>{user.firmName || "Independent Operator"}</span>
+                                        </div>
+                                        <Building2 size={32} color="var(--accent)" />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {modalTab === "Workflows" && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                                <div className={adminStyles.parameterCard} style={{ background: 'var(--foreground)', color: 'var(--background)' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div>
+                                            <span className={adminStyles.parameterLabel} style={{ color: 'rgba(255,255,255,0.4)' }}>Active Deployments</span>
+                                            <span className={adminStyles.parameterValue} style={{ fontSize: '1.5rem', color: 'var(--accent)' }}>{user.workflowsUsed || 0} Pipelines</span>
+                                        </div>
+                                        <Zap size={32} color="var(--accent)" />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {modalTab === "Activity" && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                {[
+                                    { action: "API Authentication", time: "10m ago", status: "Success" },
+                                    { action: "Workflow Deployment", time: "2h ago", status: "Success" },
+                                    { action: "Institutional Login", time: "Yesterday", status: "Success" },
+                                ].map((log, i) => (
+                                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', background: 'var(--muted)', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                                        <div>
+                                            <div style={{ fontWeight: 800, color: 'var(--foreground)' }}>{log.action}</div>
+                                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>{log.time}</div>
+                                        </div>
+                                        <div style={{ color: 'var(--accent)', fontSize: '0.7rem', fontWeight: 950 }}>{log.status}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className={adminStyles.modalFooter}>
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                            <button 
+                                type="button"
+                                className={adminStyles.actionIconBtn} 
+                                style={{ width: 'auto', padding: '0 20px' }}
+                                onClick={() => updateUser(user.id, { status: 'Active' })}
+                                disabled={updatingId === user.id}
+                            >
+                                <Key size={16} style={{ marginRight: '8px' }} /> Restore
+                            </button>
+                            <button 
+                                type="button"
+                                className={adminStyles.actionIconBtn} 
+                                style={{ width: 'auto', padding: '0 20px', color: 'var(--destructive)' }}
+                                onClick={() => updateUser(user.id, { status: 'Suspended' })}
+                                disabled={updatingId === user.id}
+                            >
+                                <ShieldAlert size={16} style={{ marginRight: '8px' }} /> Suspend
+                            </button>
+                        </div>
+                        <button type="button" className={adminStyles.refreshBtn} onClick={onClose}>
+                            Close Registry
+                        </button>
+                    </div>
                 </div>
-            </ModalPortal>
-        );
-    };
+            </div>
+        </ModalPortal>
+    );
+};
     const fetchUsers = async () => {
         try {
             const res = await fetch('/api/admin/users');
@@ -353,8 +355,29 @@ export default function AdminUsersPage() {
                                         </td>
                                         <td>
                                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                <button className={adminStyles.actionIconBtn} onClick={() => setSelectedUser(u)}><ChevronRight size={18} /></button>
-                                                <button className={adminStyles.actionIconBtn} style={{ color: 'var(--destructive)' }} onClick={() => deleteUser(u.id)}><Trash2 size={18} /></button>
+                                                <button 
+                                                    type="button"
+                                                    className={adminStyles.actionIconBtn} 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        console.log("Details triggered for:", u.id);
+                                                        setSelectedUser(u);
+                                                    }}
+                                                >
+                                                    <ChevronRight size={18} />
+                                                </button>
+                                                <button 
+                                                    type="button"
+                                                    className={adminStyles.actionIconBtn} 
+                                                    style={{ color: 'var(--destructive)' }} 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        console.log("Deletion triggered for:", u.id);
+                                                        deleteUser(u.id);
+                                                    }}
+                                                >
+                                                    <Trash2 size={18} />
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -365,7 +388,16 @@ export default function AdminUsersPage() {
                 </div>
             </div>
 
-            {selectedUser && <UserModal user={selectedUser} onClose={() => setSelectedUser(null)} />}
+            {selectedUser && (
+                <UserModal 
+                    user={selectedUser} 
+                    onClose={() => setSelectedUser(null)} 
+                    updateUser={updateUser}
+                    updatingId={updatingId}
+                    modalTab={modalTab}
+                    setModalTab={setModalTab}
+                />
+            )}
         </div>
     );
 }
