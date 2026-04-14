@@ -25,14 +25,14 @@ export async function completeSetup(formData: any) {
             // Update existing profile (UPSERT-style for firm context)
             await db.execute(
                 'UPDATE "User" SET name = $1, "firmName" = $2, industry = $3, "onboardingStatus" = $4 WHERE id = $5',
-                [name || 'Institutional Operator', firmName, industry, 'COMPLETED', existingUser.id]
+                [name || firmName || 'Institutional Operator', firmName, industry, 'COMPLETED', existingUser.id]
             );
         } else {
             // New Identity Establishment or Re-provisioning After Reset
             // If we have no password (Google or DB cleared), generate a protect-token
             const finalPassword = password ? await bcrypt.hash(password, 10) : `oauth_restoration_token_${Math.random().toString(36).slice(2)}`;
             const userId = uuidv4();
-            const displayName = name || 'Institutional Operator';
+            const displayName = name || firmName || 'Institutional Operator';
             
             await db.execute(
                 'INSERT INTO "User" (id, email, password, name, "firmName", industry, plan, "onboardingStatus") VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',

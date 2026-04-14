@@ -16,7 +16,7 @@ type NotificationItem = {
     createdAt?: string;
 };
 
-type UserData = { name: string; role: string; email: string };
+type UserData = { name: string; role: string; email: string; firmName?: string };
 
 export default function DashboardLayout({
     children,
@@ -45,10 +45,15 @@ export default function DashboardLayout({
                 ]);
                 const userData = await userRes.json();
                 if (userData && !userData.error) {
+                    const displayName = (userData.name === 'Institutional Operator' || !userData.name) 
+                        ? (userData.firmName || userData.name || "Operator") 
+                        : userData.name;
+                        
                     setUser({
-                        name: userData.name || "Operator",
+                        name: displayName,
                         role: userData.role || "MEMBER",
                         email: userData.email || "user@blonk.ai",
+                        firmName: userData.firmName
                     });
                 }
                 const notifs = await notifsRes.json();
