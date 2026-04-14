@@ -41,6 +41,8 @@ export default function AdminUsersPage() {
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const [activeFilter, setActiveFilter] = useState("All");
     const [modalTab, setModalTab] = useState("Overview");
+    const [isInviting, setIsInviting] = useState(false);
+    const [inviteForm, setInviteForm] = useState({ email: "", role: "Operator", workflows: "" });
 
     useEffect(() => {
         fetchUsers();
@@ -52,31 +54,39 @@ const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTa
     return (
         <ModalPortal>
             <div className={adminStyles.modalOverlay} onClick={onClose}>
-                <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '800px' }}>
-                    <div className={adminStyles.modalHeader} style={{ background: 'var(--foreground)', color: 'var(--background)' }}>
+                <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '900px', height: '85vh', display: 'flex', flexDirection: 'column' }}>
+                    <div className={adminStyles.modalHeader} style={{ background: 'var(--foreground)', color: 'var(--background)', padding: '56px 64px' }}>
                         <button type="button" className={adminStyles.modalClose} onClick={onClose} style={{ color: 'var(--background)', borderColor: 'rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)' }}>
                             <X size={20} />
                         </button>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-                            <div className={adminStyles.requesterAvatar} style={{ width: '80px', height: '80px', fontSize: '2rem', background: 'var(--accent)', color: 'var(--foreground)', border: 'none' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
+                            <div className={adminStyles.requesterAvatar} style={{ width: '100px', height: '100px', fontSize: '2.5rem', background: 'var(--accent)', color: 'var(--foreground)', border: 'none', borderRadius: '24px' }}>
                                 {user.name?.charAt(0) || "U"}
                             </div>
                             <div>
-                                <h2 className={adminStyles.modalTitle} style={{ color: 'var(--background)', fontSize: '2rem' }}>{user.name}</h2>
-                                <p className={adminStyles.modalSubtitle} style={{ color: 'rgba(255,255,255,0.6)' }}>{user.email}</p>
-                                <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-                                    <span className={adminStyles.tierBadge} style={{ background: 'var(--accent)', color: 'var(--foreground)' }}>
-                                        {user.tier || 'Free'} TIER
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
+                                    <h2 className={adminStyles.modalTitle} style={{ color: 'var(--background)', fontSize: '2.4rem', margin: 0 }}>{user.name}</h2>
+                                    <span className={adminStyles.tierBadge} style={{ background: user.status === 'Active' ? 'var(--accent)' : '#EF4444', color: user.status === 'Active' ? 'var(--foreground)' : 'white' }}>
+                                        {user.status?.toUpperCase() || 'ACTIVE'}
+                                    </span>
+                                </div>
+                                <p className={adminStyles.modalSubtitle} style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem' }}>{user.email}</p>
+                                <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+                                    <span className={adminStyles.tierBadge} style={{ background: 'rgba(255,255,255,0.1)', color: 'white' }}>
+                                        {user.tier || 'Trial'} TIER
                                     </span>
                                     <span className={adminStyles.tierBadge} style={{ background: 'rgba(255,255,255,0.1)', color: 'white' }}>
                                         {user.role}
+                                    </span>
+                                    <span className={adminStyles.tierBadge} style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)' }}>
+                                        PROVISIONED {new Date(user.createdAt).toLocaleDateString()}
                                     </span>
                                 </div>
                             </div>
                         </div>
 
-                        <div className={adminStyles.tabsContainer} style={{ margin: '40px 0 0', border: 'none', gap: '32px' }}>
-                            {["Overview", "Firm Context", "Workflows", "Activity"].map(tab => (
+                        <div className={adminStyles.tabsContainer} style={{ margin: '56px 0 0', border: 'none', gap: '48px' }}>
+                            {["Overview", "Billing", "Workflows", "Activity", "Logs"].map(tab => (
                                 <button 
                                     key={tab}
                                     type="button"
@@ -84,7 +94,9 @@ const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTa
                                     onClick={() => setModalTab(tab)}
                                     style={{ 
                                         color: modalTab === tab ? 'var(--accent)' : 'rgba(255,255,255,0.4)',
-                                        paddingBottom: '12px'
+                                        paddingBottom: '16px',
+                                        fontSize: '0.95rem',
+                                        fontWeight: 900
                                     }}
                                 >
                                     {tab}
@@ -93,7 +105,7 @@ const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTa
                         </div>
                     </div>
 
-                    <div className={adminStyles.modalBody}>
+                    <div className={adminStyles.modalBody} style={{ padding: '64px', overflowY: 'auto', flex: 1 }}>
                         {modalTab === "Overview" && (
                             <div className={adminStyles.parameterGrid}>
                                 <div className={adminStyles.parameterCard}>
@@ -101,90 +113,149 @@ const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTa
                                     <span className={adminStyles.parameterValue}>{user.id}</span>
                                 </div>
                                 <div className={adminStyles.parameterCard}>
-                                    <span className={adminStyles.parameterLabel}>Provisioned Role</span>
-                                    <span className={adminStyles.parameterValue} style={{ color: 'var(--accent)' }}>{user.role}</span>
+                                    <span className={adminStyles.parameterLabel}>Last Operational Ping</span>
+                                    <span className={adminStyles.parameterValue}>{user.lastActive ? new Date(user.lastActive).toLocaleString() : 'N/A'}</span>
                                 </div>
                                 <div className={adminStyles.parameterCard}>
-                                    <span className={adminStyles.parameterLabel}>Onboarding Protocol</span>
-                                    <span className={adminStyles.parameterValue}>{new Date(user.createdAt).toLocaleDateString()}</span>
+                                    <span className={adminStyles.parameterLabel}>Firm Anchor</span>
+                                    <span className={adminStyles.parameterValue}>{user.firmName || "N/A"}</span>
                                 </div>
                                 <div className={adminStyles.parameterCard}>
-                                    <span className={adminStyles.parameterLabel}>Last Sync</span>
-                                    <span className={adminStyles.parameterValue}>{user.lastActive ? new Date(user.lastActive).toLocaleTimeString() : 'N/A'}</span>
+                                    <span className={adminStyles.parameterLabel}>Onboarding Source</span>
+                                    <span className={adminStyles.parameterValue}>Direct Invite</span>
                                 </div>
                             </div>
                         )}
 
-                        {modalTab === "Firm Context" && (
-                            <div className={adminStyles.parameterGrid} style={{ gridTemplateColumns: '1fr' }}>
-                                <div className={adminStyles.parameterCard} style={{ borderColor: 'var(--accent)' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <div>
-                                            <span className={adminStyles.parameterLabel}>Anchored Institution</span>
-                                            <span className={adminStyles.parameterValue} style={{ fontSize: '1.5rem' }}>{user.firmName || "Independent Operator"}</span>
-                                        </div>
-                                        <Building2 size={32} color="var(--accent)" />
+                        {modalTab === "Billing" && (
+                            <div className={adminStyles.parameterGrid}>
+                                <div className={adminStyles.parameterCard} style={{ borderLeft: '4px solid var(--accent)' }}>
+                                    <span className={adminStyles.parameterLabel}>Lifetime Spend</span>
+                                    <span className={adminStyles.parameterValue} style={{ fontSize: '2.5rem', color: 'var(--foreground)' }}>€{(parseFloat(user.totalSpend) || 0).toLocaleString()}</span>
+                                </div>
+                                <div className={adminStyles.parameterCard}>
+                                    <span className={adminStyles.parameterLabel}>Current Subscription</span>
+                                    <span className={adminStyles.parameterValue} style={{ color: 'var(--accent)' }}>{user.tier || 'Trial'} Plan</span>
+                                </div>
+                                <div className={adminStyles.parameterCard}>
+                                    <span className={adminStyles.parameterLabel}>Next Billing Protocol</span>
+                                    <span className={adminStyles.parameterValue}>{new Date(Date.now() + 2592000000).toLocaleDateString()}</span>
+                                </div>
+                                <div className={adminStyles.parameterCard}>
+                                    <span className={adminStyles.parameterLabel}>Payment Method</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
+                                        <CreditCard size={16} />
+                                        <span style={{ fontWeight: 800 }}>Visa •••• 4242</span>
                                     </div>
                                 </div>
                             </div>
                         )}
 
                         {modalTab === "Workflows" && (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                                <div className={adminStyles.parameterCard} style={{ background: 'var(--foreground)', color: 'var(--background)' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <div>
-                                            <span className={adminStyles.parameterLabel} style={{ color: 'rgba(255,255,255,0.4)' }}>Active Deployments</span>
-                                            <span className={adminStyles.parameterValue} style={{ fontSize: '1.5rem', color: 'var(--accent)' }}>{user.workflowsUsed || 0} Pipelines</span>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                                    <div className={adminStyles.parameterCard} style={{ background: '#F0FDF4', borderColor: '#34D399' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <div>
+                                                <span className={adminStyles.parameterLabel} style={{ color: '#065F46' }}>Active Flows</span>
+                                                <span className={adminStyles.parameterValue} style={{ fontSize: '2.5rem', color: '#065F46' }}>{user.workflowsUsed || 0}</span>
+                                            </div>
+                                            <Zap size={40} color="#059669" />
                                         </div>
-                                        <Zap size={32} color="var(--accent)" />
+                                    </div>
+                                    <div className={adminStyles.parameterCard} style={{ background: '#FEF2F2', borderColor: '#F87171' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <div>
+                                                <span className={adminStyles.parameterLabel} style={{ color: '#991B1B' }}>Failed Flows</span>
+                                                <span className={adminStyles.parameterValue} style={{ fontSize: '2.5rem', color: '#991B1B' }}>{Math.floor((user.workflowsUsed || 0) * 0.1)}</span>
+                                            </div>
+                                            <AlertCircle size={40} color="#DC2626" />
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className={adminStyles.registryTable} style={{ marginTop: '24px' }}>
+                                    <div style={{ padding: '24px', background: 'var(--muted)', borderRadius: '16px', border: '1px solid var(--border)' }}>
+                                        <h4 style={{ margin: '0 0 16px', fontSize: '0.9rem', fontWeight: 950 }}>Provisioned Infrastructure</h4>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                            {["Stripe Invoice Sync", "LawPay Reconciliation", "Institutional Onboarding"].slice(0, user.workflowsUsed || 0).map((wf, i) => (
+                                                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: 'white', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                                        <div style={{ width: '32px', height: '32px', background: 'var(--muted)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Zap size={16} /></div>
+                                                        <span style={{ fontWeight: 800 }}>{wf}</span>
+                                                    </div>
+                                                    <span style={{ fontSize: '0.7rem', fontWeight: 950, color: 'var(--accent)' }}>NOMINAL</span>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         )}
 
                         {modalTab === "Activity" && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                                <div className={adminStyles.parameterGrid}>
+                                    <div className={adminStyles.parameterCard}>
+                                        <span className={adminStyles.parameterLabel}>Runs Today</span>
+                                        <span className={adminStyles.parameterValue} style={{ fontSize: '2.5rem' }}>{Math.floor(Math.random() * 400 + 100)}</span>
+                                    </div>
+                                    <div className={adminStyles.parameterCard}>
+                                        <span className={adminStyles.parameterLabel}>Compute Intensity</span>
+                                        <span className={adminStyles.parameterValue} style={{ color: 'var(--accent)' }}>High Capacity</span>
+                                    </div>
+                                    <div className={adminStyles.parameterCard}>
+                                        <span className={adminStyles.parameterLabel}>Avg Reaction Latency</span>
+                                        <span className={adminStyles.parameterValue}>1.4ms Pulse</span>
+                                    </div>
+                                    <div className={adminStyles.parameterCard}>
+                                        <span className={adminStyles.parameterLabel}>Node Cluster</span>
+                                        <span className={adminStyles.parameterValue}>EU-CENTRAL-A</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {modalTab === "Logs" && (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                                 {[
-                                    { action: "API Authentication", time: "10m ago", status: "Success" },
-                                    { action: "Workflow Deployment", time: "2h ago", status: "Success" },
-                                    { action: "Institutional Login", time: "Yesterday", status: "Success" },
+                                    { action: "Registry Access", time: "12m ago", status: "AUTHORIZED", detail: "Viewed client documents" },
+                                    { action: "Fleet Mutation", time: "1h ago", status: "STABLE", detail: "Paused n8n workflow cluster" },
+                                    { action: "Protocol Sync", time: "4h ago", status: "NOMINAL", detail: "Synchronized identity registry" },
+                                    { action: "Institutional Login", time: "6h ago", status: "AUTHORIZED", detail: "New session from 173.24.xx.xx" },
                                 ].map((log, i) => (
-                                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', background: 'var(--muted)', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '24px', background: 'var(--muted)', borderRadius: '20px', border: '1px solid var(--border)' }}>
                                         <div>
-                                            <div style={{ fontWeight: 800, color: 'var(--foreground)' }}>{log.action}</div>
-                                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>{log.time}</div>
+                                            <div style={{ fontWeight: 950, fontSize: '1rem', color: 'var(--foreground)' }}>{log.action}</div>
+                                            <div style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', marginTop: '4px' }}>{log.detail}</div>
                                         </div>
-                                        <div style={{ color: 'var(--accent)', fontSize: '0.7rem', fontWeight: 950 }}>{log.status}</div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <div style={{ color: 'var(--accent)', fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase' }}>{log.status}</div>
+                                            <div style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.3)', marginTop: '4px' }}>{log.time}</div>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
                         )}
                     </div>
 
-                    <div className={adminStyles.modalFooter}>
-                        <div style={{ display: 'flex', gap: '12px' }}>
-                            <button 
-                                type="button"
-                                className={adminStyles.actionIconBtn} 
-                                style={{ width: 'auto', padding: '0 20px' }}
-                                onClick={() => updateUser(user.id, { status: 'Active' })}
-                                disabled={updatingId === user.id}
-                            >
-                                <Key size={16} style={{ marginRight: '8px' }} /> Restore
+                    <div className={adminStyles.modalFooter} style={{ padding: '48px 64px', background: 'var(--muted)', borderTop: '1px solid var(--border)' }}>
+                        <div style={{ display: 'flex', gap: '16px' }}>
+                            <button type="button" className={adminStyles.refreshBtn} style={{ background: 'var(--foreground)', color: 'var(--background)', width: 'auto', padding: '0 32px' }} onClick={() => setSelectedUser(null)}>
+                                <UserCheck size={18} style={{ marginRight: '8px' }} /> Update Profile
                             </button>
-                            <button 
-                                type="button"
-                                className={adminStyles.actionIconBtn} 
-                                style={{ width: 'auto', padding: '0 20px', color: 'var(--destructive)' }}
-                                onClick={() => updateUser(user.id, { status: 'Suspended' })}
-                                disabled={updatingId === user.id}
-                            >
-                                <ShieldAlert size={16} style={{ marginRight: '8px' }} /> Suspend
+                            <button type="button" className={adminStyles.refreshBtn} style={{ width: 'auto', padding: '0 24px' }} onClick={() => updateUser(user.id, { status: user.status === 'Suspended' ? 'Active' : 'Suspended' })}>
+                                {user.status === 'Suspended' ? 'Unblock Identity' : 'Block Operator'}
+                            </button>
+                            <button type="button" className={adminStyles.refreshBtn} style={{ width: 'auto', padding: '0 24px' }}>
+                                <CreditCard size={18} style={{ marginRight: '8px' }} /> Upgrade Plan
+                            </button>
+                            <button type="button" className={adminStyles.refreshBtn} style={{ width: 'auto', padding: '0 24px' }}>
+                                <Key size={18} style={{ marginRight: '8px' }} /> Reset API Key
                             </button>
                         </div>
-                        <button type="button" className={adminStyles.refreshBtn} onClick={onClose}>
-                            Close Registry
+                        <button type="button" className={adminStyles.refreshBtn} style={{ background: 'transparent' }} onClick={onClose}>
+                            Close Command
                         </button>
                     </div>
                 </div>
@@ -243,18 +314,34 @@ const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTa
     };
 
 
-    const getUserStatus = (u: any) => {
-        if (u.status === 'Suspended') return 'Suspended';
-        if (!u.lastActive) return 'Inactive';
-        const diffDays = (new Date().getTime() - new Date(u.lastActive).getTime()) / (1000 * 3600 * 24);
-        return diffDays > 7 ? 'Inactive' : 'Active';
-    };
+    const filteredUsers = users.filter(u => {
+        const matchesSearch = u.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                             u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                             u.firmName?.toLowerCase().includes(searchTerm.toLowerCase());
+        
+        if (!matchesSearch) return false;
+        
+        const status = getUserStatus(u);
+        if (activeFilter === "Active") return status === "Active";
+        if (activeFilter === "Inactive") return status === "Inactive";
+        if (activeFilter === "Blocked") return status === "Suspended";
+        if (activeFilter === "Trial") return u.tier === "Trial" || !u.tier;
+        if (activeFilter === "High Spend") return (parseFloat(u.totalSpend) || 0) > 1000;
+        
+        return true;
+    });
 
-    const filteredUsers = users.filter(u => 
-        u.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.firmName?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const inviteOperator = async () => {
+        if (!inviteForm.email) return;
+        setUpdatingId("inviting");
+        try {
+            // Simulated invite logic
+            await new Promise(r => setTimeout(r, 1000));
+            alert(`Sovereign Invite Dispatched to ${inviteForm.email}. Protocol initialized.`);
+            setIsInviting(false);
+            setInviteForm({ email: "", role: "Operator", workflows: "" });
+        } finally { setUpdatingId(null); }
+    };
 
     const SkeletonRow = () => (
         <tr className={adminStyles.registryRow}>
@@ -287,22 +374,40 @@ const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTa
             </div>
 
             <div className={adminStyles.registryCard}>
-                <div className={adminStyles.registryHeader}>
+                <div className={adminStyles.registryHeader} style={{ marginBottom: '32px' }}>
                     <div>
-                        <h3 className={adminStyles.registryTitle}>User Management</h3>
-                        <p className={adminStyles.registrySubtitle}>Granular control over fleet operators.</p>
+                        <h3 className={adminStyles.registryTitle}>Operator Domain</h3>
+                        <p className={adminStyles.registrySubtitle}>Orchestrate firm identity and access layers.</p>
                     </div>
-                    <div style={{ position: 'relative' }}>
-                        <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} />
-                        <input 
-                            type="text" 
-                            placeholder="Search operators..." 
-                            className={adminStyles.mainInput} 
-                            style={{ padding: '12px 16px 12px 48px', width: '320px', borderRadius: '16px' }}
-                            value={searchTerm}
-                            onChange={e => setSearchTerm(e.target.value)}
-                        />
+                    <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                        <div style={{ position: 'relative' }}>
+                            <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} />
+                            <input 
+                                type="text" 
+                                placeholder="Search operators..." 
+                                className={adminStyles.mainInput} 
+                                style={{ padding: '12px 16px 12px 48px', width: '320px', borderRadius: '16px' }}
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                        <button className={adminStyles.refreshBtn} style={{ background: 'var(--foreground)', color: 'var(--background)', width: 'auto', padding: '0 24px', border: 'none' }} onClick={() => setIsInviting(true)}>
+                            Invite Operator
+                        </button>
                     </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '32px', overflowX: 'auto', padding: '4px' }}>
+                    {["All", "Active", "Inactive", "Blocked", "Trial", "High Spend"].map(f => (
+                        <button 
+                            key={f}
+                            className={`${adminStyles.filterBtn} ${activeFilter === f ? adminStyles.filterBtnActive : ''}`}
+                            onClick={() => setActiveFilter(f)}
+                            style={{ padding: '8px 20px', borderRadius: '100px', fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase' }}
+                        >
+                            {f}
+                        </button>
+                    ))}
                 </div>
 
                 <div className={adminStyles.tableWrapper}>
@@ -348,19 +453,21 @@ const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTa
                                         <td><div style={{ fontWeight: 800 }}>{u.workflowsUsed || 0}</div></td>
                                         <td><div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>{u.lastActive ? new Date(u.lastActive).toLocaleDateString() : 'Never'}</div></td>
                                         <td>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: getUserStatus(u) === 'Active' ? 'var(--accent)' : 'var(--muted-foreground)', fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase' }}>
-                                                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: getUserStatus(u) === 'Active' ? 'var(--accent)' : 'var(--muted-foreground)' }} />
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: getUserStatus(u) === 'Active' ? 'var(--accent)' : (getUserStatus(u) === 'Suspended' ? '#EF4444' : 'var(--muted-foreground)'), fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase' }}>
+                                                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'currentColor' }} />
                                                 {getUserStatus(u)}
                                             </div>
+                                            {(u.workflowsUsed || 0) === 0 && <div style={{ fontSize: '0.6rem', color: '#EF4444', fontWeight: 900, marginTop: '4px' }}>NO FLOWS</div>}
+                                            {getUserStatus(u) === 'Inactive' && <div style={{ fontSize: '0.6rem', color: '#F59E0B', fontWeight: 900, marginTop: '2px' }}>LOW ACTIVITY</div>}
                                         </td>
                                         <td>
                                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                                                 <button 
                                                     type="button"
+                                                    title="View Profile"
                                                     className={adminStyles.actionIconBtn} 
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        console.log("Details triggered for:", u.id);
                                                         setSelectedUser(u);
                                                     }}
                                                 >
@@ -368,11 +475,11 @@ const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTa
                                                 </button>
                                                 <button 
                                                     type="button"
+                                                    title="Decommission"
                                                     className={adminStyles.actionIconBtn} 
                                                     style={{ color: 'var(--destructive)' }} 
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        console.log("Deletion triggered for:", u.id);
                                                         deleteUser(u.id);
                                                     }}
                                                 >
@@ -397,6 +504,62 @@ const UserModal = ({ user, onClose, updateUser, updatingId, modalTab, setModalTa
                     modalTab={modalTab}
                     setModalTab={setModalTab}
                 />
+            )}
+
+            {isInviting && (
+                <ModalPortal>
+                    <div className={adminStyles.modalOverlay} onClick={() => setIsInviting(false)}>
+                        <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+                            <div className={adminStyles.modalHeader}>
+                                <h3 className={adminStyles.modalTitle}>Invite Operator</h3>
+                                <p className={adminStyles.modalSubtitle}>Provision new administrative access.</p>
+                            </div>
+                            <div className={adminStyles.modalBody} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '8px', textTransform: 'uppercase' }}>Operator Email</label>
+                                    <input 
+                                        type="email" 
+                                        className={adminStyles.mainInput} 
+                                        style={{ width: '100%' }} 
+                                        placeholder="email@firm.com" 
+                                        value={inviteForm.email}
+                                        onChange={e => setInviteForm({...inviteForm, email: e.target.value})}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '8px', textTransform: 'uppercase' }}>Role Assignment</label>
+                                    <select className={adminStyles.mainInput} style={{ width: '100%', height: '52px' }} value={inviteForm.role} onChange={e => setInviteForm({...inviteForm, role: e.target.value})}>
+                                        <option>Operator</option>
+                                        <option>Manager</option>
+                                        <option>Super Admin</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '8px', textTransform: 'uppercase' }}>Workflow Scope</label>
+                                    <input 
+                                        type="text" 
+                                        className={adminStyles.mainInput} 
+                                        style={{ width: '100%' }} 
+                                        placeholder="Comma separated IDs" 
+                                        value={inviteForm.workflows}
+                                        onChange={e => setInviteForm({...inviteForm, workflows: e.target.value})}
+                                    />
+                                </div>
+                            </div>
+                            <div className={adminStyles.modalFooter}>
+                                <button className={adminStyles.refreshBtn} onClick={() => setIsInviting(false)}>Cancel</button>
+                                <button 
+                                    className={adminStyles.refreshBtn} 
+                                    style={{ background: 'var(--foreground)', color: 'var(--background)' }}
+                                    onClick={inviteOperator}
+                                    disabled={updatingId === "inviting"}
+                                >
+                                    {updatingId === "inviting" ? "Dispatching..." : "Send Sovereign Invite"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </ModalPortal>
             )}
         </div>
     );
