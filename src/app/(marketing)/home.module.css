@@ -52,32 +52,7 @@
     z-index: 2;
 }
 
-.heroLogo {
-    position: absolute;
-    top: 40px;
-    left: 48px;
-    z-index: 10;
-    font-size: 1.5rem;
-    font-weight: 950;
-    letter-spacing: -0.06em;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    text-shadow: 0 2px 20px rgba(0,0,0,0.3);
-    mix-blend-mode: normal;
-}
 
-.heroLogoDot {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    background: #34D186;
-    border-radius: 2px;
-    margin-left: 3px;
-    align-self: flex-end;
-    margin-bottom: 4px;
-}
 
 .heroCta {
     position: absolute;
@@ -91,27 +66,26 @@
     display: inline-flex;
     align-items: center;
     gap: 12px;
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255,255,255,0.35);
+    background: #111;
+    border: 2px solid #111;
     color: #fff;
-    padding: 16px 32px;
+    padding: 18px 40px;
     border-radius: 100px;
-    font-size: 1rem;
-    font-weight: 800;
+    font-size: 1.1rem;
+    font-weight: 900;
     text-decoration: none;
     white-space: nowrap;
-    transition: all 0.3s ease;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    transition: all 0.25s ease;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.35);
+    letter-spacing: -0.01em;
 }
 
 .heroCtaBtn:hover {
-    background: rgba(52, 209, 134, 0.9);
-    border-color: transparent;
+    background: #34D186;
+    border-color: #34D186;
     color: #111;
-    transform: scale(1.03);
-    box-shadow: 0 12px 40px rgba(52,209,134,0.3);
+    transform: scale(1.04);
+    box-shadow: 0 12px 48px rgba(52,209,134,0.4);
 }
 
 /* --- People Removed (Portraits styles removed) --- */

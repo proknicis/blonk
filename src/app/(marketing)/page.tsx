@@ -77,10 +77,6 @@ export default function HomePage() {
                     />
                     {/* Gradient fade to next section */}
                     <div className={styles.heroFade} />
-                    {/* Floating logo */}
-                    <div className={styles.heroLogo}>
-                        BLONK<span className={styles.heroLogoDot} />
-                    </div>
                     {/* Floating bottom CTA */}
                     <div className={styles.heroCta}>
                         <Link href="/login" className={styles.heroCtaBtn}>
