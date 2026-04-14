@@ -49,10 +49,14 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Operator identity already registered in fleet." }, { status: 400 });
         }
 
+        // Inherit Firm Context from the inviter
+        const ownerData = await db.query('SELECT "firmName" FROM "User" WHERE id = $1', [(session.user as any).id]) as any[];
+        const firmName = ownerData[0]?.firmName || 'Legacy Firm Hub';
+
         const hashedPw = await bcrypt.hash(password, 10);
-        await db.query(
-            'INSERT INTO "User" (id, name, email, password, role, "teamId", "onboardingStatus") VALUES ($1, $2, $3, $4, $5, $6, $7)',
-            [uuidv4(), name.trim(), emailRef, hashedPw, role || 'MEMBER', teamId, 'COMPLETED']
+        await db.execute(
+            'INSERT INTO "User" (id, name, email, password, role, "teamId", "firmName", "onboardingStatus") VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+            [uuidv4(), name.trim(), emailRef, hashedPw, role || 'MEMBER', teamId, firmName, 'COMPLETED']
         );
         return NextResponse.json({ success: true, message: "Sovereign Co-Pilot account successfully provisioned." });
     } catch (error) {

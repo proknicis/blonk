@@ -87,7 +87,6 @@ export default function TeamPage() {
                 return;
             }
 
-            // Success, close modal and refresh team
             setShowInviteModal(false);
             setInviteName("");
             setInviteEmail("");
@@ -97,6 +96,26 @@ export default function TeamPage() {
             setInviteError("Network error occurred.");
         } finally {
             setInviteLoading(false);
+        }
+    };
+
+    const handleRemoveMember = async (memberId: string) => {
+        if (!confirm("Are you certain you wish to decommission this operator's access? This action is irreversible.")) return;
+
+        try {
+            const res = await fetch('/api/team', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ memberId })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                fetchTeamData();
+            } else {
+                alert(data.error || "Decommissioning failure.");
+            }
+        } catch (error) {
+            alert("Sovereign link failure during decommissioning.");
         }
     };
 
@@ -244,9 +263,14 @@ export default function TeamPage() {
                                             </div>
                                         </td>
                                         <td style={{ textAlign: 'right' }}>
-                                            {(currentUserRole === 'OWNER' || currentUserRole === 'ADMIN') && (
-                                                <button className={styles.actionBtn} aria-label="Manage user">
-                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+                                            {(currentUserRole === 'OWNER' || currentUserRole === 'ADMIN') && !isOwner && (
+                                                <button 
+                                                    className={styles.actionBtn} 
+                                                    style={{ color: 'var(--error)', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.1)' }}
+                                                    onClick={() => handleRemoveMember(member.id)}
+                                                    title="Remove Member"
+                                                >
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                                                 </button>
                                             )}
                                         </td>
