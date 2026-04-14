@@ -124,37 +124,48 @@ export default function AdminControlPage() {
     const updateWorkflowStatus = async (id: string, status: string) => {
         setSavingId(id);
         try {
-            await fetch('/api/admin/workflows', {
+            const res = await fetch('/api/admin/workflows', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id, status })
             });
+            if (!res.ok) throw new Error(`Status ${res.status}`);
             fetchWorkflows();
-        } catch (error) { console.error(error); } finally { setSavingId(null); }
+        } catch (error: any) { 
+            console.error("Workflow update failure:", error);
+            alert(`Fleet Instruction Failure: ${error.message}`);
+        } finally { setSavingId(null); }
     };
 
     const updateWebhook = async (id: string, url: string) => {
         setSavingId(id);
-        await new Promise(resolve => setTimeout(resolve, 1500));
         try {
-            await fetch('/api/admin/workflows', {
+            const res = await fetch('/api/admin/workflows', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id, n8nWebhookUrl: url })
             });
+            if (!res.ok) throw new Error(`Status ${res.status}`);
             fetchWorkflows();
             setConfigWorkflow(null);
             setConfigStep(1);
             setWebhookUrl("");
-        } catch (error) { console.error(error); } finally { setSavingId(null); }
+        } catch (error: any) { 
+            console.error("Webhook calibration failure:", error);
+            alert(`Node Calibration Failure: ${error.message}`);
+        } finally { setSavingId(null); }
     };
 
     const deleteWorkflow = async (id: string) => {
-        if (!confirm("Permanently delete this instance? This cannot be undone.")) return;
+        if (!confirm("Permanently decommission this node instance? This action is irreversible.")) return;
         try {
             const res = await fetch(`/api/admin/workflows?id=${id}`, { method: 'DELETE' });
-            if (res.ok) fetchWorkflows();
-        } catch (error) { console.error(error); }
+            if (!res.ok) throw new Error(`Status ${res.status}`);
+            fetchWorkflows();
+        } catch (error: any) { 
+            console.error("Node decommissioning failure:", error);
+            alert(`Fleet Decommissioning Failure: ${error.message}`);
+        }
     };
 
     const copyToClipboard = (text: string) => {
@@ -178,29 +189,39 @@ export default function AdminControlPage() {
         <tr className={adminStyles.registryRow}>
             <td>
                 <div className={adminStyles.loopDetail}>
-                    <Skeleton width="44px" height="44px" borderRadius="12px" />
+                    <Skeleton width="48px" height="48px" borderRadius="14px" />
                     <div>
-                        <Skeleton width="120px" height="18px" style={{ marginBottom: '6px' }} />
-                        <Skeleton width="80px" height="12px" />
+                        <Skeleton width="140px" height="20px" style={{ marginBottom: '8px' }} />
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            <Skeleton width="60px" height="12px" />
+                            <Skeleton width="40px" height="12px" />
+                        </div>
                     </div>
                 </div>
             </td>
             <td>
                 <div className={adminStyles.requesterInfo}>
-                    <Skeleton width="36px" height="36px" borderRadius="50%" />
+                    <Skeleton width="36px" height="36px" borderRadius="12px" />
                     <div>
-                        <Skeleton width="100px" height="16px" style={{ marginBottom: '4px' }} />
-                        <Skeleton width="140px" height="12px" />
+                        <Skeleton width="110px" height="16px" style={{ marginBottom: '4px' }} />
+                        <Skeleton width="90px" height="12px" />
                     </div>
                 </div>
             </td>
             <td>
                 <div style={{ padding: '0 16px' }}>
-                    <Skeleton width="120px" height="20px" borderRadius="8px" />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <Skeleton width="70px" height="14px" />
+                        <Skeleton width="30px" height="14px" />
+                    </div>
+                    <Skeleton width="100%" height="6px" borderRadius="10px" />
                 </div>
             </td>
             <td>
-                <Skeleton width="110px" height="28px" borderRadius="100px" />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <Skeleton width="100px" height="18px" />
+                    <Skeleton width="120px" height="12px" />
+                </div>
             </td>
             <td>
                 <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>

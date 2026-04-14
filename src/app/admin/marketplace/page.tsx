@@ -82,11 +82,13 @@ export default function MarketplaceManagementPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ...template, price: parseFloat(newPrice) })
             });
-            if (res.ok) {
-                fetchTemplates();
-                setEditingPriceId(null);
-            }
-        } catch (e) { console.error(e); }
+            if (!res.ok) throw new Error(`Status ${res.status}`);
+            fetchTemplates();
+            setEditingPriceId(null);
+        } catch (e: any) { 
+            console.error("Price calibration failure:", e);
+            alert(`Instruction Failure: Failed to update monetization parameters. ${e.message}`);
+        }
     };
 
     const duplicateTemplate = async (template: any) => {
@@ -97,8 +99,13 @@ export default function MarketplaceManagementPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ...rest, name: `${rest.name} (Copy)`, status: 'Draft' })
             });
-            if (res.ok) fetchTemplates();
-        } catch (e) { console.error(e); }
+            if (!res.ok) throw new Error(`Status ${res.status}`);
+            alert("Success: Protocol cloned into 'Draft' state.");
+            fetchTemplates();
+        } catch (e: any) { 
+            console.error("Protocol cloning failure:", e);
+            alert(`Fleet Instruction Failure: ${e.message}`);
+        }
     };
 
     const toggleStatus = async (template: any, newStatus: string) => {
@@ -108,16 +115,24 @@ export default function MarketplaceManagementPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ...template, status: newStatus })
             });
-            if (res.ok) fetchTemplates();
-        } catch (e) { console.error(e); }
+            if (!res.ok) throw new Error(`Status ${res.status}`);
+            fetchTemplates();
+        } catch (e: any) { 
+            console.error("Status state mutation failure:", e);
+            alert(`Institutional Alert: Failed to transition protocol state. ${e.message}`);
+        }
     };
 
     const deleteTemplate = async (id: string) => {
-        if (!confirm("Permanently delete this administrative template?")) return;
+        if (!confirm("Permanently purge this administrative protocol? This action is irreversible.")) return;
         try {
             const res = await fetch(`/api/admin/templates?id=${id}`, { method: 'DELETE' });
-            if (res.ok) fetchTemplates();
-        } catch (e) { console.error(e); }
+            if (!res.ok) throw new Error(`Status ${res.status}`);
+            fetchTemplates();
+        } catch (e: any) { 
+            console.error("Protocol decommissioning failure:", e);
+            alert(`Fleet Decommissioning Failure: ${e.message}`);
+        }
     };
 
     const handlePreview = (template: any) => {
@@ -138,14 +153,22 @@ export default function MarketplaceManagementPage() {
                     <Skeleton width="48px" height="48px" borderRadius="14px" />
                     <div>
                         <Skeleton width="180px" height="20px" style={{ marginBottom: '8px' }} />
-                        <Skeleton width="100px" height="12px" />
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            <Skeleton width="80px" height="12px" />
+                            <Skeleton width="40px" height="12px" />
+                        </div>
                     </div>
                 </div>
             </td>
-            <td><Skeleton width="100px" height="24px" /></td>
-            <td><Skeleton width="80px" height="24px" /></td>
-            <td><Skeleton width="120px" height="28px" borderRadius="100px" /></td>
-            <td><div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}><Skeleton width="38px" height="38px" borderRadius="10px" /><Skeleton width="38px" height="38px" borderRadius="10px" /></div></td>
+            <td>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <Skeleton width="90px" height="18px" />
+                    <Skeleton width="110px" height="12px" />
+                </div>
+            </td>
+            <td><Skeleton width="60px" height="20px" /></td>
+            <td><Skeleton width="120px" height="32px" borderRadius="100px" /></td>
+            <td><div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}><Skeleton width="38px" height="38px" borderRadius="10px" /><Skeleton width="38px" height="38px" borderRadius="10px" /><Skeleton width="38px" height="38px" borderRadius="10px" /></div></td>
         </tr>
     );
 
