@@ -29,6 +29,7 @@ function AuthContent() {
     });
     
     const [mfaCode, setMfaCode] = useState("");
+    const [expectedCode, setExpectedCode] = useState("");
 
     // Redirection Guard: If already authenticated, proceed to dashboard
     useEffect(() => {
@@ -76,12 +77,17 @@ function AuthContent() {
                 return;
             }
             // Proceed to MFA step
+            const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+            setExpectedCode(generatedCode);
+            // Log to terminal where Next.js runs and browser console for easy access during development
+            console.log(`\n\n[AUTHORIZATION REQUIRED]: Your MFA Code is: ${generatedCode}\n\n`);
+            
             setPreviousMode(mode);
             setMode("mfa");
         } else {
             // Processing MFA -> Finalize Auth
-            if (mfaCode.length < 5) {
-                setError("Invalid MFA code.");
+            if (mfaCode !== expectedCode) {
+                setError("Invalid MFA code. Please check the console output.");
                 return;
             }
             
