@@ -39,16 +39,34 @@ export default function AdminLayout({
     });
 
     useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            const target = event.target as Node;
-            if (userMenuAnchorRef.current && !userMenuAnchorRef.current.contains(target)) {
-                setShowUserMenu(false);
+        (async () => {
+            try {
+                const res = await fetch("/api/settings");
+                const userData = await res.json();
+                if (userData && !userData.error) {
+                    setUser({
+                        name: userData.name || "Admin Operator",
+                        role: userData.role || "SUPER ADMIN",
+                        email: userData.email || "admin@blonk.ai",
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching administrative identity:", error);
             }
-            if (notifsAnchorRef.current && !notifsAnchorRef.current.contains(target)) {
-                setShowNotifs(false);
-            }
-        };
+        })();
+    }, []);
 
+    const handleClickOutside = (event: MouseEvent) => {
+        const target = event.target as Node;
+        if (userMenuAnchorRef.current && !userMenuAnchorRef.current.contains(target)) {
+            setShowUserMenu(false);
+        }
+        if (notifsAnchorRef.current && !notifsAnchorRef.current.contains(target)) {
+            setShowNotifs(false);
+        }
+    };
+
+    useEffect(() => {
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);

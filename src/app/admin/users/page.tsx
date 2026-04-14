@@ -164,10 +164,20 @@ export default function AdminUsersPage() {
 
                         <div className={adminStyles.modalFooter}>
                             <div style={{ display: 'flex', gap: '12px' }}>
-                                <button className={adminStyles.actionIconBtn} style={{ width: 'auto', padding: '0 20px' }}>
-                                    <Key size={16} style={{ marginRight: '8px' }} /> Reset
+                                <button 
+                                    className={adminStyles.actionIconBtn} 
+                                    style={{ width: 'auto', padding: '0 20px' }}
+                                    onClick={() => updateUser(user.id, { status: 'Active' })}
+                                    disabled={updatingId === user.id}
+                                >
+                                    <Key size={16} style={{ marginRight: '8px' }} /> Restore
                                 </button>
-                                <button className={adminStyles.actionIconBtn} style={{ width: 'auto', padding: '0 20px', color: 'var(--destructive)' }}>
+                                <button 
+                                    className={adminStyles.actionIconBtn} 
+                                    style={{ width: 'auto', padding: '0 20px', color: 'var(--destructive)' }}
+                                    onClick={() => updateUser(user.id, { status: 'Suspended' })}
+                                    disabled={updatingId === user.id}
+                                >
                                     <ShieldAlert size={16} style={{ marginRight: '8px' }} /> Suspend
                                 </button>
                             </div>
@@ -192,12 +202,18 @@ export default function AdminUsersPage() {
     const updateUser = async (id: string, updates: any) => {
         setUpdatingId(id);
         try {
-            await fetch('/api/admin/users', {
+            const res = await fetch('/api/admin/users', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id, ...updates })
             });
-            fetchUsers();
+            if (res.ok) {
+                const updatedUser = await res.json();
+                if (selectedUser && selectedUser.id === id) {
+                    setSelectedUser({ ...selectedUser, ...updates });
+                }
+                fetchUsers();
+            }
         } catch (error) { console.error(error); } finally { setUpdatingId(null); }
     };
 
