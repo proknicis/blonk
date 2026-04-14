@@ -190,13 +190,16 @@ export default function AdminUsersPage() {
             </ModalPortal>
         );
     };
-
     const fetchUsers = async () => {
         try {
             const res = await fetch('/api/admin/users');
+            if (!res.ok) throw new Error(`Status ${res.status}`);
             const data = await res.json();
             if (Array.isArray(data)) setUsers(data);
-        } catch (error) { console.error(error); } finally { setIsLoading(false); }
+        } catch (error: any) { 
+            console.error("Registry sync failure:", error);
+            alert("Institutional Alert: Failed to synchronize user registry. Check connection.");
+        } finally { setIsLoading(false); }
     };
 
     const updateUser = async (id: string, updates: any) => {
@@ -207,23 +210,36 @@ export default function AdminUsersPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id, ...updates })
             });
-            if (res.ok) {
-                const updatedUser = await res.json();
-                if (selectedUser && selectedUser.id === id) {
-                    setSelectedUser({ ...selectedUser, ...updates });
-                }
-                fetchUsers();
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || `Update failed: ${res.status}`);
             }
-        } catch (error) { console.error(error); } finally { setUpdatingId(null); }
+            
+            if (selectedUser && selectedUser.id === id) {
+                setSelectedUser({ ...selectedUser, ...updates });
+            }
+            fetchUsers();
+        } catch (error: any) { 
+            console.error("Identity update failure:", error);
+            alert(`Sovereign Decree Failure: ${error.message}`);
+        } finally { setUpdatingId(null); }
     };
 
     const deleteUser = async (id: string) => {
-        if (!confirm("Permanently revoke access?")) return;
+        if (!confirm("Permanently revoke access for this operator? This action is irreversible.")) return;
         try {
-            await fetch(`/api/admin/users?id=${id}`, { method: 'DELETE' });
+            const res = await fetch(`/api/admin/users?id=${id}`, { method: 'DELETE' });
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || `Deletion failed: ${res.status}`);
+            }
             fetchUsers();
-        } catch (error) { console.error(error); }
+        } catch (error: any) { 
+            console.error("Operator decommissioning failure:", error);
+            alert(`Fleet Decommissioning Failure: ${error.message}`);
+        }
     };
+
 
     const getUserStatus = (u: any) => {
         if (u.status === 'Suspended') return 'Suspended';
