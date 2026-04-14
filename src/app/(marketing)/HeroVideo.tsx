@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import styles from "./home.module.css";
 
-export default function HeroVideo({ speed = 0.5 }: { speed?: number }) {
+export default function HeroVideo({ speed = 0.75 }: { speed?: number }) {
     const videoRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
