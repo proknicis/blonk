@@ -73,6 +73,20 @@ export default function HomePage() {
                         </h1>
                     </div>
 
+                    <div className={styles.video_wrapper}>
+                        <video 
+                            className={styles.hero_video}
+                            src="/hero-video.mp4" 
+                            autoPlay 
+                            loop 
+                            muted 
+                            playsInline
+                            poster="/n8n-demo.png"
+                        >
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+
                     <div className={styles.hero_bottom}>
                         <div className={styles.feature_pills}>
                             <div className={styles.feature_pill}>
