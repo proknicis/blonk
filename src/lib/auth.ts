@@ -76,9 +76,23 @@ export const authOptions: NextAuthOptions = {
                         token.teamId = teamId;
                         token.role = 'OWNER';
                     } else if (existing.length > 0) {
-                        token.id = existing[0].id;
-                        token.teamId = existing[0].teamId;
-                        token.role = existing[0].role;
+                        const dbUser = existing[0];
+                        token.id = dbUser.id;
+                        token.role = dbUser.role;
+
+                        if (!dbUser.teamId) {
+                            // Backfill Team for accounts caught in the zombie registration bug
+                            const teamRes = await db.query(
+                                'INSERT INTO "Team" (name, "firmName", "ownerId") VALUES ($1, $2, $3) RETURNING id',
+                                [`Orphan ${email.split('@')[0]}'s Command`, 'Recovered Institutional Firm', dbUser.id]
+                            ) as any[];
+                            const newTeamId = teamRes[0].id;
+                            
+                            await db.execute('UPDATE "User" SET "teamId" = $1 WHERE id = $2', [newTeamId, dbUser.id]);
+                            token.teamId = newTeamId;
+                        } else {
+                            token.teamId = dbUser.teamId;
+                        }
                     }
                 }
             }

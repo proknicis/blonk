@@ -5,10 +5,20 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
     const session = await getServerSession(authOptions);
-    if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    console.log("[DASHBOARD_SUMMARY_API] Fetched Session:", JSON.stringify(session, null, 2));
+
+    if (!session?.user) {
+        console.log("[DASHBOARD_SUMMARY_API] Missing user in session. Returning 401.");
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const teamId = (session.user as any).teamId;
-    if (!teamId) return NextResponse.json({ error: "No team context" }, { status: 400 });
+    console.log("[DASHBOARD_SUMMARY_API] Extracted teamId:", teamId);
+
+    if (!teamId) {
+        console.log("[DASHBOARD_SUMMARY_API] Missing teamId. Rejecting request with 400.");
+        return NextResponse.json({ error: "No team context" }, { status: 400 });
+    }
 
     try {
         // 1. Fetch Workflows summary
