@@ -99,7 +99,6 @@ export default function DashboardLayout({
     const getModuleTitle = (path: string) => {
         if (path === '/dashboard') return 'Fleet Overview';
         if (path === '/dashboard/office') return 'Mission Control';
-        if (path === '/dashboard/lab') return 'The Lab';
         if (path === '/dashboard/team') return 'Strategic Personnel';
         if (path === '/dashboard/workflows') return 'Marketplace';
         if (path === '/dashboard/audit') return 'Audit Vault';
@@ -136,11 +135,6 @@ export default function DashboardLayout({
                             <li>
                                 <Link href="/dashboard/office" className={`${styles.navLink} ${pathname === '/dashboard/office' ? styles.navLinkActive : ''}`}>
                                     <Monitor size={20} /> Mission Control
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/dashboard/lab" className={`${styles.navLink} ${pathname === '/dashboard/lab' ? styles.navLinkActive : ''}`}>
-                                    <Zap size={20} /> The Lab
                                 </Link>
                             </li>
                         </ul>
