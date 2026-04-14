@@ -1,6 +1,7 @@
 import Link from "next/link";
 import styles from "./home.module.css";
 import React from "react";
+import HeroVideo from "./HeroVideo";
 
 const IconUser = () => (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -128,7 +129,7 @@ export default function HomePage() {
 
                 {/* ── HERO — Video Only ── */}
                 <section className={styles.heroVideo}>
-                    <video className={styles.heroBgVideo} src="/hero-video.mp4" autoPlay loop muted playsInline />
+                    <HeroVideo speed={0.5} />
                     <div className={styles.heroFade} />
                     <div className={styles.heroCta}>
                         <Link href="/login" className={styles.heroCtaBtn}>
