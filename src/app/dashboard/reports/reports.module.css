@@ -1,243 +1,317 @@
-/* 
-  BLONK | REPORTS REGISTRY
-  Aesthetic: Institutional Modular UI
-  Uses Global Design System Variables
-*/
-
-.reportsContainer {
+.container {
     display: flex;
     flex-direction: column;
-    gap: 48px;
-    animation: reportsFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    gap: 32px;
+    animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    width: 100%;
 }
 
-@keyframes reportsFadeIn {
-    from { opacity: 0; transform: translateY(15px); }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-.reportsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 32px;
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
 }
 
-.reportCard {
+.eyebrow {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--muted-foreground);
+    margin-bottom: 8px;
+}
+
+.title {
+    font-size: 1.8rem;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    color: var(--foreground);
+    margin: 0 0 6px 0;
+}
+
+.subtitle {
+    font-size: 0.95rem;
+    color: var(--muted-foreground);
+    margin: 0;
+    font-weight: 500;
+}
+
+/* KPI Grid */
+.kpiGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.kpiCard {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 32px;
-    padding: 32px;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
     display: flex;
     flex-direction: column;
-    gap: 24px;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
 }
 
-.reportCard:hover {
-    border-color: var(--accent);
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-md);
+.kpiCard::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: transparent;
+    transition: background 0.3s ease;
 }
 
-.cardIcon {
-    width: 56px;
-    height: 56px;
-    border-radius: 12px;
+.kpiCard:hover::before {
+    background: #10b981; /* Emerald Green */
+}
+
+.kpiIconWrapper {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--muted);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--muted);
+    margin-bottom: 16px;
 }
 
-.cardContent h3 {
-    font-size: 1.25rem;
-    font-weight: 950;
-    color: var(--foreground);
-    margin-bottom: 8px;
-    letter-spacing: -0.02em;
-}
-
-.cardContent p {
-    font-size: 0.9rem;
+.kpiIcon {
     color: var(--muted-foreground);
-    line-height: 1.5;
-    font-weight: 700;
+    width: 18px;
+    height: 18px;
 }
 
-.cardFooter {
+.kpiCard:hover .kpiIcon {
+    color: #10b981;
+}
+
+.kpiValue {
+    font-size: 1.8rem;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    color: var(--foreground);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.trendUp {
+    color: #10b981;
+    font-size: 1.2rem;
+}
+
+.kpiLabel {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--foreground);
+    margin-bottom: 4px;
+}
+
+.kpiSub {
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+    font-weight: 500;
+}
+
+/* Charts Generic */
+.chartCardLarge,
+.chartCard {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
+}
+
+.chartCardLarge {
+    width: 100%;
+}
+
+.chartHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: auto;
+    margin-bottom: 24px;
 }
 
-.lastGenerated {
-    font-size: 0.75rem;
-    color: var(--muted-foreground);
-    font-weight: 950;
-    text-transform: uppercase;
-    opacity: 0.5;
-}
-
-.actionBtn {
-    padding: 10px 16px;
-    border-radius: 12px;
-    background: var(--primary);
-    color: var(--primary-foreground);
-    border: none;
-    font-size: 0.85rem;
-    font-weight: 950;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.actionBtn:hover {
-    filter: brightness(1.1);
-}
-
-/* HISTORY TABLE */
-.historySection {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 36px;
-    padding: 40px;
-    box-shadow: var(--shadow-sm);
-}
-
-.sectionTitle {
-    font-size: 1.5rem;
-    font-weight: 950;
-    color: var(--foreground);
-    letter-spacing: -0.04em;
-}
-
-.historyTable {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.historyTable th {
-    text-align: left;
-    padding: 16px 24px;
-    font-size: 0.75rem;
-    font-weight: 950;
-    color: var(--muted-foreground);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    border-bottom: 1px solid var(--border);
-}
-
-.historyTable td {
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.95rem;
-    color: var(--foreground);
-}
-
-.reportName {
+.chartTitleGroup {
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
-.rowActionBtn {
-    background: var(--muted);
-    border: 1px solid var(--border);
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    font-weight: 950;
+.chartTitleGroup h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
     color: var(--foreground);
-    cursor: pointer;
-    margin-right: 8px;
-    text-decoration: none;
-    display: inline-block;
+    margin: 0;
 }
 
-.rowActionBtn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
+.accentIcon {
+    color: #10b981;
 }
 
-.statusPill {
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 0.7rem;
-    font-weight: 950;
-    text-transform: uppercase;
+/* Line Chart Area */
+.lineChartArea {
+    width: 100%;
+    height: 240px;
+    position: relative;
+    padding-top: 10px;
 }
 
-.statusReady {
-    background: var(--accent-muted);
-    color: var(--accent);
+.svgChart {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
 }
 
-/* MODAL */
-.modalOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(8px);
+.timeToggles {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
+    background: var(--muted);
+    border-radius: 8px;
+    padding: 4px;
 }
 
-.modal {
+.toggleBtn {
+    background: transparent;
+    border: none;
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--muted-foreground);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.toggleActive {
     background: var(--card);
-    width: 90%;
-    max-width: 600px;
-    border-radius: 32px;
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-premium);
+    color: var(--foreground);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Bottom Grid */
+.bottomGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+/* Bar Chart */
+.barChartArea {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    height: 180px;
+    padding-top: 20px;
+}
+
+.barGroup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.barTrack {
+    width: 36px;
+    height: 120px;
+    background: var(--muted);
+    border-radius: 6px;
+    display: flex;
+    align-items: flex-end;
     overflow: hidden;
 }
 
-.modalHeader {
-    padding: 32px 40px;
-    border-bottom: 1px solid var(--border);
+.barFill {
+    width: 100%;
+    background: #0f172a; /* Slate Black */
+    border-radius: 6px;
+    transition: height 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.barGroup:nth-child(1) .barFill {
+    background: #10b981; /* Accent for highest efficiency */
+}
+
+.barLabel {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--muted-foreground);
+}
+
+/* Radial Chart */
+.radialArea {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
+    height: 180px;
 }
 
-.modalContent {
-    padding: 32px 40px;
+.radialChart {
+    position: relative;
+    width: 120px;
+    height: 120px;
 }
 
-.reportMeta {
-    display: flex;
-    gap: 24px;
-    margin-bottom: 32px;
-    font-size: 0.85rem;
-    color: var(--muted-foreground);
+.radialSvg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(0deg);
 }
 
-.summaryBox {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-top: 32px;
-    padding: 24px;
-    background: var(--muted);
-    border-radius: 20px;
+.radialSvg circle {
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.summaryBox div span {
-    display: block;
-    font-size: 0.65rem;
-    font-weight: 950;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
+.radialInner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
 }
 
-.summaryBox div strong {
-    font-size: 1.1rem;
+.radialValue {
+    font-size: 1.4rem;
+    font-weight: 900;
     color: var(--foreground);
-    font-weight: 950;
+    letter-spacing: -0.02em;
+}
+
+.radialLabel {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--muted-foreground);
+    text-transform: uppercase;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .kpiGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .bottomGrid {
+        grid-template-columns: 1fr;
+    }
+    .kpiGrid {
+        grid-template-columns: 1fr;
+    }
 }
