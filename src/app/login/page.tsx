@@ -20,6 +20,11 @@ function AuthContent() {
     const [loadingStage, setLoadingStage] = useState("");
     const [error, setError] = useState("");
     const [warning, setWarning] = useState("");
+    const [isMounted, setIsMounted] = useState(false);
+    
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
     
     const [formData, setFormData] = useState({
         name: "",
@@ -208,83 +213,95 @@ function AuthContent() {
                         </div>
                     )}
 
-                    <form className={styles.form} onSubmit={handleAuth}>
-                        {mode === "register" && (
-                            <div className={styles.formGroup}>
-                                <label className={styles.modernLabel}>Full Name</label>
-                                <input
-                                    type="text"
-                                    className={styles.modernInput}
-                                    placeholder="Institutional Operator"
-                                    required
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                />
-                            </div>
-                        )}
-                        
-                        {mode !== "mfa" ? (
-                            <>
+                    {!isMounted ? (
+                        <div style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <div className={styles.pulseDot} />
+                        </div>
+                    ) : (
+                        <form className={styles.form} onSubmit={handleAuth}>
+                            {mode === "register" && (
                                 <div className={styles.formGroup}>
-                                    <label className={styles.modernLabel}>Fleet Email</label>
+                                    <label className={styles.modernLabel}>Full Name</label>
                                     <input
-                                        type="email"
+                                        type="text"
                                         className={styles.modernInput}
-                                        placeholder="name@firm.ai"
+                                        placeholder="Institutional Operator"
                                         required
-                                        value={formData.email}
-                                        onChange={handleEmailChange}
+                                        suppressHydrationWarning
+                                        value={formData.name}
+                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     />
                                 </div>
-                                <div className={styles.formGroup}>
-                                    <label className={styles.modernLabel}>Safe-Password</label>
-                                    <input
-                                        type="password"
-                                        className={styles.modernInput}
-                                        placeholder="••••••••"
-                                        required
-                                        value={formData.password}
-                                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                    />
-                                </div>
-                                {mode === "register" && (
+                            )}
+                            
+                            {mode !== "mfa" ? (
+                                <>
                                     <div className={styles.formGroup}>
-                                        <label className={styles.modernLabel}>Verify Password</label>
+                                        <label className={styles.modernLabel}>Fleet Email</label>
+                                        <input
+                                            type="email"
+                                            className={styles.modernInput}
+                                            placeholder="name@firm.ai"
+                                            required
+                                            suppressHydrationWarning
+                                            value={formData.email}
+                                            onChange={handleEmailChange}
+                                        />
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.modernLabel}>Safe-Password</label>
                                         <input
                                             type="password"
                                             className={styles.modernInput}
                                             placeholder="••••••••"
                                             required
-                                            value={formData.confirmPassword}
-                                            onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                                            suppressHydrationWarning
+                                            value={formData.password}
+                                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                         />
                                     </div>
-                                )}
-                            </>
-                        ) : (
-                            <div className={styles.formGroup}>
-                                <label className={styles.modernLabel}>6-Digit Code</label>
-                                <input
-                                    type="text"
-                                    className={styles.modernInput}
-                                    placeholder="000000"
-                                    required
-                                    value={mfaCode}
-                                    onChange={(e) => setMfaCode(e.target.value)}
-                                    maxLength={6}
-                                    style={{ letterSpacing: "0.2em", fontSize: "1.2rem", textAlign: "center" }}
-                                />
-                            </div>
-                        )}
+                                    {mode === "register" && (
+                                        <div className={styles.formGroup}>
+                                            <label className={styles.modernLabel}>Verify Password</label>
+                                            <input
+                                                type="password"
+                                                className={styles.modernInput}
+                                                placeholder="••••••••"
+                                                required
+                                                suppressHydrationWarning
+                                                value={formData.confirmPassword}
+                                                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                                            />
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <div className={styles.formGroup}>
+                                    <label className={styles.modernLabel}>6-Digit Code</label>
+                                    <input
+                                        type="text"
+                                        className={styles.modernInput}
+                                        placeholder="000000"
+                                        required
+                                        suppressHydrationWarning
+                                        value={mfaCode}
+                                        onChange={(e) => setMfaCode(e.target.value)}
+                                        maxLength={6}
+                                        style={{ letterSpacing: "0.2em", fontSize: "1.2rem", textAlign: "center" }}
+                                    />
+                                </div>
+                            )}
 
-                        <button
-                            type="submit"
-                            className={styles.submitBtn}
-                            disabled={isLoading}
-                        >
-                            {isLoading ? loadingStage : mode === "mfa" ? "Verify Identity" : mode === "login" ? "Initialize Session" : "Establish Integration"}
-                        </button>
-                    </form>
+                            <button
+                                type="submit"
+                                className={styles.submitBtn}
+                                disabled={isLoading}
+                                suppressHydrationWarning
+                            >
+                                {isLoading ? loadingStage : mode === "mfa" ? "Verify Identity" : mode === "login" ? "Initialize Session" : "Establish Integration"}
+                            </button>
+                        </form>
+                    )}
 
                     {mode !== "mfa" && (
                         <>
