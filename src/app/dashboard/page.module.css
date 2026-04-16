@@ -169,12 +169,14 @@
 }
 
 .neutralBadge {
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 0.75rem;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.7rem;
     font-weight: 950;
-    background: var(--muted);
-    color: var(--muted-foreground);
+    background: rgba(52, 209, 134, 0.1);
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 /* PROJECTION SECTION */
@@ -354,7 +356,7 @@
 }
 
 .loopIdBtn {
-    background: var(--muted);
+    background: rgba(0, 0, 0, 0.02);
     border: 1px solid var(--border);
     border-radius: 100px;
     padding: 6px 14px;

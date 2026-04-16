@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Search, Download, Filter, ChevronDown } from "lucide-react";
+import { Search, Download, Filter, ChevronDown, Sparkles } from "lucide-react";
 // We don't have local css, the previous page.tsx used styles from "../dashboard.module.css".
 // Wait, I will just use inline styles if that is what it was doing, or adjust.
 // The original `page.tsx` was just using `import styles from "../dashboard.module.css";`.
@@ -18,6 +18,11 @@ export default function AuditClient({ initialLogs, total, failures }: { initialL
         (filter === "All Processes" || l.process === filter) &&
         (search === "" || String(l.action).toLowerCase().includes(search.toLowerCase()) || String(l.user).toLowerCase().includes(search.toLowerCase()) || String(l.id).toLowerCase().includes(search.toLowerCase()))
     );
+
+    const analyzeLog = (log: any) => {
+        const prompt = `Analyze this audit entry: Event ID ${log.id}, Process ${log.process}, Result ${log.outcome}. Action taken: "${log.action}". What are the implications or recommended next steps?`;
+        window.dispatchEvent(new CustomEvent('OPEN_AI_CHAT', { detail: { prompt } }));
+    };
 
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
@@ -92,8 +97,8 @@ export default function AuditClient({ initialLogs, total, failures }: { initialL
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                     <thead>
                         <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                            {["Event ID", "Timestamp", "Process", "Context", "Action", "Outcome"].map(h => (
-                                <th key={h} style={{ padding: "12px 20px", textAlign: "left", fontSize: "0.65rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.14em", color: "var(--muted-foreground)" }}>{h}</th>
+                            {["Event ID", "Timestamp", "Process", "Context", "Action", "Outcome", "Intelligence"].map(h => (
+                                <th key={h} style={{ padding: "12px 20px", textAlign: h === "Intelligence" ? "center" : "left", fontSize: "0.65rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.14em", color: "var(--muted-foreground)" }}>{h}</th>
                             ))}
                         </tr>
                     </thead>
@@ -115,6 +120,17 @@ export default function AuditClient({ initialLogs, total, failures }: { initialL
                                     }}>
                                         {log.outcome}
                                     </span>
+                                </td>
+                                <td style={{ padding: "14px 20px", textAlign: "center" }}>
+                                    <button 
+                                        onClick={() => analyzeLog(log)}
+                                        style={{ background: "none", border: "none", color: "var(--accent)", cursor: "pointer", transition: "transform 0.2s" }}
+                                        title="Analyze with AI"
+                                        onMouseEnter={e => e.currentTarget.style.transform = "scale(1.2)"}
+                                        onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
+                                    >
+                                        <Sparkles size={18} />
+                                    </button>
                                 </td>
                             </tr>
                         ))}

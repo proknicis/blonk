@@ -6,6 +6,7 @@ import styles from "./dashboard.module.css";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import AiChat from "../components/AiChat";
+import CommandPalette from "../components/CommandPalette";
 import { Search, Bell, Menu, User, Settings, LogOut, FileText, LayoutGrid, Zap, Users, Monitor, ExternalLink } from "lucide-react";
 
 type NotificationItem = {
@@ -291,6 +292,7 @@ export default function DashboardLayout({
                 </div>
             </main>
             <AiChat />
+            <CommandPalette />
         </div>
     );
 }

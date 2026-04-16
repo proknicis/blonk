@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "./office.module.css";
 import ModalPortal from "@/app/components/ModalPortal";
-import { X, Activity, BarChart3, Clock, AlertCircle, CheckCircle2, ChevronRight, Zap } from "lucide-react";
+import { X, Activity, BarChart3, Clock, AlertCircle, CheckCircle2, ChevronRight, Zap, Sparkles } from "lucide-react";
 
 interface Workflow {
     id: string;
@@ -55,6 +55,12 @@ export default function OfficeClient({ initialWorkflows, initialFeed, userRole }
         } finally {
             setIsLoadingLogs(false);
         }
+    const analyzeMission = (entity: any, type: 'workflow' | 'log') => {
+        const prompt = type === 'workflow' 
+            ? `Mission Control Update: Analyze status for "${entity.name}" (${entity.role}). Current status: ${entity.status}. Last sync: ${entity.lastRun || 'Never'}. What should I monitor?`
+            : `System Log Analysis: "${entity.msg}". Detail: "${entity.detail}". Status: ${entity.type}. Suggest immediate tactical response.`;
+        
+        window.dispatchEvent(new CustomEvent('OPEN_AI_CHAT', { detail: { prompt } }));
     };
 
     return (
@@ -119,9 +125,17 @@ export default function OfficeClient({ initialWorkflows, initialFeed, userRole }
                                         </div>
                                     </div>
                                     
-                                    <div style={{ marginTop: '32px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--muted-foreground)', opacity: 0.5 }}>
-                                        <span style={{ fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>View Performance Metrics</span>
-                                        <ChevronRight size={14} />
+                                    <div style={{ marginTop: '32px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--muted-foreground)' }}>
+                                        <button 
+                                            onClick={(e) => { e.stopPropagation(); analyzeMission(agent, 'workflow'); }}
+                                            style={{ background: 'var(--accent-muted)', border: 'none', color: 'var(--accent)', padding: '6px 12px', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+                                        >
+                                            <Sparkles size={12} /> AI Status
+                                        </button>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.5 }}>
+                                            <span style={{ fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>View Performance</span>
+                                            <ChevronRight size={14} />
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -141,7 +155,15 @@ export default function OfficeClient({ initialWorkflows, initialFeed, userRole }
                                 </div>
                                 <div>
                                     <p style={{ margin: '0 0 4px 0', fontSize: '1rem', color: 'var(--foreground)', fontWeight: 800, letterSpacing: '-0.01em' }}>{log.msg}</p>
-                                    <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.6 }}>{log.time}</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.6 }}>{log.time}</span>
+                                        <button 
+                                            onClick={(e) => { e.stopPropagation(); analyzeMission(log, 'log'); }}
+                                            style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.65rem', fontWeight: 950, textTransform: 'uppercase' }}
+                                        >
+                                            <Sparkles size={10} /> AI Analyze
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         ))}

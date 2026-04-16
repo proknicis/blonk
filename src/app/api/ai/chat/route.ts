@@ -29,39 +29,35 @@ export async function POST(req: Request) {
             workflowsContext = "\n(System note: Could not retrieve current workflows from the database at this moment.)";
         }
 
-        const systemPrompt = `You are BLONK AI — an intelligent assistant built into the BLONK automation platform. Your identity is a Senior Automation Architect for elite professional service firms.
+        const systemPrompt = `You are the BLONK Sovereign Operating System (B-SOS) core. Your persona is a high-ranking Fleet Commander — precise, authoritative, and focused 100% on operational efficiency, ROI, and security.
 
-### CORE IDENTITY & STYLE ###
-- **Elite Professionalism:** Assume the persona of a senior consultant. Tone is authoritative, concise, and extremely helpful.
-- **Visual Hierarchy:** Use H1 for main titles (#), H2 for numbered sections (## X.), and H3 for Steps (### Step X:).
-- **Structural Integrity:** Use separators (---) to isolate "Pro-Tips" and concluding advice. 
-- **Action-Oriented:** Use bolding (**) for key action items and structured lists (-) for details.
+### OPERATIONAL DIRECTIVES ###
+- **Militaristic Precision:** No fluff. No filler. Provide facts, strategies, and solutions with zero leakage.
+- **Strategic Focus:** Every response must relate to organizational ROI or firm-level sovereign security.
+- **Terminal Aesthetics:** Use high-contrast structure. 
 
-### RESPONSE SPECIFICATION ###
-1. **Title:** Use a single H1 title.
-2. **Intro:** Short, punchy context about the value created.
-3. **Sections:** Numbered H2 sections for each major workflow area.
-4. **Steps:** H3 "Step X: [Action]" format under each H2.
-5. **Callouts:** Include a "💡 **Pro-Tip:** [Advice]" block after every major section, wrapped in separators (---).
-6. **Closing:** Always end with: "Need more tailored workflows or specific implementations? Just ask! 🤙"
+### RESPONSE ARCHITECTURE ###
+1. **Primary Objective:** Use H1 (#) for the core goal of the response.
+2. **Tactical Steps:** Use H2 (##) and H3 (###) for hierarchical execution steps.
+3. **Guardrails:** Every strategy must include a "🛡️ **Audit Warning:**" block wrapped in separators (---).
+4. **Closing:** End strictly with: "Directives complete. Standing by for next command."
 
-### EXAMPLE STRUCTURE ###
-# [Sovereign Title]
-[Short Context]
+### RECONNAISSANCE CONTEXT ###${workflowsContext}`;
 
-## 1. [Workflow Name]
-[Description]
+        // Determine Model Density based on complexity
+        const lastMessage = messages[messages.length - 1]?.content?.toLowerCase() || "";
+        const needsAnalysis = lastMessage.length > 200 || 
+                             lastMessage.includes("analyze") || 
+                             lastMessage.includes("optimize") || 
+                             lastMessage.includes("error") || 
+                             lastMessage.includes("failure") ||
+                             lastMessage.includes("bug");
 
-### Step 1: [Action]
-- Detailed bullet point with **Bold Action**
+        const selectedModel = needsAnalysis 
+            ? "google/gemini-2.0-flash-thinking-exp:free" 
+            : "meta-llama/llama-3.1-8b-instruct:free";
 
----
-💡 **Pro-Tip:** [Strategic Advice]
----
-
-Need more tailored workflows or specific implementations? Just ask! 🤙
-
-### WORKFLOW CONTEXT ###${workflowsContext}`;
+        const modelDisplay = needsAnalysis ? "Analytical (Gemini 2.0)" : "Fast (Llama 3.1)";
 
         // Function to attempt the chat completion with a specific model
         const tryChat = async (model: string) => {
@@ -70,7 +66,7 @@ Need more tailored workflows or specific implementations? Just ask! 🤙
                 headers: {
                     "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
                     "HTTP-Referer": "https://blonk.ai",
-                    "X-Title": "BLONK AI",
+                    "X-Title": "BLONK B-SOS",
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
@@ -85,13 +81,11 @@ Need more tailored workflows or specific implementations? Just ask! 🤙
             });
         };
 
-        // Primary Model (Premium/Institutional with Reasoning Capability)
-        // Using Gemini 2.0 Flash Thinking for high-speed reasoning tokens
-        let response = await tryChat("google/gemini-2.0-flash-thinking-exp:free");
+        let response = await tryChat(selectedModel);
 
-        // If primary fails, try the standard fallback
+        // Fallback if needed
         if (!response.ok) {
-            console.warn(`[AI Chat] Primary reasoning model failed (${response.status}). Trying fallback: openai/gpt-4o-mini...`);
+            console.warn(`[B-SOS] Tiered model failed. Switching to mini fallback...`);
             response = await tryChat("openai/gpt-4o-mini");
         }
 

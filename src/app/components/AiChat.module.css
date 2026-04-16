@@ -132,6 +132,35 @@
     border-radius: 1px; /* Square branding */
 }
 
+/* System Snapshot */
+.snapshot {
+    display: flex;
+    background: var(--primary);
+    padding: 14px 28px;
+    gap: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.snapshotItem {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.snapshotItem label {
+    font-size: 0.6rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.snapshotValue {
+    font-size: 0.8rem;
+    font-weight: 950;
+    color: var(--accent);
+}
+
 .closeBtn {
     background: rgba(255, 255, 255, 0.05);
     border: none;
@@ -213,32 +242,50 @@
     border-top-right-radius: 4px;
 }
 
-/* Suggested questions */
+/* Suggested Action Chips */
 .suggestions {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    margin-top: 12px;
+    gap: 16px;
+    padding: 24px 0;
+    border-top: 1px solid var(--border);
 }
 
-.suggestion {
+.suggestionLabel {
+    font-size: 0.65rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--muted-foreground);
+}
+
+.chipGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.suggestionChip {
     text-align: left;
     background: #FFFFFF;
-    border: 1px solid #EAEAEA;
-    border-radius: 14px;
-    padding: 14px 20px;
-    font-size: 0.9rem;
-    color: #475569;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 0.8rem;
+    color: var(--foreground);
     cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.suggestion:hover {
-    border-color: #34D186;
-    color: #111;
-    background: #FAFAFA;
-    transform: translateX(6px);
+.suggestionChip:hover {
+    border-color: var(--accent);
+    background: var(--accent-muted);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
 }
 
 /* Input Bar */

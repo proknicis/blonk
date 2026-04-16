@@ -108,9 +108,9 @@
 }
 
 .navLinkActive {
-    background: var(--sidebar-accent) !important;
-    color: var(--foreground) !important;
-    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.1);
+    background: rgba(52, 209, 134, 0.08) !important;
+    color: var(--accent) !important;
+    box-shadow: none;
 }
 
 .navLinkActive::after {
@@ -280,7 +280,7 @@
 .searchInput {
     width: 420px;
     height: 52px;
-    background: var(--muted);
+    background: #FFFFFF;
     border: 1px solid var(--border);
     border-radius: 18px;
     padding: 0 24px 0 56px;
@@ -330,7 +330,7 @@
     width: 44px;
     height: 44px;
     border-radius: 12px;
-    background: var(--muted);
+    background: #FFFFFF;
     border: 1px solid var(--border);
     display: flex;
     align-items: center;

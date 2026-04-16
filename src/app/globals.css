@@ -5,30 +5,29 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Surface Colors */
-  --background: #FAFAFA;
-  --foreground: #111111;
+  /* Surface Colors - Ultra Clean */
+  --background: #FFFFFF;
+  --foreground: #020617;
   
   --card: #FFFFFF;
-  --card-foreground: #111111;
+  --card-foreground: #020617;
   
   --popover: #FFFFFF;
-  --popover-foreground: #111111;
+  --popover-foreground: #020617;
 
-  /* Primary Brand - "Institutional Emerald" */
-  /* #34D186 is the base emerald. We need variants for contrast. */
-  --primary: #111111; /* Dark primary for big buttons/text */
+  /* Primary Brand - Institutional Emerald */
+  --primary: #020617; 
   --primary-foreground: #FFFFFF;
   
-  --accent: #34D186; /* The signature green */
-  --accent-foreground: #111111;
-  --accent-muted: #F0F9F4;
+  --accent: #34D186; 
+  --accent-foreground: #020617;
+  --accent-muted: rgba(52, 209, 134, 0.08);
 
-  /* Secondary / Muted */
-  --secondary: #F1F5F9;
-  --secondary-foreground: #111111;
+  /* Secondary / Muted - Removing the "Dull Gray" */
+  --secondary: #F8FAFC;
+  --secondary-foreground: #020617;
   
-  --muted: #F1F5F9;
+  --muted: #F8FAFC;
   --muted-foreground: #64748B;
 
   /* State Colors */
@@ -42,26 +41,27 @@
   --warning-foreground: #FFFFFF;
 
   /* Borders & Inputs */
-  --border: #E2E8F0;
-  --input: #E2E8F0;
+  --border: #F1F5F9;
+  --input: #F1F5F9;
   --ring: #34D186;
 
   /* Shadows & Glass */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-premium: 0 40px 80px -20px rgba(0, 0, 0, 0.15);
+  --glass: rgba(255, 255, 255, 0.7);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.02);
+  --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.04), 0 4px 6px -4px rgba(0,0,0,0.02);
+  --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.02);
+  --shadow-premium: 0 50px 100px -20px rgba(0, 0, 0, 0.12), 0 30px 60px -30px rgba(52, 209, 134, 0.15);
 
-  --radius: 0.75rem;
+  --radius: 1rem;
   
-  /* Sidebar Specific (Custom shadcn/ui properties) */
+  /* Sidebar Specific */
   --sidebar: #FFFFFF;
-  --sidebar-foreground: #111111;
-  --sidebar-primary: #111111;
+  --sidebar-foreground: #020617;
+  --sidebar-primary: #020617;
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #F8FAFC;
-  --sidebar-accent-foreground: #111111;
-  --sidebar-border: #E2E8F0;
+  --sidebar-accent-foreground: #020617;
+  --sidebar-border: #F1F5F9;
   --sidebar-ring: #34D186;
 }
 
@@ -92,8 +92,13 @@
   --ring: #34D186;
   
   --sidebar: #16181A;
+  --border: #262626;
+  --input: #262626;
+  --ring: #34D186;
+  
+  --sidebar: #121212;
   --sidebar-foreground: #F8FAFC;
-  --sidebar-border: #2D3748;
+  --sidebar-border: #262626;
 }
 
 @theme inline {

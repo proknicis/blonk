@@ -10,11 +10,11 @@ type Message = {
     reasoning?: string;
 };
 
-const SUGGESTED = [
-    "What can BLONK automate for me?",
-    "How do I get a Google API key?",
-    "Which workflows suit an accounting firm?",
-    "How do I connect WhatsApp to BLONK?",
+const SUGGESTED_CHIPS = [
+    { label: "Analyze Recent Ops", prompt: "Summarize today's logs and flag any anomalies." },
+    { label: "Check System Health", prompt: "Perform a system snapshot and tell me our fleet integrity status." },
+    { label: "Optimize ROI", prompt: "How can I optimize the ROI of my current active loops?" },
+    { label: "Support Protocol", prompt: "Technical support: I need help with a workflow configuration." }
 ];
 
 export default function AiChat() {
@@ -28,12 +28,26 @@ export default function AiChat() {
     ]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [modelTier, setModelTier] = useState<string>("Ready");
+    const [healthSummary, setHealthSummary] = useState({ ops: 1240, success: 99.8 });
     const bottomRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, isLoading]);
+
+    useEffect(() => {
+        const handleOpenAi = (e: any) => {
+            const prompt = e.detail?.prompt;
+            setIsOpen(true);
+            if (prompt) {
+                setTimeout(() => sendMessage(prompt), 300);
+            }
+        };
+        window.addEventListener('OPEN_AI_CHAT', handleOpenAi);
+        return () => window.removeEventListener('OPEN_AI_CHAT', handleOpenAi);
+    }, [messages]);
 
     useEffect(() => {
         if (isOpen) {
@@ -49,6 +63,7 @@ export default function AiChat() {
         setMessages(updatedMessages);
         setInput("");
         setIsLoading(true);
+        setModelTier(text.length > 100 ? "Analytical (Gemini)" : "Fast (Llama)");
 
         const assistantId = (Date.now() + 1).toString();
         let assistantMessageAdded = false;
@@ -181,6 +196,18 @@ export default function AiChat() {
                         </button>
                     </div>
 
+                    {/* System Snapshot */}
+                    <div className={styles.snapshot}>
+                        <div className={styles.snapshotItem}>
+                            <label>Fleet Health</label>
+                            <div className={styles.snapshotValue}>{healthSummary.success}% Success</div>
+                        </div>
+                        <div className={styles.snapshotItem}>
+                            <label>Intelligence</label>
+                            <div className={styles.snapshotValue}>{modelTier}</div>
+                        </div>
+                    </div>
+
                     {/* Messages */}
                     <div className={styles.messages}>
                         {messages.map((msg) => (
@@ -217,16 +244,17 @@ export default function AiChat() {
                             </div>
                         )}
 
-                        {/* Suggested questions if only greeting shown */}
-                        {messages.length === 1 && (
-                            <div className={styles.suggestions}>
-                                {SUGGESTED.map((q, i) => (
-                                    <button key={i} className={styles.suggestion} onClick={() => sendMessage(q)}>
-                                        {q}
+                        {/* Actionable Suggestions */}
+                        <div className={styles.suggestions}>
+                            <div className={styles.suggestionLabel}>Operational Commands:</div>
+                            <div className={styles.chipGrid}>
+                                {SUGGESTED_CHIPS.map((chip, i) => (
+                                    <button key={i} className={styles.suggestionChip} onClick={() => sendMessage(chip.prompt)}>
+                                        {chip.label}
                                     </button>
                                 ))}
                             </div>
-                        )}
+                        </div>
 
                         <div ref={bottomRef} />
                     </div>

@@ -1,0 +1,133 @@
+.overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 15vh;
+    animation: fadeIn 0.2s ease;
+}
+
+.container {
+    width: 640px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--shadow-premium);
+    overflow: hidden;
+    animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-20px) scale(0.98); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.searchBar {
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.terminalIcon {
+    color: var(--accent);
+}
+
+.input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--foreground);
+}
+
+.shortcut {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--muted);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 950;
+    color: var(--muted-foreground);
+    border: 1px solid var(--border);
+}
+
+.content {
+    min-height: 120px;
+    padding: 24px;
+}
+
+.hints {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.hint {
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: var(--muted);
+    color: var(--muted-foreground);
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 20px 0;
+    color: var(--accent);
+    font-weight: 950;
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.pulse {
+    animation: commandPulse 1s infinite alternate;
+}
+
+@keyframes commandPulse {
+    from { opacity: 0.4; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1.1); }
+}
+
+.result {
+    animation: fadeIn 0.3s ease;
+}
+
+.resultHeader {
+    font-size: 0.65rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 8px;
+}
+
+.resultBody {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--foreground);
+    line-height: 1.6;
+}
