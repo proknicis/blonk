@@ -281,12 +281,16 @@ async function setupDatabase() {
         await client.query('UPDATE "Team" SET "ownerId" = $1 WHERE id = $2', [userId, teamId]);
 
         // Core System Status Seed (Team-Scoped)
+        await client.query(
+            'INSERT INTO "OperationalSetting" ("teamId", key, value) VALUES ($1, $2, $3)', 
+            [teamId, 'system_uptime', '100.00']
+        );
+
         await client.query(`
-            INSERT INTO "OperationalSetting" ("teamId", key, value) VALUES ($1, 'system_uptime', '100.00');
             INSERT INTO "Kpi" ("teamId", label, value, change, positive) VALUES 
             ($1, 'Total Revenue', '$124,500', '+12.4%', true),
             ($1, 'Growth Rate', '22.8%', '+4.2%', true),
-            ($1, 'System Stability', '99.98%', 'Stable', true);
+            ($1, 'System Stability', '99.98%', 'Stable', true)
         `, [teamId]);
 
         console.log('✨ BLONK Universal Fleet Initialized Successfully (Team-Enabled).');

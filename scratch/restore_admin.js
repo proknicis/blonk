@@ -6,7 +6,7 @@ async function provisionAdmin() {
     const pool = new Pool({ connectionString: process.env.DATABASE_URL });
     try {
         console.log('🧬 Initializing Administrative Identity Restoration...');
-        
+
         const adminEmail = 'admin@blonk.ai';
         const rawPassword = 'blonkadmin2026';
         const hashedPw = await bcrypt.hash(rawPassword, 10);
@@ -16,7 +16,7 @@ async function provisionAdmin() {
             'INSERT INTO "Team" (name, "firmName") VALUES ($1, $2) ON CONFLICT DO NOTHING RETURNING id',
             ['BLONK Command', 'BLONK HQ']
         );
-        
+
         let teamId;
         if (teamRes.rows.length > 0) {
             teamId = teamRes.rows[0].id;
@@ -36,7 +36,7 @@ async function provisionAdmin() {
         console.log('✨ SUCCESS: Administrative credentials restored.');
         console.log(`Email: ${adminEmail}`);
         console.log(`Password: ${rawPassword}`);
-        
+
     } catch (err) {
         console.error('❌ Restoration Failure:', err);
     } finally {
