@@ -87,6 +87,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const getModuleTitle = (path: string) => {
         if (path === "/admin") return "Fleet Provisioning";
         if (path === "/admin/users") return "User Directory";
+        if (path === "/admin/fleet") return "Fleet Health Monitoring";
+        if (path === "/admin/incidents") return "Incident Command Center";
         if (path.startsWith("/admin/marketplace")) return "Marketplace Management";
         return "Operations Control Panel";
     };
@@ -115,6 +117,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                     <Zap size={20} /> Registry
                                 </Link>
                             </li>
+                            <li>
+                                <Link href="/admin/fleet" className={`${adminStyles.navLink} ${pathname === "/admin/fleet" ? adminStyles.navLinkActive : ""}`}>
+                                    <Shield size={20} /> Health Monitoring
+                                </Link>
+                            </li>
                         </ul>
                     </div>
 
@@ -124,6 +131,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             <li>
                                 <Link href="/admin/users" className={`${adminStyles.navLink} ${pathname === "/admin/users" ? adminStyles.navLinkActive : ""}`}>
                                     <Users size={20} /> Operators
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/admin/incidents" className={`${adminStyles.navLink} ${pathname === "/admin/incidents" ? adminStyles.navLinkActive : ""}`}>
+                                    <Shield size={20} /> Incident Command
                                 </Link>
                             </li>
                         </ul>

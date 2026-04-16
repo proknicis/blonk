@@ -41,6 +41,14 @@ export default function AdminControlPage() {
     const [savingId, setSavingId] = useState<string | null>(null);
     const [configWorkflow, setConfigWorkflow] = useState<any>(null);
     const [configStep, setConfigStep] = useState(1);
+    const [isProvisioning, setIsProvisioning] = useState(false);
+    const [provisionStep, setProvisionStep] = useState(1);
+    const [provisionData, setProvisionData] = useState({
+        clientName: "",
+        email: "",
+        plan: "Institutional",
+        nodes: "High (8 vCPU / 32GB)",
+    });
     const [webhookUrl, setWebhookUrl] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
     const [activeFilter, setActiveFilter] = useState("All");
@@ -251,8 +259,13 @@ export default function AdminControlPage() {
                         <span className={adminStyles.hubValue}>{isLoadingWorkflows ? <Skeleton width="30px" height="24px" /> : workflows.length}</span>
                     </div>
                     <div className={adminStyles.hubItem}>
-                        <span className={adminStyles.hubLabel}>Avg Latency</span>
-                        <span className={adminStyles.hubValue}>14ms</span>
+                        <button 
+                            className={adminStyles.refreshBtn} 
+                            style={{ background: 'var(--foreground)', color: 'var(--background)', border: 'none', padding: '0 24px', width: 'auto' }}
+                            onClick={() => setIsProvisioning(true)}
+                        >
+                            <Plus size={16} style={{ marginRight: '8px' }} /> Provision New Client
+                        </button>
                     </div>
                 </div>
             </div>
@@ -683,6 +696,141 @@ export default function AdminControlPage() {
                     </div>
                 </div>
             )}
+            {/* PROVISIONING MODAL */}
+            {isProvisioning && (
+                <div className={adminStyles.modalOverlay}>
+                    <div className={adminStyles.modal}>
+                        <div className={adminStyles.modalHeader}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                                        <div style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '50%', boxShadow: '0 0 10px var(--accent)' }} />
+                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--muted-foreground)' }}>FLEET PROVISIONING</span>
+                                    </div>
+                                    <h3 className={adminStyles.modalTitle}>Establish New Node</h3>
+                                    <p className={adminStyles.modalSubtitle}>Initialize institutional infrastructure for a new client.</p>
+                                </div>
+                                <button className={adminStyles.modalClose} onClick={() => { setIsProvisioning(false); setProvisionStep(1); }}>
+                                    <X size={20} />
+                                </button>
+                            </div>
+                            <div className={adminStyles.wizardContainer}>
+                                {[1, 2, 3].map(s => (
+                                    <div key={s} className={`${adminStyles.wizardStep} ${provisionStep >= s ? adminStyles.wizardStepActive : ""}`} />
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className={adminStyles.modalBody}>
+                            {provisionStep === 1 && (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                                    <div className={adminStyles.inputWrapper}>
+                                        <label className={adminStyles.parameterLabel}>Firm Name</label>
+                                        <input 
+                                            type="text" 
+                                            className={adminStyles.mainInput} 
+                                            placeholder="e.g. Goldman Sachs Institutional" 
+                                            value={provisionData.clientName}
+                                            onChange={(e) => setProvisionData({...provisionData, clientName: e.target.value})}
+                                        />
+                                    </div>
+                                    <div className={adminStyles.inputWrapper}>
+                                        <label className={adminStyles.parameterLabel}>Sovereign Email</label>
+                                        <input 
+                                            type="email" 
+                                            className={adminStyles.mainInput} 
+                                            placeholder="admin@firm.com" 
+                                            value={provisionData.email}
+                                            onChange={(e) => setProvisionData({...provisionData, email: e.target.value})}
+                                        />
+                                    </div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+                                        {['Starter', 'Pro', 'Institutional'].map(p => (
+                                            <button 
+                                                key={p}
+                                                className={adminStyles.filterBtn}
+                                                style={{ 
+                                                    height: '80px', 
+                                                    flexDirection: 'column', 
+                                                    gap: '8px', 
+                                                    border: provisionData.plan === p ? '2px solid var(--accent)' : '1px solid var(--border)',
+                                                    background: provisionData.plan === p ? 'var(--accent-muted)' : 'var(--card)'
+                                                }}
+                                                onClick={() => setProvisionData({...provisionData, plan: p})}
+                                            >
+                                                <ShieldCheck size={18} color={provisionData.plan === p ? 'var(--accent)' : 'var(--muted-foreground)'} />
+                                                <span style={{ fontSize: '0.75rem', fontWeight: 950 }}>{p}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {provisionStep === 2 && (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                                    <h4 style={{ fontSize: '0.85rem', fontWeight: 950, textTransform: 'uppercase', color: 'var(--muted-foreground)' }}>Node Resource Assignment</h4>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                        {[
+                                            { name: 'Standard', specs: '2 vCPU / 8GB RAM', cost: 'Included' },
+                                            { name: 'Enterprise', specs: '4 vCPU / 16GB RAM', cost: '+€49/mo' },
+                                            { name: 'Sovereign', specs: '8 vCPU / 32GB RAM', cost: '+€99/mo' }
+                                        ].map(n => (
+                                            <button 
+                                                key={n.name}
+                                                className={adminStyles.filterBtn}
+                                                style={{ 
+                                                    padding: '20px', 
+                                                    justifyContent: 'space-between', 
+                                                    width: '100%',
+                                                    border: provisionData.nodes.includes(n.name) || (n.name === 'Sovereign' && provisionData.nodes.includes('High')) ? '2px solid var(--accent)' : '1px solid var(--border)',
+                                                    background: provisionData.nodes.includes(n.name) || (n.name === 'Sovereign' && provisionData.nodes.includes('High')) ? 'var(--accent-muted)' : 'var(--card)'
+                                                }}
+                                                onClick={() => setProvisionData({...provisionData, nodes: n.specs})}
+                                            >
+                                                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                                                    <Cpu size={24} />
+                                                    <div style={{ textAlign: 'left' }}>
+                                                        <div style={{ fontWeight: 950 }}>{n.name} Node</div>
+                                                        <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>{n.specs}</div>
+                                                    </div>
+                                                </div>
+                                                <span style={{ fontWeight: 950, color: 'var(--accent)' }}>{n.cost}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {provisionStep === 3 && (
+                                <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                                    <div style={{ width: '100px', height: '100px', background: 'var(--accent-muted)', color: 'var(--accent)', borderRadius: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 40px' }}>
+                                        <Zap size={48} />
+                                    </div>
+                                    <h4 style={{ margin: 0, fontSize: '2rem', color: 'var(--foreground)', fontWeight: 950, letterSpacing: '-0.04em' }}>Ready for Deployment</h4>
+                                    <p style={{ fontSize: '1.1rem', color: 'var(--muted-foreground)', maxWidth: '420px', margin: '24px auto 0', lineHeight: '1.6', fontWeight: 750 }}>
+                                        One button to establish the integration and provision all sovereign infrastructure for <strong>{provisionData.clientName}</strong>.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className={adminStyles.modalFooter}>
+                            <button className={styles.btnOutline} style={{ padding: '0 32px', height: '52px', borderRadius: '16px' }} onClick={() => provisionStep > 1 ? setProvisionStep(prev => prev - 1) : setIsProvisioning(false)}>
+                                {provisionStep === 1 ? 'Discard' : 'Back'}
+                            </button>
+                            <button 
+                                className={styles.btnInstitutional} 
+                                style={{ background: provisionStep === 3 ? 'var(--accent)' : 'var(--foreground)', color: 'var(--background)', minWidth: '220px', height: '52px', borderRadius: '16px' }}
+                                onClick={() => provisionStep < 3 ? setProvisionStep(prev => prev + 1) : alert("Deployment Initialized... Initializing Node Cluster.")}
+                                disabled={provisionStep === 1 && (!provisionData.clientName || !provisionData.email)}
+                            >
+                                {provisionStep === 3 ? 'ESTABLISH INTEGRATION' : 'NEXT STEP'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
+

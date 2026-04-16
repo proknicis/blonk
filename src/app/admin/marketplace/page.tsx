@@ -254,6 +254,7 @@ export default function MarketplaceManagementPage() {
                             <tr>
                                 <th className={adminStyles.registryTH}>Protocol Product</th>
                                 <th className={adminStyles.registryTH}>Monetization</th>
+                                <th className={adminStyles.registryTH}>Version/Featured</th>
                                 <th className={adminStyles.registryTH}>Conversion</th>
                                 <th className={adminStyles.registryTH}>Operational State</th>
                                 <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Controls</th>
@@ -305,6 +306,25 @@ export default function MarketplaceManagementPage() {
                                                 )}
                                             </div>
                                             <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800, marginTop: '2px' }}>Revenue: €{(parseFloat(t.revenue) || 0).toLocaleString()}</div>
+                                        </td>
+                                        <td>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <code className={adminStyles.identityHash} style={{ background: 'var(--muted)', padding: '2px 8px', borderRadius: '4px' }}>v{t.version || '1.0.0'}</code>
+                                                    <button 
+                                                        onClick={() => { t.featured = !t.featured; toggleStatus(t, t.status); }} 
+                                                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                                                    >
+                                                        <Star size={14} color={t.featured ? 'var(--accent)' : 'var(--muted-foreground)'} fill={t.featured ? 'var(--accent)' : 'none'} />
+                                                    </button>
+                                                </div>
+                                                <button 
+                                                    onClick={() => alert(`Pushing v${t.version} to all matching firm nodes...`)}
+                                                    style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--accent)', background: 'var(--accent-muted)', border: 'none', padding: '4px 8px', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                                >
+                                                    <ArrowUpRight size={10} /> Push Update
+                                                </button>
+                                            </div>
                                         </td>
                                         <td>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

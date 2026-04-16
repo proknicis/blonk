@@ -166,6 +166,7 @@ async function setupDatabase() {
                 requirements JSONB DEFAULT '[]',
                 "setupGuide" TEXT,
                 status VARCHAR(50) DEFAULT 'Published',
+                version VARCHAR(50) DEFAULT '1.0.0',
                 "webhookUrl" TEXT,
                 "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -182,6 +183,8 @@ async function setupDatabase() {
                 inputs JSONB DEFAULT '{}',
                 "requestedBy" VARCHAR(255),
                 "userId" UUID,
+                progress INT DEFAULT 0,
+                "errorMessage" TEXT,
                 "lastRun" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
