@@ -16,7 +16,7 @@ export default function HeroVideo({ speed = 1 }: { speed?: number }) {
         <video
             ref={videoRef}
             className={styles.heroBgVideo}
-            src="/hero-video.mp4"
+            src="/hero-videoa.mp4"
             autoPlay
             loop
             muted
