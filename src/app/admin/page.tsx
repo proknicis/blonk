@@ -5,6 +5,8 @@ import adminStyles from "./admin.module.css";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { 
+    Plus,
+    Cpu,
     Zap, 
     Database, 
     ArrowUpRight, 
