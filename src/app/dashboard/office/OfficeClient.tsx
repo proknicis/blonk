@@ -55,6 +55,7 @@ export default function OfficeClient({ initialWorkflows, initialFeed, userRole }
         } finally {
             setIsLoadingLogs(false);
         }
+    };
     const analyzeMission = (entity: any, type: 'workflow' | 'log') => {
         const prompt = type === 'workflow' 
             ? `Mission Control Update: Analyze status for "${entity.name}" (${entity.role}). Current status: ${entity.status}. Last sync: ${entity.lastRun || 'Never'}. What should I monitor?`
