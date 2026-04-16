@@ -21,7 +21,7 @@ async function setupDatabase() {
             '"WorkflowLog"', '"OperationalSetting"', '"Notification"', 
             '"Transaction"', '"ChartData"', '"Kpi"', '"Workflow"', 
             '"WorkflowTemplate"', '"Agent"', '"Report"', '"User"', '"Invoice"',
-            '"Event"', '"Payment"', '"MarketingSpend"'
+            '"Event"', '"Payment"', '"MarketingSpend"', '"Team"'
         ];
         
         for (const table of dropTables) {
@@ -42,6 +42,7 @@ async function setupDatabase() {
             DROP TABLE IF EXISTS "Transaction" CASCADE;
             DROP TABLE IF EXISTS "Invoice" CASCADE;
             DROP TABLE IF EXISTS "User" CASCADE;
+            DROP TABLE IF EXISTS "Team" CASCADE;
             DROP TABLE IF EXISTS "Event" CASCADE;
             DROP TABLE IF EXISTS "Payment" CASCADE;
             DROP TABLE IF EXISTS "MarketingSpend" CASCADE;
