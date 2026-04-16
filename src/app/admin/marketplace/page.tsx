@@ -172,22 +172,44 @@ export default function MarketplaceManagementPage() {
         </tr>
     );
 
+    const Sparkline = ({ data, color }: { data: number[], color: string }) => (
+        <svg width="80" height="24" viewBox="0 0 100 30" style={{ overflow: 'visible' }}>
+            <polyline
+                fill="none"
+                stroke={color}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                points={data.map((val, i) => `${(i / (data.length - 1)) * 100},${30 - (val / 100) * 30}`).join(' ')}
+                style={{ filter: `drop-shadow(0 0 4px ${color}44)` }}
+            />
+        </svg>
+    );
+
     return (
-        <div className={adminStyles.dashboard}>
-            <div className={adminStyles.integrityPanel}>
+        <div style={{ animation: "fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1)", display: 'flex', flexDirection: 'column', gap: '32px' }}>
+            
+            {/* INTEGRITY PANEL */}
+            <div className={adminStyles.integrityPanel} style={{ background: 'var(--foreground)', color: 'var(--background)', border: 'none' }}>
                 <div className={adminStyles.integrityHub}>
-                    <div className={adminStyles.statusIndicatorHealthy}><div className={adminStyles.beaconPulse} /></div>
+                    <div style={{ position: 'relative' }}>
+                        <div style={{ width: '48px', height: '48px', background: 'var(--background)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <ShoppingCart size={24} color="var(--foreground)" className={adminStyles.pulse} />
+                        </div>
+                        <div style={{ position: 'absolute', bottom: '-4px', right: '-4px', width: '16px', height: '16px', background: '#10B981', borderRadius: '50%', border: '3px solid var(--foreground)' }} />
+                    </div>
                     <div>
-                        <h2 className={adminStyles.panelTitle}>Marketplace Registry: Synchronized</h2>
-                        <p className={adminStyles.panelSubtitle}>Template library is globally distributed across firm nodes.</p>
+                        <h2 style={{ color: 'var(--background)', fontSize: '1.4rem', fontWeight: 950, margin: 0 }}>Marketplace Distribution</h2>
+                        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', margin: '4px 0 0' }}>Institutional Registry: {templates.length} provisioned protocols.</p>
                     </div>
                 </div>
                 <div className={adminStyles.hubMetrics}>
-                    <button className={adminStyles.refreshBtn} onClick={fetchTemplates} style={{ width: '48px', height: '48px', marginRight: '12px' }}>
-                        <RefreshCcw size={18} className={isLoading ? styles.spinning : ''} />
-                    </button>
-                    <button className={adminStyles.refreshBtn} style={{ width: 'auto', padding: '0 24px', background: 'var(--foreground)', color: 'var(--background)', border: 'none' }} onClick={() => router.push("/admin/marketplace/builder")}>
-                        <Plus size={16} style={{ marginRight: '8px' }} /> Provision Protocol
+                    <button 
+                        className={adminStyles.primaryBtn}
+                        style={{ background: 'var(--background)', color: 'var(--foreground)', height: '48px', padding: '0 24px', borderRadius: '14px', border: 'none', fontWeight: 950 }}
+                        onClick={() => router.push("/admin/marketplace/builder")}
+                    >
+                        <Plus size={18} style={{ marginRight: '8px' }} /> Provision Protocol
                     </button>
                 </div>
             </div>
@@ -230,18 +252,27 @@ export default function MarketplaceManagementPage() {
                 </div>
             </div>
 
+            {/* REGISTRY CARD */}
             <div className={adminStyles.registryCard}>
                 <div className={adminStyles.registryHeader}>
-                    <div>
-                        <h3 className={adminStyles.registryTitle}>Protocol Catalog</h3>
-                        <p className={adminStyles.registrySubtitle}>Orchestrate the institutional marketplace library.</p>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        {["All", "Law", "Finance", "General", "Enterprise"].map(f => (
+                            <button 
+                                key={f}
+                                type="button"
+                                style={{ padding: '8px 16px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 950, border: '1px solid var(--border)', background: 'transparent' }}
+                            >
+                                {f}
+                            </button>
+                        ))}
                     </div>
-                    <div className={adminStyles.searchContainer}>
-                        <Search size={18} className={adminStyles.searchIcon} />
+                    <div style={{ position: 'relative' }}>
+                        <Search size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', opacity: 0.3 }} />
                         <input 
                             type="text" 
-                            placeholder="Filter protocols by name or sector..." 
-                            className={adminStyles.searchField} 
+                            placeholder="Filter protocols..." 
+                            className={adminStyles.searchField}
+                            style={{ paddingLeft: '44px', width: '280px', height: '44px', borderRadius: '12px' }}
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                         />
@@ -253,10 +284,10 @@ export default function MarketplaceManagementPage() {
                         <thead>
                             <tr>
                                 <th className={adminStyles.registryTH}>Protocol Product</th>
-                                <th className={adminStyles.registryTH}>Monetization</th>
-                                <th className={adminStyles.registryTH}>Version/Featured</th>
-                                <th className={adminStyles.registryTH}>Conversion</th>
-                                <th className={adminStyles.registryTH}>Operational State</th>
+                                <th className={adminStyles.registryTH}>Commercial Status</th>
+                                <th className={adminStyles.registryTH}>Growth Pulse</th>
+                                <th className={adminStyles.registryTH}>Version</th>
+                                <th className={adminStyles.registryTH}>Distribution State</th>
                                 <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Controls</th>
                             </tr>
                         </thead>
@@ -272,18 +303,15 @@ export default function MarketplaceManagementPage() {
                                     <tr key={t.id} className={adminStyles.registryRow}>
                                         <td>
                                             <div className={adminStyles.loopDetail}>
-                                                <div className={adminStyles.loopIcon}>
-                                                    {t.icon === 'Zap' ? <Zap size={20} /> : <Layers size={20} />}
+                                                <div className={adminStyles.loopIcon} style={{ background: 'var(--muted)', color: 'var(--foreground)' }}>
+                                                    {t.icon === 'Zap' ? <Zap size={18} /> : <Layers size={18} />}
                                                 </div>
                                                 <div>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                         <div className={adminStyles.loopName}>{t.name}</div>
-                                                        {t.featured && <Star size={14} color="var(--accent)" fill="var(--accent)" />}
+                                                        {t.featured && <Star size={12} color="#10B981" fill="#10B981" />}
                                                     </div>
-                                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
-                                                        <code className={adminStyles.identityHash}>{t.sector?.toUpperCase() || "GENERAL"}</code>
-                                                        <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>ID: {t.id.substring(0, 8)}</span>
-                                                    </div>
+                                                    <div className={adminStyles.identityHash}>{t.sector || "GENERAL"} • {t.id.substring(0, 8)}</div>
                                                 </div>
                                             </div>
                                         </td>
@@ -292,7 +320,7 @@ export default function MarketplaceManagementPage() {
                                                 {editingPriceId === t.id ? (
                                                     <input 
                                                         autoFocus
-                                                        style={{ background: 'var(--muted)', border: '1px solid var(--border)', padding: '6px 12px', borderRadius: '8px', width: '100px', color: 'var(--foreground)', fontWeight: 950, outline: 'none' }}
+                                                        style={{ background: 'var(--muted)', border: '1px solid var(--border)', padding: '4px 8px', borderRadius: '8px', width: '80px', color: 'var(--foreground)', fontWeight: 950, outline: 'none' }}
                                                         value={tempPrice}
                                                         onChange={e => setTempPrice(e.target.value)}
                                                         onBlur={() => updatePrice(t, tempPrice)}
@@ -300,56 +328,33 @@ export default function MarketplaceManagementPage() {
                                                     />
                                                 ) : (
                                                     <div onClick={() => { setEditingPriceId(t.id); setTempPrice(String(t.price || 0)); }} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                        <Euro size={14} color="var(--muted-foreground)" />
+                                                        <Euro size={14} color="#10B981" />
                                                         {parseFloat(t.price || 0).toFixed(2)}
                                                     </div>
                                                 )}
                                             </div>
-                                            <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800, marginTop: '2px' }}>Revenue: €{(parseFloat(t.revenue) || 0).toLocaleString()}</div>
+                                            <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>LIFETIME: €{(parseFloat(t.revenue) || 0).toLocaleString()}</div>
                                         </td>
                                         <td>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                    <code className={adminStyles.identityHash} style={{ background: 'var(--muted)', padding: '2px 8px', borderRadius: '4px' }}>v{t.version || '1.0.0'}</code>
-                                                    <button 
-                                                        onClick={() => { t.featured = !t.featured; toggleStatus(t, t.status); }} 
-                                                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                                                    >
-                                                        <Star size={14} color={t.featured ? 'var(--accent)' : 'var(--muted-foreground)'} fill={t.featured ? 'var(--accent)' : 'none'} />
-                                                    </button>
-                                                </div>
-                                                <button 
-                                                    onClick={() => alert(`Pushing v${t.version} to all matching firm nodes...`)}
-                                                    style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--accent)', background: 'var(--accent-muted)', border: 'none', padding: '4px 8px', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-                                                >
-                                                    <ArrowUpRight size={10} /> Push Update
-                                                </button>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                <Sparkline data={[10, 20, 15, 40, 30, 60, 55]} color="#10B981" />
+                                                <div style={{ fontSize: '0.7rem', fontWeight: 950, color: '#10B981' }}>{t.conversionRate || 0}%</div>
                                             </div>
                                         </td>
                                         <td>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                <div style={{ fontWeight: 950, color: 'var(--accent)' }}>{parseFloat(t.conversionRate || 0).toFixed(1)}%</div>
-                                                <TrendingUp size={12} color="var(--accent)" />
-                                            </div>
+                                            <code style={{ fontSize: '0.65rem', padding: '4px 8px', background: 'var(--muted)', borderRadius: '6px', fontWeight: 950 }}>v{t.version || '1.0.0'}</code>
                                         </td>
                                         <td>
-                                            <select 
-                                                className={adminStyles.filterBtn}
-                                                style={{ padding: '6px 16px', borderRadius: '100px', border: '1px solid var(--border)', background: t.status === 'Live' ? 'var(--accent-muted)' : 'var(--muted)', color: t.status === 'Live' ? 'var(--accent)' : 'var(--muted-foreground)', fontWeight: 950, fontSize: '0.7rem' }}
-                                                value={t.status}
-                                                onChange={(e) => toggleStatus(t, e.target.value)}
-                                            >
-                                                <option value="Draft">DRAFT</option>
-                                                <option value="Live">LIVE</option>
-                                                <option value="Hidden">HIDDEN</option>
-                                            </select>
+                                            <div style={{ display: "flex", alignItems: "center", gap: "10px", background: t.status === 'Live' ? '#10B98115' : '#94A3B815', padding: '6px 14px', borderRadius: '100px', width: 'fit-content' }}>
+                                                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: t.status === 'Live' ? '#10B981' : '#94A3B8' }} />
+                                                <span style={{ fontWeight: 950, fontSize: "0.7rem", color: t.status === 'Live' ? '#10B981' : '#94A3B8', textTransform: 'uppercase' }}>{t.status}</span>
+                                            </div>
                                         </td>
                                         <td>
                                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                <button className={adminStyles.actionIconBtn} onClick={() => handlePreview(t)} title="Preview Workflow"><Eye size={16} /></button>
-                                                <button className={adminStyles.actionIconBtn} onClick={() => duplicateTemplate(t)} title="Clone Protocol"><Copy size={16} /></button>
+                                                <button className={adminStyles.actionIconBtn} onClick={() => handlePreview(t)} title="Preview Engine"><Eye size={16} /></button>
                                                 <button className={adminStyles.actionIconBtn} onClick={() => router.push(`/admin/marketplace/builder?id=${t.id}`)} title="Edit Configuration"><Edit3 size={16} /></button>
-                                                <button className={adminStyles.actionIconBtn} style={{ color: 'var(--destructive)' }} onClick={() => deleteTemplate(t.id)} title="Purge Protocol"><Trash2 size={16} /></button>
+                                                <button className={adminStyles.actionIconBtn} style={{ color: '#EF4444' }} onClick={() => deleteTemplate(t.id)} title="Decommission Protocol"><Trash2 size={16} /></button>
                                             </div>
                                         </td>
                                     </tr>

@@ -96,36 +96,46 @@ export default function AdminAnalyticsPage() {
     };
 
     return (
-        <div className={styles.dashboard}>
-            <div style={{ animation: 'fadeIn 0.5s ease' }}>
-                
-                {/* KEY INSIGHTS SECTION */}
-                <div className={adminStyles.insightsSection}>
-                    <h3 className={adminStyles.insightsTitle}>Strategic Intelligence</h3>
-                    <div className={adminStyles.insightsGrid}>
-                        {isLoadingAnalytics ? (
-                            [1, 2, 3].map(i => <SkeletonRectangle key={i} height="100px" borderRadius="24px" />)
-                        ) : (
-                            <>
-                                {analyticsData?.insights.length > 0 ? (
-                                    analyticsData.insights.map((insight: any, i: number) => (
-                                        <div key={i} className={adminStyles.insightCard}>
-                                            <div className={adminStyles.insightIcon} style={{ background: insight.type === 'healthy' ? '#F0FAF5' : (insight.type === 'warning' ? '#FFFBEB' : '#FEF2F2') }}>
-                                                {getInsightIcon(insight.type)}
-                                            </div>
-                                            <div className={adminStyles.insightText}>{insight.text}</div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className={adminStyles.insightCard} style={{ gridColumn: 'span 3', justifyContent: 'center', borderStyle: 'dashed' }}>
-                                        <Target size={20} color="#94A3B8" style={{ marginRight: '12px' }} />
-                                        <span style={{ color: '#94A3B8', fontWeight: 800 }}>Establishing baseline intelligence... Gather more production data.</span>
-                                    </div>
-                                )}
-                            </>
-                        )}
+    return (
+        <div style={{ animation: "fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1)", display: 'flex', flexDirection: 'column', gap: '32px' }}>
+            
+            {/* INTEGRITY PANEL */}
+            <div className={adminStyles.integrityPanel} style={{ background: 'var(--foreground)', color: 'var(--background)', border: 'none' }}>
+                <div className={adminStyles.integrityHub}>
+                    <div style={{ position: 'relative' }}>
+                        <div style={{ width: '48px', height: '48px', background: 'var(--background)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <BarChart3 size={24} color="var(--foreground)" className={adminStyles.pulse} />
+                        </div>
+                        <div style={{ position: 'absolute', bottom: '-4px', right: '-4px', width: '16px', height: '16px', background: '#10B981', borderRadius: '50%', border: '3px solid var(--foreground)' }} />
+                    </div>
+                    <div>
+                        <h2 style={{ color: 'var(--background)', fontSize: '1.4rem', fontWeight: 950, margin: 0 }}>Strategic Intelligence</h2>
+                        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', margin: '4px 0 0' }}>Authoritative Ledger Audit: Standardized across {analyticsData?.kpis.activeUsers.monthly || 0} institutional units.</p>
                     </div>
                 </div>
+                <div className={adminStyles.hubMetrics}>
+                    <div style={{ padding: '0 32px', borderLeft: '1px solid rgba(255,255,255,0.1)' }}>
+                        <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 950, opacity: 0.5 }}>Sync State</span>
+                        <div style={{ fontSize: '1.2rem', fontWeight: 950, color: '#10B981' }}>NOMINAL</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* STRATEGIC INSIGHTS GRID */}
+            <div className={adminStyles.insightsGrid} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+                {isLoadingAnalytics ? (
+                    [1, 2, 3].map(i => <SkeletonRectangle key={i} height="100px" borderRadius="18px" />)
+                ) : (
+                    analyticsData?.insights.map((insight: any, i: number) => (
+                        <div key={i} className={adminStyles.insightCard} style={{ border: '1px solid var(--border)', borderRadius: '18px', padding: '24px', display: 'flex', gap: '16px', alignItems: 'center', background: 'white' }}>
+                            <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: insight.type === 'healthy' ? '#F0FAF5' : (insight.type === 'warning' ? '#FFFBEB' : '#FEF2F2') }}>
+                                {getInsightIcon(insight.type)}
+                            </div>
+                            <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--foreground)', lineHeight: 1.4 }}>{insight.text}</div>
+                        </div>
+                    ))
+                )}
+            </div>
 
                 {/* ANALYTICS KPI GRID */}
                 <div className={adminStyles.analyticsGrid}>

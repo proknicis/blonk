@@ -372,81 +372,94 @@ export default function AdminUsersPage() {
 
     return (
         <div className={styles.dashboard}>
-            <div className={adminStyles.integrityPanel}>
+    const Sparkline = ({ data, color }: { data: number[], color: string }) => (
+        <svg width="80" height="24" viewBox="0 0 100 30" style={{ overflow: 'visible' }}>
+            <polyline
+                fill="none"
+                stroke={color}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                points={data.map((val, i) => `${(i / (data.length - 1)) * 100},${30 - (val / 100) * 30}`).join(' ')}
+                style={{ filter: `drop-shadow(0 0 4px ${color}44)` }}
+            />
+        </svg>
+    );
+
+    return (
+        <div style={{ animation: "fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1)", display: 'flex', flexDirection: 'column', gap: '32px' }}>
+            
+            {/* INTEGRITY PANEL */}
+            <div className={adminStyles.integrityPanel} style={{ background: 'var(--foreground)', color: 'var(--background)', border: 'none' }}>
                 <div className={adminStyles.integrityHub}>
-                    <div className={adminStyles.statusBeacon}>
-                        <div className={adminStyles.beaconPulse} />
+                    <div style={{ position: 'relative' }}>
+                        <div style={{ width: '48px', height: '48px', background: 'var(--background)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Users size={24} color="var(--foreground)" className={adminStyles.pulse} />
+                        </div>
+                        <div style={{ position: 'absolute', bottom: '-4px', right: '-4px', width: '16px', height: '16px', background: '#10B981', borderRadius: '50%', border: '3px solid var(--foreground)' }} />
                     </div>
                     <div>
-                        <h4 className={adminStyles.panelTitle}>Identity Registry: Synchronized</h4>
-                        <p className={adminStyles.panelSubtitle}>Institutional access logs and privilege levels are up to date.</p>
+                        <h2 style={{ color: 'var(--background)', fontSize: '1.4rem', fontWeight: 950, margin: 0 }}>Identity Domain</h2>
+                        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', margin: '4px 0 0' }}>Authoritative Registry: {users.length} provisioned operators.</p>
                     </div>
                 </div>
                 <div className={adminStyles.hubMetrics}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                        <span className={adminStyles.hubLabel}>Total Operators</span>
-                        <span className={adminStyles.hubValue}>{isLoading ? <Skeleton width="30px" height="24px" /> : users.length}</span>
+                    <div style={{ padding: '0 32px', borderLeft: '1px solid rgba(255,255,255,0.1)' }}>
+                        <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 950, opacity: 0.5 }}>Active Now</span>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 950 }}>{users.filter(u => getUserStatus(u) === 'Active').length}</div>
                     </div>
                 </div>
             </div>
 
-            <div className={adminStyles.registryCard}>
-                <div className={adminStyles.registryHeader} style={{ marginBottom: '32px' }}>
-                    <div>
-                        <h3 className={adminStyles.registryTitle}>Operator Domain</h3>
-                        <p className={adminStyles.registrySubtitle}>Orchestrate firm identity and access layers.</p>
-                    </div>
-                    <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                        <div style={{ position: 'relative' }}>
-                            <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)', pointerEvents: 'none' }} />
-                            <input 
-                                type="text" 
-                                placeholder="Search operators..." 
-                                className={adminStyles.mainInput} 
-                                style={{ padding: '12px 16px 12px 48px', width: '320px', borderRadius: '16px' }}
-                                value={searchTerm}
-                                onChange={e => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-                        <button 
-                            type="button"
-                            className={adminStyles.refreshBtn} 
-                            style={{ background: 'var(--foreground)', color: 'var(--background)', width: 'auto', padding: '0 24px', border: 'none', fontWeight: 950 }} 
-                            onClick={() => {
-                                console.log("[AdminUsers] Invite flow triggered");
-                                setIsInviting(true);
-                            }}
-                        >
-                            Invite Operator
-                        </button>
-                    </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '32px', overflowX: 'auto', padding: '4px' }}>
-                    {["All", "Active", "Inactive", "Blocked", "Trial", "High Spend"].map(f => (
+            {/* ACTION CENTER */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    {["All", "Active", "Inactive", "Blocked", "Trial"].map(f => (
                         <button 
                             key={f}
                             type="button"
                             className={`${adminStyles.filterBtn} ${activeFilter === f ? adminStyles.filterBtnActive : ''}`}
                             onClick={() => setActiveFilter(f)}
-                            style={{ padding: '8px 20px', borderRadius: '100px', fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase' }}
+                            style={{ padding: '10px 24px', borderRadius: '14px', fontSize: '0.75rem', fontWeight: 950, border: '1px solid var(--border)', background: activeFilter === f ? 'var(--foreground)' : 'transparent', color: activeFilter === f ? 'var(--background)' : 'var(--foreground)' }}
                         >
                             {f}
                         </button>
                     ))}
                 </div>
+                <div style={{ display: 'flex', gap: '16px' }}>
+                    <div style={{ position: 'relative' }}>
+                        <Search size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', opacity: 0.3 }} />
+                        <input 
+                            type="text" 
+                            placeholder="Operator search..." 
+                            className={adminStyles.searchField}
+                            style={{ paddingLeft: '44px', width: '280px', height: '48px', borderRadius: '14px' }}
+                            value={searchTerm}
+                            onChange={e => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    <button 
+                        className={adminStyles.primaryBtn}
+                        style={{ height: '48px', padding: '0 24px', borderRadius: '14px', fontWeight: 950 }}
+                        onClick={() => setIsInviting(true)}
+                    >
+                        <UserCheck size={18} style={{ marginRight: '8px' }} /> Provision Operator
+                    </button>
+                </div>
+            </div>
 
+            {/* REGISTRY CARD */}
+            <div className={adminStyles.registryCard}>
                 <div className={adminStyles.tableWrapper}>
                     <table className={adminStyles.registryTable}>
                         <thead>
                             <tr>
-                                <th className={adminStyles.registryTH}>User</th>
-                                <th className={adminStyles.registryTH}>Tier</th>
-                                <th className={adminStyles.registryTH}>Spend</th>
-                                <th className={adminStyles.registryTH}>Flows</th>
-                                <th className={adminStyles.registryTH}>Activity</th>
-                                <th className={adminStyles.registryTH}>Status</th>
-                                <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Actions</th>
+                                <th className={adminStyles.registryTH}>Operator Dossier</th>
+                                <th className={adminStyles.registryTH}>Context</th>
+                                <th className={adminStyles.registryTH}>Activity Spark</th>
+                                <th className={adminStyles.registryTH}>Value Metric</th>
+                                <th className={adminStyles.registryTH}>Health</th>
+                                <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Management</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -461,57 +474,39 @@ export default function AdminUsersPage() {
                                     <tr key={u.id} className={adminStyles.registryRow}>
                                         <td>
                                             <div className={adminStyles.loopDetail} onClick={() => setSelectedUser(u)} style={{ cursor: 'pointer' }}>
-                                                <div className={adminStyles.requesterAvatar}>
+                                                <div className={adminStyles.requesterAvatar} style={{ background: 'var(--muted)', color: 'var(--foreground)', border: '1px solid var(--border)' }}>
                                                     {u.name?.charAt(0) || "U"}
                                                 </div>
                                                 <div>
                                                     <div className={adminStyles.loopName}>{u.name}</div>
-                                                    <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>{u.email}</div>
+                                                    <div className={adminStyles.identityHash}>{u.id.substring(0, 10)}</div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <span className={adminStyles.tierBadge} style={{ background: 'var(--muted)', color: 'var(--muted-foreground)' }}>
-                                                {u.tier || 'Free'}
-                                            </span>
+                                            <div style={{ fontWeight: 950, color: 'var(--foreground)' }}>{u.firmName || "Independent"}</div>
+                                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--muted-foreground)' }}>{u.tier || "Standard"} • {u.role}</div>
                                         </td>
-                                        <td><div style={{ fontWeight: 800, color: 'var(--accent)' }}>€{(parseFloat(u.totalSpend) || 0).toLocaleString()}</div></td>
-                                        <td><div style={{ fontWeight: 800 }}>{u.workflowsUsed || 0}</div></td>
-                                        <td><div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>{u.lastActive ? new Date(u.lastActive).toLocaleDateString() : 'Never'}</div></td>
                                         <td>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: getUserStatus(u) === 'Active' ? 'var(--accent)' : (getUserStatus(u) === 'Suspended' ? '#EF4444' : 'var(--muted-foreground)'), fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase' }}>
-                                                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'currentColor' }} />
-                                                {getUserStatus(u)}
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                <Sparkline data={[20, 40, 30, 60, 45, 80, 70]} color={getUserStatus(u) === 'Active' ? '#10B981' : '#94A3B8'} />
+                                                <span style={{ fontSize: '0.7rem', fontWeight: 950, opacity: 0.4 }}>{u.workflowsUsed || 0} ops</span>
                                             </div>
-                                            {(u.workflowsUsed || 0) === 0 && <div style={{ fontSize: '0.6rem', color: '#EF4444', fontWeight: 900, marginTop: '4px' }}>NO FLOWS</div>}
-                                            {getUserStatus(u) === 'Inactive' && <div style={{ fontSize: '0.6rem', color: '#F59E0B', fontWeight: 900, marginTop: '2px' }}>LOW ACTIVITY</div>}
+                                        </td>
+                                        <td>
+                                            <div style={{ fontWeight: 950, color: 'var(--foreground)' }}>€{(parseFloat(u.totalSpend) || 0).toLocaleString()}</div>
+                                            <div style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--accent)' }}>TOTAL LTV</div>
+                                        </td>
+                                        <td>
+                                            <div style={{ display: "flex", alignItems: "center", gap: "10px", background: getUserStatus(u) === 'Active' ? '#10B98115' : (getUserStatus(u) === 'Suspended' ? '#EF444415' : '#F59E0B15'), padding: '6px 14px', borderRadius: '100px', width: 'fit-content' }}>
+                                                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: getUserStatus(u) === 'Active' ? '#10B981' : (getUserStatus(u) === 'Suspended' ? '#EF4444' : '#F59E0B') }} />
+                                                <span style={{ fontWeight: 950, fontSize: "0.7rem", color: getUserStatus(u) === 'Active' ? '#10B981' : (getUserStatus(u) === 'Suspended' ? '#EF4444' : '#F59E0B'), textTransform: 'uppercase' }}>{getUserStatus(u)}</span>
+                                            </div>
                                         </td>
                                         <td>
                                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                <button 
-                                                    type="button"
-                                                    title="View Profile"
-                                                    className={adminStyles.actionIconBtn} 
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        console.log("[AdminUsers] Record detail focus:", u.id);
-                                                        setSelectedUser(u);
-                                                    }}
-                                                >
-                                                    <ChevronRight size={18} />
-                                                </button>
-                                                <button 
-                                                    type="button"
-                                                    title="Decommission"
-                                                    className={adminStyles.actionIconBtn} 
-                                                    style={{ color: 'var(--destructive)' }} 
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        deleteUser(u.id);
-                                                    }}
-                                                >
-                                                    <Trash2 size={18} />
-                                                </button>
+                                                <button className={adminStyles.actionIconBtn} onClick={() => setSelectedUser(u)} title="Full Dossier"><ChevronRight size={18} /></button>
+                                                <button className={adminStyles.actionIconBtn} style={{ color: '#EF4444' }} onClick={() => deleteUser(u.id)} title="Revoke Privilege"><Trash2 size={18} /></button>
                                             </div>
                                         </td>
                                     </tr>
