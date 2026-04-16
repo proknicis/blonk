@@ -1,6 +1,9 @@
 import React from "react";
 import { db } from "@/lib/db";
 import AuditClient from "./AuditClient";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export const metadata = {
     title: "Audit Vault | Sovereign Blonk",
@@ -9,26 +12,34 @@ export const metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function AuditVaultPage() {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) redirect("/login");
+
+    const teamId = (session.user as any).teamId;
+    if (!teamId) redirect("/setup");
+
     let logs: Array<{ id: string; ts: string; process: string; user: string; action: string; outcome: string }> = [];
     let totalLogs = 0;
     let failures = 0;
 
     try {
-        // Fetch raw workflow logs
+        // Fetch raw workflow logs pinned to team
         const rows = await db.query(`
             SELECT id, "workflowName", status, result, "createdAt"
             FROM "WorkflowLog"
+            WHERE "teamId" = $1
             ORDER BY "createdAt" DESC
             LIMIT 100
-        `) as any[];
+        `, [teamId]) as any[];
 
-        // Fetch counts for stats
+        // Fetch counts for stats pinned to team
         const counts = await db.query(`
             SELECT 
                 COUNT(*) as total,
                 SUM(CASE WHEN status = 'error' THEN 1 ELSE 0 END) as errs
             FROM "WorkflowLog"
-        `) as any[];
+            WHERE "teamId" = $1
+        `, [teamId]) as any[];
 
         if (counts.length > 0) {
             totalLogs = parseInt(counts[0].total || '0');

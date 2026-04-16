@@ -1,6 +1,9 @@
 import React from "react";
 import ReportsClient from "./ReportsClient";
 import { db } from "@/lib/db";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export const metadata = {
     title: "Intelligence & Reports | Sovereign Blonk",
@@ -10,12 +13,18 @@ export const dynamic = 'force-dynamic';
 
 
 export default async function ReportsPage() {
-    // 1. Operational ROI
+    const session = await getServerSession(authOptions);
+    if (!session?.user) redirect("/login");
+
+    const teamId = (session.user as any).teamId;
+    if (!teamId) redirect("/setup");
+
+    // 1. Operational ROI (Team Specific)
     let operationalROI = 0;
     let savings = 0;
     let cost = 833; // standard cost
     try {
-        const kpiQuery = await db.query(`SELECT value FROM "Kpi" WHERE label = 'Total Revenue' LIMIT 1`);
+        const kpiQuery = await db.query(`SELECT value FROM "Kpi" WHERE label = 'Total Revenue' AND "teamId" = $1 LIMIT 1`, [teamId]);
         if (kpiQuery.length > 0) {
             savings = parseInt(kpiQuery[0].value.replace(/[^0-9.-]+/g,""));
             operationalROI = savings - cost;
@@ -28,7 +37,7 @@ export default async function ReportsPage() {
         operationalROI = savings - cost;
     }
 
-    // 2. Fetch Workflow Logs to calculate dynamic real data
+    // 2. Fetch Workflow Logs to calculate dynamic real data (Team Specific)
     let totalLogs = 0;
     let errors = 0;
     try {
@@ -37,7 +46,8 @@ export default async function ReportsPage() {
                 COUNT(*) as total,
                 SUM(CASE WHEN status = 'error' THEN 1 ELSE 0 END) as errs
             FROM "WorkflowLog"
-        `);
+            WHERE "teamId" = $1
+        `, [teamId]);
         totalLogs = parseInt(counts[0]?.total || '0');
         errors = parseInt(counts[0]?.errs || '0');
     } catch(e) { console.error(e); }
@@ -54,10 +64,11 @@ export default async function ReportsPage() {
         const throughputQuery = await db.query(`
             SELECT DATE("createdAt") as day, COUNT(*) as count 
             FROM "WorkflowLog" 
+            WHERE "teamId" = $1
             GROUP BY DATE("createdAt") 
             ORDER BY day ASC 
             LIMIT 30
-        `);
+        `, [teamId]);
         if (throughputQuery.length > 0) {
             throughputData = throughputQuery.map((row: any) => parseInt(row.count));
         } else {
@@ -72,11 +83,12 @@ export default async function ReportsPage() {
         const deptQuery = await db.query(`
             SELECT w."sector", COUNT(*) as count 
             FROM "WorkflowLog" wl
-            LEFT JOIN "Workflow" w ON w."name" = wl."workflowName"
+            LEFT JOIN "Workflow" w ON w."id" = wl."workflowId"
+            WHERE wl."teamId" = $1
             GROUP BY w."sector"
             ORDER BY count DESC
             LIMIT 4
-        `);
+        `, [teamId]);
         if (deptQuery.length > 0) {
             const maxCount = Math.max(...deptQuery.map((r: any) => parseInt(r.count)));
             departmentData = deptQuery.map((row: any) => ({
