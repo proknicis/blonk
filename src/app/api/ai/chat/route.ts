@@ -16,7 +16,7 @@ export async function POST(req: Request) {
         let workflowsContext = "";
         try {
             // Updated to use PostgreSQL double-quoted identifiers
-            const rows = await db.query('SELECT name, sector, complexity FROM "Workflow" WHERE status = \'Published\' LIMIT 10');
+            const rows = await db.query('SELECT name, sector, complexity FROM "WorkflowTemplate" WHERE status IN (\'Published\', \'Live\') LIMIT 10');
             
             if (rows && rows.length > 0) {
                 workflowsContext = "\nHere is the current list of available workflows in our marketplace:\n" + 
