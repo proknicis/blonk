@@ -27,7 +27,8 @@ import {
     Key,
     ArrowUpCircle,
     ArrowDownCircle,
-    Filter
+    Filter,
+    UserX
 } from "lucide-react";
 
 import { Skeleton } from "../../components/Skeleton";
