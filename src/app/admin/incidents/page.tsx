@@ -196,6 +196,4 @@ export default async function IncidentCommandPage() {
         </div>
     );
 }
-    );
-}
 

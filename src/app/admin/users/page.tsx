@@ -370,8 +370,6 @@ export default function AdminUsersPage() {
         } finally { setUpdatingId(null); }
     };
 
-    return (
-        <div className={styles.dashboard}>
     const Sparkline = ({ data, color }: { data: number[], color: string }) => (
         <svg width="80" height="24" viewBox="0 0 100 30" style={{ overflow: 'visible' }}>
             <polyline

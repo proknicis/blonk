@@ -26,7 +26,7 @@ import { Sparkline } from "./Sparkline";
 export default function FleetMonitoringPage() {
     const [nodes, setNodes] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [packetLoss, setPacketLoss] = useState(1.05); // Simulated high packet loss for demo
+    const [packetLoss, setPacketLoss] = useState(0.01); 
 
     useEffect(() => {
         const fetchNodes = async () => {
@@ -145,14 +145,6 @@ export default function FleetMonitoringPage() {
                     </div>
                     <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                          <FleetManager />
-                         <button 
-                            onClick={() => setPacketLoss(isEmergency ? 0.01 : 1.2)} 
-                            className={adminStyles.actionIconBtn}
-                            style={{ background: isEmergency ? '#EF4444' : '', color: isEmergency ? 'white' : '' }}
-                            title="Simulate Event"
-                         >
-                            <AlertCircle size={18} />
-                         </button>
                     </div>
                 </div>
 

@@ -96,7 +96,6 @@ export default function AdminAnalyticsPage() {
     };
 
     return (
-    return (
         <div style={{ animation: "fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1)", display: 'flex', flexDirection: 'column', gap: '32px' }}>
             
             {/* INTEGRITY PANEL */}
