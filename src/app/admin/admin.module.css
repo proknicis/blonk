@@ -818,3 +818,14 @@
 .floatingNode {
     animation: floating 4s ease-in-out infinite;
 }
+
+@keyframes pulseRed {
+    0% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.1); }
+    50% { box-shadow: 0 0 60px rgba(239, 68, 68, 0.4); }
+    100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.1); }
+}
+
+.emergencyGlow {
+    animation: pulseRed 2s infinite ease-in-out;
+    border-color: #ef4444 !important;
+}
