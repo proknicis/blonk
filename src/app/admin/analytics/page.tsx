@@ -138,9 +138,9 @@ export default function AdminAnalyticsPage() {
 
                 {/* ANALYTICS KPI GRID */}
                 <div className={adminStyles.analyticsGrid}>
-                    {isLoadingAnalytics ? (
+                    {isLoadingAnalytics ? 
                         [1, 2, 3, 4].map(i => <SkeletonRectangle key={i} height="180px" borderRadius="36px" />)
-                    ) : (
+                     : (
                         <>
                             <div className={adminStyles.analyticsCard}>
                                 <div className={adminStyles.cardHeader}>
