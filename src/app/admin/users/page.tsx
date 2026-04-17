@@ -514,6 +514,13 @@ export default function AdminUsersPage() {
                             )}
                         </tbody>
                     </table>
+                    {!isLoading && filteredUsers.length === 0 && (
+                        <div className={adminStyles.emptyState}>
+                             <div className={adminStyles.emptyIcon}><UserX size={64} /></div>
+                             <p style={{ fontWeight: 950, color: 'var(--foreground)', fontSize: '1.25rem' }}>Identity vault empty.</p>
+                             <p style={{ color: 'var(--muted-foreground)', fontWeight: 700, marginTop: '8px' }}>No provisioned operators match your filter criteria.</p>
+                        </div>
+                    )}
                 </div>
             </div>
 

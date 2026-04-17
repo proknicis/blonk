@@ -37,15 +37,15 @@ export default async function FleetMonitoringPage() {
             u.id, 
             u."firmName", 
             u.email, 
-            u.tier,
-            COUNT(w.id) as "workflowCount",
-            COUNT(wl.id) FILTER (WHERE wl.status = 'error') as "errorCount",
-            COUNT(wl.id) as "totalLogs"
+            u.plan as tier,
+            COUNT(DISTINCT w.id) as "workflowCount",
+            COUNT(DISTINCT wl.id) FILTER (WHERE wl.status = 'error') as "errorCount",
+            COUNT(DISTINCT wl.id) as "totalLogs"
         FROM "User" u
         LEFT JOIN "Workflow" w ON w."userId" = u.id
-        LEFT JOIN "WorkflowLog" wl ON wl."teamId" = u."teamId" AND wl."createdAt" > CURRENT_TIMESTAMP - INTERVAL '24 hours'
+        LEFT JOIN "WorkflowLog" wl ON wl."workflowId" = w.id AND wl."createdAt" > CURRENT_TIMESTAMP - INTERVAL '24 hours'
         WHERE u."firmName" IS NOT NULL
-        GROUP BY u.id, u."firmName", u.email, u.tier
+        GROUP BY u.id, u."firmName", u.email, u.plan
         LIMIT 10
     `) as any[];
 
@@ -179,9 +179,10 @@ export default async function FleetMonitoringPage() {
                         <p className={adminStyles.registrySubtitle}>Real-time telemetry from every provisioned instance.</p>
                     </div>
                     <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                         <div className={adminStyles.activeBadge} style={{ background: '#10B981', color: 'white', border: 'none' }}>
-                            <RefreshCw size={12} className={adminStyles.spinning} style={{ marginRight: '8px' }} /> Live Sync
-                         </div>
+                          <button className={adminStyles.activeBadge} style={{ border: 'none', cursor: 'default' }}>
+                             <RefreshCw size={14} className={adminStyles.spinning} /> 
+                             <span>Live Sync</span>
+                          </button>
                     </div>
                 </div>
 
@@ -265,10 +266,10 @@ export default async function FleetMonitoringPage() {
                         </tbody>
                     </table>
                     {nodes.length === 0 && (
-                        <div style={{ textAlign: 'center', padding: '100px 0', background: 'var(--card)' }}>
-                             <div style={{ opacity: 0.2, marginBottom: '24px' }}><Globe size={64} /></div>
-                             <p style={{ fontWeight: 950, color: 'var(--foreground)', fontSize: '1.1rem' }}>Sovereign cluster empty.</p>
-                             <p style={{ color: 'var(--muted-foreground)', fontWeight: 700 }}>No active firm nodes detected in the regional hub.</p>
+                        <div className={adminStyles.emptyState}>
+                             <div className={adminStyles.emptyIcon}><Globe size={64} /></div>
+                             <p style={{ fontWeight: 950, color: 'var(--foreground)', fontSize: '1.25rem' }}>Sovereign cluster empty.</p>
+                             <p style={{ color: 'var(--muted-foreground)', fontWeight: 700, marginTop: '8px' }}>No active firm nodes detected in the regional hub.</p>
                         </div>
                     )}
                 </div>

@@ -362,6 +362,13 @@ export default function MarketplaceManagementPage() {
                             )}
                         </tbody>
                     </table>
+                    {!isLoading && filteredTemplates.length === 0 && (
+                        <div className={adminStyles.emptyState}>
+                             <div className={adminStyles.emptyIcon}><ShoppingCart size={64} /></div>
+                             <p style={{ fontWeight: 950, color: 'var(--foreground)', fontSize: '1.25rem' }}>No protocols provisioned.</p>
+                             <p style={{ color: 'var(--muted-foreground)', fontWeight: 700, marginTop: '8px' }}>Provision your first protocol in the Builder above.</p>
+                        </div>
+                    )}
                 </div>
             </div>
 

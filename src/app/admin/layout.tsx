@@ -13,6 +13,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const [showUserMenu, setShowUserMenu] = useState(false);
     const [showNotifs, setShowNotifs] = useState(false);
     const [isAuthChecked, setIsAuthChecked] = useState(false);
+    const [n8nData, setN8nData] = useState<{ workflows: any[], activeCount: number, status: 'Connected' | 'Offline' | 'Checking' }>({ 
+        workflows: [], 
+        activeCount: 0, 
+        status: 'Checking' 
+    });
     const userMenuAnchorRef = useRef<HTMLDivElement>(null);
     const notifsAnchorRef = useRef<HTMLDivElement>(null);
 
@@ -62,6 +67,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         if (userMenuAnchorRef.current && !userMenuAnchorRef.current.contains(target)) setShowUserMenu(false);
         if (notifsAnchorRef.current && !notifsAnchorRef.current.contains(target)) setShowNotifs(false);
     };
+
+    useEffect(() => {
+        const fetchN8nStatus = async () => {
+            try {
+                const res = await fetch("/api/n8n/workflows");
+                if (!res.ok) throw new Error("Offline");
+                const json = await res.json();
+                const workflows = json.data || [];
+                const active = workflows.filter((w: any) => w.active).length;
+                setN8nData({
+                    workflows,
+                    activeCount: active,
+                    status: 'Connected'
+                });
+            } catch (err) {
+                setN8nData(prev => ({ ...prev, status: 'Offline' }));
+            }
+        };
+
+        fetchN8nStatus();
+        const interval = setInterval(fetchN8nStatus, 30000); // Poll every 30s
+        return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
         document.addEventListener("mousedown", handleClickOutside);
@@ -165,10 +193,52 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         </div>
                         <div style={{ marginBottom: "16px" }}>
                             <div className={adminStyles.statLabel}>Global Node Load</div>
-                            <div className={adminStyles.statValue}>84% Nominal</div>
+                            <div className={adminStyles.statValue}>
+                                {n8nData.status === 'Connected' 
+                                    ? `${Math.round((n8nData.activeCount / (n8nData.workflows.length || 1)) * 100)}% Active`
+                                    : '---'}
+                            </div>
                         </div>
                         <div className={adminStyles.barContainer}>
-                            <div className={adminStyles.barFill} style={{ width: "84%" }} />
+                            <div 
+                                className={adminStyles.barFill} 
+                                style={{ 
+                                    width: n8nData.status === 'Connected' 
+                                        ? `${(n8nData.activeCount / (n8nData.workflows.length || 1)) * 100}%` 
+                                        : '0%',
+                                    transition: 'width 0.5s ease-in-out'
+                                }} 
+                            />
+                        </div>
+                    </div>
+
+                    <div className={adminStyles.usageCard} style={{ marginTop: "12px", border: "1px solid var(--border)", background: "rgba(0,0,0,0.2)" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <span style={{ fontSize: "0.7rem", fontWeight: 900, color: "var(--muted-foreground)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Antigravity Status</span>
+                            <div style={{ 
+                                display: "flex", 
+                                alignItems: "center", 
+                                gap: "6px", 
+                                background: n8nData.status === 'Connected' ? "rgba(16, 185, 129, 0.1)" : "rgba(239, 68, 68, 0.1)",
+                                padding: "4px 8px",
+                                borderRadius: "8px",
+                                border: `1px solid ${n8nData.status === 'Connected' ? "rgba(16, 185, 129, 0.2)" : "rgba(239, 68, 68, 0.2)"}`
+                            }}>
+                                <div style={{ 
+                                    width: "6px", 
+                                    height: "6px", 
+                                    borderRadius: "50%", 
+                                    background: n8nData.status === 'Connected' ? "#10b981" : "#ef4444",
+                                    boxShadow: `0 0 8px ${n8nData.status === 'Connected' ? "#10b981" : "#ef4444"}`
+                                }} />
+                                <span style={{ 
+                                    fontSize: "0.65rem", 
+                                    fontWeight: 950, 
+                                    color: n8nData.status === 'Connected' ? "#10b981" : "#ef4444" 
+                                }}>
+                                    {n8nData.status.toUpperCase()}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
