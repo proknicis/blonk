@@ -20,6 +20,7 @@ import adminStyles from "../admin.module.css";
 import React from "react";
 import { FleetManager } from "./FleetManager";
 import { NodeActions } from "./NodeActions";
+import { Sparkline } from "./Sparkline";
 
 interface NodeStats {
     id: string;
@@ -105,29 +106,6 @@ export default async function FleetMonitoringPage() {
         return '#EF4444';
     };
 
-    const Sparkline = ({ data, color }: { data: number[], color: string }) => (
-        <svg width="100" height="30" viewBox="0 0 100 30" style={{ overflow: 'visible' }}>
-            <path
-                fill="none"
-                stroke={color}
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d={`M ${data.map((val, i) => `${(i / (data.length - 1)) * 100},${30 - (val / 100) * 30}`).join(' L ')}`}
-                style={{ 
-                    filter: `drop-shadow(0 0 4px ${color}44)`,
-                    strokeDasharray: '10, 5',
-                    animation: 'sparklineFlow 10s linear infinite'
-                }}
-            />
-            <style jsx>{`
-                @keyframes sparklineFlow {
-                    from { stroke-dashoffset: 100; }
-                    to { stroke-dashoffset: 0; }
-                }
-            `}</style>
-        </svg>
-    );
 
     return (
         <div style={{ animation: "fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1)", display: 'flex', flexDirection: 'column', gap: '40px' }}>
