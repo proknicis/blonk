@@ -211,17 +211,17 @@ export default function AdminAnalyticsPage() {
                     <div className={adminStyles.chartCard}>
                         <h3 className={adminStyles.chartTitle}>Revenue Performance</h3>
                         <p className={adminStyles.chartSubtitle}>Institutional revenue tracking over the current cycle.</p>
-                        {isLoadingAnalytics ? <Skeleton height="200px" borderRadius="20px" /> : (
+                        {isLoadingAnalytics ? <Skeleton height="200px" borderRadius="20px" /> :
                             <AnalyticsChart data={analyticsData?.charts.revenue[0].data} color="#34D186" />
-                        )}
+                        }
                     </div>
 
                     <div className={adminStyles.chartCard}>
                         <h3 className={adminStyles.chartTitle}>Identity Growth</h3>
                         <p className={adminStyles.chartSubtitle}>Sovereign user registration velocity.</p>
-                        {isLoadingAnalytics ? <Skeleton height="200px" borderRadius="20px" /> : (
+                        {isLoadingAnalytics ? <Skeleton height="200px" borderRadius="20px" /> :
                             <AnalyticsChart data={analyticsData?.charts.users[0].data} color="#0EA5E9" />
-                        )}
+                        }
                     </div>
 
                     {/* FUNNEL ANALYSIS */}
@@ -238,7 +238,7 @@ export default function AdminAnalyticsPage() {
                             )}
                         </div>
                         
-                        {isLoadingAnalytics ? <Skeleton height="200px" borderRadius="20px" /> : (
+                        {isLoadingAnalytics ? <Skeleton height="200px" borderRadius="20px" /> :
                             <div style={{ display: 'flex', alignItems: 'flex-end', gap: '32px', height: '220px', padding: '0 48px' }}>
                                 {analyticsData?.charts.funnel.map((val: number, i: number) => (
                                     <div key={i} className={adminStyles.funnelStep}>
@@ -261,7 +261,7 @@ export default function AdminAnalyticsPage() {
                                     </div>
                                 ))}
                             </div>
-                        )}
+                        }
                     </div>
                 </div>
             </div>
