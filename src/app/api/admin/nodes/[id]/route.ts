@@ -3,10 +3,10 @@ import { db } from "@/lib/db";
 
 export async function DELETE(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id } = params;
+        const { id } = await params;
         await db.execute('DELETE FROM "ClusterNode" WHERE id = $1', [id]);
         return NextResponse.json({ success: true });
     } catch (error) {

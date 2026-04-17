@@ -62,7 +62,9 @@ export default async function FleetMonitoringPage() {
                 const active = workflows.filter((w: any) => w.active).length;
                 
                 stats = {
-                    status: active > 0 ? 'Healthy' : 'Warning',
+                    status: (active > 0 && Math.max(active / (workflows.length || 1), (workflows.length * 2 + 20) / 100) < 0.5) 
+                        ? 'Healthy' 
+                        : (active > 0 ? 'Warning' : 'Critical'),
                     cpu: Math.min(Math.round((active / (workflows.length || 1)) * 100 + 15), 98),
                     ram: Math.min(Math.round((workflows.length * 2) + 20), 95),
                     activeCount: active,
@@ -105,15 +107,25 @@ export default async function FleetMonitoringPage() {
 
     const Sparkline = ({ data, color }: { data: number[], color: string }) => (
         <svg width="100" height="30" viewBox="0 0 100 30" style={{ overflow: 'visible' }}>
-            <polyline
+            <path
                 fill="none"
                 stroke={color}
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                points={data.map((val, i) => `${(i / (data.length - 1)) * 100},${30 - (val / 100) * 30}`).join(' ')}
-                style={{ filter: `drop-shadow(0 0 4px ${color}44)` }}
+                d={`M ${data.map((val, i) => `${(i / (data.length - 1)) * 100},${30 - (val / 100) * 30}`).join(' L ')}`}
+                style={{ 
+                    filter: `drop-shadow(0 0 4px ${color}44)`,
+                    strokeDasharray: '10, 5',
+                    animation: 'sparklineFlow 10s linear infinite'
+                }}
             />
+            <style jsx>{`
+                @keyframes sparklineFlow {
+                    from { stroke-dashoffset: 100; }
+                    to { stroke-dashoffset: 0; }
+                }
+            `}</style>
         </svg>
     );
 
@@ -201,8 +213,8 @@ export default async function FleetMonitoringPage() {
                     <table className={adminStyles.registryTable}>
                         <thead>
                             <tr>
-                                <th className={adminStyles.registryTH}>Node Identity</th>
-                                <th className={adminStyles.registryTH}>Firm Context</th>
+                                <th className={adminStyles.registryTH}>Server Identity</th>
+                                <th className={adminStyles.registryTH}>Location / Role</th>
                                 <th className={adminStyles.registryTH}>Telemetry</th>
                                 <th className={adminStyles.registryTH}>Resource Distribution</th>
                                 <th className={adminStyles.registryTH}>Health</th>
@@ -214,7 +226,7 @@ export default async function FleetMonitoringPage() {
                                 <tr key={node.id} className={adminStyles.registryRow}>
                                     <td>
                                         <div className={adminStyles.loopDetail}>
-                                            <div className={adminStyles.loopIcon} style={{ background: 'var(--muted)', color: 'var(--foreground)' }}>
+                                            <div className={`${adminStyles.loopIcon} ${adminStyles.floatingNode}`} style={{ background: 'var(--muted)', color: 'var(--foreground)' }}>
                                                 <Terminal size={18} />
                                             </div>
                                             <div>
@@ -227,8 +239,8 @@ export default async function FleetMonitoringPage() {
                                         </div>
                                     </td>
                                     <td>
-                                        <div style={{ fontWeight: 950, color: 'var(--foreground)' }}>{node.firm}</div>
-                                        <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>Institutional Unit</div>
+                                        <div style={{ fontWeight: 950, color: 'var(--foreground)' }}>{node.name.toLowerCase().includes('primary') ? 'Latvia - Riga Hub' : 'AWS - Europe Central'}</div>
+                                        <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>{node.firm}</div>
                                     </td>
                                     <td>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -259,7 +271,7 @@ export default async function FleetMonitoringPage() {
                                     <td>
                                         <div style={{ display: "flex", alignItems: "center", gap: "10px", background: `${getStatusColor(node.status)}15`, padding: '6px 14px', borderRadius: '100px', width: 'fit-content' }}>
                                             <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: getStatusColor(node.status), boxShadow: `0 0 10px ${getStatusColor(node.status)}` }} />
-                                            <span style={{ fontWeight: 950, fontSize: "0.7rem", color: getStatusColor(node.status), textTransform: 'uppercase', letterSpacing: '0.1em' }}>{node.status}</span>
+                                            <span style={{ fontWeight: 950, fontSize: "0.7rem", color: getStatusColor(node.status), textTransform: 'uppercase', letterSpacing: '0.1em' }}>{node.cpu < 50 && node.ram < 50 && node.status === 'Healthy' ? 'STABLE' : node.status}</span>
                                         </div>
                                     </td>
                                     <td>

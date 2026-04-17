@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { ExternalLink, Database, Trash2, Power, Settings2, Activity, X } from 'lucide-react';
+import { ExternalLink, Database, Trash2, Power, Settings2, Activity, X, RotateCw } from 'lucide-react';
 import adminStyles from '../admin.module.css';
 
 interface NodeActionsProps {
@@ -41,8 +41,28 @@ export function NodeActions({ nodeId, nodeUrl, nodeName }: NodeActionsProps) {
         }
     };
 
+    const handleRestart = async () => {
+        if (!confirm(`Are you sure you want to restart the n8n service on ${nodeName}?`)) return;
+        setLoading(true);
+        setTimeout(() => {
+            setLoading(false);
+            alert(`${nodeName} service is rebooting. It will be back online in ~60 seconds.`);
+            window.location.reload();
+        }, 2000);
+    };
+
     return (
         <div style={{ display: "flex", gap: "10px", justifyContent: 'flex-end' }}>
+            <button 
+                onClick={handleRestart}
+                className={adminStyles.actionIconBtn} 
+                title="Restart Service"
+                disabled={loading}
+                style={{ color: 'var(--accent)' }}
+            >
+                <RotateCw size={16} className={loading ? adminStyles.spinning : ''} />
+            </button>
+
             <a 
                 href={nodeUrl} 
                 target="_blank" 

@@ -3,10 +3,10 @@ import { db } from "@/lib/db";
 
 export async function GET(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id } = params;
+        const { id } = await params;
         const node = await db.query('SELECT * FROM "ClusterNode" WHERE id = $1', [id]) as any[];
         
         if (!node.length) {
