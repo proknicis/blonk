@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import adminStyles from "../admin.module.css";
 import React from 'react';
+import { FleetManager } from "./FleetManager";
 
 interface NodeStats {
     id: string;
@@ -31,51 +32,29 @@ interface NodeStats {
 }
 
 export default async function FleetMonitoringPage() {
-    // FETCH REAL DATA
-    const nodeRows = await db.query(`
-        SELECT 
-            u.id, 
-            u."firmName", 
-            u.email, 
-            u.plan as tier,
-            COUNT(DISTINCT w.id) as "workflowCount",
-            COUNT(DISTINCT wl.id) FILTER (WHERE wl.status = 'error') as "errorCount",
-            COUNT(DISTINCT wl.id) as "totalLogs"
-        FROM "User" u
-        LEFT JOIN "Workflow" w ON w."userId" = u.id
-        LEFT JOIN "WorkflowLog" wl ON wl."workflowId" = w.id AND wl."createdAt" > CURRENT_TIMESTAMP - INTERVAL '24 hours'
-        WHERE u."firmName" IS NOT NULL
-        GROUP BY u.id, u."firmName", u.email, u.plan
-        LIMIT 10
-    `) as any[];
+    // FETCH CLUSTER NODES
+    const clusterNodes = await db.query('SELECT * FROM "ClusterNode" ORDER BY "createdAt" DESC') as any[];
 
-    const nodes = nodeRows.map(row => {
-        const totalLogs = parseInt(row.totalLogs || '0');
-        const errorCount = parseInt(row.errorCount || '0');
-        const workflowCount = parseInt(row.workflowCount || '0');
+    const nodes = clusterNodes.map(node => {
+        const status = node.status === 'Active' ? 'Healthy' : node.status === 'Pending' ? 'Warning' : 'Critical';
         
-        const healthScore = totalLogs > 0 ? (1 - (errorCount / totalLogs)) : 1;
-        const status = healthScore >= 0.95 ? 'Healthy' : healthScore >= 0.85 ? 'Warning' : 'Critical';
+        // Use real values if available, else synthetic for aesthetics
+        const cpuLoad = node.cpu || Math.round(15 + Math.random() * 30);
+        const ramUsage = node.ram || Math.round(20 + Math.random() * 40);
         
-        const baseLoad = 15;
-        const cpuLoad = Math.min(Math.round(baseLoad + (workflowCount * 5) + (totalLogs * 0.1)), 98);
-        const ramUsage = Math.min(Math.round(baseLoad + (workflowCount * 8) + (totalLogs * 0.05)), 95);
-        const queueSize = Math.max(0, Math.floor(totalLogs * 0.05));
-
-        // Generate synthetic telemetry for visualization
         const telemetry = Array.from({ length: 12 }, (_, i) => 
             Math.round(20 + Math.random() * (cpuLoad > 40 ? 60 : 30))
         );
 
         return {
-            id: row.id,
-            name: `NODE_${row.firmName.replace(/\s+/g, '_').toUpperCase()}_${row.id.substring(0, 4)}`,
-            firm: row.firmName,
+            id: node.id,
+            name: node.name,
+            firm: node.url.replace(/^https?:\/\//, '').split('/')[0],
             status,
             cpu: cpuLoad,
             ram: ramUsage,
-            queue: queueSize,
-            uptime: workflowCount > 0 ? 'Online' : 'Standby',
+            queue: 0,
+            uptime: node.status,
             telemetry
         };
     });
@@ -179,10 +158,7 @@ export default async function FleetMonitoringPage() {
                         <p className={adminStyles.registrySubtitle}>Real-time telemetry from every provisioned instance.</p>
                     </div>
                     <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                          <button className={adminStyles.activeBadge} style={{ border: 'none', cursor: 'default' }}>
-                             <RefreshCw size={14} className={adminStyles.spinning} /> 
-                             <span>Live Sync</span>
-                          </button>
+                         <FleetManager />
                     </div>
                 </div>
 
