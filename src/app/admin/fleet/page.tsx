@@ -17,8 +17,9 @@ import {
     Network
 } from "lucide-react";
 import adminStyles from "../admin.module.css";
-import React from 'react';
+import React from "react";
 import { FleetManager } from "./FleetManager";
+import { NodeActions } from "./NodeActions";
 
 interface NodeStats {
     id: string;
@@ -262,14 +263,11 @@ export default async function FleetMonitoringPage() {
                                         </div>
                                     </td>
                                     <td>
-                                        <div style={{ display: "flex", gap: "10px", justifyContent: 'flex-end' }}>
-                                            <button className={adminStyles.actionIconBtn} title="Node Diagnostics">
-                                                <Database size={16} />
-                                            </button>
-                                            <button className={adminStyles.actionIconBtn} title="System Calibrate">
-                                                <Settings2 size={16} />
-                                            </button>
-                                        </div>
+                                        <NodeActions 
+                                            nodeId={node.id} 
+                                            nodeUrl={clusterNodes.find(n => n.id === node.id)?.url} 
+                                            nodeName={node.name} 
+                                        />
                                     </td>
                                 </tr>
                             ))}
@@ -279,7 +277,7 @@ export default async function FleetMonitoringPage() {
                         <div className={adminStyles.emptyState}>
                              <div className={adminStyles.emptyIcon}><Globe size={64} /></div>
                              <p style={{ fontWeight: 950, color: 'var(--foreground)', fontSize: '1.25rem' }}>Sovereign cluster empty.</p>
-                             <p style={{ color: 'var(--muted-foreground)', fontWeight: 700, marginTop: '8px' }}>No active firm nodes detected in the regional hub.</p>
+                              <p style={{ color: 'var(--muted-foreground)', fontWeight: 700, marginTop: '8px' }}>No active firm nodes detected in the regional hub.</p>
                         </div>
                     )}
                 </div>
@@ -287,4 +285,3 @@ export default async function FleetMonitoringPage() {
         </div>
     );
 }
-
