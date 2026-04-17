@@ -19,7 +19,7 @@ export default async function IncidentCommandPage() {
             wl.id, 
             u."firmName", 
             wl."workflowName", 
-            COALESCE(wl.result->>'error', w."errorMessage", 'Unknown Operational Fault') as "errorMessage", 
+            COALESCE(wl.result::jsonb->>'error', w."errorMessage", 'Unknown Operational Fault') as "errorMessage", 
             wl."createdAt",
             wl.status
         FROM "WorkflowLog" wl
