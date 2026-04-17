@@ -1,55 +1,75 @@
 import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
 
 export async function GET() {
-    const n8nApiUrl = process.env.N8N_API_URL;
-    const n8nApiKey = process.env.N8N_API_KEY;
-
-    if (!n8nApiUrl || !n8nApiKey) {
-        return NextResponse.json({ error: "n8n configuration missing" }, { status: 500 });
-    }
-
     try {
-        // Ensure URL has /api/v1 if not already present
-        let apiUrl = n8nApiUrl.endsWith('/') ? n8nApiUrl.slice(0, -1) : n8nApiUrl;
-        if (!apiUrl.includes('/api/v1')) {
-            apiUrl += '/api/v1';
+        // Try fetching from registered ClusterNodes first
+        let nodes: any[] = [];
+        try {
+            nodes = await db.query('SELECT * FROM "ClusterNode" ORDER BY "createdAt" DESC');
+        } catch {
+            // Table might not exist yet - fall back to env
         }
-        
-        console.log(`Fetching n8n workflows from: ${apiUrl}/workflows`);
+
+        // If we have registered nodes, aggregate workflows from all of them
+        if (nodes.length > 0) {
+            let allWorkflows: any[] = [];
+
+            for (const node of nodes) {
+                const apiKey = node.api_key || node.apiKey || process.env.N8N_API_KEY;
+                if (!apiKey) continue;
+
+                let baseUrl = node.url.replace(/\/+$/, '');
+                try {
+                    const res = await fetch(`${baseUrl}/api/v1/workflows`, {
+                        headers: { "X-N8N-API-KEY": apiKey },
+                        cache: 'no-store',
+                        signal: AbortSignal.timeout(8000)
+                    });
+
+                    const ct = res.headers.get('content-type') || '';
+                    if (res.ok && ct.includes('application/json')) {
+                        const data = await res.json();
+                        const wfs = (data.data || data || []).map((wf: any) => ({
+                            ...wf,
+                            _sourceNode: node.name
+                        }));
+                        allWorkflows.push(...wfs);
+                    }
+                } catch {
+                    // Node unreachable, skip it
+                }
+            }
+
+            return NextResponse.json({ data: allWorkflows });
+        }
+
+        // Fallback: use env variables if no ClusterNodes registered
+        const n8nApiUrl = process.env.N8N_API_URL;
+        const n8nApiKey = process.env.N8N_API_KEY;
+
+        if (!n8nApiUrl || !n8nApiKey) {
+            return NextResponse.json({ data: [], error: "No n8n nodes configured" });
+        }
+
+        let apiUrl = n8nApiUrl.replace(/\/+$/, '');
+        if (!apiUrl.includes('/api/v1')) apiUrl += '/api/v1';
+
         const response = await fetch(`${apiUrl}/workflows`, {
-            headers: {
-                "X-N8N-API-KEY": n8nApiKey,
-            },
-            cache: 'no-store'
+            headers: { "X-N8N-API-KEY": n8nApiKey },
+            cache: 'no-store',
+            signal: AbortSignal.timeout(8000)
         });
 
-        const contentType = response.headers.get("content-type");
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`n8n API error: ${response.status} ${response.statusText}`, errorText);
-            return NextResponse.json({ 
-                error: `n8n API error: ${response.status}`, 
-                details: errorText,
-                status: response.status 
-            }, { status: response.status });
-        }
-
-        if (!contentType || !contentType.includes("application/json")) {
-            const text = await response.text();
-            console.error("n8n API returned non-JSON response:", text.substring(0, 100));
-            return NextResponse.json({ 
-                error: "Invalid Response", 
-                details: "The n8n server returned an HTML page instead of JSON. Check your API URL and Key." 
-            }, { status: 500 });
+        const contentType = response.headers.get("content-type") || '';
+        if (!response.ok || !contentType.includes("application/json")) {
+            return NextResponse.json({ data: [], error: `n8n returned ${response.status}` });
         }
 
         const data = await response.json();
         return NextResponse.json(data);
     } catch (error: any) {
-        console.error("Error fetching n8n workflows:", error);
-        return NextResponse.json({ 
-            error: "Failed to fetch n8n data", 
-            message: error.message 
-        }, { status: 500 });
+        console.error("Error fetching n8n workflows:", error.message);
+        return NextResponse.json({ data: [], error: error.message });
     }
 }
