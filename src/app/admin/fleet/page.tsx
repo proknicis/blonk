@@ -34,13 +34,32 @@ export default function FleetMonitoringPage() {
                 const res = await fetch('/api/admin/nodes');
                 const data = await res.json();
                 
-                // Simulate health check / status logic locally for speed in Client Component
-                const nodesWithStats = data.map((node: any) => ({
-                    ...node,
-                    status: (node.status === 'Active' && node.cpu < 50 && node.ram < 50) ? 'Healthy' : (node.status === 'Active' ? 'Warning' : 'Critical'),
-                    firm: node.url.replace(/^https?:\/\//, '').split('/')[0],
-                    telemetry: Array.from({ length: 12 }, () => Math.round((node.cpu || 20) + (Math.random() * 10 - 5)))
-                }));
+                if (!Array.isArray(data)) {
+                    console.error('Unexpected node data:', data);
+                    setLoading(false);
+                    return;
+                }
+
+                const nodesWithStats = data.map((node: any) => {
+                    // Determine health from live probe data
+                    let status = 'Critical';
+                    if (node.status === 'Active') {
+                        if (node.cpu < 50 && node.ram < 50) status = 'Healthy';
+                        else if (node.cpu < 80 && node.ram < 80) status = 'Warning';
+                        else status = 'Critical';
+                    } else if (node.status === 'Unreachable' || node.status === 'Auth Failed') {
+                        status = 'Critical';
+                    }
+
+                    return {
+                        ...node,
+                        status,
+                        firm: node.url.replace(/^https?:\/\//, '').split('/')[0],
+                        telemetry: Array.from({ length: 12 }, () => 
+                            Math.max(1, Math.round(node.cpu + (Math.random() * 12 - 6)))
+                        )
+                    };
+                });
                 setNodes(nodesWithStats);
             } catch (err) {
                 console.error(err);
@@ -50,6 +69,8 @@ export default function FleetMonitoringPage() {
         };
 
         fetchNodes();
+        const interval = setInterval(fetchNodes, 30000); // Refresh every 30s
+        return () => clearInterval(interval);
     }, []);
 
     const isEmergency = packetLoss > 1.0;
