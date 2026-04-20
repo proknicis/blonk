@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { db } from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
+import { sendEmail } from '@/lib/email';
+import WelcomeMFAEmail from '@/emails/WelcomeMFAEmail';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,6 +46,18 @@ export async function POST(request: Request) {
 
         // 3. Anchor user as Team owner
         await db.execute('UPDATE "Team" SET "ownerId" = $1 WHERE id = $2', [userId, teamId]);
+
+        // 4. Send Welcome MFA Email
+        const mfaCode = Math.floor(100000 + Math.random() * 900000).toString(); // Generate 6-digit code
+        
+        // In a real app we might store mfaCode in the DB here
+        
+        // Dispatch the email asynchronously
+        sendEmail(
+            email,
+            'Action Required: Complete your Blonk Identity Setup',
+            <WelcomeMFAEmail userName={name || email.split('@')[0]} mfaCode={mfaCode} />
+        ).catch(err => console.error('Failed to dispatch MFA email:', err));
 
         return NextResponse.json({
             message: 'User registered successfully',
