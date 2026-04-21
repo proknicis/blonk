@@ -63,20 +63,16 @@ export async function POST(request: Request) {
             const params = [];
             let i = 1;
 
-            if (status === 'error') {
+            if (status === 'error' || status === 'FAILED') {
                 updates.push(`status = $${i++}`); params.push('Error');
-                updates.push(`"errorMessage" = $${i++}`); params.push(errorMessage || (result ? JSON.stringify(result) : 'Unknown operational fault'));
+                updates.push(`"errorMessage" = $${i++}`); params.push(activity?.action || "Operational failure in node execution");
                 updates.push(`progress = $${i++}`); params.push(0);
-            } else if (status === 'success') {
+            } else if (status === 'success' || status === 'COMPLETED') {
                 updates.push(`status = $${i++}`); params.push('Ready');
                 updates.push(`progress = $${i++}`); params.push(100);
-            } else if (status === 'active') {
+            } else if (status === 'active' || status === 'RUNNING') {
                 updates.push(`status = $${i++}`); params.push('Active');
-                if (progress !== undefined) {
-                    updates.push(`progress = $${i++}`); params.push(progress);
-                } else {
-                    updates.push(`progress = $${i++}`); params.push(50);
-                }
+                updates.push(`progress = $${i++}`); params.push(50);
             }
 
             if (updates.length > 0) {
