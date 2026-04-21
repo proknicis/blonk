@@ -20,7 +20,7 @@ services:
     build: .
     restart: always
     ports:
-      - "3001:3000"
+      - "80:3000"
     environment:
       DATABASE_URL: postgresql://myuser:mypassword@db:5432/mydb
       # NEXT_PUBLIC_... environment variables can be injected here
