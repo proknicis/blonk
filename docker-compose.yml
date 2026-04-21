@@ -10,6 +10,49 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  blonk-web:
+    build: .
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://myuser:mypassword@db:5432/mydb
+      # NEXT_PUBLIC_... environment variables can be injected here
+    depends_on:
+      db:
+        condition: service_healthy
+
+  n8n:
+    image: n8nio/n8n
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=n8n.yourfirm.com
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - NODE_ENV=production
+      - WEBHOOK_URL=https://n8n.yourfirm.com/
+      - GENERIC_TIMEZONE=Europe/Riga
+      # PostgreSQL configuration for n8n internal database
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_DATABASE=mydb
+      - DB_POSTGRESDB_HOST=db
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_USER=myuser
+      - DB_POSTGRESDB_PASSWORD=mypassword
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   postgres_data:
+  n8n_data:

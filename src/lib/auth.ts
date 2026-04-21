@@ -22,7 +22,7 @@ export const authOptions: NextAuthOptions = {
                 const email = credentials.email.toLowerCase();
 
                 const rows = await db.query(
-                    'SELECT id, email, name, role, "teamId", password FROM "User" WHERE LOWER(email) = LOWER($1) LIMIT 1',
+                    'SELECT id, email, name, role, "teamId", password, tier FROM "User" WHERE LOWER(email) = LOWER($1) LIMIT 1',
                     [email],
                 ) as any[];
 
@@ -38,6 +38,7 @@ export const authOptions: NextAuthOptions = {
                     name: user.name,
                     role: user.role,
                     teamId: user.teamId,
+                    tier: user.tier || 'Starter',
                 };
             }
         })
@@ -48,12 +49,13 @@ export const authOptions: NextAuthOptions = {
                 token.id = user.id;
                 token.role = (user as any).role;
                 token.teamId = (user as any).teamId;
+                token.tier = (user as any).tier;
             }
             if (account?.provider === 'google' || (token.email && !token.teamId)) {
                 const email = (user?.email || token.email || '').toLowerCase();
                 if (email) {
                     const existing = await db.query(
-                        'SELECT id, "teamId", role, "onboardingStatus" FROM "User" WHERE LOWER(email) = LOWER($1) LIMIT 1', 
+                        'SELECT id, "teamId", role, tier, "onboardingStatus" FROM "User" WHERE LOWER(email) = LOWER($1) LIMIT 1', 
                         [email]
                     ) as any[];
                     
@@ -79,6 +81,7 @@ export const authOptions: NextAuthOptions = {
                         const dbUser = existing[0];
                         token.id = dbUser.id;
                         token.role = dbUser.role;
+                        token.tier = dbUser.tier || 'Starter';
 
                         if (!dbUser.teamId) {
                             // Backfill Team for accounts caught in the zombie registration bug
@@ -103,6 +106,7 @@ export const authOptions: NextAuthOptions = {
                 (session.user as any).id = token.id;
                 (session.user as any).teamId = token.teamId;
                 (session.user as any).role = token.role;
+                (session.user as any).tier = token.tier;
             }
             return session;
         }
