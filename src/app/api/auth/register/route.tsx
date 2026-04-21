@@ -53,11 +53,15 @@ export async function POST(request: Request) {
         // In a real app we might store mfaCode in the DB here
         
         // Dispatch the email asynchronously
-        sendEmail(
+        const emailRes = await sendEmail(
             email,
             'Action Required: Complete your Blonk Identity Setup',
             <WelcomeMFAEmail userName={name || email.split('@')[0]} mfaCode={mfaCode} />
-        ).catch(err => console.error('Failed to dispatch MFA email:', err));
+        );
+
+        if (!emailRes.success) {
+             console.error('Email Dispatch Error:', emailRes.error);
+        }
 
         return NextResponse.json({
             message: 'User registered successfully',
