@@ -17,14 +17,13 @@ export default async function IncidentCommandPage() {
     const errorLogs = await db.query(`
         SELECT 
             wl.id, 
-            u."firmName", 
+            t."firmName", 
             wl."workflowName", 
-            COALESCE(wl.result::jsonb->>'error', w."errorMessage", 'Unknown Operational Fault') as "errorMessage", 
+            COALESCE(wl.result::jsonb->>'error', 'Unknown Operational Fault') as "errorMessage", 
             wl."createdAt",
             wl.status
         FROM "WorkflowLog" wl
-        LEFT JOIN "Workflow" w ON wl."workflowId" = w.id
-        LEFT JOIN "User" u ON w."userId" = u.id
+        LEFT JOIN "Team" t ON wl."teamId" = t.id
         WHERE wl.status = 'error'
         ORDER BY wl."createdAt" DESC
         LIMIT 10

@@ -97,9 +97,9 @@ export default function AdminControlPage() {
     };
 
     const filteredWorkflows = workflows.filter(wf => {
-        const matchesSearch = wf.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            wf.requestedBy?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            wf.id.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesSearch = String(wf.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+            String(wf.requestedBy || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+            String(wf.id || '').toLowerCase().includes(searchQuery.toLowerCase());
         
         if (!matchesSearch) return false;
         if (activeFilter === "All") return true;
@@ -120,7 +120,7 @@ export default function AdminControlPage() {
                     createdAt: wf.createdAt || new Date().toISOString(),
                     updatedAt: wf.updatedAt || new Date().toISOString(),
                     userTier: wf.userTier || 'Starter',
-                    workflowCount: Array.isArray(wf.userWorkflows) ? wf.userWorkflows.length : 0
+                    workflowCount: typeof wf.userWorkflows === 'number' ? wf.userWorkflows : (Array.isArray(wf.userWorkflows) ? wf.userWorkflows.length : 0)
                 }));
                 setWorkflows(processed);
             }
@@ -387,9 +387,9 @@ export default function AdminControlPage() {
                                                                     <Zap size={18} />
                                                                 </div>
                                                                 <div>
-                                                                    <div className={adminStyles.loopName}>{wf.name}</div>
+                                                                    <div className={adminStyles.loopName}>{wf.name || 'Unnamed Instance'}</div>
                                                                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
-                                                                        <code className={adminStyles.identityHash}>{wf.id.substring(0, 8)}</code>
+                                                                        <code className={adminStyles.identityHash}>{String(wf.id || '').substring(0, 8)}</code>
                                                                         <span style={{ color: 'var(--muted-foreground)', fontSize: '0.7rem', fontWeight: 800 }}>• {new Date(wf.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                                                     </div>
                                                                 </div>
@@ -398,11 +398,11 @@ export default function AdminControlPage() {
                                                         <td>
                                                             <div className={adminStyles.requesterInfo}>
                                                                 <div className={adminStyles.requesterAvatar}>
-                                                                    {wf.requestedBy?.charAt(0).toUpperCase() || "U"}
+                                                                    {String(wf.requestedBy || 'U').charAt(0).toUpperCase()}
                                                                 </div>
                                                                 <div>
                                                                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                                                        <span className={adminStyles.requesterName}>{wf.requestedBy}</span>
+                                                                        <span className={adminStyles.requesterName}>{wf.requestedBy || 'Anonymous'}</span>
                                                                         <span className={adminStyles.tierBadge} style={{ background: wf.userTier === 'Enterprise' ? 'var(--foreground)' : 'var(--muted)', color: wf.userTier === 'Enterprise' ? 'var(--accent)' : 'var(--muted-foreground)' }}>{wf.userTier}</span>
                                                                     </div>
                                                                     <div className={adminStyles.requesterEmail}>{wf.workflowCount} workflows active</div>
