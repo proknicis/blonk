@@ -3,6 +3,8 @@ import { ShieldAlert, Terminal, MessageSquare, ExternalLink, Filter, Search, Pho
 import adminStyles from "../admin.module.css";
 import React from 'react';
 
+export const dynamic = 'force-dynamic';
+
 interface Incident {
     id: string;
     firm: string;
