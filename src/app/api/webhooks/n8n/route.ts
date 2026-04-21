@@ -12,18 +12,42 @@ export async function POST(request: Request) {
         }
 
         const body = await request.json();
-        const { teamId, workflowName, status, result, errorMessage, progress } = body;
+        
+        // Handling the new rich JSON structure from n8n
+        const { 
+            workflow_id, 
+            process_name, 
+            status, 
+            activity, 
+            metrics, 
+            timestamp,
+            teamId: providedTeamId 
+        } = body;
 
-        if (!teamId || !workflowName || !status) {
-            return NextResponse.json({ error: 'Missing required payload parameters (teamId, workflowName, status)' }, { status: 400 });
+        // If teamId is missing, we attempt to find it via workflow_id or use a fallback for testing
+        let teamId = providedTeamId;
+        if (!teamId && workflow_id) {
+            const workflow = await db.query('SELECT "teamId" FROM "Workflow" WHERE id = $1 LIMIT 1', [workflow_id]) as any[];
+            if (workflow.length > 0) teamId = workflow[0].teamId;
+        }
+
+        if (!teamId || !process_name || !status) {
+            return NextResponse.json({ error: 'Missing critical identity parameters (teamId/workflow_id, process_name, status)' }, { status: 400 });
         }
 
         const logId = uuidv4();
 
-        // 1. Insert into WorkflowLog
+        // 1. Insert into WorkflowLog with rich metadata
         await db.execute(
-            'INSERT INTO "WorkflowLog" (id, "workflowName", status, result, "teamId", "createdAt") VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)',
-            [logId, workflowName, status, result ? JSON.stringify(result) : '{}', teamId]
+            'INSERT INTO "WorkflowLog" (id, "workflowName", status, result, "teamId", "createdAt") VALUES ($1, $2, $3, $4, $5, $6)',
+            [
+                logId, 
+                process_name, 
+                status === 'COMPLETED' ? 'success' : 'active', 
+                JSON.stringify({ activity, metrics, timestamp }), 
+                teamId,
+                timestamp || new Date()
+            ]
         );
 
         // 2. Try to update the associated Workflow progress/status if it exists

@@ -83,12 +83,31 @@ export async function GET() {
             LIMIT 10
         `, [teamId]) as any[];
 
-        const formattedFeed = feedLogs.map(log => ({
-            title: log.title || "Autonomous Event",
-            meta: formatResultMessage(log.meta),
-            type: (log.type === 'error' || log.type === 'failed') ? 'error' : (log.type === 'info' ? 'info' : 'success'),
-            time: formatTimeAgo(new Date(log.time))
-        }));
+        const formattedFeed = feedLogs.map(log => {
+            let richMeta = { message: "Data synchronized", metrics: null, activity: null };
+            try {
+                if (log.meta) {
+                    const parsed = typeof log.meta === 'string' ? JSON.parse(log.meta) : log.meta;
+                    if (parsed.metrics || parsed.activity) {
+                        richMeta = { 
+                            message: parsed.activity?.action || "Operation complete",
+                            metrics: parsed.metrics,
+                            activity: parsed.activity
+                        };
+                    } else {
+                        richMeta.message = parsed.message || parsed.status || "Data packet synchronized.";
+                    }
+                }
+            } catch (e) {}
+
+            return {
+                title: log.title || "Autonomous Event",
+                meta: richMeta.message,
+                rich: richMeta,
+                type: (log.type === 'error' || log.type === 'failed') ? 'error' : (log.type === 'info' ? 'info' : 'success'),
+                time: formatTimeAgo(new Date(log.time))
+            };
+        });
 
         const calculatedTimeSaved = Math.round(totalTasksDone * 0.08); // 0.08 hours per task
         

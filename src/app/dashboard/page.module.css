@@ -306,26 +306,69 @@
 .feedDotSuccess { background: var(--accent); }
 .feedDotError { background: var(--destructive); }
 
-.feedTitle {
-    font-size: 1rem;
-    font-weight: 950;
-    color: var(--foreground);
+.feedContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.feedHeaderRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
     margin-bottom: 4px;
 }
 
+.feedTitle {
+    font-size: 0.95rem;
+    font-weight: 950;
+    color: var(--foreground);
+}
+
 .feedMeta {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     color: var(--muted-foreground);
     font-weight: 700;
-    margin-bottom: 6px;
+    line-height: 1.4;
+    margin-bottom: 10px;
 }
 
 .feedTime {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     font-weight: 950;
     color: var(--muted-foreground);
     opacity: 0.4;
     text-transform: uppercase;
+}
+
+.richTelemetry {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.telemetryBadge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 950;
+    color: var(--muted-foreground);
+}
+
+.telemetryDest {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.7s;
+    font-weight: 800;
+    color: var(--accent);
+    opacity: 0.8;
 }
 
 /* WORKFLOW LIST */

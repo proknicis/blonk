@@ -220,13 +220,32 @@ export default function DashboardPage() {
                         </div>
                         <div className={styles.feedWrapper}>
                             {data.intelligenceFeed && data.intelligenceFeed.length > 0 ? (
-                                data.intelligenceFeed.map((item, idx) => (
+                                data.intelligenceFeed.map((item: any, idx) => (
                                     <div key={idx} className={styles.feedItem}>
                                         <div className={item.type === 'error' ? styles.feedDotError : styles.feedDotSuccess} />
                                         <div className={styles.feedContent}>
-                                            <div className={styles.feedTitle}>{item.title}</div>
+                                            <div className={styles.feedHeaderRow}>
+                                                <div className={styles.feedTitle}>{item.title}</div>
+                                                <div className={styles.feedTime}>{item.time}</div>
+                                            </div>
                                             <div className={styles.feedMeta}>{item.meta}</div>
-                                            <div className={styles.feedTime}>{item.time}</div>
+                                            
+                                            {/* RICH TELEMETRY RENDERING */}
+                                            {item.rich && item.rich.metrics && (
+                                                <div className={styles.richTelemetry}>
+                                                    <div className={styles.telemetryBadge}>
+                                                        <Zap size={10} /> {item.rich.metrics.execution_speed || '0.5s'}
+                                                    </div>
+                                                    <div className={styles.telemetryBadge}>
+                                                        <FileText size={10} /> {item.rich.metrics.data_points_processed || 0} pts
+                                                    </div>
+                                                    {item.rich.activity?.destination && (
+                                                        <div className={styles.telemetryDest}>
+                                                            <Link2 size={10} /> {item.rich.activity.destination}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 ))
