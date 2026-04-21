@@ -54,7 +54,7 @@ export async function POST(request: Request) {
         // Workflows are tracked by teamId and name.
         const workflowRows = await db.query(
             'SELECT id FROM "Workflow" WHERE "teamId" = $1 AND name = $2 LIMIT 1',
-            [teamId, workflowName]
+            [teamId, process_name]
         ) as any[];
 
         if (workflowRows.length > 0) {
