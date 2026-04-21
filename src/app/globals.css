@@ -131,20 +131,30 @@
     @apply border-border outline-ring/50;
     box-sizing: border-box;
   }
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+    background: #000; /* Set default to black to bridge with video */
+  }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    font-family: var(--font-sans);
     font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
 /* Global Smooth Transitions */
 * {
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.1s ease, box-shadow 0.2s ease;
 }
 
 /* Standardized Typography Hierarchy */
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6, button, input, select, textarea, a {
     @apply font-bold tracking-tight text-foreground;
+    font-family: inherit;
 }
 
 /* Common Classes to replace hardcoded styles */

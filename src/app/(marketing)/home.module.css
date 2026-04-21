@@ -8,18 +8,18 @@
 
 /* ── BASE ── */
 .container {
-    background: #fff;
+    background: #000; /* Match hero video background */
     color: var(--fg);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    -webkit-font-smoothing: antialiased;
+    width: 100%;
 }
 
 .mainContent {
     width: 100%;
+    margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
 }
