@@ -81,35 +81,45 @@ export default function FleetVelocityChart({ initialData }: { initialData: Chart
     }, [chartLines]);
 
     return (
-        <div style={{ position: 'relative', width: '100%', animation: 'chartIn 0.8s ease' }}>
+        <div style={{ position: 'relative', width: '100%', animation: 'chartIn 0.8s cubic-bezier(0.16, 1, 0.3, 1)' }}>
             
             {/* TOOLSET BAR */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                   <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: '#F0FAF5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34D186' }}>
-                       <TrendingUp size={24} style={{ margin: 'auto' }}/>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                   <div style={{ 
+                       width: '52px', 
+                       height: '52px', 
+                       borderRadius: '16px', 
+                       background: 'linear-gradient(135deg, #F0FAF5 0%, #E6F6EF 100%)', 
+                       display: 'flex', 
+                       alignItems: 'center', 
+                       justifyContent: 'center', 
+                       color: '#34D186',
+                       boxShadow: '0 4px 12px rgba(52, 209, 134, 0.08)'
+                   }}>
+                       <TrendingUp size={26} />
                    </div>
                    <div>
-                       <h4 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 950, color: '#111', letterSpacing: '-0.04em' }}>Fleet Velocity</h4>
-                       <span style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 700 }}>Autonomous data throughput across active sectors</span>
+                       <h4 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 950, color: '#0F172A', letterSpacing: '-0.04em' }}>Fleet Velocity</h4>
+                       <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>Autonomous data throughput across active sectors</span>
                    </div>
                 </div>
 
-                <div style={{ display: 'flex', background: '#F1F5F9', padding: '4px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+                <div style={{ display: 'flex', background: '#F1F5F9', padding: '4px', borderRadius: '14px', border: '1px solid #E2E8F0' }}>
                     {(['24h', '7d', '30d'] as const).map(r => (
                         <button
                             key={r}
                             onClick={() => setRange(r)}
                             style={{
-                                padding: '8px 16px',
-                                borderRadius: '10px',
+                                padding: '8px 18px',
+                                borderRadius: '11px',
                                 border: 'none',
                                 background: range === r ? '#111' : 'transparent',
                                 color: range === r ? '#FFFFFF' : '#64748B',
-                                fontSize: '0.75rem',
+                                fontSize: '0.8rem',
                                 fontWeight: 950,
                                 cursor: 'pointer',
-                                transition: '0.2s'
+                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                             }}
                         >
                             {r.toUpperCase()}
@@ -120,18 +130,22 @@ export default function FleetVelocityChart({ initialData }: { initialData: Chart
 
             {/* CHART CANVAS */}
             <div 
-                style={{ position: 'relative', height: '300px', width: '100%', marginBottom: '24px' }}
+                style={{ position: 'relative', height: '320px', width: '100%', marginBottom: '24px' }}
                 onMouseLeave={() => setHoverIndex(null)}
             >
                 {/* SVG RENDERING */}
                 <svg width="100%" height="100%" viewBox="0 0 1000 240" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
                     <defs>
+                        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="3" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
                         <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#34D186" stopOpacity="0.15" />
+                            <stop offset="0%" stopColor="#34D186" stopOpacity="0.2" />
                             <stop offset="100%" stopColor="#34D186" stopOpacity="0" />
                         </linearGradient>
                         <linearGradient id="areaGradient2" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#0EA5E9" stopOpacity="0.1" />
+                            <stop offset="0%" stopColor="#0EA5E9" stopOpacity="0.15" />
                             <stop offset="100%" stopColor="#0EA5E9" stopOpacity="0" />
                         </linearGradient>
                     </defs>
@@ -143,8 +157,8 @@ export default function FleetVelocityChart({ initialData }: { initialData: Chart
                             x1="0" y1={240 * v} 
                             x2="1000" y2={240 * v} 
                             stroke="#F1F5F9" 
-                            strokeWidth="1" 
-                            strokeDasharray={v === 1 ? "" : "4 4"}
+                            strokeWidth="1.5" 
+                            strokeDasharray={v === 1 ? "" : "6 6"}
                         />
                     ))}
 
@@ -154,22 +168,23 @@ export default function FleetVelocityChart({ initialData }: { initialData: Chart
                             <path 
                                 d={getCurvePath(line.data, maxValue, true)} 
                                 fill={idx === 0 ? "url(#areaGradient)" : "url(#areaGradient2)"} 
-                                style={{ transition: 'all 0.6s ease' }}
+                                style={{ transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }}
                             />
-                            {/* MAIN LINE */}
+                            {/* MAIN LINE WITH GLOW */}
                             <path 
                                 d={getCurvePath(line.data, maxValue, false)} 
                                 fill="none" 
                                 stroke={idx === 0 ? "#34D186" : "#0EA5E9"} 
-                                strokeWidth="4" 
+                                strokeWidth="4.5" 
                                 strokeLinecap="round" 
                                 strokeLinejoin="round" 
-                                style={{ transition: 'all 0.6s ease' }}
+                                filter={idx === 0 ? "url(#glow)" : ""}
+                                style={{ transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }}
                             />
                         </g>
                     ))}
 
-                    {/* INTERACTION OVERLAY (Transparent column detection) */}
+                    {/* INTERACTION OVERLAY */}
                     {chartLines[0]?.data.map((_, i) => {
                         const x = (i / (chartLines[0].data.length - 1)) * 1000;
                         return (
@@ -183,44 +198,61 @@ export default function FleetVelocityChart({ initialData }: { initialData: Chart
                         );
                     })}
 
-                    {/* HOVER INDICATOR */}
+                    {/* HOVER CROSSHAIR */}
                     {hoverIndex !== null && (
-                        <line 
-                           x1={(hoverIndex / (chartLines[0].data.length - 1)) * 1000} 
-                           y1="0" x2={(hoverIndex / (chartLines[0].data.length - 1)) * 1000} 
-                           y2="240" 
-                           stroke="#111" 
-                           strokeWidth="1" 
-                        />
+                        <g style={{ transition: '0.1s' }}>
+                            <line 
+                               x1={(hoverIndex / (chartLines[0].data.length - 1)) * 1000} 
+                               y1="0" x2={(hoverIndex / (chartLines[0].data.length - 1)) * 1000} 
+                               y2="240" 
+                               stroke="#0F172A" 
+                               strokeWidth="1.5" 
+                               strokeDasharray="4 2"
+                            />
+                            <circle 
+                                cx={(hoverIndex / (chartLines[0].data.length - 1)) * 1000}
+                                cy={240 - (chartLines[0].data[hoverIndex] / maxValue) * 240}
+                                r="6"
+                                fill="#34D186"
+                                stroke="#FFF"
+                                strokeWidth="3"
+                                boxShadow="0 0 10px rgba(52, 209, 134, 0.5)"
+                            />
+                        </g>
                     )}
                 </svg>
 
-                {/* DYNAMIC TOOLTIP */}
+                {/* DYNAMIC INSTITUTIONAL TOOLTIP */}
                 {hoverIndex !== null && (
                     <div style={{
                         position: 'absolute',
-                        top: '-60px',
+                        top: '-10px',
                         left: `${(hoverIndex / (chartLines[0].data.length - 1)) * 100}%`,
-                        transform: 'translateX(-50%)',
-                        background: '#111',
+                        transform: 'translate(-50%, -100%)',
+                        background: 'rgba(15, 23, 42, 0.95)',
+                        backdropFilter: 'blur(8px)',
                         color: '#FFFFFF',
-                        padding: '12px 18px',
-                        borderRadius: '12px',
-                        fontSize: '0.85rem',
+                        padding: '16px 20px',
+                        borderRadius: '16px',
+                        fontSize: '0.9rem',
                         fontWeight: 950,
-                        zIndex: 20,
-                        boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+                        zIndex: 100,
+                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
                         whiteSpace: 'nowrap',
                         pointerEvents: 'none',
-                        animation: 'tooltipIn 0.2s ease-out'
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        animation: 'tooltipIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
                     }}>
-                        <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', marginBottom: '4px' }}>
-                           {labels[Math.floor(hoverIndex / (chartLines[0].data.length / labels.length))] || 'Live Point'}
+                        <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                           <Clock size={12} /> {labels[Math.floor(hoverIndex / (chartLines[0].data.length / labels.length))] || 'Live Transmission'}
                         </div>
                         {chartLines.map((l, i) => (
-                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: i === 0 ? '#34D186' : '#0EA5E9' }} />
-                                {l.data[hoverIndex]} <span style={{ opacity: 0.6 }}>OPS</span>
+                            <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '24px', marginBottom: i === 0 ? '6px' : '0' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: i === 0 ? '#34D186' : '#0EA5E9' }} />
+                                    <span style={{ opacity: 0.8 }}>{i === 0 ? 'Core Velocity' : 'Secondary Mirror'}</span>
+                                </div>
+                                <span style={{ color: i === 0 ? '#34D186' : '#0EA5E9' }}>{l.data[hoverIndex]} <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>OPS</span></span>
                             </div>
                         ))}
                     </div>
@@ -228,42 +260,62 @@ export default function FleetVelocityChart({ initialData }: { initialData: Chart
             </div>
 
             {/* X-AXIS LABELS */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94A3B8', fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748B', fontSize: '0.8rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.08em', padding: '0 4px' }}>
                 {labels.map((label, i) => <span key={i}>{label}</span>)}
             </div>
 
-            {/* LEGEND BOX */}
+            {/* DYNAMIC LEGEND & INSIGHTS */}
             <div style={{ 
-                display: 'flex', 
-                flexWrap: 'wrap',
-                gap: '24px 32px', 
-                marginTop: '32px', 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '20px', 
+                marginTop: '40px', 
                 padding: '24px', 
-                background: '#F8FAFC', 
-                borderRadius: '20px', 
-                border: '1px solid #E2E8F0',
+                background: '#FFFFFF', 
+                borderRadius: '24px', 
+                border: '1px solid #F1F5F9',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.04)',
                 width: '100%',
                 boxSizing: 'border-box'
             }}>
-               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                   <div style={{ width: '12px', height: '12px', borderRadius: '4px', background: '#34D186' }} />
+               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                   <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(52, 209, 134, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34D186' }}>
+                       <Zap size={20} />
+                   </div>
                    <div>
-                       <div style={{ fontSize: '0.85rem', fontWeight: 950, color: '#111' }}>Sovereign Flow</div>
-                       <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 700 }}>Primary Loop Throughput</div>
+                       <div style={{ fontSize: '0.9rem', fontWeight: 950, color: '#1E293B' }}>Sovereign Flow</div>
+                       <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>Primary Loop Throughput</div>
                    </div>
                </div>
-               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                   <div style={{ width: '12px', height: '12px', borderRadius: '4px', background: '#0EA5E9' }} />
+               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                   <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(14, 165, 233, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0EA5E9' }}>
+                       <TrendingUp size={20} />
+                   </div>
                    <div>
-                       <div style={{ fontSize: '0.85rem', fontWeight: 950, color: '#111' }}>Subsystem Mirror</div>
-                       <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 700 }}>Mirrored Data Sync</div>
+                       <div style={{ fontSize: '0.9rem', fontWeight: 950, color: '#1E293B' }}>Subsystem Mirror</div>
+                       <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>Mirrored Data Sync</div>
+                   </div>
+               </div>
+               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                   <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8' }}>
+                       <Info size={20} />
+                   </div>
+                   <div>
+                       <div style={{ fontSize: '0.9rem', fontWeight: 950, color: '#1E293B' }}>Peak Yield</div>
+                       <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>{Math.max(...chartLines[0].data)} Ops Peak</div>
                    </div>
                </div>
             </div>
 
             <style jsx>{`
-                @keyframes chartIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-                @keyframes tooltipIn { from { opacity: 0; transform: translateY(5px) translateX(-50%); } to { opacity: 1; transform: translateY(0) translateX(-50%); } }
+                @keyframes chartIn { 
+                    from { opacity: 0; transform: translateY(20px); } 
+                    to { opacity: 1; transform: translateY(0); } 
+                }
+                @keyframes tooltipIn { 
+                    from { opacity: 0; transform: translate(-50%, -95%); } 
+                    to { opacity: 1; transform: translate(-50%, -100%); } 
+                }
             `}</style>
         </div>
     );
