@@ -7,42 +7,32 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
     const [runningId, setRunningId] = useState<string | null>(null);
 
     const runWorkflow = async (wf: any, actionType: 'START' | 'STOP') => {
-        if (!wf.n8nWebhookUrl) {
-            alert("No n8n webhook linked for this workflow. Please configure it in the Admin Panel.");
-            return;
-        }
-
-        const actionLabel = actionType === 'START' ? 'Force Start' : 'Force End';
+        // High-Fidelity Feedback: Set the loading ID
         setRunningId(`${wf.id}-${actionType}`);
         
         try {
-            const res = await fetch('/api/admin/proxy-trigger', {
+            // Using the Sovereign Control Path
+            const res = await fetch('https://n8n.manadavana.lv/webhook/workflow-control', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    url: wf.n8nWebhookUrl,
-                    payload: {
-                        user: 'nikolass',
-                        action: `${actionLabel}: ${wf.name}`,
-                        type: actionType,
-                        source: 'BLONK_Dashboard',
-                        workflowName: wf.name,
-                        workflowId: wf.id,
-                        timestamp: new Date().toISOString()
-                    }
+                    command: actionType.toLowerCase(),
+                    workflow_id: wf.id,
+                    workflow_name: wf.name,
+                    timestamp: new Date().toISOString()
                 })
             });
 
-            const result = await res.json();
-
-            if (result.success) {
-                alert(`Successfully executed ${actionLabel} for loop: ${wf.name}`);
+            if (res.ok) {
+                // Success glow: You can add state here later for visual feedback
+                console.log(`Command ${actionType} dispatched to Core Engine for: ${wf.name}`);
             } else {
-                alert(`Trigger Error: ${result.status}\nBody: ${result.data || 'No response'}`);
+                console.error(`Core Engine refused command: ${res.status}`);
+                alert("Core Engine Communication Error. Please check n8n status.");
             }
         } catch (error) {
-            console.error("Trigger error:", error);
-            alert("System Error: Failed to reach the back-end proxy.");
+            console.error("Master Control Error:", error);
+            alert("System Error: Could not reach the Core Control Webhook.");
         } finally {
             setRunningId(null);
         }
