@@ -51,10 +51,10 @@ export async function POST(request: Request) {
         );
 
         // 2. Try to update the associated Workflow progress/status if it exists
-        // Workflows are tracked by teamId and name.
+        // Identify specifically by workflow_id for maximum precision
         const workflowRows = await db.query(
-            'SELECT id FROM "Workflow" WHERE "teamId" = $1 AND name = $2 LIMIT 1',
-            [teamId, process_name]
+            'SELECT id FROM "Workflow" WHERE id = $1 LIMIT 1',
+            [workflow_id]
         ) as any[];
 
         if (workflowRows.length > 0) {
