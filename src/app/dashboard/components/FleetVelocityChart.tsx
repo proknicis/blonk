@@ -216,7 +216,7 @@ export default function FleetVelocityChart({ initialData }: { initialData: Chart
                                 fill="#34D186"
                                 stroke="#FFF"
                                 strokeWidth="3"
-                                boxShadow="0 0 10px rgba(52, 209, 134, 0.5)"
+                                style={{ filter: 'drop-shadow(0 0 4px rgba(52, 209, 134, 0.6))' }}
                             />
                         </g>
                     )}
