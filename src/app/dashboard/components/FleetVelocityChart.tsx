@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import styles from "../page.module.css";
-import { TrendingUp, Clock, Info } from "lucide-react";
+import { TrendingUp, Clock, Info, Zap } from "lucide-react";
 
 interface ChartLine {
     name: string;
