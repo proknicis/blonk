@@ -59,9 +59,13 @@ export async function POST(request: Request) {
 
         if (workflowRows.length > 0) {
             const workflowId = workflowRows[0].id;
+            const points = metrics?.data_points_processed || 0;
             const updates = [];
             const params = [];
             let i = 1;
+
+            // Increment the total yield (Autonomous Yield)
+            updates.push(`"tasksCount" = "tasksCount" + $${i++}`); params.push(points);
 
             if (status === 'error' || status === 'FAILED') {
                 updates.push(`status = $${i++}`); params.push('Error');
