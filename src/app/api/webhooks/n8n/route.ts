@@ -64,8 +64,8 @@ export async function POST(request: Request) {
             const params = [];
             let i = 1;
 
-            // Increment the total yield (Autonomous Yield)
-            updates.push(`"tasksCount" = "tasksCount" + $${i++}`); params.push(points);
+            // Increment the total yield (Autonomous Yield) - Uses COALESCE to prevent NULL errors
+            updates.push(`"tasksCount" = COALESCE("tasksCount", 0) + $${i++}`); params.push(points);
 
             if (status === 'error' || status === 'FAILED') {
                 updates.push(`status = $${i++}`); params.push('Error');

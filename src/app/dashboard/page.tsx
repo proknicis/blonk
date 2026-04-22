@@ -68,8 +68,16 @@ export default function DashboardPage() {
         };
 
         fetchDashboard();
-        const interval = setInterval(fetchPulse, 5000); // Pulse every 5s
-        return () => clearInterval(interval);
+        fetchPulse();
+
+        // Institutional Sync: Run every 5 seconds
+        const dashboardTimer = setInterval(fetchDashboard, 5000);
+        const pulseTimer = setInterval(fetchPulse, 5000);
+
+        return () => {
+            clearInterval(dashboardTimer);
+            clearInterval(pulseTimer);
+        };
     }, []);
 
     if (isLoading) {
