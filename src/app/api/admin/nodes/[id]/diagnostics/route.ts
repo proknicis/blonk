@@ -94,15 +94,15 @@ export async function GET(
         `, [id]) as any[];
 
         // Combine n8n data with our DB data
-        // For the Fleet Monitor, we want to show our registered customer workflows
-        const displayWorkflows = dbWorkflows.map(wf => {
+        const registeredWorkflows = dbWorkflows.map(wf => {
             const n8nMatch = workflows.find(n => n.id === wf.n8nWorkflowId);
             return {
                 id: wf.id,
                 name: wf.name,
                 active: wf.status === 'Ready' || wf.status === 'Active',
                 nodes: wf.tasksCount || 0,
-                status: wf.status
+                status: wf.status,
+                n8nId: wf.n8nWorkflowId
             };
         });
 
@@ -115,7 +115,8 @@ export async function GET(
             inactiveWorkflows: dbWorkflows.filter((w: any) => w.status !== 'Ready' && w.status !== 'Active').length,
             recentExecutions,
             failedExecutions,
-            workflows: displayWorkflows,
+            workflows: registeredWorkflows, // For Fleet Monitor UI
+            allWorkflows: workflows,        // For Production Sync dropdown
             workflowError,
             scannedAt: new Date().toISOString()
         });

@@ -50,6 +50,8 @@ export default function AdminControlPage() {
     // Selection states for Production Sync
     const [selectedServerId, setSelectedServerId] = useState("");
     const [selectedTemplateId, setSelectedTemplateId] = useState("");
+    const [serverWorkflows, setServerWorkflows] = useState<any[]>([]);
+    const [isFetchingLive, setIsFetchingLive] = useState(false);
 
     const [isProvisioning, setIsProvisioning] = useState(false);
     const [provisionStep, setProvisionStep] = useState(1);
@@ -116,6 +118,32 @@ export default function AdminControlPage() {
             }
         } catch (error) {
             console.error("Error fetching templates:", error);
+        }
+    };
+
+    const fetchLiveWorkflows = async (serverId: string) => {
+        if (!serverId) return;
+        setIsFetchingLive(true);
+        try {
+            const res = await fetch(`/api/admin/nodes/${serverId}/diagnostics`);
+            const data = await res.json();
+            // We want the RAW n8n workflows here, so we might need a dedicated endpoint or 
+            // use the 'workflows' field from diagnostics (but diagnostics now filters them!)
+            // Wait, the user said "from node diagnostic take all workflows".
+            // If I updated diagnostics to filter, I should probably have a RAW endpoint or 
+            // the user might want to see EVERYTHING on that server to pick from.
+            
+            // Use the 'allWorkflows' field from diagnostics to show EVERY workflow on the server
+            if (data && data.allWorkflows) {
+                setServerWorkflows(data.allWorkflows);
+            } else if (data && data.workflows) {
+                // Fallback for safety
+                setServerWorkflows(data.workflows);
+            }
+        } catch (error) {
+            console.error("Error fetching live workflows:", error);
+        } finally {
+            setIsFetchingLive(false);
         }
     };
 
@@ -580,6 +608,7 @@ export default function AdminControlPage() {
                                     setN8nWorkflowId("");
                                     setSelectedServerId("");
                                     setSelectedTemplateId("");
+                                    setServerWorkflows([]);
                                 }}>
                                     <X size={20} />
                                 </button>
@@ -660,7 +689,11 @@ export default function AdminControlPage() {
                                         <select 
                                             className={adminStyles.mainInput}
                                             value={selectedServerId}
-                                            onChange={(e) => setSelectedServerId(e.target.value)}
+                                            onChange={(e) => {
+                                                const srvId = e.target.value;
+                                                setSelectedServerId(srvId);
+                                                fetchLiveWorkflows(srvId);
+                                            }}
                                             style={{ appearance: 'none', cursor: 'pointer' }}
                                         >
                                             <option value="">Select an operational server...</option>
@@ -672,7 +705,39 @@ export default function AdminControlPage() {
                                         </select>
                                     </div>
 
-                                    {/* ── WORKFLOW SELECTION (Provisioned Workflows) ── */}
+                                    {/* ── LIVE WORKFLOW SELECTION (From Server) ── */}
+                                    <div className={adminStyles.inputWrapper}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                                            <Workflow size={18} color="var(--foreground)" />
+                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Select Live Node from Server</h4>
+                                        </div>
+                                        <div style={{ position: 'relative' }}>
+                                            <select 
+                                                className={adminStyles.mainInput}
+                                                value={n8nWorkflowId}
+                                                onChange={(e) => setN8nWorkflowId(e.target.value)}
+                                                style={{ appearance: 'none', cursor: 'pointer' }}
+                                                disabled={isFetchingLive || !selectedServerId}
+                                            >
+                                                <option value="">{isFetchingLive ? 'Scanning server...' : 'Select live workflow node...'}</option>
+                                                {serverWorkflows.map(wf => (
+                                                    <option key={wf.id} value={wf.id}>{wf.name} ({wf.id})</option>
+                                                ))}
+                                            </select>
+                                            {isFetchingLive && (
+                                                <div style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)' }}>
+                                                    <RefreshCcw size={16} className={styles.spinning} color="var(--accent)" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        {selectedServerId && serverWorkflows.length === 0 && !isFetchingLive && (
+                                            <p style={{ marginTop: '8px', fontSize: '0.7rem', color: 'var(--destructive)', fontWeight: 800 }}>
+                                                No workflows found on this server. Verify API key and URL.
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    {/* ── WORKFLOW BLUEPRINT SELECTION ── */}
                                     <div className={adminStyles.inputWrapper}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
                                             <Zap size={18} color="var(--foreground)" />
@@ -681,14 +746,7 @@ export default function AdminControlPage() {
                                         <select 
                                             className={adminStyles.mainInput}
                                             value={selectedTemplateId}
-                                            onChange={(e) => {
-                                                const tid = e.target.value;
-                                                setSelectedTemplateId(tid);
-                                                const t = templates.find(item => item.id === tid);
-                                                if (t && t.workflow) {
-                                                    setN8nWorkflowId(t.workflow);
-                                                }
-                                            }}
+                                            onChange={(e) => setSelectedTemplateId(e.target.value)}
                                             style={{ appearance: 'none', cursor: 'pointer' }}
                                         >
                                             <option value="">Select a provisioned workflow...</option>
@@ -719,29 +777,6 @@ export default function AdminControlPage() {
                                                 <Copy size={16} />
                                             </button>
                                         </div>
-                                    </div>
-
-                                    {/* ── INPUT: n8n Workflow ID ── */}
-                                    <div className={adminStyles.inputWrapper}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                                            <Cpu size={18} color="var(--foreground)" />
-                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>n8n Operational ID</h4>
-                                        </div>
-                                        <input
-                                            type="text"
-                                            className={adminStyles.mainInput}
-                                            placeholder="e.g. cc7LNj10JchNMcRY"
-                                            value={n8nWorkflowId}
-                                            onChange={(e) => setN8nWorkflowId(e.target.value)}
-                                        />
-                                        {n8nWorkflowId && (
-                                            <div style={{ marginTop: '12px', padding: '12px 16px', background: 'var(--muted)', borderRadius: '12px', fontFamily: 'monospace', fontSize: '0.75rem', color: 'var(--muted-foreground)', wordBreak: 'break-all', lineHeight: 1.6 }}>
-                                                <span style={{ color: 'var(--accent)', fontWeight: 900 }}>START →</span>{' '}
-                                                https://n8n.manadavana.lv/webhook/workflow-control?action=start&amp;id={n8nWorkflowId}<br />
-                                                <span style={{ color: 'var(--destructive)', fontWeight: 900 }}>END →</span>{' '}
-                                                https://n8n.manadavana.lv/webhook/workflow-control?action=end&amp;id={n8nWorkflowId}
-                                            </div>
-                                        )}
                                     </div>
                                 </div>
                             )}
