@@ -6,20 +6,26 @@ import React, { useState } from "react";
 const N8N_BASE_URL = "https://n8n.manadavana.lv/webhook/workflow-control";
 const ONE_DAY_MS   = 24 * 60 * 60 * 1000;
 
-// ── Types ───────────────────────────────────────────────────────────────────
-type Stage        = 'ordered' | 'setup' | 'ready';
-type RunState     = 'idle' | 'running' | 'stopped';
+// ── Types ────────────────────────────────────────────────────────────────────
+type Stage    = 'ordered' | 'setup' | 'ready';
+type RunState = 'idle' | 'running' | 'stopped';
 
-// ── Helpers ─────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────
 function getStage(wf: any): Stage {
     if (wf.n8nWorkflowId) return 'ready';
     if (wf.status === 'Syncing' || wf.status === 'Connecting' || wf.status === 'Initializing') return 'setup';
     return 'ordered';
 }
 
-/** Returns true if the workflow became "ready" less than 24 hours ago */
+/** Derive persistent run state from DB status */
+function getRunStateFromStatus(status: string): RunState {
+    if (status === 'Active')  return 'running';
+    if (status === 'Passive') return 'stopped';
+    return 'idle';
+}
+
 function isNewlyReady(wf: any): boolean {
-    if (!wf.updatedAt) return true; // no date? assume new
+    if (!wf.updatedAt) return true;
     return (Date.now() - new Date(wf.updatedAt).getTime()) < ONE_DAY_MS;
 }
 
@@ -56,7 +62,7 @@ const IconCopy = () => (
     </svg>
 );
 
-// ── Stage config ─────────────────────────────────────────────────────────────
+// ── Stage config ──────────────────────────────────────────────────────────────
 const STAGES: { key: Stage; label: string; sublabel: string }[] = [
     { key: 'ordered', label: 'Ordered', sublabel: 'Request received' },
     { key: 'setup',   label: 'Setup',   sublabel: 'Being configured'  },
@@ -70,7 +76,7 @@ function stageColor(s: Stage) {
     return 'var(--muted-foreground)';
 }
 
-// ── Lifecycle tracker ────────────────────────────────────────────────────────
+// ── Lifecycle tracker ─────────────────────────────────────────────────────────
 function LifecycleTracker({ stage }: { stage: Stage }) {
     const current = STAGE_ORDER[stage];
     return (
@@ -136,10 +142,9 @@ function LifecycleTracker({ stage }: { stage: Stage }) {
     );
 }
 
-// ── Run state banner ─────────────────────────────────────────────────────────
+// ── Run state banner ──────────────────────────────────────────────────────────
 function RunStateBanner({ state }: { state: RunState }) {
     if (state === 'idle') return null;
-
     const isRunning = state === 'running';
     return (
         <div style={{
@@ -153,19 +158,15 @@ function RunStateBanner({ state }: { state: RunState }) {
         }}>
             {isRunning ? (
                 <>
-                    {/* pulsing green dot */}
                     <span style={{
                         width: '8px', height: '8px', borderRadius: '50%',
-                        background: 'var(--accent)',
-                        boxShadow: '0 0 8px var(--accent)',
-                        animation: 'runningPulse 1.2s ease-in-out infinite',
-                        flexShrink: 0,
+                        background: 'var(--accent)', boxShadow: '0 0 8px var(--accent)',
+                        animation: 'runningPulse 1.2s ease-in-out infinite', flexShrink: 0,
                     }} />
                     Workflow is running
                 </>
             ) : (
                 <>
-                    {/* grey square dot */}
                     <span style={{
                         width: '8px', height: '8px', borderRadius: '2px',
                         background: 'var(--muted-foreground)', flexShrink: 0, opacity: 0.6,
@@ -179,12 +180,21 @@ function RunStateBanner({ state }: { state: RunState }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function WorkflowList({ workflows }: { workflows: any[] }) {
-    const [fetching, setFetching]     = useState<string | null>(null);
-    // Per-workflow run state: maps wf.id → RunState
-    const [runStates, setRunStates]   = useState<Record<string, RunState>>({});
+    const [fetching, setFetching] = useState<string | null>(null);
+    // Local overrides: lets the UI update instantly without waiting for a full refetch
+    const [statusOverrides, setStatusOverrides] = useState<Record<string, string>>({});
 
-    const setRunState = (id: string, state: RunState) =>
-        setRunStates(prev => ({ ...prev, [id]: state }));
+    const persistStatus = async (workflowId: string, action: 'start' | 'end') => {
+        try {
+            await fetch('/api/workflows/run', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ workflowId, action }),
+            });
+        } catch {
+            // non-fatal — webhook already fired; DB write is best-effort
+        }
+    };
 
     const runWorkflow = async (wf: any, actionType: 'START' | 'STOP') => {
         if (!wf.n8nWorkflowId) return;
@@ -194,7 +204,11 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
         try {
             const res = await fetch(url, { method: 'GET' });
             if (res.ok) {
-                setRunState(wf.id, actionType === 'START' ? 'running' : 'stopped');
+                // Update local override immediately (instant feedback)
+                const newStatus = actionType === 'START' ? 'Active' : 'Passive';
+                setStatusOverrides(prev => ({ ...prev, [wf.id]: newStatus }));
+                // Persist to DB so refresh restores the state
+                await persistStatus(wf.id, action);
             } else {
                 alert(`Webhook Error: ${res.status} — ${res.statusText}`);
             }
@@ -232,33 +246,36 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
 
             <div className={styles.workflowList}>
                 {workflows.map((wf, i) => {
-                    const stage     = getStage(wf);
-                    const isReady   = stage === 'ready';
-                    const runState  = runStates[wf.id] ?? 'idle';
+                    // Use local override if set (instant feedback), else use DB status
+                    const effectiveStatus = statusOverrides[wf.id] ?? wf.status;
+                    const wfWithStatus    = { ...wf, status: effectiveStatus };
 
-                    // Show lifecycle tracker only while not ready, OR within 24 h of going ready
+                    const stage    = getStage(wfWithStatus);
+                    const isReady  = stage === 'ready';
+                    const runState = getRunStateFromStatus(effectiveStatus);
+
+                    // Show lifecycle tracker while not ready, OR within 24 h of going ready
                     const showTracker = !isReady || isNewlyReady(wf);
 
-                    // Live status label
+                    // Live label & colour
                     const liveLabel =
                         runState === 'running' ? 'Running'
                         : runState === 'stopped' ? 'Stopped'
-                        : stage === 'ready'   ? (wf.status || 'Ready')
+                        : stage === 'ready'   ? (effectiveStatus || 'Ready')
                         : stage === 'setup'   ? 'Being Configured'
                         : 'Pending Setup';
 
                     const liveColor =
-                        runState === 'running' ? 'var(--accent)'
+                        runState === 'running'  ? 'var(--accent)'
                         : runState === 'stopped' ? 'var(--muted-foreground)'
-                        : stage === 'setup'   ? '#a78bfa'
-                        : stage === 'ordered' ? '#f59e0b'
+                        : stage === 'setup'     ? '#a78bfa'
+                        : stage === 'ordered'   ? '#f59e0b'
                         : 'var(--muted-foreground)';
 
                     const cardBorderColor =
-                        runState === 'running'  ? 'rgba(52,209,134,0.35)' :
-                        runState === 'stopped'  ? undefined :
-                        stage === 'setup'       ? 'rgba(167,139,250,0.35)' :
-                        stage === 'ordered'     ? 'rgba(245,158,11,0.25)' :
+                        runState === 'running' ? 'rgba(52,209,134,0.35)' :
+                        stage === 'setup'      ? 'rgba(167,139,250,0.35)' :
+                        stage === 'ordered'    ? 'rgba(245,158,11,0.25)' :
                         undefined;
 
                     return (
@@ -271,7 +288,6 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                             <div className={styles.workflowHeader}>
                                 <div className={styles.workflowInfo}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
-                                        {/* status dot */}
                                         {runState === 'running'
                                             ? <div className={styles.activeDot} />
                                             : <div style={{
@@ -306,7 +322,7 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                                                 title="Start workflow"
                                                 onClick={() => runWorkflow(wf, 'START')}
                                                 disabled={!!fetching}
-                                                style={runState === 'running' ? { opacity: 0.5 } : undefined}
+                                                style={runState === 'running' ? { opacity: 0.55 } : undefined}
                                             >
                                                 {fetching === `${wf.id}-START` ? '...' : <><IconPlay /> START</>}
                                             </button>
@@ -315,7 +331,7 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                                                 title="End workflow"
                                                 onClick={() => runWorkflow(wf, 'STOP')}
                                                 disabled={!!fetching}
-                                                style={runState === 'stopped' ? { opacity: 0.5 } : undefined}
+                                                style={runState === 'stopped' ? { opacity: 0.55 } : undefined}
                                             >
                                                 {fetching === `${wf.id}-STOP` ? '...' : <><IconStop /> END</>}
                                             </button>
@@ -335,10 +351,10 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                                 </div>
                             </div>
 
-                            {/* ── RUN STATE BANNER (shown after START/END) ──── */}
+                            {/* ── RUN STATE BANNER ─────────────────────────── */}
                             {isReady && <RunStateBanner state={runState} />}
 
-                            {/* ── LIFECYCLE TRACKER (hidden after 24 h of ready) */}
+                            {/* ── LIFECYCLE TRACKER (hidden after 24 h) ─────── */}
                             {showTracker && <LifecycleTracker stage={stage} />}
 
                             {/* ── METRICS ───────────────────────────────────── */}

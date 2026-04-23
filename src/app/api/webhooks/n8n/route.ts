@@ -37,12 +37,13 @@ export async function POST(request: Request) {
 
         const logId = uuidv4();
 
-        // 1. Insert into WorkflowLog with rich metadata
+        // 1. Insert into WorkflowLog with rich metadata and workflow link
         await db.execute(
-            'INSERT INTO "WorkflowLog" (id, "workflowName", status, result, "teamId", "createdAt") VALUES ($1, $2, $3, $4, $5, $6)',
+            'INSERT INTO "WorkflowLog" (id, "workflowName", "workflowId", status, result, "teamId", "createdAt") VALUES ($1, $2, $3, $4, $5, $6, $7)',
             [
                 logId, 
                 process_name, 
+                workflow_id,
                 status === 'COMPLETED' ? 'success' : 'active', 
                 JSON.stringify({ activity, metrics, timestamp }), 
                 teamId,

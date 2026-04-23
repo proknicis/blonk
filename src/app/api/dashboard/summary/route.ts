@@ -21,36 +21,43 @@ export async function GET() {
     }
 
     try {
-        // 1. Fetch Workflows summary
+        // 1. Fetch Workflows summary (only existing workflows for this team)
         const workflowRows = await db.query(`
             SELECT id, name, status, performance, "tasksCount", "lastRun", "n8nWorkflowId", "n8nWebhookUrl"
             FROM "Workflow" 
             WHERE "teamId" = $1
         `, [teamId]) as any[];
         
+        const workflowIds = workflowRows.map(w => w.id);
+        const hasWorkflows = workflowIds.length > 0;
+
         let totalTasksDone = 0;
         let activeUnits = 0;
 
         workflowRows.forEach((w: any) => {
             totalTasksDone += parseInt(w.tasksCount || "0");
             const s = (w.status || 'passive').toLowerCase();
-            if (s === 'active' || s === 'running' || s === 'success') { // success could be a transient state
+            if (s === 'active' || s === 'running' || s === 'success') {
                 activeUnits++;
             }
         });
 
-        // 2. Fetch Velocity Chart Data (Real logs from last 24h)
-        const velocityRows = await db.query(`
-            SELECT 
-                "workflowName",
-                DATE_TRUNC('hour', "createdAt") as hour, 
-                COUNT(*) as ops
-            FROM "WorkflowLog" 
-            WHERE "teamId" = $1
-            AND "createdAt" > CURRENT_TIMESTAMP - INTERVAL '24 hours'
-            GROUP BY "workflowName", hour
-            ORDER BY hour ASC
-        `, [teamId]) as any[];
+        // 2. Fetch Velocity Chart Data (Last 24h, only for existing workflows)
+        let velocityRows = [];
+        if (hasWorkflows) {
+            velocityRows = await db.query(`
+                SELECT 
+                    "workflowName",
+                    DATE_TRUNC('hour', "createdAt") as hour, 
+                    COUNT(*) as ops
+                FROM "WorkflowLog" 
+                WHERE "teamId" = $1
+                AND "workflowId" = ANY($2)
+                AND "createdAt" > NOW() - INTERVAL '24 hours'
+                GROUP BY "workflowName", hour
+                ORDER BY hour ASC
+            `, [teamId, workflowIds]) as any[];
+        }
 
         const fleetPaths: Record<string, { name: string, data: number[] }> = {};
         velocityRows.forEach(row => {
@@ -64,56 +71,74 @@ export async function GET() {
             }
         });
 
-        // 3. Fetch Real Failed Runs (Last 24h)
-        const failedRunsRes = await db.query(`
-            SELECT COUNT(*) as count 
-            FROM "WorkflowLog" 
-            WHERE "teamId" = $1 
-            AND (status = 'error' OR status = 'failed')
-            AND "createdAt" > CURRENT_TIMESTAMP - INTERVAL '24 hours'
-        `, [teamId]) as any[];
-        const failedRunsCount = parseInt(failedRunsRes[0]?.count || "0");
+        // 3. Fetch Real Failed Runs (Last 24h, only for existing workflows)
+        let failedRunsCount = 0;
+        if (hasWorkflows) {
+            const failedRunsRes = await db.query(`
+                SELECT COUNT(*) as count 
+                FROM "WorkflowLog" 
+                WHERE "teamId" = $1 
+                AND "workflowId" = ANY($2)
+                AND (status = 'error' OR status = 'failed')
+                AND "createdAt" > NOW() - INTERVAL '24 hours'
+            `, [teamId, workflowIds]) as any[];
+            failedRunsCount = parseInt(failedRunsRes[0]?.count || "0");
+        }
 
-        // 4. Fetch Intelligence Feed (Real recent logs)
-        const feedLogs = await db.query(`
-            SELECT "workflowName" as title, result as meta, status as type, "createdAt" as time
-            FROM "WorkflowLog"
-            WHERE "teamId" = $1
-            ORDER BY "createdAt" DESC
-            LIMIT 10
-        `, [teamId]) as any[];
+        // 4. Fetch Intelligence Feed (Last 24h, only for existing workflows)
+        let formattedFeed = [];
+        if (hasWorkflows) {
+            const feedLogs = await db.query(`
+                SELECT "workflowName" as title, result as meta, status as type, "createdAt" as time
+                FROM "WorkflowLog"
+                WHERE "teamId" = $1
+                AND "workflowId" = ANY($2)
+                AND "createdAt" > NOW() - INTERVAL '24 hours'
+                ORDER BY "createdAt" DESC
+                LIMIT 30
+            `, [teamId, workflowIds]) as any[];
 
-        const formattedFeed = feedLogs.map(log => {
-            let richMeta = { message: "Data synchronized", metrics: null, activity: null };
-            try {
-                if (log.meta) {
-                    const parsed = typeof log.meta === 'string' ? JSON.parse(log.meta) : log.meta;
-                    if (parsed.metrics || parsed.activity) {
-                        richMeta = { 
-                            message: parsed.activity?.action || "Operation complete",
-                            metrics: parsed.metrics,
-                            activity: parsed.activity
-                        };
-                    } else {
-                        richMeta.message = parsed.message || parsed.status || "Data packet synchronized.";
+            formattedFeed = feedLogs.map(log => {
+                let richMeta = { message: "Data synchronized", metrics: null, activity: null };
+                try {
+                    if (log.meta) {
+                        const parsed = typeof log.meta === 'string' ? JSON.parse(log.meta) : log.meta;
+                        if (parsed.metrics || parsed.activity) {
+                            richMeta = { 
+                                message: parsed.activity?.action || "Operation complete",
+                                metrics: parsed.metrics,
+                                activity: parsed.activity
+                            };
+                        } else {
+                            richMeta.message = parsed.message || parsed.status || "Data packet synchronized.";
+                        }
                     }
-                }
-            } catch (e) {}
+                } catch (e) {}
 
-            return {
-                title: log.title || "Autonomous Event",
-                meta: richMeta.message,
-                rich: richMeta,
-                type: (log.type === 'error' || log.type === 'failed') ? 'error' : (log.type === 'info' ? 'info' : 'success'),
-                time: formatTimeAgo(new Date(log.time))
-            };
-        });
+                return {
+                    title: log.title || "Autonomous Event",
+                    meta: richMeta.message,
+                    rich: richMeta,
+                    type: (log.type === 'error' || log.type === 'failed') ? 'error' : (log.type === 'info' ? 'info' : 'success'),
+                    time: formatTimeAgo(new Date(log.time))
+                };
+            });
+        }
 
         const calculatedTimeSaved = Math.round(totalTasksDone * 0.08); // 0.08 hours per task
         
         // Calculate real efficiency percentage
-        const totalLogs = await db.query(`SELECT COUNT(*) as count FROM "WorkflowLog" WHERE "teamId" = $1 AND "createdAt" > CURRENT_TIMESTAMP - INTERVAL '24 hours'`, [teamId]) as any[];
-        const totalLogCount = parseInt(totalLogs[0]?.count || "0");
+        let totalLogCount = 0;
+        if (hasWorkflows) {
+            const totalLogs = await db.query(`
+                SELECT COUNT(*) as count 
+                FROM "WorkflowLog" 
+                WHERE "teamId" = $1 
+                AND "workflowId" = ANY($2)
+                AND "createdAt" > NOW() - INTERVAL '24 hours'
+            `, [teamId, workflowIds]) as any[];
+            totalLogCount = parseInt(totalLogs[0]?.count || "0");
+        }
         const successRate = totalLogCount > 0 ? Math.round(((totalLogCount - failedRunsCount) / totalLogCount) * 1000) / 10 : 100;
 
         return NextResponse.json({
