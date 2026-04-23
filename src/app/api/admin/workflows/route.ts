@@ -23,11 +23,10 @@ export async function GET() {
                 cn.url AS "serverUrl",
                 wt.name AS "templateName",
                 COALESCE(u."plan", 'Starter')  AS "userTier",
-                COALESCE(u."email", '')         AS "userEmail",
-                COUNT(w2.id)                    AS "workflowCount"
+                COALESCE(u."email", w."requestedBy", 'Anonymous') AS "userEmail",
+                (SELECT COUNT(*) FROM "Workflow" WHERE "userId" = w."userId") AS "workflowCount"
             FROM "Workflow" w
             LEFT JOIN "User" u   ON u."id" = w."userId"
-            LEFT JOIN "Workflow" w2 ON w2."userId" = w."userId"
             LEFT JOIN "ClusterNode" cn ON w."serverId" = cn.id
             LEFT JOIN "WorkflowTemplate" wt ON w."templateId" = wt.id
             GROUP BY w."id", u."plan", u."email", cn.name, cn.url, wt.name
