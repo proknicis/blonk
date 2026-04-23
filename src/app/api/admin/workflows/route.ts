@@ -20,7 +20,7 @@ export async function GET() {
                 u.tier as "userTier",
                 u."workflowsUsed" as "userWorkflows"
             FROM "Workflow" w
-            LEFT JOIN "User" u ON w."userId" = u.id
+            LEFT JOIN "User" u ON w."requestedBy" = u.email
             ORDER BY w."updatedAt" DESC
         `);
         
