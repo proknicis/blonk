@@ -267,7 +267,7 @@ export default function FleetVelocityChart({ initialData }: { initialData: Chart
             {/* DYNAMIC LEGEND & INSIGHTS */}
             <div style={{ 
                 display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
                 gap: '20px', 
                 marginTop: '40px', 
                 padding: '24px', 
@@ -278,33 +278,44 @@ export default function FleetVelocityChart({ initialData }: { initialData: Chart
                 width: '100%',
                 boxSizing: 'border-box'
             }}>
-               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                   <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(52, 209, 134, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34D186' }}>
-                       <Zap size={20} />
+               {chartLines.map((line, idx) => {
+                   const peak = Math.max(...line.data);
+                   return (
+                       <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                           <div style={{ 
+                               width: '40px', 
+                               height: '40px', 
+                               borderRadius: '12px', 
+                               background: idx === 0 ? 'rgba(52, 209, 134, 0.1)' : 'rgba(14, 165, 233, 0.1)', 
+                               display: 'flex', 
+                               alignItems: 'center', 
+                               justifyContent: 'center', 
+                               color: idx === 0 ? '#34D186' : '#0EA5E9' 
+                           }}>
+                               <Zap size={20} />
+                           </div>
+                           <div>
+                               <div style={{ fontSize: '0.9rem', fontWeight: 950, color: '#1E293B' }}>{line.name}</div>
+                               <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>
+                                   {peak} Ops Peak
+                               </div>
+                           </div>
+                       </div>
+                   );
+               })}
+               
+               {/* FALLBACK FOR EMPTY STATE */}
+               {chartLines.length === 0 && (
+                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px', opacity: 0.5 }}>
+                       <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                           <Info size={20} />
+                       </div>
+                       <div>
+                           <div style={{ fontSize: '0.9rem', fontWeight: 950, color: '#1E293B' }}>Passive Mirror</div>
+                           <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>Awaiting automation pulse</div>
+                       </div>
                    </div>
-                   <div>
-                       <div style={{ fontSize: '0.9rem', fontWeight: 950, color: '#1E293B' }}>Sovereign Flow</div>
-                       <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>Primary Loop Throughput</div>
-                   </div>
-               </div>
-               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                   <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(14, 165, 233, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0EA5E9' }}>
-                       <TrendingUp size={20} />
-                   </div>
-                   <div>
-                       <div style={{ fontSize: '0.9rem', fontWeight: 950, color: '#1E293B' }}>Subsystem Mirror</div>
-                       <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>Mirrored Data Sync</div>
-                   </div>
-               </div>
-               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                   <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8' }}>
-                       <Info size={20} />
-                   </div>
-                   <div>
-                       <div style={{ fontSize: '0.9rem', fontWeight: 950, color: '#1E293B' }}>Peak Yield</div>
-                       <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>{Math.max(...chartLines[0].data)} Ops Peak</div>
-                   </div>
-               </div>
+               )}
             </div>
 
             <style jsx>{`

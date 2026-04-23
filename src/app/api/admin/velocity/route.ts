@@ -11,6 +11,9 @@ export async function GET(req: Request) {
     const range = searchParams.get('range') || '24h';
     const emailRef = session.user.email.toLowerCase();
 
+    const teamId = (session.user as any).teamId;
+    if (!teamId) return NextResponse.json({ error: "No team context" }, { status: 400 });
+
     try {
         let interval = '24 hours';
         let trunc = 'hour';
@@ -28,42 +31,43 @@ export async function GET(req: Request) {
 
         const velocityRows = await db.query(`
             SELECT 
-                "workflowId", 
                 "workflowName",
-                DATE_TRUNC($1, "executedAt") as time_block, 
+                DATE_TRUNC($1, "createdAt") as time_block, 
                 COUNT(*) as ops
             FROM "WorkflowLog" 
-            WHERE "executedAt" > CURRENT_TIMESTAMP - $2::interval
-            AND "workflowId" IN (SELECT id FROM "Workflow" WHERE LOWER("requestedBy") = LOWER($3))
-            GROUP BY "workflowId", "workflowName", time_block
+            WHERE "createdAt" > CURRENT_TIMESTAMP - $2::interval
+            AND "teamId" = $3
+            GROUP BY "workflowName", time_block
             ORDER BY time_block ASC
-        `, [trunc, interval, emailRef]) as any[];
+        `, [trunc, interval, teamId]) as any[];
 
         const fleetPaths: Record<string, { name: string, data: number[] }> = {};
         
         velocityRows.forEach(row => {
-            const id = row.workflowId || 'unknown';
-            if (!fleetPaths[id]) {
-                fleetPaths[id] = { 
-                    name: row.workflowName || 'ID: ' + id.substring(0, 4), 
+            const name = row.workflowName || 'Alpha Sector';
+            if (!fleetPaths[name]) {
+                fleetPaths[name] = { 
+                    name: name, 
                     data: new Array(arraySize).fill(0) 
                 };
             }
 
-            // Calculate index based on range
             const blockDate = new Date(row.time_block);
             let idx = 0;
             
             if (range === '24h') {
                 idx = blockDate.getHours();
-            } else if (range === '7d' || range === '30d') {
-                const diffTime = Math.abs(new Date().getTime() - blockDate.getTime());
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                idx = arraySize - diffDays;
+            } else {
+                // Calculation for daily indices in 7d/30d views
+                const today = new Date();
+                today.setHours(23, 59, 59, 999);
+                const diffTime = Math.abs(today.getTime() - blockDate.getTime());
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                idx = (arraySize - 1) - diffDays;
             }
 
             if (idx >= 0 && idx < arraySize) {
-                fleetPaths[id].data[idx] = parseInt(row.ops);
+                fleetPaths[name].data[idx] = parseInt(row.ops);
             }
         });
 

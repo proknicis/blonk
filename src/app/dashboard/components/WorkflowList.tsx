@@ -11,28 +11,27 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
         setRunningId(`${wf.id}-${actionType}`);
         
         try {
-            // Using the Sovereign Control Path
-            const res = await fetch('https://n8n.manadavana.lv/webhook/workflow-control', {
+            // Using the new Institutional Direct API Proxy
+            const res = await fetch('/api/workflows/control', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    command: actionType.toLowerCase(),
-                    workflow_id: wf.id,
-                    workflow_name: wf.name,
-                    timestamp: new Date().toISOString()
+                    workflowId: wf.id,
+                    action: actionType.toLowerCase()
                 })
             });
 
-            if (res.ok) {
-                // Success glow: You can add state here later for visual feedback
-                console.log(`Command ${actionType} dispatched to Core Engine for: ${wf.name}`);
+            const result = await res.json();
+
+            if (res.ok && result.success) {
+                console.log(`Command success: Workflow ${wf.name} is now ${result.active ? 'Active' : 'Inactive'}`);
             } else {
-                console.error(`Core Engine refused command: ${res.status}`);
-                alert("Core Engine Communication Error. Please check n8n status.");
+                console.error(`Core Engine refused command: ${result.error || res.status}`);
+                alert(`API Error: ${result.details || "Check n8n API settings."}`);
             }
         } catch (error) {
             console.error("Master Control Error:", error);
-            alert("System Error: Could not reach the Core Control Webhook.");
+            alert("System Error: Could not reach the API Proxy.");
         } finally {
             setRunningId(null);
         }
