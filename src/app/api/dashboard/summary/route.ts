@@ -23,7 +23,7 @@ export async function GET() {
     try {
         // 1. Fetch Workflows summary
         const workflowRows = await db.query(`
-            SELECT id, name, status, performance, "tasksCount", "lastRun" 
+            SELECT id, name, status, performance, "tasksCount", "lastRun", "n8nWorkflowId", "n8nWebhookUrl"
             FROM "Workflow" 
             WHERE "teamId" = $1
         `, [teamId]) as any[];

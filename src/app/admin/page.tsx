@@ -148,13 +148,13 @@ export default function AdminControlPage() {
         } finally { setSavingId(null); }
     };
 
-    const updateWebhook = async (id: string, url: string) => {
+    const updateWebhook = async (id: string, url: string, n8nWfId?: string) => {
         setSavingId(id);
         try {
             const res = await fetch('/api/admin/workflows', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, n8nWebhookUrl: url })
+                body: JSON.stringify({ id, n8nWebhookUrl: url || undefined, n8nWorkflowId: n8nWfId })
             });
             if (!res.ok) throw new Error(`Status ${res.status}`);
             fetchWorkflows();
@@ -590,51 +590,73 @@ export default function AdminControlPage() {
                             )}
 
                             {configStep === 2 && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
-                                    <div>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                                            <ShieldCheck size={18} color="var(--foreground)" />
-                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Sovereign Loop Identity</h4>
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '12px' }}>
-                                            <div style={{ flex: 1, padding: '24px', borderRadius: '24px', background: 'var(--muted)', border: '2px solid var(--border)', fontSize: '1.25rem', fontWeight: 950, color: 'var(--foreground)', fontFamily: 'monospace', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                <span>{configWorkflow.id.substring(0, 8)}...{configWorkflow.id.substring(configWorkflow.id.length - 8)}</span>
-                                                <div style={{ color: 'var(--accent)', fontSize: '0.75rem', fontWeight: 950, background: 'var(--accent-muted)', padding: '4px 12px', borderRadius: '100px' }}>SECURE</div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
 
+                                    {/* ── READ-ONLY: User's Blonk Workflow ID ── */}
                                     <div className={adminStyles.inputWrapper}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                                            <Cpu size={18} color="var(--foreground)" />
-                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Institutional Workflow ID</h4>
+                                            <ShieldCheck size={18} color="var(--foreground)" />
+                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>User's Workflow ID (Blonk)</h4>
                                         </div>
-                                        <input 
-                                            type="text" 
-                                            className={adminStyles.mainInput}
-                                            placeholder="e.g. cc7LNj10JChNMCRY"
-                                            value={n8nWorkflowId}
-                                            onChange={(e) => setN8nWorkflowId(e.target.value)}
-                                        />
-                                        <p style={{ marginTop: '16px', fontSize: '0.85rem', color: 'var(--muted-foreground)', fontWeight: 700, lineHeight: '1.6' }}>
-                                            The professional n8n workflow ID required for direct API orchestration.
+                                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                            <div style={{ flex: 1, padding: '16px 20px', borderRadius: '16px', background: 'var(--muted)', border: '2px solid var(--border)', fontSize: '0.9rem', fontWeight: 900, color: 'var(--foreground)', fontFamily: 'monospace', letterSpacing: '0.05em', wordBreak: 'break-all' }}>
+                                                {configWorkflow.id}
+                                            </div>
+                                            <button
+                                                className={adminStyles.actionIconBtn}
+                                                title="Copy ID"
+                                                onClick={() => copyToClipboard(configWorkflow.id)}
+                                                style={{ flexShrink: 0 }}
+                                            >
+                                                <Copy size={16} />
+                                            </button>
+                                        </div>
+                                        <p style={{ marginTop: '10px', fontSize: '0.78rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>
+                                            This is the ID the user copied from their dashboard. Use it to identify which workflow to connect.
                                         </p>
                                     </div>
 
+                                    {/* ── INPUT: n8n Workflow ID (goes into webhook URL) ── */}
+                                    <div className={adminStyles.inputWrapper}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                                            <Cpu size={18} color="var(--foreground)" />
+                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>n8n Workflow ID (for Start / End)</h4>
+                                        </div>
+                                        <input
+                                            type="text"
+                                            className={adminStyles.mainInput}
+                                            placeholder="e.g. cc7LNj10JchNMcRY"
+                                            value={n8nWorkflowId}
+                                            onChange={(e) => setN8nWorkflowId(e.target.value)}
+                                        />
+                                        {n8nWorkflowId && (
+                                            <div style={{ marginTop: '12px', padding: '12px 16px', background: 'var(--muted)', borderRadius: '12px', fontFamily: 'monospace', fontSize: '0.78rem', color: 'var(--muted-foreground)', wordBreak: 'break-all', lineHeight: 1.6 }}>
+                                                <span style={{ color: 'var(--accent)', fontWeight: 900 }}>START →</span>{' '}
+                                                https://n8n.manadavana.lv/webhook/workflow-control?action=start&amp;id={n8nWorkflowId}<br />
+                                                <span style={{ color: 'var(--destructive)', fontWeight: 900 }}>END →</span>{' '}
+                                                https://n8n.manadavana.lv/webhook/workflow-control?action=end&amp;id={n8nWorkflowId}
+                                            </div>
+                                        )}
+                                        <p style={{ marginTop: '10px', fontSize: '0.78rem', color: 'var(--muted-foreground)', fontWeight: 700, lineHeight: 1.6 }}>
+                                            Enter the n8n workflow ID. This value is inserted into the webhook URL so the user can trigger start/end directly from their dashboard.
+                                        </p>
+                                    </div>
+
+                                    {/* ── OPTIONAL: Custom webhook URL ── */}
                                     <div className={adminStyles.inputWrapper}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                                             <Link2 size={18} color="var(--foreground)" />
-                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Production Endpoint</h4>
+                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Custom Endpoint (Optional)</h4>
                                         </div>
-                                        <input 
-                                            type="text" 
+                                        <input
+                                            type="text"
                                             className={adminStyles.mainInput}
-                                            placeholder="https://n8n.yourfirm.com/webhook/..."
+                                            placeholder="https://n8n.yourfirm.com/webhook/... (leave blank to use default)"
                                             value={webhookUrl}
                                             onChange={(e) => setWebhookUrl(e.target.value)}
                                         />
-                                        <p style={{ marginTop: '16px', fontSize: '0.85rem', color: 'var(--muted-foreground)', fontWeight: 700, lineHeight: '1.6' }}>
-                                            Paste the n8n production webhook URL here. This will bridge the platform with your sovereign workflow engine.
+                                        <p style={{ marginTop: '10px', fontSize: '0.78rem', color: 'var(--muted-foreground)', fontWeight: 700, lineHeight: '1.6' }}>
+                                            Override the default webhook base URL if this node uses a custom n8n instance.
                                         </p>
                                     </div>
                                 </div>
@@ -660,8 +682,8 @@ export default function AdminControlPage() {
                             <button 
                                 className={styles.btnInstitutional} 
                                 style={{ background: configStep === 3 ? 'var(--accent)' : 'var(--foreground)', color: configStep === 3 ? 'var(--background)' : 'var(--background)', minWidth: '220px', height: '52px', borderRadius: '16px' }}
-                                onClick={() => configStep < 3 ? setConfigStep(prev => prev + 1) : updateWebhook(configWorkflow.id, webhookUrl)}
-                                disabled={savingId === configWorkflow.id || (configStep === 2 && (!webhookUrl || !n8nWorkflowId))}
+                                onClick={() => configStep < 3 ? setConfigStep(prev => prev + 1) : updateWebhook(configWorkflow.id, webhookUrl, n8nWorkflowId)}
+                                disabled={savingId === configWorkflow.id || (configStep === 2 && !n8nWorkflowId)}
                             >
                                 {savingId === configWorkflow.id ? 'SYNCHRONIZING...' : (configStep === 3 ? 'INITIALIZE NODE' : 'CONTINUE CALIBRATION')}
                             </button>

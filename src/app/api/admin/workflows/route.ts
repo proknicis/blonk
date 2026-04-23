@@ -9,7 +9,8 @@ export async function GET() {
                 w."name", 
                 w."sector", 
                 w."status", 
-                w."n8nWebhookUrl", 
+                w."n8nWebhookUrl",
+                w."n8nWorkflowId",
                 w."inputs", 
                 w."requestedBy",
                 w."progress",
@@ -41,7 +42,7 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { id, n8nWebhookUrl, status, progress, errorMessage } = body;
+        const { id, n8nWebhookUrl, n8nWorkflowId, status, progress, errorMessage } = body;
 
         const updates: string[] = [];
         const params: any[] = [];
@@ -50,10 +51,15 @@ export async function POST(request: Request) {
         if (n8nWebhookUrl !== undefined) {
             updates.push(`"n8nWebhookUrl" = $${i++}`);
             params.push(n8nWebhookUrl);
-            // If webhook is provided and no status is explicitly set, default to Syncing
+        }
+
+        if (n8nWorkflowId !== undefined) {
+            updates.push(`"n8nWorkflowId" = $${i++}`);
+            params.push(n8nWorkflowId);
+            // When admin sets the n8n workflow ID, mark node as Ready unless status explicitly set
             if (status === undefined) {
                 updates.push(`status = $${i++}`);
-                params.push('Syncing');
+                params.push(n8nWorkflowId ? 'Ready' : 'Pending');
             }
         }
 
