@@ -26,7 +26,7 @@ export async function POST(req: Request) {
         console.log(`[MASTER_CONTROL] Dispatching ${action.toUpperCase()} to workflow: ${workflowId}`);
         
         const response = await fetch(url, {
-            method: 'PATCH', // n8n Public API uses PATCH for status updates
+            method: 'PUT', // n8n Public API requires PUT for status updates
             headers: {
                 'X-N8N-API-KEY': apiKey,
                 'Content-Type': 'application/json'
