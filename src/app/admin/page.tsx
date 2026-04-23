@@ -66,7 +66,6 @@ export default function AdminControlPage() {
     const [n8nWorkflowId, setN8nWorkflowId] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
     const [activeFilter, setActiveFilter] = useState("All");
-    const [viewingLogs, setViewingLogs] = useState<any>(null);
     const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
     const [menuPosition, setMenuPosition] = useState({ top: 0, right: 0 });
     const menuRef = useRef<HTMLDivElement>(null);
@@ -537,13 +536,7 @@ export default function AdminControlPage() {
                                         </td>
                                         <td>
                                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                <button 
-                                                    className={adminStyles.actionIconBtn}
-                                                    onClick={() => setViewingLogs(wf)}
-                                                    title="View Node Logs"
-                                                >
-                                                    <Terminal size={16} />
-                                                </button>
+
                                                 <button 
                                                     className={adminStyles.actionIconBtn}
                                                     onClick={(e) => toggleMenu(e, wf.id)}
@@ -608,19 +601,21 @@ export default function AdminControlPage() {
 
             {/* CONFIG MODAL */}
             {configWorkflow && (
-                <div className={adminStyles.modalOverlay}>
-                    <div className={adminStyles.modal} style={{ maxWidth: '600px' }}>
-                        <div className={adminStyles.modalHeader}>
+                <div className={adminStyles.modalOverlay} style={{ backdropFilter: 'blur(12px)', background: 'rgba(250, 250, 250, 0.6)' }}>
+                    <div className={adminStyles.modal} style={{ maxWidth: '640px', border: '1px solid var(--border)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)', overflow: 'hidden' }}>
+                        <div className={adminStyles.modalHeader} style={{ padding: '32px 40px', borderBottom: '1px solid var(--border)', background: 'linear-gradient(180deg, var(--card) 0%, var(--background) 100%)' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                                        <div style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '50%', boxShadow: '0 0 10px var(--accent)' }} />
-                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--muted-foreground)' }}>NODE CALIBRATION</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                                        <div style={{ width: '10px', height: '10px', background: 'var(--accent)', borderRadius: '50%', boxShadow: '0 0 15px var(--accent)' }} />
+                                        <span style={{ fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.25em', color: 'var(--accent)' }}>SYSTEM CALIBRATION</span>
                                     </div>
-                                    <h3 className={adminStyles.modalTitle}>Production Sync</h3>
-                                    <p className={adminStyles.modalSubtitle}>Sovereign Fleet Instance: {configWorkflow.name || 'Standalone Node'}</p>
+                                    <h3 className={adminStyles.modalTitle} style={{ fontSize: '1.75rem', letterSpacing: '-0.03em', marginBottom: '8px' }}>Production Sync</h3>
+                                    <p className={adminStyles.modalSubtitle} style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', fontWeight: 750 }}>
+                                        Establish secure link with <span style={{ color: 'var(--foreground)', fontWeight: 950 }}>{configWorkflow.name || 'Autonomous Node'}</span>
+                                    </p>
                                 </div>
-                                <button className={adminStyles.modalClose} onClick={() => { 
+                                <button className={adminStyles.modalClose} style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'var(--muted)' }} onClick={() => { 
                                     setConfigWorkflow(null); 
                                     setConfigStep(1); 
                                     setWebhookUrl(""); 
@@ -631,29 +626,27 @@ export default function AdminControlPage() {
                                     <X size={20} />
                                 </button>
                             </div>
-                            <div className={adminStyles.wizardContainer}>
+                            <div className={adminStyles.wizardContainer} style={{ marginTop: '32px', gap: '12px' }}>
                                 {[1, 2, 3].map(s => (
-                                    <div key={s} className={`${adminStyles.wizardStep} ${configStep >= s ? adminStyles.wizardStepActive : ""}`} />
+                                    <div key={s} style={{ flex: 1, height: '4px', background: configStep >= s ? 'var(--accent)' : 'var(--border)', borderRadius: '10px', transition: 'all 0.5s ease' }} />
                                 ))}
                             </div>
                         </div>
 
-                        <div className={adminStyles.modalBody}>
+                        <div className={adminStyles.modalBody} style={{ padding: '40px' }}>
                             {configStep === 1 && (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                                            <div style={{ width: '40px', height: '40px', background: 'var(--muted)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                <Database size={20} color="var(--foreground)" />
-                                            </div>
-                                            <div>
-                                                <h4 style={{ margin: 0, fontSize: '0.95rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Inbound Parameters</h4>
-                                                <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>Pre-configured node variables</div>
-                                            </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                        <div style={{ width: '48px', height: '48px', background: 'var(--muted)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            <Database size={24} color="var(--foreground)" />
+                                        </div>
+                                        <div>
+                                            <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Inbound Parameters</h4>
+                                            <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', fontWeight: 750 }}>Verified node operational variables</div>
                                         </div>
                                     </div>
 
-                                    <div className={adminStyles.parameterGrid}>
+                                    <div className={adminStyles.parameterGrid} style={{ gap: '20px' }}>
                                         {(() => {
                                             let data = {};
                                             try {
@@ -665,16 +658,16 @@ export default function AdminControlPage() {
                                             
                                             const entries = Object.entries(data || {});
                                             if (entries.length === 0) return (
-                                                <div style={{ gridColumn: 'span 2', textAlign: 'center', padding: '60px', background: 'var(--muted)', borderRadius: '32px' }}>
-                                                    <Database size={32} style={{ color: 'var(--border)', margin: '0 auto 16px' }} />
-                                                    <p style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>No custom data provided.</p>
+                                                <div style={{ gridColumn: 'span 2', textAlign: 'center', padding: '80px 40px', background: 'var(--muted)', borderRadius: '24px', border: '1px dashed var(--border)' }}>
+                                                    <Database size={40} style={{ color: 'var(--muted-foreground)', margin: '0 auto 20px', opacity: 0.3 }} />
+                                                    <p style={{ fontSize: '1rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>No custom data provided.</p>
                                                 </div>
                                             );
 
                                             return entries.map(([key, val]: any) => (
-                                                <div key={key} className={adminStyles.parameterCard}>
-                                                    <label className={adminStyles.parameterLabel}>{key.replace(/_/g, ' ')}</label>
-                                                    <div className={adminStyles.parameterValue}>{String(val)}</div>
+                                                <div key={key} className={adminStyles.parameterCard} style={{ borderRadius: '20px', padding: '20px', background: 'var(--card)', border: '1px solid var(--border)' }}>
+                                                    <label className={adminStyles.parameterLabel} style={{ fontSize: '0.65rem', marginBottom: '8px', color: 'var(--muted-foreground)' }}>{key.replace(/_/g, ' ')}</label>
+                                                    <div className={adminStyles.parameterValue} style={{ fontSize: '0.95rem', color: 'var(--foreground)', fontWeight: 950 }}>{String(val)}</div>
                                                 </div>
                                             ));
                                         })()}
@@ -684,14 +677,14 @@ export default function AdminControlPage() {
 
                             {configStep === 2 && (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                                    <div style={{ background: 'var(--muted)', padding: '24px', borderRadius: '24px', border: '1px solid var(--border)' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px' }}>
-                                            <div style={{ width: '36px', height: '36px', background: 'var(--background)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border)' }}>
-                                                <Server size={18} color="var(--accent)" />
+                                    <div style={{ background: 'var(--card)', padding: '28px', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)', transition: 'all 0.3s ease' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+                                            <div style={{ width: '44px', height: '44px', background: 'var(--muted)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                <Server size={22} color="var(--accent)" />
                                             </div>
                                             <div>
-                                                <h4 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Operational Hub</h4>
-                                                <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>Physical cluster selection</div>
+                                                <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.12em' }}>Operational Hub</h4>
+                                                <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 750 }}>Authorized physical cluster</div>
                                             </div>
                                         </div>
                                         <div style={{ position: 'relative' }}>
@@ -703,27 +696,27 @@ export default function AdminControlPage() {
                                                     setSelectedServerId(srvId);
                                                     fetchLiveWorkflows(srvId);
                                                 }}
-                                                style={{ appearance: 'none', background: 'var(--card)', cursor: 'pointer', paddingRight: '40px' }}
+                                                style={{ appearance: 'none', background: 'var(--muted)', border: '1px solid var(--border)', cursor: 'pointer', paddingRight: '48px', height: '56px', borderRadius: '16px', fontWeight: 800 }}
                                             >
-                                                <option value="">Select an operational hub...</option>
+                                                <option value="">Select operational hub registry...</option>
                                                 {servers.map(s => (
                                                     <option key={s.id} value={s.id}>{s.name} — {s.url.replace(/^https?:\/\//, '')}</option>
                                                 ))}
                                             </select>
-                                            <div style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
-                                                <ChevronDown size={18} color="var(--muted-foreground)" />
+                                            <div style={{ position: 'absolute', right: '20px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+                                                <ChevronDown size={20} color="var(--muted-foreground)" />
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div style={{ background: 'var(--muted)', padding: '24px', borderRadius: '24px', border: '1px solid var(--border)', opacity: !selectedServerId ? 0.6 : 1 }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px' }}>
-                                            <div style={{ width: '36px', height: '36px', background: 'var(--background)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border)' }}>
-                                                <Workflow size={18} color={isFetchingLive ? "var(--accent)" : "var(--foreground)"} />
+                                    <div style={{ background: 'var(--card)', padding: '28px', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)', opacity: !selectedServerId ? 0.6 : 1, transition: 'all 0.3s ease' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+                                            <div style={{ width: '44px', height: '44px', background: 'var(--muted)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                <Workflow size={22} color={isFetchingLive ? "var(--accent)" : "var(--foreground)"} className={isFetchingLive ? adminStyles.spinning : ''} />
                                             </div>
                                             <div>
-                                                <h4 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Autonomous Node Discovery</h4>
-                                                <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>Real-time n8n workflow mapping</div>
+                                                <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.12em' }}>Autonomous Node Discovery</h4>
+                                                <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 750 }}>Real-time n8n register mapping</div>
                                             </div>
                                         </div>
                                         <div style={{ position: 'relative' }}>
@@ -732,128 +725,76 @@ export default function AdminControlPage() {
                                                 value={n8nWorkflowId}
                                                 onChange={(e) => setN8nWorkflowId(e.target.value)}
                                                 disabled={isFetchingLive || !selectedServerId}
-                                                style={{ appearance: 'none', background: 'var(--card)', cursor: 'pointer', paddingRight: '40px' }}
+                                                style={{ appearance: 'none', background: 'var(--muted)', border: '1px solid var(--border)', cursor: 'pointer', paddingRight: '48px', height: '56px', borderRadius: '16px', fontWeight: 800 }}
                                             >
-                                                <option value="">{isFetchingLive ? 'Scanning server registry...' : 'Select detected workflow...'}</option>
+                                                <option value="">{isFetchingLive ? 'Probing cluster registry...' : 'Select detected node...'}</option>
                                                 {serverWorkflows.map(wf => (
                                                     <option key={wf.id} value={wf.id}>{wf.name} [{wf.id.substring(0, 8)}]</option>
                                                 ))}
                                             </select>
-                                            <div style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
-                                                {isFetchingLive ? <RefreshCcw size={16} className={adminStyles.spinning} color="var(--accent)" /> : <ChevronDown size={18} color="var(--muted-foreground)" />}
+                                            <div style={{ position: 'absolute', right: '20px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+                                                {isFetchingLive ? <RefreshCcw size={18} className={adminStyles.spinning} color="var(--accent)" /> : <ChevronDown size={20} color="var(--muted-foreground)" />}
                                             </div>
                                         </div>
                                         {selectedServerId && !isFetchingLive && serverWorkflows.length === 0 && (
-                                            <div style={{ marginTop: '16px', padding: '12px 16px', background: 'var(--destructive-muted)', borderRadius: '12px', border: '1px solid var(--destructive-border)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                <TriangleAlert size={16} color="var(--destructive)" />
-                                                <span style={{ fontSize: '0.75rem', fontWeight: 900, color: 'var(--destructive)' }}>NO NODES DETECTED. VERIFY API KEY.</span>
+                                            <div style={{ marginTop: '20px', padding: '16px', background: 'var(--destructive-muted)', borderRadius: '16px', border: '1px solid var(--destructive-border)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                <TriangleAlert size={18} color="var(--destructive)" />
+                                                <span style={{ fontSize: '0.8rem', fontWeight: 900, color: 'var(--destructive)' }}>NODE DISCOVERY FAILED. VERIFY AUTHENTICATION TOKENS.</span>
                                             </div>
                                         )}
                                     </div>
 
-                                    <div style={{ background: 'var(--card)', padding: '20px', borderRadius: '20px', border: '1px dashed var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                            <ShieldCheck size={18} color="var(--muted-foreground)" />
-                                            <div>
-                                                <h5 style={{ margin: 0, fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', color: 'var(--muted-foreground)' }}>Calibration Hash</h5>
-                                                <code style={{ fontSize: '0.75rem', color: 'var(--foreground)', fontWeight: 800 }}>{String(configWorkflow.id).substring(0, 24)}...</code>
-                                            </div>
+                                    <div style={{ textAlign: 'center', marginTop: '8px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', opacity: 0.5 }}>
+                                            <ShieldCheck size={14} color="var(--muted-foreground)" />
+                                            <span style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--muted-foreground)' }}>Secured by Sovereign Protocol v4.2</span>
                                         </div>
-                                        <button 
-                                            className={adminStyles.copyBtn} 
-                                            onClick={() => {
-                                                navigator.clipboard.writeText(configWorkflow.id);
-                                            }}
-                                            style={{ background: 'var(--muted)', padding: '8px', borderRadius: '10px', border: 'none', cursor: 'pointer' }}
-                                        >
-                                            <Copy size={16} />
-                                        </button>
                                     </div>
                                 </div>
                             )}
 
                             {configStep === 3 && (
-                                <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                                    <div style={{ width: '100px', height: '100px', background: 'var(--accent-muted)', color: 'var(--accent)', borderRadius: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 40px', position: 'relative' }}>
-                                        <div style={{ position: 'absolute', inset: 0, borderRadius: '32px', border: '2px solid var(--accent)', animation: 'ping 2s infinite', opacity: 0.2 }} />
-                                        <CheckCircle2 size={48} />
+                                <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                                    <div style={{ width: '120px', height: '120px', background: 'var(--accent-muted)', color: 'var(--accent)', borderRadius: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 40px', position: 'relative' }}>
+                                        <div style={{ position: 'absolute', inset: -10, borderRadius: '45px', border: '2px solid var(--accent)', animation: 'ping 3s infinite', opacity: 0.15 }} />
+                                        <CheckCircle2 size={56} />
                                     </div>
-                                    <h4 style={{ margin: 0, fontSize: '1.8rem', color: 'var(--foreground)', fontWeight: 950, letterSpacing: '-0.04em' }}>Verification Complete</h4>
-                                    <p style={{ fontSize: '1rem', color: 'var(--muted-foreground)', maxWidth: '420px', margin: '24px auto 0', lineHeight: '1.6', fontWeight: 750 }}>
-                                        The autonomous link is stable. Initializing will activate live telemetry and sync the node with the user's fleet.
+                                    <h4 style={{ margin: 0, fontSize: '2.2rem', color: 'var(--foreground)', fontWeight: 950, letterSpacing: '-0.05em' }}>Handshake Ready</h4>
+                                    <p style={{ fontSize: '1.1rem', color: 'var(--muted-foreground)', maxWidth: '440px', margin: '24px auto 0', lineHeight: '1.6', fontWeight: 750 }}>
+                                        Internal registers synchronized. Establishing this link will activate real-time telemetry and full administrative control for the fleet requester.
                                     </p>
+                                    
+                                    <div style={{ marginTop: '40px', padding: '20px', background: 'var(--muted)', borderRadius: '20px', border: '1px solid var(--border)', display: 'inline-flex', alignItems: 'center', gap: '12px' }}>
+                                        <code style={{ fontSize: '0.85rem', color: 'var(--foreground)', fontWeight: 950, letterSpacing: '0.05em' }}>{String(configWorkflow.id).substring(0, 24)}...</code>
+                                        <button 
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(configWorkflow.id);
+                                            }}
+                                            style={{ background: 'var(--background)', border: '1px solid var(--border)', padding: '6px 12px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 950, cursor: 'pointer' }}
+                                        >
+                                            COPY ID
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </div>
 
-                        <div className={adminStyles.modalFooter}>
-                            <button className={adminStyles.prevBtn} onClick={() => setConfigStep(s => s - 1)} disabled={configStep === 1 || savingId === configWorkflow.id}>
-                                {configStep === 1 ? 'Discard' : 'Previous Step'}
+                        <div className={adminStyles.modalFooter} style={{ padding: '32px 40px', background: 'var(--muted)', borderTop: '1px solid var(--border)' }}>
+                            <button className={styles.btnOutline} style={{ padding: '0 32px', height: '56px', borderRadius: '18px', background: 'var(--card)' }} onClick={() => configStep > 1 ? setConfigStep(prev => prev - 1) : setConfigWorkflow(null)}>
+                                {configStep === 1 ? 'Discard Calibration' : 'Previous Step'}
                             </button>
                             <button 
-                                className={adminStyles.nextBtn}
-                                onClick={() => configStep < 3 ? setConfigStep(s => s + 1) : updateWebhook(configWorkflow.id, webhookUrl, n8nWorkflowId, selectedServerId, selectedTemplateId)}
+                                className={styles.btnInstitutional} 
+                                style={{ background: configStep === 3 ? 'var(--accent)' : 'var(--foreground)', color: 'var(--background)', minWidth: '240px', height: '56px', borderRadius: '18px', fontSize: '0.95rem', fontWeight: 950 }}
+                                onClick={() => configStep < 3 ? setConfigStep(prev => prev + 1) : updateWebhook(configWorkflow.id, webhookUrl, n8nWorkflowId, selectedServerId, selectedTemplateId)}
                                 disabled={savingId === configWorkflow.id || (configStep === 2 && (!selectedServerId || !n8nWorkflowId))}
                             >
-                                {savingId === configWorkflow.id ? 'SYNCHRONIZING...' : (configStep === 3 ? 'FINALIZE CALIBRATION' : 'CONTINUE CALIBRATION')}
+                                {savingId === configWorkflow.id ? 'SYNCHRONIZING...' : (configStep === 3 ? 'ACTIVATE NODE LINK' : 'CONTINUE CALIBRATION')}
                             </button>
                         </div>
                     </div>
                 </div>
-            )}
-
-            {/* LOGS MODAL */}
-            {viewingLogs && (
-                <div className={adminStyles.modalOverlay} onClick={() => setViewingLogs(null)}>
-                    <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '800px' }}>
-                        <div className={adminStyles.modalHeader}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                                        <Terminal size={16} color="var(--accent)" />
-                                        <span style={{ fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.15em' }}>Operational Logs</span>
-                                    </div>
-                                    <p className={adminStyles.modalSubtitle}>Autonomous Node: {viewingLogs.id}</p>
-                                </div>
-                                <button className={adminStyles.modalClose} onClick={() => setViewingLogs(null)}>
-                                    <X size={20} />
-                                </button>
-                            </div>
-                        </div>
-                        <div className={adminStyles.modalBody} style={{ background: 'var(--foreground)', color: 'var(--background)', fontFamily: 'monospace', fontSize: '0.85rem' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                {[
-                                    { time: '14:22:01', type: 'SYS', msg: 'Initializing production handshake...' },
-                                    { time: '14:22:03', type: 'AUTH', msg: 'Security token verified for sovereign access.' },
-                                    { time: '14:22:05', type: 'NET', msg: `Establishing tunnel to node...` },
-                                    { time: '14:22:08', type: 'SYNC', msg: 'Handshake complete. Operational.' },
-                                ].map((log: any, i) => (
-                                    <div key={i} style={{ display: 'flex', gap: '16px', opacity: 0.8 }}>
-                                        <span style={{ color: 'var(--accent)', width: '80px' }}>[{log.time}]</span>
-                                        <span style={{ fontWeight: 950 }}>{log.type}</span>
-                                        <span>{log.msg}</span>
-                                    </div>
-                                ))}
-                                <div style={{ marginTop: '16px', display: 'flex', gap: '8px', alignItems: 'center', color: 'var(--accent)' }}>
-                                    <RefreshCcw size={12} className={styles.spinning} />
-                                    <span>Streaming real-time telemetry...</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div className={adminStyles.modalFooter} style={{ borderTop: 'none', paddingTop: 0 }}>
-                            <div style={{ flex: 1 }} />
-                            <button 
-                                className={adminStyles.nextBtn} 
-                                style={{ background: 'var(--foreground)', color: 'var(--background)', minWidth: '220px', height: '52px', borderRadius: '16px' }}
-                                onClick={() => setViewingLogs(null)}
-                            >
-                                CLOSE TERMINAL
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-            {/* PROVISIONING MODAL */}
+            )}/}
             {isProvisioning && (
                 <div className={adminStyles.modalOverlay}>
                     <div className={adminStyles.modal}>
