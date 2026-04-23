@@ -9,50 +9,62 @@ export async function POST(req: Request) {
     }
 
     try {
-        const { workflowId, name, action } = await req.json();
+        const { workflowId, action } = await req.json();
         const shouldBeActive = action === "start";
         
-        // n8n Public API URL
         const n8nBaseUrl = process.env.N8N_BASE_URL || 'https://n8n.manadavana.lv';
         const url = `${n8nBaseUrl}/api/v1/workflows/${workflowId}`;
         const apiKey = process.env.N8N_API_KEY;
 
         if (!apiKey) {
-            console.error("[MASTER_CONTROL] Missing N8N_API_KEY in environment variables.");
+            console.error("[MASTER_CONTROL] Missing N8N_API_KEY.");
             return NextResponse.json({ error: "Core Configuration Missing" }, { status: 500 });
         }
 
-        // Direct PUT request to n8n Public API
-        console.log(`[MASTER_CONTROL] Dispatching ${action.toUpperCase()} to workflow: ${name} (${workflowId})`);
+        // 1. FETCH THE CURRENT WORKFLOW SNAPSHOT
+        console.log(`[MASTER_CONTROL] Synchronizing with Core for Workflow: ${workflowId}`);
+        const getResponse = await fetch(url, {
+            method: 'GET',
+            headers: { 'X-N8N-API-KEY': apiKey }
+        });
+
+        if (!getResponse.ok) {
+            return NextResponse.json({ error: "Could not retrieve workflow data from n8n" }, { status: getResponse.status });
+        }
+
+        const workflowData = await getResponse.json();
+
+        // 2. MODIFY STATUS WHILE PRESERVING ALL OTHER PROPERTIES (nodes, connections, settings)
+        const updatedPayload = {
+            ...workflowData,
+            active: shouldBeActive
+        };
+
+        // 3. PUSH THE COMPLETE PACKAGE BACK TO CORE
+        console.log(`[MASTER_CONTROL] Dispatching ${action.toUpperCase()} command with full payload integrity.`);
         
-        const response = await fetch(url, {
-            method: 'PUT', // n8n Public API requires PUT for status updates
+        const putResponse = await fetch(url, {
+            method: 'PUT',
             headers: {
                 'X-N8N-API-KEY': apiKey,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ 
-                name: name,
-                active: shouldBeActive 
-            })
+            body: JSON.stringify(updatedPayload)
         });
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            console.error("[MASTER_CONTROL] n8n API Refused Request:", response.status, errorData);
+        if (!putResponse.ok) {
+            const errorData = await putResponse.json().catch(() => ({}));
             return NextResponse.json({ 
                 error: "Core Control Failure", 
-                details: errorData.message || "n8n API returned an unexpected response"
-            }, { status: response.status });
+                details: errorData.message || "Final package rejected by n8n API"
+            }, { status: putResponse.status });
         }
 
-        const data = await response.json();
-        console.log(`[MASTER_CONTROL] Status update successful. Workflow active: ${data.active}`);
-
+        const finalData = await putResponse.json();
         return NextResponse.json({ 
             success: true, 
-            active: data.active,
-            message: `Workflow is now ${data.active ? 'ACTIVE' : 'INACTIVE'}`
+            active: finalData.active,
+            message: `Sovereign Loop ${action.toUpperCase()} successful.`
         });
 
     } catch (error: any) {
