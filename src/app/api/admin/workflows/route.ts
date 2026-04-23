@@ -19,6 +19,7 @@ export async function GET() {
                 w."updatedAt",
                 w."serverId",
                 w."templateId",
+                w."tasksCount",
                 cn.name AS "serverName",
                 cn.url AS "serverUrl",
                 wt.name AS "templateName",
@@ -36,7 +37,7 @@ export async function GET() {
             LEFT JOIN "User" u   ON u."id" = w."userId"
             LEFT JOIN "ClusterNode" cn ON w."serverId" = cn.id
             LEFT JOIN "WorkflowTemplate" wt ON w."templateId" = wt.id
-            GROUP BY w."id", u."plan", u."email", cn.name, cn.url, wt.name
+            GROUP BY w."id", u."plan", u."email", cn.name, cn.url, wt.name, w."tasksCount"
             ORDER BY w."updatedAt" DESC
         `);
         

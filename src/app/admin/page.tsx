@@ -425,11 +425,10 @@ export default function AdminControlPage() {
                     <table className={adminStyles.registryTable}>
                     <thead>
                         <tr>
-                            <th className={adminStyles.registryTH}>Node Instance</th>
-                            <th className={adminStyles.registryTH}>User Context</th>
+                            <th className={adminStyles.registryTH}>Identity & Context</th>
                             <th className={adminStyles.registryTH}>Server Deployment</th>
-                            <th className={adminStyles.registryTH}>Institutional Blueprint</th>
-                            <th className={adminStyles.registryTH}>Telemetry Status</th>
+                            <th className={adminStyles.registryTH}>Autonomous Yield</th>
+                            <th className={adminStyles.registryTH}>Live Telemetry</th>
                             <th className={adminStyles.registryTH}>Operational State</th>
                             <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Controls</th>
                         </tr>
@@ -437,7 +436,7 @@ export default function AdminControlPage() {
                     <tbody>
                         {isLoadingWorkflows ? (
                             <tr>
-                                <td colSpan={7} style={{ padding: '60px 0' }}>
+                                <td colSpan={6} style={{ padding: '60px 0' }}>
                                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
                                         <RefreshCcw size={32} className={adminStyles.spinning} color="var(--accent)" />
                                         <p style={{ color: 'var(--muted-foreground)', fontSize: '0.9rem', fontWeight: 800 }}>Synchronizing with Global Fleet...</p>
@@ -446,7 +445,7 @@ export default function AdminControlPage() {
                             </tr>
                         ) : filteredWorkflows.length === 0 ? (
                             <tr>
-                                <td colSpan={7} style={{ padding: '60px 0', textAlign: 'center' }}>
+                                <td colSpan={6} style={{ padding: '60px 0', textAlign: 'center' }}>
                                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
                                         <Search size={32} color="var(--muted)" />
                                         <p style={{ color: 'var(--muted-foreground)', fontWeight: 800 }}>No autonomous loops found in this sector.</p>
@@ -459,28 +458,17 @@ export default function AdminControlPage() {
                                 return (
                                     <tr key={wf.id} className={adminStyles.registryRow}>
                                         <td>
-                                            <div className={adminStyles.loopDetail}>
-                                                <div className={`${adminStyles.loopIcon} ${wf.status === 'Ready' || wf.status === 'Active' ? adminStyles.floatingNode : ''}`} style={{ borderColor: wf.status === 'Error' ? 'var(--destructive)' : 'var(--border)', color: wf.status === 'Error' ? 'var(--destructive)' : 'var(--foreground)' }}>
-                                                    {sd.icon}
-                                                </div>
-                                                <div>
-                                                    <div className={adminStyles.loopName}>{wf.name || 'Unnamed Instance'}</div>
-                                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
-                                                        <code className={adminStyles.identityHash}>{String(wf.id || '').substring(0, 10)}</code>
-                                                        <span style={{ color: 'var(--muted-foreground)', fontSize: '0.7rem', fontWeight: 800 }}>• {new Date(wf.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
                                             <div className={adminStyles.userContext}>
-                                                <div className={adminStyles.userMain} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                                    <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 900 }}>
+                                                <div className={adminStyles.userMain} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 950, color: 'var(--accent)' }}>
                                                         {wf.workflowCount || 0}
                                                     </div>
                                                     <div>
-                                                        <div style={{ fontSize: '0.85rem', fontWeight: 950, color: 'var(--foreground)' }}>{wf.userEmail || 'Anonymous'}</div>
-                                                        <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--muted-foreground)', textTransform: 'uppercase' }}>{wf.userTier}</div>
+                                                        <div style={{ fontSize: '0.9rem', fontWeight: 950, color: 'var(--foreground)' }}>{wf.userEmail || 'Anonymous'}</div>
+                                                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                                            <code style={{ fontSize: '0.6rem', color: 'var(--muted-foreground)', fontWeight: 800, background: 'var(--muted)', padding: '2px 6px', borderRadius: '4px' }}>{String(wf.id || '').substring(0, 10)}</code>
+                                                            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--muted-foreground)', textTransform: 'uppercase' }}>{wf.userTier}</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -503,21 +491,29 @@ export default function AdminControlPage() {
                                             )}
                                         </td>
                                         <td>
-                                            {wf.templateName ? (
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px', background: 'var(--muted)', borderRadius: '8px', width: 'fit-content', border: '1px solid var(--border)' }}>
-                                                    <Zap size={12} color="var(--accent)" />
-                                                    <span style={{ fontSize: '0.75rem', fontWeight: 950 }}>{wf.templateName}</span>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 14px', background: 'var(--muted)', borderRadius: '12px', width: 'fit-content', border: '1px solid var(--border)' }}>
+                                                <Zap size={14} color="var(--accent)" />
+                                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                    <span style={{ fontSize: '0.85rem', fontWeight: 950, color: 'var(--foreground)' }}>{wf.tasksCount || 0}</span>
+                                                    <span style={{ fontSize: '0.55rem', fontWeight: 800, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tasks Done</span>
                                                 </div>
-                                            ) : (
-                                                <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>Standalone Node</span>
-                                            )}
+                                            </div>
                                         </td>
                                         <td>
                                             <div style={{ padding: '0 8px' }}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', alignItems: 'center' }}>
-                                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', color: sd.color, fontSize: '0.65rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                                                        <Activity size={12} className={wf.status === 'Active' || wf.status === 'Syncing' ? adminStyles.spinning : ''} />
-                                                        <span>{wf.status === 'Active' ? 'RUNNING' : (wf.status === 'Passive' ? 'STOPPED' : wf.status)}</span>
+                                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                                        {wf.status === 'Active' ? (
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--accent)', color: 'var(--background)', padding: '4px 8px', borderRadius: '6px', fontSize: '0.6rem', fontWeight: 950, letterSpacing: '0.1em' }}>
+                                                                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--background)', boxShadow: '0 0 5px var(--background)', animation: 'pulse 1.5s infinite' }} />
+                                                                LIVE
+                                                            </div>
+                                                        ) : (
+                                                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', color: sd.color, fontSize: '0.65rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                                                                <Activity size={12} className={wf.status === 'Syncing' ? adminStyles.spinning : ''} />
+                                                                <span>{wf.status === 'Passive' ? 'STOPPED' : wf.status}</span>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                     <span style={{ fontSize: '0.75rem', fontWeight: 950, color: 'var(--foreground)' }}>{wf.progress}%</span>
                                                 </div>
