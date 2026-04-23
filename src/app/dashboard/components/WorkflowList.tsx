@@ -3,7 +3,6 @@
 import styles from "../page.module.css";
 import React, { useState } from "react";
 
-const N8N_BASE_URL = "https://n8n.manadavana.lv/webhook/workflow-control";
 const ONE_DAY_MS   = 24 * 60 * 60 * 1000;
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -184,36 +183,34 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
     // Local overrides: lets the UI update instantly without waiting for a full refetch
     const [statusOverrides, setStatusOverrides] = useState<Record<string, string>>({});
 
-    const persistStatus = async (workflowId: string, action: 'start' | 'end') => {
-        try {
-            await fetch('/api/workflows/run', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ workflowId, action }),
-            });
-        } catch {
-            // non-fatal — webhook already fired; DB write is best-effort
-        }
-    };
-
     const runWorkflow = async (wf: any, actionType: 'START' | 'STOP') => {
         if (!wf.n8nWorkflowId) return;
         setFetching(`${wf.id}-${actionType}`);
         const action = actionType === 'START' ? 'start' : 'end';
-        const url = `${N8N_BASE_URL}?action=${action}&id=${wf.n8nWorkflowId}`;
+        
         try {
-            const res = await fetch(url, { method: 'GET' });
+            const res = await fetch('/api/workflows/run', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ workflowId: wf.id, action }),
+            });
+            
             if (res.ok) {
+                const data = await res.json();
                 // Update local override immediately (instant feedback)
                 const newStatus = actionType === 'START' ? 'Active' : 'Passive';
                 setStatusOverrides(prev => ({ ...prev, [wf.id]: newStatus }));
-                // Persist to DB so refresh restores the state
-                await persistStatus(wf.id, action);
+                
+                if (!data.n8nSynced) {
+                    console.warn("Workflow persisted to DB but n8n handshake failed.");
+                    // We could show a warning here if needed
+                }
             } else {
-                alert(`Webhook Error: ${res.status} — ${res.statusText}`);
+                const errData = await res.json();
+                alert(`Handshake Error: ${errData.error || res.statusText}`);
             }
-        } catch {
-            alert("System Error: Could not reach the n8n webhook.");
+        } catch (err) {
+            alert("System Error: Could not synchronize with orchestrator.");
         } finally {
             setFetching(null);
         }

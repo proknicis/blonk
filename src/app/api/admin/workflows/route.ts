@@ -17,13 +17,20 @@ export async function GET() {
                 w."errorMessage",
                 w."createdAt",
                 w."updatedAt",
+                w."serverId",
+                w."templateId",
+                cn.name AS "serverName",
+                cn.url AS "serverUrl",
+                wt.name AS "templateName",
                 COALESCE(u."plan", 'Starter')  AS "userTier",
                 COALESCE(u."email", '')         AS "userEmail",
                 COUNT(w2.id)                    AS "workflowCount"
             FROM "Workflow" w
             LEFT JOIN "User" u   ON u."id" = w."userId"
             LEFT JOIN "Workflow" w2 ON w2."userId" = w."userId"
-            GROUP BY w."id", u."plan", u."email"
+            LEFT JOIN "ClusterNode" cn ON w."serverId" = cn.id
+            LEFT JOIN "WorkflowTemplate" wt ON w."templateId" = wt.id
+            GROUP BY w."id", u."plan", u."email", cn.name, cn.url, wt.name
             ORDER BY w."updatedAt" DESC
         `);
         

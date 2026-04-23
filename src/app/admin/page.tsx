@@ -423,167 +423,189 @@ export default function AdminControlPage() {
 
                 <div className={adminStyles.tableWrapper}>
                     <table className={adminStyles.registryTable}>
-                            <thead>
-                                <tr>
-                                    <th className={adminStyles.registryTH}>Node Instance</th>
-                                    <th className={adminStyles.registryTH}>User Context</th>
-                                    <th className={adminStyles.registryTH}>Telemetry Status</th>
-                                    <th className={adminStyles.registryTH}>Operational State</th>
-                                    <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Controls</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {isLoadingWorkflows ? (
-                                    <>
-                                        <SkeletonRow />
-                                        <SkeletonRow />
-                                        <SkeletonRow />
-                                    </>
-                                ) : (
-                                    <>
-                                        {filteredWorkflows.length === 0 ? (
-                                            <tr>
-                                                <td colSpan={5} style={{ padding: '100px 0', textAlign: 'center' }}>
-                                                    <Database size={48} style={{ color: 'var(--border)', marginBottom: '24px' }} />
-                                                    <p style={{ fontWeight: 950, color: 'var(--foreground)', fontSize: '1.25rem' }}>No operational nodes found</p>
-                                                    <p style={{ color: 'var(--muted-foreground)', fontWeight: 600 }}>Try adjusting your search or filters.</p>
-                                                </td>
-                                            </tr>
-                                        ) : (
-                                            filteredWorkflows.map(wf => {
-                                                const sd = getStatusDetails(wf.status);
-                                                return (
-                                                    <tr key={wf.id} className={adminStyles.registryRow}>
-                                                        <td>
-                                                            <div className={adminStyles.loopDetail}>
-                                                                <div className={adminStyles.loopIcon} style={{ borderColor: wf.status === 'Error' ? 'var(--destructive)' : 'var(--border)', color: wf.status === 'Error' ? 'var(--destructive)' : 'var(--foreground)' }}>
-                                                                    <Zap size={18} />
-                                                                </div>
-                                                                <div>
-                                                                    <div className={adminStyles.loopName}>{wf.name || 'Unnamed Instance'}</div>
-                                                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
-                                                                        <code className={adminStyles.identityHash}>{String(wf.id || '').substring(0, 8)}</code>
-                                                                        <span style={{ color: 'var(--muted-foreground)', fontSize: '0.7rem', fontWeight: 800 }}>• {new Date(wf.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <div className={adminStyles.requesterInfo}>
-                                                                <div className={adminStyles.requesterAvatar}>
-                                                                    {String(wf.requestedBy || 'U').charAt(0).toUpperCase()}
-                                                                </div>
-                                                                <div>
-                                                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                                                        <span className={adminStyles.requesterName}>{wf.requestedBy || 'Anonymous'}</span>
-                                                                        <span className={adminStyles.tierBadge} style={{ background: wf.userTier === 'Enterprise' ? 'var(--foreground)' : 'var(--muted)', color: wf.userTier === 'Enterprise' ? 'var(--accent)' : 'var(--muted-foreground)' }}>{wf.userTier}</span>
-                                                                    </div>
-                                                                    <div className={adminStyles.requesterEmail}>{wf.workflowCount} workflows active</div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <div style={{ padding: '0 16px' }}>
-                                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', alignItems: 'center' }}>
-                                                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', color: sd.color, fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                                                                        {sd.icon}
-                                                                        <span>{wf.status}</span>
-                                                                    </div>
-                                                                    <span style={{ fontSize: '0.75rem', fontWeight: 950, color: 'var(--foreground)' }}>{wf.progress}%</span>
-                                                                </div>
-                                                                <div style={{ height: '6px', width: '100%', background: 'var(--muted)', borderRadius: '10px', overflow: 'hidden' }}>
-                                                                    <div style={{ height: '100%', width: `${wf.progress}%`, background: sd.color, transition: 'width 1s cubic-bezier(0.16, 1, 0.3, 1)' }} />
-                                                                </div>
-                                                                {wf.status === 'Error' && (
-                                                                    <div title={wf.errorMessage} style={{ display: 'flex', gap: '6px', alignItems: 'center', marginTop: '8px', color: 'var(--destructive)', fontSize: '0.75rem', fontWeight: 800 }}>
-                                                                        <AlertCircle size={12} />
-                                                                        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '160px' }}>{wf.errorMessage}</span>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                                <div style={{ fontSize: '0.85rem', fontWeight: 950, color: 'var(--foreground)' }}>
-                                                                    {wf.status === 'Ready' || wf.status === 'Active' ? 'Operational' : 'Syncing node...'}
-                                                                </div>
-                                                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                                                    <Clock size={12} color="var(--muted-foreground)" />
-                                                                    <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>
-                                                                        Updated {Math.floor((Date.now() - new Date(wf.updatedAt).getTime()) / 60000)}m ago
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                                <button 
-                                                                    className={adminStyles.actionIconBtn}
-                                                                    onClick={() => setViewingLogs(wf)}
-                                                                    title="View Node Logs"
-                                                                >
-                                                                    <Terminal size={16} />
-                                                                </button>
-                                                                <button 
-                                                                    className={adminStyles.actionIconBtn}
-                                                                    onClick={(e) => toggleMenu(e, wf.id)}
-                                                                >
-                                                                    <MoreHorizontal size={16} />
-                                                                </button>
-                                                                {activeMenuId === wf.id && (
-                                                                    <ModalPortal>
-                                                                        <div 
-                                                                            ref={menuRef}
-                                                                            style={{
-                                                                                position: 'absolute',
-                                                                                top: `${menuPosition.top + 8}px`,
-                                                                                right: `${menuPosition.right}px`,
-                                                                                background: 'var(--card)',
-                                                                                border: '1px solid var(--border)',
-                                                                                borderRadius: '16px',
-                                                                                boxShadow: 'var(--shadow-lg)',
-                                                                                zIndex: 10000,
-                                                                                minWidth: '200px',
-                                                                                padding: '8px',
-                                                                                display: 'flex',
-                                                                                flexDirection: 'column',
-                                                                                gap: '4px'
-                                                                            }}
-                                                                        >
-                                                                            <button 
-                                                                                className={adminStyles.filterBtn} 
-                                                                                style={{ display: 'flex', alignItems: 'center', border: 'none', justifyContent: 'flex-start', padding: '12px', width: '100%', fontSize: '0.85rem' }}
-                                                                                onClick={() => { updateWorkflowStatus(wf.id, 'Syncing'); setActiveMenuId(null); }}
-                                                                            >
-                                                                                <RotateCcw size={14} style={{ marginRight: '12px' }} /> Force Sync
-                                                                            </button>
-                                                                            <button 
-                                                                                className={adminStyles.filterBtn} 
-                                                                                style={{ display: 'flex', alignItems: 'center', border: 'none', justifyContent: 'flex-start', padding: '12px', width: '100%', fontSize: '0.85rem' }}
-                                                                                onClick={() => { setConfigWorkflow(wf); setConfigStep(1); setActiveMenuId(null); }}
-                                                                            >
-                                                                                <Settings size={14} style={{ marginRight: '12px' }} /> Configure Node
-                                                                            </button>
-                                                                            <div style={{ height: '1px', background: 'var(--border)', margin: '4px 8px' }} />
-                                                                            <button 
-                                                                                className={adminStyles.filterBtn} 
-                                                                                style={{ display: 'flex', alignItems: 'center', border: 'none', justifyContent: 'flex-start', padding: '12px', width: '100%', fontSize: '0.85rem', color: 'var(--destructive)' }}
-                                                                                onClick={() => { deleteWorkflow(wf.id); setActiveMenuId(null); }}
-                                                                            >
-                                                                                <Trash2 size={14} style={{ marginRight: '12px' }} /> Delete Instance
-                                                                            </button>
-                                                                        </div>
-                                                                    </ModalPortal>
-                                                                )}
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                );
-                                            })
-                                        )}
-                                    </>
-                                )}
-                            </tbody>
+                    <thead>
+                        <tr>
+                            <th className={adminStyles.registryTH}>Node Instance</th>
+                            <th className={adminStyles.registryTH}>User Context</th>
+                            <th className={adminStyles.registryTH}>Server Deployment</th>
+                            <th className={adminStyles.registryTH}>Institutional Blueprint</th>
+                            <th className={adminStyles.registryTH}>Telemetry Status</th>
+                            <th className={adminStyles.registryTH}>Operational State</th>
+                            <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Controls</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {isLoadingWorkflows ? (
+                            <tr>
+                                <td colSpan={7} style={{ padding: '60px 0' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                                        <RefreshCcw size={32} className={adminStyles.spinning} color="var(--accent)" />
+                                        <p style={{ color: 'var(--muted-foreground)', fontSize: '0.9rem', fontWeight: 800 }}>Synchronizing with Global Fleet...</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        ) : filteredWorkflows.length === 0 ? (
+                            <tr>
+                                <td colSpan={7} style={{ padding: '60px 0', textAlign: 'center' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                                        <Search size={32} color="var(--muted)" />
+                                        <p style={{ color: 'var(--muted-foreground)', fontWeight: 800 }}>No autonomous loops found in this sector.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        ) : (
+                            filteredWorkflows.map((wf) => {
+                                const sd = getStatusDetails(wf.status);
+                                return (
+                                    <tr key={wf.id} className={adminStyles.registryRow}>
+                                        <td>
+                                            <div className={adminStyles.loopDetail}>
+                                                <div className={`${adminStyles.loopIcon} ${wf.status === 'Ready' || wf.status === 'Active' ? adminStyles.floatingNode : ''}`} style={{ borderColor: wf.status === 'Error' ? 'var(--destructive)' : 'var(--border)', color: wf.status === 'Error' ? 'var(--destructive)' : 'var(--foreground)' }}>
+                                                    {sd.icon}
+                                                </div>
+                                                <div>
+                                                    <div className={adminStyles.loopName}>{wf.name || 'Unnamed Instance'}</div>
+                                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
+                                                        <code className={adminStyles.identityHash}>{String(wf.id || '').substring(0, 10)}</code>
+                                                        <span style={{ color: 'var(--muted-foreground)', fontSize: '0.7rem', fontWeight: 800 }}>• {new Date(wf.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className={adminStyles.userContext}>
+                                                <div className={adminStyles.userMain} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                                    <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 900 }}>
+                                                        {wf.workflowCount || 0}
+                                                    </div>
+                                                    <div>
+                                                        <div style={{ fontSize: '0.85rem', fontWeight: 950, color: 'var(--foreground)' }}>{wf.userEmail || 'Anonymous'}</div>
+                                                        <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--muted-foreground)', textTransform: 'uppercase' }}>{wf.userTier}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {wf.serverName ? (
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                    <div style={{ fontSize: '0.8rem', fontWeight: 950, color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                        <Server size={12} color="var(--accent)" />
+                                                        {wf.serverName}
+                                                    </div>
+                                                    <div style={{ fontSize: '0.65rem', color: 'var(--muted-foreground)', fontWeight: 800, fontFamily: 'monospace' }}>
+                                                        {wf.serverUrl?.replace(/^https?:\/\//, '')}
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800, fontStyle: 'italic' }}>
+                                                    Unassigned Hub
+                                                </div>
+                                            )}
+                                        </td>
+                                        <td>
+                                            {wf.templateName ? (
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px', background: 'var(--muted)', borderRadius: '8px', width: 'fit-content', border: '1px solid var(--border)' }}>
+                                                    <Zap size={12} color="var(--accent)" />
+                                                    <span style={{ fontSize: '0.75rem', fontWeight: 950 }}>{wf.templateName}</span>
+                                                </div>
+                                            ) : (
+                                                <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>Standalone Node</span>
+                                            )}
+                                        </td>
+                                        <td>
+                                            <div style={{ padding: '0 8px' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', alignItems: 'center' }}>
+                                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', color: sd.color, fontSize: '0.65rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                                                        <Activity size={12} className={wf.status === 'Active' || wf.status === 'Syncing' ? adminStyles.spinning : ''} />
+                                                        <span>{wf.status === 'Active' ? 'RUNNING' : (wf.status === 'Passive' ? 'STOPPED' : wf.status)}</span>
+                                                    </div>
+                                                    <span style={{ fontSize: '0.75rem', fontWeight: 950, color: 'var(--foreground)' }}>{wf.progress}%</span>
+                                                </div>
+                                                <div style={{ height: '5px', width: '100%', background: 'var(--muted)', borderRadius: '10px', overflow: 'hidden' }}>
+                                                    <div style={{ height: '100%', width: `${wf.progress}%`, background: sd.color, transition: 'width 1s cubic-bezier(0.16, 1, 0.3, 1)' }} />
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                <div style={{ fontSize: '0.8rem', fontWeight: 950, color: 'var(--foreground)' }}>
+                                                    {wf.status === 'Ready' || wf.status === 'Active' ? 'Integrity Verified' : (wf.errorMessage || 'Syncing node...')}
+                                                </div>
+                                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                                    <Clock size={12} color="var(--muted-foreground)" />
+                                                    <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>
+                                                        {Math.floor((Date.now() - new Date(wf.updatedAt).getTime()) / 60000)}m ago
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                <button 
+                                                    className={adminStyles.actionIconBtn}
+                                                    onClick={() => setViewingLogs(wf)}
+                                                    title="View Node Logs"
+                                                >
+                                                    <Terminal size={16} />
+                                                </button>
+                                                <button 
+                                                    className={adminStyles.actionIconBtn}
+                                                    onClick={(e) => toggleMenu(e, wf.id)}
+                                                >
+                                                    <MoreHorizontal size={16} />
+                                                </button>
+                                                {activeMenuId === wf.id && (
+                                                    <ModalPortal>
+                                                        <div 
+                                                            ref={menuRef}
+                                                            style={{
+                                                                position: 'absolute',
+                                                                top: `${menuPosition.top + 8}px`,
+                                                                right: `${menuPosition.right}px`,
+                                                                background: 'var(--card)',
+                                                                border: '1px solid var(--border)',
+                                                                borderRadius: '16px',
+                                                                boxShadow: 'var(--shadow-lg)',
+                                                                zIndex: 10000,
+                                                                minWidth: '200px',
+                                                                padding: '8px',
+                                                                display: 'flex',
+                                                                flexDirection: 'column',
+                                                                gap: '4px'
+                                                            }}
+                                                        >
+                                                            <button 
+                                                                className={adminStyles.filterBtn} 
+                                                                style={{ display: 'flex', alignItems: 'center', border: 'none', justifyContent: 'flex-start', padding: '12px', width: '100%', fontSize: '0.85rem' }}
+                                                                onClick={() => { updateWorkflowStatus(wf.id, 'Syncing'); setActiveMenuId(null); }}
+                                                            >
+                                                                <RotateCcw size={14} style={{ marginRight: '12px' }} /> Force Sync
+                                                            </button>
+                                                            <button 
+                                                                className={adminStyles.filterBtn} 
+                                                                style={{ display: 'flex', alignItems: 'center', border: 'none', justifyContent: 'flex-start', padding: '12px', width: '100%', fontSize: '0.85rem' }}
+                                                                onClick={() => { setConfigWorkflow(wf); setConfigStep(1); setActiveMenuId(null); }}
+                                                            >
+                                                                <Settings size={14} style={{ marginRight: '12px' }} /> Configure Node
+                                                            </button>
+                                                            <div style={{ height: '1px', background: 'var(--border)', margin: '4px 8px' }} />
+                                                            <button 
+                                                                className={adminStyles.filterBtn} 
+                                                                style={{ display: 'flex', alignItems: 'center', border: 'none', justifyContent: 'flex-start', padding: '12px', width: '100%', fontSize: '0.85rem', color: 'var(--destructive)' }}
+                                                                onClick={() => { deleteWorkflow(wf.id); setActiveMenuId(null); }}
+                                                            >
+                                                                <Trash2 size={14} style={{ marginRight: '12px' }} /> Delete Instance
+                                                            </button>
+                                                        </div>
+                                                    </ModalPortal>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })
+                        )}
+                    </tbody>
                     </table>
                 </div>
             </div>
@@ -738,25 +760,6 @@ export default function AdminControlPage() {
                                         )}
                                     </div>
 
-                                    {/* ── WORKFLOW BLUEPRINT SELECTION ── */}
-                                    <div className={adminStyles.inputWrapper}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                                            <Zap size={18} color="var(--foreground)" />
-                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Associate Workflow blueprint</h4>
-                                        </div>
-                                        <select 
-                                            className={adminStyles.mainInput}
-                                            value={selectedTemplateId}
-                                            onChange={(e) => setSelectedTemplateId(e.target.value)}
-                                            style={{ appearance: 'none', cursor: 'pointer' }}
-                                        >
-                                            <option value="">Select a provisioned workflow...</option>
-                                            {templates.map(t => (
-                                                <option key={t.id} value={t.id}>{t.name}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-
                                     <div style={{ height: '1px', background: 'var(--border)', margin: '8px 0' }} />
 
                                     {/* ── READ-ONLY: User's Blonk Workflow ID ── */}
@@ -803,7 +806,7 @@ export default function AdminControlPage() {
                                 className={styles.btnInstitutional} 
                                 style={{ background: configStep === 3 ? 'var(--accent)' : 'var(--foreground)', color: configStep === 3 ? 'var(--background)' : 'var(--background)', minWidth: '220px', height: '52px', borderRadius: '16px' }}
                                 onClick={() => configStep < 3 ? setConfigStep(prev => prev + 1) : updateWebhook(configWorkflow.id, webhookUrl, n8nWorkflowId, selectedServerId, selectedTemplateId)}
-                                disabled={savingId === configWorkflow.id || (configStep === 2 && (!n8nWorkflowId || !selectedServerId || !selectedTemplateId))}
+                                disabled={savingId === configWorkflow.id || (configStep === 2 && (!n8nWorkflowId || !selectedServerId))}
                             >
                                 {savingId === configWorkflow.id ? 'SYNCHRONIZING...' : (configStep === 3 ? 'INITIALIZE NODE' : 'CONTINUE CALIBRATION')}
                             </button>
