@@ -9,6 +9,7 @@ import {
     Cpu,
     Zap, 
     Database, 
+    Server,
     ArrowUpRight, 
     MoreVertical, 
     Trash2, 
