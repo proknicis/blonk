@@ -86,16 +86,36 @@ export async function GET(
             }
         } catch { /* non-critical */ }
 
+        // 4. Fetch Workflows registered in OUR database for this server
+        const dbWorkflows = await db.query(`
+            SELECT w.id, w.name, w.status, w.progress, w."tasksCount"
+            FROM "Workflow" w
+            WHERE w."serverId" = $1
+        `, [id]) as any[];
+
+        // Combine n8n data with our DB data
+        // For the Fleet Monitor, we want to show our registered customer workflows
+        const displayWorkflows = dbWorkflows.map(wf => {
+            const n8nMatch = workflows.find(n => n.id === wf.n8nWorkflowId);
+            return {
+                id: wf.id,
+                name: wf.name,
+                active: wf.status === 'Ready' || wf.status === 'Active',
+                nodes: wf.tasksCount || 0,
+                status: wf.status
+            };
+        });
+
         return NextResponse.json({
             node: targetNode.name,
             endpoint: baseUrl,
             health: healthStatus,
-            workflowCount: workflows.length,
-            activeWorkflows: workflows.filter((w: any) => w.active).length,
-            inactiveWorkflows: workflows.filter((w: any) => !w.active).length,
+            workflowCount: dbWorkflows.length,
+            activeWorkflows: dbWorkflows.filter((w: any) => w.status === 'Ready' || w.status === 'Active').length,
+            inactiveWorkflows: dbWorkflows.filter((w: any) => w.status !== 'Ready' && w.status !== 'Active').length,
             recentExecutions,
             failedExecutions,
-            workflows,
+            workflows: displayWorkflows,
             workflowError,
             scannedAt: new Date().toISOString()
         });

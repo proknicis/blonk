@@ -42,7 +42,7 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { id, n8nWebhookUrl, n8nWorkflowId, status, progress, errorMessage } = body;
+        const { id, n8nWebhookUrl, n8nWorkflowId, status, progress, errorMessage, serverId, templateId } = body;
 
         const updates: string[] = [];
         const params: any[] = [];
@@ -76,6 +76,16 @@ export async function POST(request: Request) {
         if (errorMessage !== undefined) {
             updates.push(`"errorMessage" = $${i++}`);
             params.push(errorMessage);
+        }
+
+        if (serverId !== undefined) {
+            updates.push(`"serverId" = $${i++}`);
+            params.push(serverId);
+        }
+
+        if (templateId !== undefined) {
+            updates.push(`"templateId" = $${i++}`);
+            params.push(templateId);
         }
 
         // Always update the timestamp on modification

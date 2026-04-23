@@ -40,6 +40,7 @@ import ModalPortal from "../components/ModalPortal";
 export default function AdminControlPage() {
     const [workflows, setWorkflows] = useState<any[]>([]);
     const [templates, setTemplates] = useState<any[]>([]);
+    const [servers, setServers] = useState<any[]>([]);
     const [isLoadingWorkflows, setIsLoadingWorkflows] = useState(true);
     const [savingId, setSavingId] = useState<string | null>(null);
     const [configWorkflow, setConfigWorkflow] = useState<any>(null);
@@ -88,9 +89,22 @@ export default function AdminControlPage() {
     useEffect(() => {
         fetchWorkflows();
         fetchTemplates();
+        fetchServers();
         const interval = setInterval(fetchWorkflows, 10000); // Auto-refresh for operational feel
         return () => clearInterval(interval);
     }, []);
+
+    const fetchServers = async () => {
+        try {
+            const res = await fetch('/api/admin/nodes');
+            const data = await res.json();
+            if (Array.isArray(data)) {
+                setServers(data);
+            }
+        } catch (error) {
+            console.error("Error fetching servers:", error);
+        }
+    };
 
     const fetchTemplates = async () => {
         try {
@@ -167,13 +181,19 @@ export default function AdminControlPage() {
         } finally { setSavingId(null); }
     };
 
-    const updateWebhook = async (id: string, url: string, n8nWfId?: string) => {
+    const updateWebhook = async (id: string, url: string, n8nWfId?: string, srvId?: string, tplId?: string) => {
         setSavingId(id);
         try {
             const res = await fetch('/api/admin/workflows', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, n8nWebhookUrl: url || undefined, n8nWorkflowId: n8nWfId })
+                body: JSON.stringify({ 
+                    id, 
+                    n8nWebhookUrl: url || undefined, 
+                    n8nWorkflowId: n8nWfId,
+                    serverId: srvId || undefined,
+                    templateId: tplId || undefined
+                })
             });
             if (!res.ok) throw new Error(`Status ${res.status}`);
             fetchWorkflows();
@@ -181,6 +201,8 @@ export default function AdminControlPage() {
             setConfigStep(1);
             setWebhookUrl("");
             setN8nWorkflowId("");
+            setSelectedServerId("");
+            setSelectedTemplateId("");
         } catch (error: any) { 
             console.error("Webhook calibration failure:", error);
             alert(`Node Calibration Failure: ${error.message}`);
@@ -628,27 +650,22 @@ export default function AdminControlPage() {
                              {configStep === 2 && (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
-                                    {/* ── SERVER SELECTION (Operational Registry) ── */}
+                                     {/* ── SERVER SELECTION (Operational Registry) ── */}
                                     <div className={adminStyles.inputWrapper}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                                            <Database size={18} color="var(--foreground)" />
-                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Target Node Instance (Server)</h4>
+                                            <Server size={18} color="var(--foreground)" />
+                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Operational Cluster Node (Server)</h4>
                                         </div>
                                         <select 
                                             className={adminStyles.mainInput}
                                             value={selectedServerId}
-                                            onChange={(e) => {
-                                                const newWf = workflows.find(w => w.id === e.target.value);
-                                                if (newWf) {
-                                                    setConfigWorkflow(newWf);
-                                                    setSelectedServerId(newWf.id);
-                                                }
-                                            }}
+                                            onChange={(e) => setSelectedServerId(e.target.value)}
                                             style={{ appearance: 'none', cursor: 'pointer' }}
                                         >
-                                            {workflows.map(wf => (
-                                                <option key={wf.id} value={wf.id}>
-                                                    {wf.name || 'Unnamed Instance'} ({String(wf.id).substring(0, 8)})
+                                            <option value="">Select an operational server...</option>
+                                            {servers.map(s => (
+                                                <option key={s.id} value={s.id}>
+                                                    {s.name} ({s.url})
                                                 </option>
                                             ))}
                                         </select>
@@ -748,8 +765,8 @@ export default function AdminControlPage() {
                             <button 
                                 className={styles.btnInstitutional} 
                                 style={{ background: configStep === 3 ? 'var(--accent)' : 'var(--foreground)', color: configStep === 3 ? 'var(--background)' : 'var(--background)', minWidth: '220px', height: '52px', borderRadius: '16px' }}
-                                onClick={() => configStep < 3 ? setConfigStep(prev => prev + 1) : updateWebhook(configWorkflow.id, webhookUrl, n8nWorkflowId)}
-                                disabled={savingId === configWorkflow.id || (configStep === 2 && !n8nWorkflowId)}
+                                onClick={() => configStep < 3 ? setConfigStep(prev => prev + 1) : updateWebhook(configWorkflow.id, webhookUrl, n8nWorkflowId, selectedServerId, selectedTemplateId)}
+                                disabled={savingId === configWorkflow.id || (configStep === 2 && (!n8nWorkflowId || !selectedServerId || !selectedTemplateId))}
                             >
                                 {savingId === configWorkflow.id ? 'SYNCHRONIZING...' : (configStep === 3 ? 'INITIALIZE NODE' : 'CONTINUE CALIBRATION')}
                             </button>
