@@ -9,15 +9,20 @@ export async function GET() {
                 w."name", 
                 w."sector", 
                 w."status", 
-                w."n8nWorkflowId",
                 w."n8nWebhookUrl", 
                 w."inputs", 
                 w."requestedBy",
                 w."progress",
                 w."errorMessage",
                 w."createdAt",
-                w."updatedAt"
+                w."updatedAt",
+                COALESCE(u."plan", 'Starter')  AS "userTier",
+                COALESCE(u."email", '')         AS "userEmail",
+                COUNT(w2.id)                    AS "workflowCount"
             FROM "Workflow" w
+            LEFT JOIN "User" u   ON u."id" = w."userId"
+            LEFT JOIN "Workflow" w2 ON w2."userId" = w."userId"
+            GROUP BY w."id", u."plan", u."email"
             ORDER BY w."updatedAt" DESC
         `);
         
@@ -36,21 +41,16 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { id, n8nWorkflowId, n8nWebhookUrl, status, progress, errorMessage } = body;
+        const { id, n8nWebhookUrl, status, progress, errorMessage } = body;
 
-        const updates = [];
-        const params = [];
+        const updates: string[] = [];
+        const params: any[] = [];
         let i = 1;
-
-        if (n8nWorkflowId !== undefined) {
-            updates.push(`"n8nWorkflowId" = $${i++}`);
-            params.push(n8nWorkflowId);
-        }
 
         if (n8nWebhookUrl !== undefined) {
             updates.push(`"n8nWebhookUrl" = $${i++}`);
             params.push(n8nWebhookUrl);
-            // If webhook is provided and no status is explicitly set, default to Syncing or Active
+            // If webhook is provided and no status is explicitly set, default to Syncing
             if (status === undefined) {
                 updates.push(`status = $${i++}`);
                 params.push('Syncing');

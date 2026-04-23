@@ -148,17 +148,13 @@ export default function AdminControlPage() {
         } finally { setSavingId(null); }
     };
 
-    const updateWebhook = async (id: string, url: string, n8nWfId?: string) => {
+    const updateWebhook = async (id: string, url: string) => {
         setSavingId(id);
         try {
             const res = await fetch('/api/admin/workflows', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    id, 
-                    n8nWebhookUrl: url,
-                    n8nWorkflowId: n8nWfId
-                })
+                body: JSON.stringify({ id, n8nWebhookUrl: url })
             });
             if (!res.ok) throw new Error(`Status ${res.status}`);
             fetchWorkflows();
@@ -664,7 +660,7 @@ export default function AdminControlPage() {
                             <button 
                                 className={styles.btnInstitutional} 
                                 style={{ background: configStep === 3 ? 'var(--accent)' : 'var(--foreground)', color: configStep === 3 ? 'var(--background)' : 'var(--background)', minWidth: '220px', height: '52px', borderRadius: '16px' }}
-                                onClick={() => configStep < 3 ? setConfigStep(prev => prev + 1) : updateWebhook(configWorkflow.id, webhookUrl, n8nWorkflowId)}
+                                onClick={() => configStep < 3 ? setConfigStep(prev => prev + 1) : updateWebhook(configWorkflow.id, webhookUrl)}
                                 disabled={savingId === configWorkflow.id || (configStep === 2 && (!webhookUrl || !n8nWorkflowId))}
                             >
                                 {savingId === configWorkflow.id ? 'SYNCHRONIZING...' : (configStep === 3 ? 'INITIALIZE NODE' : 'CONTINUE CALIBRATION')}
