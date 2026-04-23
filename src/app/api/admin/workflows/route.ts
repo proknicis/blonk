@@ -9,6 +9,7 @@ export async function GET() {
                 w.name, 
                 w.sector, 
                 w.status, 
+                w."n8nWorkflowId",
                 w."n8nWebhookUrl", 
                 w.inputs, 
                 w."requestedBy",
@@ -34,11 +35,16 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { id, n8nWebhookUrl, status, progress, errorMessage } = body;
+        const { id, n8nWorkflowId, n8nWebhookUrl, status, progress, errorMessage } = body;
 
         const updates = [];
         const params = [];
         let i = 1;
+
+        if (n8nWorkflowId !== undefined) {
+            updates.push(`"n8nWorkflowId" = $${i++}`);
+            params.push(n8nWorkflowId);
+        }
 
         if (n8nWebhookUrl !== undefined) {
             updates.push(`"n8nWebhookUrl" = $${i++}`);

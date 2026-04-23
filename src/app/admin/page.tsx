@@ -52,6 +52,7 @@ export default function AdminControlPage() {
         nodes: "High (8 vCPU / 32GB)",
     });
     const [webhookUrl, setWebhookUrl] = useState("");
+    const [n8nWorkflowId, setN8nWorkflowId] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
     const [activeFilter, setActiveFilter] = useState("All");
     const [viewingLogs, setViewingLogs] = useState<any>(null);
@@ -147,19 +148,24 @@ export default function AdminControlPage() {
         } finally { setSavingId(null); }
     };
 
-    const updateWebhook = async (id: string, url: string) => {
+    const updateWebhook = async (id: string, url: string, n8nWfId?: string) => {
         setSavingId(id);
         try {
             const res = await fetch('/api/admin/workflows', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, n8nWebhookUrl: url })
+                body: JSON.stringify({ 
+                    id, 
+                    n8nWebhookUrl: url,
+                    n8nWorkflowId: n8nWfId
+                })
             });
             if (!res.ok) throw new Error(`Status ${res.status}`);
             fetchWorkflows();
             setConfigWorkflow(null);
             setConfigStep(1);
             setWebhookUrl("");
+            setN8nWorkflowId("");
         } catch (error: any) { 
             console.error("Webhook calibration failure:", error);
             alert(`Node Calibration Failure: ${error.message}`);
@@ -529,7 +535,7 @@ export default function AdminControlPage() {
                                     <h3 className={adminStyles.modalTitle}>Production Sync</h3>
                                     <p className={adminStyles.modalSubtitle}>Loop Instance: {configWorkflow.name}</p>
                                 </div>
-                                <button className={adminStyles.modalClose} onClick={() => { setConfigWorkflow(null); setConfigStep(1); setWebhookUrl(""); }}>
+                                <button className={adminStyles.modalClose} onClick={() => { setConfigWorkflow(null); setConfigStep(1); setWebhookUrl(""); setN8nWorkflowId(""); }}>
                                     <X size={20} />
                                 </button>
                             </div>
@@ -604,6 +610,23 @@ export default function AdminControlPage() {
 
                                     <div className={adminStyles.inputWrapper}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                                            <Cpu size={18} color="var(--foreground)" />
+                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Institutional Workflow ID</h4>
+                                        </div>
+                                        <input 
+                                            type="text" 
+                                            className={adminStyles.mainInput}
+                                            placeholder="e.g. cc7LNj10JChNMCRY"
+                                            value={n8nWorkflowId}
+                                            onChange={(e) => setN8nWorkflowId(e.target.value)}
+                                        />
+                                        <p style={{ marginTop: '16px', fontSize: '0.85rem', color: 'var(--muted-foreground)', fontWeight: 700, lineHeight: '1.6' }}>
+                                            The professional n8n workflow ID required for direct API orchestration.
+                                        </p>
+                                    </div>
+
+                                    <div className={adminStyles.inputWrapper}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                                             <Link2 size={18} color="var(--foreground)" />
                                             <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Production Endpoint</h4>
                                         </div>
@@ -641,8 +664,8 @@ export default function AdminControlPage() {
                             <button 
                                 className={styles.btnInstitutional} 
                                 style={{ background: configStep === 3 ? 'var(--accent)' : 'var(--foreground)', color: configStep === 3 ? 'var(--background)' : 'var(--background)', minWidth: '220px', height: '52px', borderRadius: '16px' }}
-                                onClick={() => configStep < 3 ? setConfigStep(prev => prev + 1) : updateWebhook(configWorkflow.id, webhookUrl)}
-                                disabled={savingId === configWorkflow.id || (configStep === 2 && !webhookUrl)}
+                                onClick={() => configStep < 3 ? setConfigStep(prev => prev + 1) : updateWebhook(configWorkflow.id, webhookUrl, n8nWorkflowId)}
+                                disabled={savingId === configWorkflow.id || (configStep === 2 && (!webhookUrl || !n8nWorkflowId))}
                             >
                                 {savingId === configWorkflow.id ? 'SYNCHRONIZING...' : (configStep === 3 ? 'INITIALIZE NODE' : 'CONTINUE CALIBRATION')}
                             </button>
