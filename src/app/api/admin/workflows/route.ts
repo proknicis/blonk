@@ -5,30 +5,34 @@ export async function GET() {
     try {
         const rows = await db.query(`
             SELECT 
-                w.id, 
-                w.name, 
-                w.sector, 
-                w.status, 
+                w."id", 
+                w."name", 
+                w."sector", 
+                w."status", 
                 w."n8nWorkflowId",
                 w."n8nWebhookUrl", 
-                w.inputs, 
+                w."inputs", 
                 w."requestedBy",
-                w.progress,
+                w."progress",
                 w."errorMessage",
                 w."createdAt",
                 w."updatedAt",
-                u.tier as "userTier",
+                u."tier" as "userTier",
                 u."workflowsUsed" as "userWorkflows"
             FROM "Workflow" w
-            LEFT JOIN "User" u ON w."requestedBy" = u.email
+            LEFT JOIN "User" u ON w."requestedBy" = u."email"
             ORDER BY w."updatedAt" DESC
         `);
         
-        // Return real data from the database
+        console.log(`[INSTITUTIONAL_ADMIN_API] Successfully synchronized ${rows?.length || 0} nodes from the fleet registry.`);
+        
         return NextResponse.json(rows || []);
-    } catch (error) {
-        console.error('Error fetching admin workflows:', error);
-        return NextResponse.json({ error: 'Failed' }, { status: 500 });
+    } catch (error: any) {
+        console.error('[INSTITUTIONAL_ADMIN_API] Registry Fetch Failure:', error.message);
+        return NextResponse.json({ 
+            error: 'Fleet Synchronization Failure', 
+            details: error.message 
+        }, { status: 500 });
     }
 }
 
