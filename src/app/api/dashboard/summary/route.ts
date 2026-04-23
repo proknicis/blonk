@@ -43,7 +43,7 @@ export async function GET() {
         });
 
         // 2. Fetch Velocity Chart Data (Last 24h, only for existing workflows)
-        let velocityRows = [];
+        let velocityRows: any[] = [];
         if (hasWorkflows) {
             velocityRows = await db.query(`
                 SELECT 
@@ -86,7 +86,7 @@ export async function GET() {
         }
 
         // 4. Fetch Intelligence Feed (Last 24h, only for existing workflows)
-        let formattedFeed = [];
+        let formattedFeed: any[] = [];
         if (hasWorkflows) {
             const feedLogs = await db.query(`
                 SELECT "workflowName" as title, result as meta, status as type, "createdAt" as time
