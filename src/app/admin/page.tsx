@@ -39,10 +39,16 @@ import ModalPortal from "../components/ModalPortal";
 
 export default function AdminControlPage() {
     const [workflows, setWorkflows] = useState<any[]>([]);
+    const [templates, setTemplates] = useState<any[]>([]);
     const [isLoadingWorkflows, setIsLoadingWorkflows] = useState(true);
     const [savingId, setSavingId] = useState<string | null>(null);
     const [configWorkflow, setConfigWorkflow] = useState<any>(null);
     const [configStep, setConfigStep] = useState(1);
+    
+    // Selection states for Production Sync
+    const [selectedServerId, setSelectedServerId] = useState("");
+    const [selectedTemplateId, setSelectedTemplateId] = useState("");
+
     const [isProvisioning, setIsProvisioning] = useState(false);
     const [provisionStep, setProvisionStep] = useState(1);
     const [provisionData, setProvisionData] = useState({
@@ -81,9 +87,22 @@ export default function AdminControlPage() {
 
     useEffect(() => {
         fetchWorkflows();
+        fetchTemplates();
         const interval = setInterval(fetchWorkflows, 10000); // Auto-refresh for operational feel
         return () => clearInterval(interval);
     }, []);
+
+    const fetchTemplates = async () => {
+        try {
+            const res = await fetch('/api/admin/templates');
+            const data = await res.json();
+            if (Array.isArray(data)) {
+                setTemplates(data);
+            }
+        } catch (error) {
+            console.error("Error fetching templates:", error);
+        }
+    };
 
     const getStatusDetails = (status: string) => {
         switch (status) {
@@ -531,7 +550,14 @@ export default function AdminControlPage() {
                                     <h3 className={adminStyles.modalTitle}>Production Sync</h3>
                                     <p className={adminStyles.modalSubtitle}>Loop Instance: {configWorkflow.name}</p>
                                 </div>
-                                <button className={adminStyles.modalClose} onClick={() => { setConfigWorkflow(null); setConfigStep(1); setWebhookUrl(""); setN8nWorkflowId(""); }}>
+                                <button className={adminStyles.modalClose} onClick={() => { 
+                                    setConfigWorkflow(null); 
+                                    setConfigStep(1); 
+                                    setWebhookUrl(""); 
+                                    setN8nWorkflowId("");
+                                    setSelectedServerId("");
+                                    setSelectedTemplateId("");
+                                }}>
                                     <X size={20} />
                                 </button>
                             </div>
@@ -541,6 +567,16 @@ export default function AdminControlPage() {
                                 ))}
                             </div>
                         </div>
+
+                        {/* Sync selection state with modal data */}
+                        {configWorkflow && !selectedServerId && (
+                            <div style={{ display: 'none' }}>
+                                {(() => {
+                                    setSelectedServerId(configWorkflow.id);
+                                    return null;
+                                })()}
+                            </div>
+                        )}
 
                         <div className={adminStyles.modalBody}>
                             {configStep === 1 && (
@@ -589,17 +625,71 @@ export default function AdminControlPage() {
                                 </div>
                             )}
 
-                            {configStep === 2 && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                             {configStep === 2 && (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
+                                    {/* ── SERVER SELECTION (Operational Registry) ── */}
+                                    <div className={adminStyles.inputWrapper}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                                            <Database size={18} color="var(--foreground)" />
+                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Target Node Instance (Server)</h4>
+                                        </div>
+                                        <select 
+                                            className={adminStyles.mainInput}
+                                            value={selectedServerId}
+                                            onChange={(e) => {
+                                                const newWf = workflows.find(w => w.id === e.target.value);
+                                                if (newWf) {
+                                                    setConfigWorkflow(newWf);
+                                                    setSelectedServerId(newWf.id);
+                                                }
+                                            }}
+                                            style={{ appearance: 'none', cursor: 'pointer' }}
+                                        >
+                                            {workflows.map(wf => (
+                                                <option key={wf.id} value={wf.id}>
+                                                    {wf.name || 'Unnamed Instance'} ({String(wf.id).substring(0, 8)})
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {/* ── WORKFLOW SELECTION (Provisioned Workflows) ── */}
+                                    <div className={adminStyles.inputWrapper}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                                            <Zap size={18} color="var(--foreground)" />
+                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Associate Workflow blueprint</h4>
+                                        </div>
+                                        <select 
+                                            className={adminStyles.mainInput}
+                                            value={selectedTemplateId}
+                                            onChange={(e) => {
+                                                const tid = e.target.value;
+                                                setSelectedTemplateId(tid);
+                                                const t = templates.find(item => item.id === tid);
+                                                if (t && t.workflow) {
+                                                    setN8nWorkflowId(t.workflow);
+                                                }
+                                            }}
+                                            style={{ appearance: 'none', cursor: 'pointer' }}
+                                        >
+                                            <option value="">Select a provisioned workflow...</option>
+                                            {templates.map(t => (
+                                                <option key={t.id} value={t.id}>{t.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div style={{ height: '1px', background: 'var(--border)', margin: '8px 0' }} />
 
                                     {/* ── READ-ONLY: User's Blonk Workflow ID ── */}
                                     <div className={adminStyles.inputWrapper}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
                                             <ShieldCheck size={18} color="var(--foreground)" />
-                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>User's Workflow ID (Blonk)</h4>
+                                            <h4 style={{ margin: 0, fontSize: '0.8rem', color: 'var(--muted-foreground)', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Handshake Hash</h4>
                                         </div>
                                         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                            <div style={{ flex: 1, padding: '16px 20px', borderRadius: '16px', background: 'var(--muted)', border: '2px solid var(--border)', fontSize: '0.9rem', fontWeight: 900, color: 'var(--foreground)', fontFamily: 'monospace', letterSpacing: '0.05em', wordBreak: 'break-all' }}>
+                                            <div style={{ flex: 1, padding: '12px 16px', borderRadius: '12px', background: 'var(--muted)', border: '1px solid var(--border)', fontSize: '0.85rem', fontWeight: 900, color: 'var(--foreground)', fontFamily: 'monospace', letterSpacing: '0.05em' }}>
                                                 {configWorkflow.id}
                                             </div>
                                             <button
@@ -611,16 +701,13 @@ export default function AdminControlPage() {
                                                 <Copy size={16} />
                                             </button>
                                         </div>
-                                        <p style={{ marginTop: '10px', fontSize: '0.78rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>
-                                            This is the ID the user copied from their dashboard. Use it to identify which workflow to connect.
-                                        </p>
                                     </div>
 
-                                    {/* ── INPUT: n8n Workflow ID (goes into webhook URL) ── */}
+                                    {/* ── INPUT: n8n Workflow ID ── */}
                                     <div className={adminStyles.inputWrapper}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
                                             <Cpu size={18} color="var(--foreground)" />
-                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>n8n Workflow ID (for Start / End)</h4>
+                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>n8n Operational ID</h4>
                                         </div>
                                         <input
                                             type="text"
@@ -630,16 +717,13 @@ export default function AdminControlPage() {
                                             onChange={(e) => setN8nWorkflowId(e.target.value)}
                                         />
                                         {n8nWorkflowId && (
-                                            <div style={{ marginTop: '12px', padding: '12px 16px', background: 'var(--muted)', borderRadius: '12px', fontFamily: 'monospace', fontSize: '0.78rem', color: 'var(--muted-foreground)', wordBreak: 'break-all', lineHeight: 1.6 }}>
+                                            <div style={{ marginTop: '12px', padding: '12px 16px', background: 'var(--muted)', borderRadius: '12px', fontFamily: 'monospace', fontSize: '0.75rem', color: 'var(--muted-foreground)', wordBreak: 'break-all', lineHeight: 1.6 }}>
                                                 <span style={{ color: 'var(--accent)', fontWeight: 900 }}>START →</span>{' '}
                                                 https://n8n.manadavana.lv/webhook/workflow-control?action=start&amp;id={n8nWorkflowId}<br />
                                                 <span style={{ color: 'var(--destructive)', fontWeight: 900 }}>END →</span>{' '}
                                                 https://n8n.manadavana.lv/webhook/workflow-control?action=end&amp;id={n8nWorkflowId}
                                             </div>
                                         )}
-                                        <p style={{ marginTop: '10px', fontSize: '0.78rem', color: 'var(--muted-foreground)', fontWeight: 700, lineHeight: 1.6 }}>
-                                            Enter the n8n workflow ID. This value is inserted into the webhook URL so the user can trigger start/end directly from their dashboard.
-                                        </p>
                                     </div>
                                 </div>
                             )}
