@@ -16,11 +16,8 @@ export async function GET() {
                 w."progress",
                 w."errorMessage",
                 w."createdAt",
-                w."updatedAt",
-                u."tier" as "userTier",
-                u."workflowsUsed" as "userWorkflows"
+                w."updatedAt"
             FROM "Workflow" w
-            LEFT JOIN "User" u ON w."requestedBy" = u."email"
             ORDER BY w."updatedAt" DESC
         `);
         
