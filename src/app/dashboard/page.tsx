@@ -52,8 +52,8 @@ export default function DashboardPage() {
 
         const fetchPulse = async () => {
             try {
-                // Connecting to the requested n8n webhook
-                const res = await fetch('https://n8n.manadavana.lv/webhook/stats');
+                // Successfully bridging through the Sovereign API to bypass CORS blocks
+                const res = await fetch('/api/n8n/stats');
                 if (res.ok) {
                     const stats = await res.json();
                     setGlobalStats({ total_tasks: stats.total_tasks, status: 'online' });
