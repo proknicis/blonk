@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     }
 
     try {
-        const { workflowId, action } = await req.json();
+        const { workflowId, name, action } = await req.json();
         const shouldBeActive = action === "start";
         
         // n8n Public API URL
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
         }
 
         // Direct PUT request to n8n Public API
-        console.log(`[MASTER_CONTROL] Dispatching ${action.toUpperCase()} to workflow: ${workflowId}`);
+        console.log(`[MASTER_CONTROL] Dispatching ${action.toUpperCase()} to workflow: ${name} (${workflowId})`);
         
         const response = await fetch(url, {
             method: 'PUT', // n8n Public API requires PUT for status updates
@@ -31,7 +31,10 @@ export async function POST(req: Request) {
                 'X-N8N-API-KEY': apiKey,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ active: shouldBeActive })
+            body: JSON.stringify({ 
+                name: name,
+                active: shouldBeActive 
+            })
         });
 
         if (!response.ok) {

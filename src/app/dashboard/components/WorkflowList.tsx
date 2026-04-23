@@ -17,6 +17,7 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     workflowId: wf.id,
+                    name: wf.name,
                     action: actionType.toLowerCase()
                 })
             });
