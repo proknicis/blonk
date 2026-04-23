@@ -153,18 +153,20 @@
 
 /* Institutional Typography */
 h1, h2, h3, h4, h5, h6, .brand-text {
-    @apply font-black tracking-tighter text-foreground uppercase;
-    font-family: inherit;
+    font-weight: 950;
     letter-spacing: -0.05em;
+    text-transform: uppercase;
 }
 
-/* Sovereign UI Utility Classes */
-.glass {
-    @apply bg-background/60 backdrop-blur-2xl border border-border/40;
+/* Sovereign UI Utilities */
+@utility glass {
+    background-color: var(--background);
+    backdrop-filter: blur(24px);
+    border: 1px solid color-mix(in srgb, var(--border), transparent 60%);
     box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
 }
 
-.institutional-card {
+@utility institutional-card {
     @apply glass rounded-3xl overflow-hidden transition-all duration-500 hover:border-primary/30;
 }
 
