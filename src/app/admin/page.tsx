@@ -794,7 +794,7 @@ export default function AdminControlPage() {
                         </div>
                     </div>
                 </div>
-            )}/}
+            )}
             {isProvisioning && (
                 <div className={adminStyles.modalOverlay}>
                     <div className={adminStyles.modal}>
