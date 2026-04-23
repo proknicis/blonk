@@ -24,7 +24,14 @@ export async function GET() {
                 wt.name AS "templateName",
                 COALESCE(u."plan", 'Starter')  AS "userTier",
                 COALESCE(u."email", w."requestedBy", 'Anonymous') AS "userEmail",
-                (SELECT COUNT(*) FROM "Workflow" WHERE "userId" = w."userId") AS "workflowCount"
+                (
+                    SELECT COUNT(*) 
+                    FROM "Workflow" w2 
+                    WHERE 
+                        (w."userId" IS NOT NULL AND w2."userId" = w."userId") OR
+                        (w."userId" IS NULL AND w2."requestedBy" = w."requestedBy" AND w2."requestedBy" IS NOT NULL) OR
+                        (w."userId" IS NULL AND w."requestedBy" IS NULL AND w2.id = w.id)
+                ) AS "workflowCount"
             FROM "Workflow" w
             LEFT JOIN "User" u   ON u."id" = w."userId"
             LEFT JOIN "ClusterNode" cn ON w."serverId" = cn.id
