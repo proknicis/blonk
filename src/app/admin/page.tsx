@@ -609,7 +609,7 @@ export default function AdminControlPage() {
             {/* CONFIG MODAL */}
             {configWorkflow && (
                 <div className={adminStyles.modalOverlay}>
-                    <div className={adminStyles.modal}>
+                    <div className={adminStyles.modal} style={{ maxWidth: '600px' }}>
                         <div className={adminStyles.modalHeader}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div>
@@ -618,7 +618,7 @@ export default function AdminControlPage() {
                                         <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--muted-foreground)' }}>NODE CALIBRATION</span>
                                     </div>
                                     <h3 className={adminStyles.modalTitle}>Production Sync</h3>
-                                    <p className={adminStyles.modalSubtitle}>Loop Instance: {configWorkflow.name}</p>
+                                    <p className={adminStyles.modalSubtitle}>Sovereign Fleet Instance: {configWorkflow.name || 'Standalone Node'}</p>
                                 </div>
                                 <button className={adminStyles.modalClose} onClick={() => { 
                                     setConfigWorkflow(null); 
@@ -626,7 +626,6 @@ export default function AdminControlPage() {
                                     setWebhookUrl(""); 
                                     setN8nWorkflowId("");
                                     setSelectedServerId("");
-                                    setSelectedTemplateId("");
                                     setServerWorkflows([]);
                                 }}>
                                     <X size={20} />
@@ -638,16 +637,6 @@ export default function AdminControlPage() {
                                 ))}
                             </div>
                         </div>
-
-                        {/* Sync selection state with modal data */}
-                        {configWorkflow && !selectedServerId && (
-                            <div style={{ display: 'none' }}>
-                                {(() => {
-                                    setSelectedServerId(configWorkflow.id);
-                                    return null;
-                                })()}
-                            </div>
-                        )}
 
                         <div className={adminStyles.modalBody}>
                             {configStep === 1 && (
@@ -661,9 +650,6 @@ export default function AdminControlPage() {
                                                 <h4 style={{ margin: 0, fontSize: '0.95rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Inbound Parameters</h4>
                                                 <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>Pre-configured node variables</div>
                                             </div>
-                                        </div>
-                                        <div style={{ fontSize: '0.8rem', fontWeight: 950, color: 'var(--accent)', background: 'var(--accent-muted)', padding: '6px 14px', borderRadius: '100px' }}>
-                                            {Object.keys(configWorkflow.inputs || {}).length} VARIABLES
                                         </div>
                                     </div>
 
@@ -696,115 +682,120 @@ export default function AdminControlPage() {
                                 </div>
                             )}
 
-                             {configStep === 2 && (
+                            {configStep === 2 && (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-
-                                     {/* ── SERVER SELECTION (Operational Registry) ── */}
-                                    <div className={adminStyles.inputWrapper}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                                            <Server size={18} color="var(--foreground)" />
-                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Operational Cluster Node (Server)</h4>
+                                    <div style={{ background: 'var(--muted)', padding: '24px', borderRadius: '24px', border: '1px solid var(--border)' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px' }}>
+                                            <div style={{ width: '36px', height: '36px', background: 'var(--background)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border)' }}>
+                                                <Server size={18} color="var(--accent)" />
+                                            </div>
+                                            <div>
+                                                <h4 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Operational Hub</h4>
+                                                <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>Physical cluster selection</div>
+                                            </div>
                                         </div>
-                                        <select 
-                                            className={adminStyles.mainInput}
-                                            value={selectedServerId}
-                                            onChange={(e) => {
-                                                const srvId = e.target.value;
-                                                setSelectedServerId(srvId);
-                                                fetchLiveWorkflows(srvId);
-                                            }}
-                                            style={{ appearance: 'none', cursor: 'pointer' }}
-                                        >
-                                            <option value="">Select an operational server...</option>
-                                            {servers.map(s => (
-                                                <option key={s.id} value={s.id}>
-                                                    {s.name} ({s.url})
-                                                </option>
-                                            ))}
-                                        </select>
+                                        <div style={{ position: 'relative' }}>
+                                            <select 
+                                                className={adminStyles.mainInput}
+                                                value={selectedServerId}
+                                                onChange={(e) => {
+                                                    const srvId = e.target.value;
+                                                    setSelectedServerId(srvId);
+                                                    fetchLiveWorkflows(srvId);
+                                                }}
+                                                style={{ appearance: 'none', background: 'var(--card)', cursor: 'pointer', paddingRight: '40px' }}
+                                            >
+                                                <option value="">Select an operational hub...</option>
+                                                {servers.map(s => (
+                                                    <option key={s.id} value={s.id}>{s.name} — {s.url.replace(/^https?:\/\//, '')}</option>
+                                                ))}
+                                            </select>
+                                            <div style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+                                                <ChevronDown size={18} color="var(--muted-foreground)" />
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    {/* ── LIVE WORKFLOW SELECTION (From Server) ── */}
-                                    <div className={adminStyles.inputWrapper}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                                            <Workflow size={18} color="var(--foreground)" />
-                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Select Live Node from Server</h4>
+                                    <div style={{ background: 'var(--muted)', padding: '24px', borderRadius: '24px', border: '1px solid var(--border)', opacity: !selectedServerId ? 0.6 : 1 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px' }}>
+                                            <div style={{ width: '36px', height: '36px', background: 'var(--background)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border)' }}>
+                                                <Workflow size={18} color={isFetchingLive ? "var(--accent)" : "var(--foreground)"} />
+                                            </div>
+                                            <div>
+                                                <h4 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Autonomous Node Discovery</h4>
+                                                <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>Real-time n8n workflow mapping</div>
+                                            </div>
                                         </div>
                                         <div style={{ position: 'relative' }}>
                                             <select 
                                                 className={adminStyles.mainInput}
                                                 value={n8nWorkflowId}
                                                 onChange={(e) => setN8nWorkflowId(e.target.value)}
-                                                style={{ appearance: 'none', cursor: 'pointer' }}
                                                 disabled={isFetchingLive || !selectedServerId}
+                                                style={{ appearance: 'none', background: 'var(--card)', cursor: 'pointer', paddingRight: '40px' }}
                                             >
-                                                <option value="">{isFetchingLive ? 'Scanning server...' : 'Select live workflow node...'}</option>
+                                                <option value="">{isFetchingLive ? 'Scanning server registry...' : 'Select detected workflow...'}</option>
                                                 {serverWorkflows.map(wf => (
-                                                    <option key={wf.id} value={wf.id}>{wf.name} ({wf.id})</option>
+                                                    <option key={wf.id} value={wf.id}>{wf.name} [{wf.id.substring(0, 8)}]</option>
                                                 ))}
                                             </select>
-                                            {isFetchingLive && (
-                                                <div style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)' }}>
-                                                    <RefreshCcw size={16} className={styles.spinning} color="var(--accent)" />
-                                                </div>
-                                            )}
+                                            <div style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+                                                {isFetchingLive ? <RefreshCcw size={16} className={adminStyles.spinning} color="var(--accent)" /> : <ChevronDown size={18} color="var(--muted-foreground)" />}
+                                            </div>
                                         </div>
-                                        {selectedServerId && serverWorkflows.length === 0 && !isFetchingLive && (
-                                            <p style={{ marginTop: '8px', fontSize: '0.7rem', color: 'var(--destructive)', fontWeight: 800 }}>
-                                                No workflows found on this server. Verify API key and URL.
-                                            </p>
+                                        {selectedServerId && !isFetchingLive && serverWorkflows.length === 0 && (
+                                            <div style={{ marginTop: '16px', padding: '12px 16px', background: 'var(--destructive-muted)', borderRadius: '12px', border: '1px solid var(--destructive-border)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <TriangleAlert size={16} color="var(--destructive)" />
+                                                <span style={{ fontSize: '0.75rem', fontWeight: 900, color: 'var(--destructive)' }}>NO NODES DETECTED. VERIFY API KEY.</span>
+                                            </div>
                                         )}
                                     </div>
 
-                                    <div style={{ height: '1px', background: 'var(--border)', margin: '8px 0' }} />
-
-                                    {/* ── READ-ONLY: User's Blonk Workflow ID ── */}
-                                    <div className={adminStyles.inputWrapper}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                                            <ShieldCheck size={18} color="var(--foreground)" />
-                                            <h4 style={{ margin: 0, fontSize: '0.8rem', color: 'var(--muted-foreground)', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Handshake Hash</h4>
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                            <div style={{ flex: 1, padding: '12px 16px', borderRadius: '12px', background: 'var(--muted)', border: '1px solid var(--border)', fontSize: '0.85rem', fontWeight: 900, color: 'var(--foreground)', fontFamily: 'monospace', letterSpacing: '0.05em' }}>
-                                                {configWorkflow.id}
+                                    <div style={{ background: 'var(--card)', padding: '20px', borderRadius: '20px', border: '1px dashed var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <ShieldCheck size={18} color="var(--muted-foreground)" />
+                                            <div>
+                                                <h5 style={{ margin: 0, fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', color: 'var(--muted-foreground)' }}>Calibration Hash</h5>
+                                                <code style={{ fontSize: '0.75rem', color: 'var(--foreground)', fontWeight: 800 }}>{String(configWorkflow.id).substring(0, 24)}...</code>
                                             </div>
-                                            <button
-                                                className={adminStyles.actionIconBtn}
-                                                title="Copy ID"
-                                                onClick={() => copyToClipboard(configWorkflow.id)}
-                                                style={{ flexShrink: 0 }}
-                                            >
-                                                <Copy size={16} />
-                                            </button>
                                         </div>
+                                        <button 
+                                            className={adminStyles.copyBtn} 
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(configWorkflow.id);
+                                            }}
+                                            style={{ background: 'var(--muted)', padding: '8px', borderRadius: '10px', border: 'none', cursor: 'pointer' }}
+                                        >
+                                            <Copy size={16} />
+                                        </button>
                                     </div>
                                 </div>
                             )}
 
                             {configStep === 3 && (
                                 <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                                    <div style={{ width: '100px', height: '100px', background: 'var(--accent-muted)', color: 'var(--accent)', borderRadius: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 40px' }}>
+                                    <div style={{ width: '100px', height: '100px', background: 'var(--accent-muted)', color: 'var(--accent)', borderRadius: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 40px', position: 'relative' }}>
+                                        <div style={{ position: 'absolute', inset: 0, borderRadius: '32px', border: '2px solid var(--accent)', animation: 'ping 2s infinite', opacity: 0.2 }} />
                                         <CheckCircle2 size={48} />
                                     </div>
-                                    <h4 style={{ margin: 0, fontSize: '2rem', color: 'var(--foreground)', fontWeight: 950, letterSpacing: '-0.04em' }}>Authorization Verified</h4>
-                                    <p style={{ fontSize: '1.1rem', color: 'var(--muted-foreground)', maxWidth: '420px', margin: '24px auto 0', lineHeight: '1.6', fontWeight: 750 }}>
-                                        Deployment ready. Activating will initiate real-time telemetry and notify the requester.
+                                    <h4 style={{ margin: 0, fontSize: '1.8rem', color: 'var(--foreground)', fontWeight: 950, letterSpacing: '-0.04em' }}>Verification Complete</h4>
+                                    <p style={{ fontSize: '1rem', color: 'var(--muted-foreground)', maxWidth: '420px', margin: '24px auto 0', lineHeight: '1.6', fontWeight: 750 }}>
+                                        The autonomous link is stable. Initializing will activate live telemetry and sync the node with the user's fleet.
                                     </p>
                                 </div>
                             )}
                         </div>
 
                         <div className={adminStyles.modalFooter}>
-                            <button className={styles.btnOutline} style={{ padding: '0 32px', height: '52px', borderRadius: '16px' }} onClick={() => configStep > 1 ? setConfigStep(prev => prev - 1) : setConfigWorkflow(null)}>
+                            <button className={adminStyles.prevBtn} onClick={() => setConfigStep(s => s - 1)} disabled={configStep === 1 || savingId === configWorkflow.id}>
                                 {configStep === 1 ? 'Discard' : 'Previous Step'}
                             </button>
                             <button 
-                                className={styles.btnInstitutional} 
-                                style={{ background: configStep === 3 ? 'var(--accent)' : 'var(--foreground)', color: configStep === 3 ? 'var(--background)' : 'var(--background)', minWidth: '220px', height: '52px', borderRadius: '16px' }}
-                                onClick={() => configStep < 3 ? setConfigStep(prev => prev + 1) : updateWebhook(configWorkflow.id, webhookUrl, n8nWorkflowId, selectedServerId, selectedTemplateId)}
-                                disabled={savingId === configWorkflow.id || (configStep === 2 && (!n8nWorkflowId || !selectedServerId))}
+                                className={adminStyles.nextBtn}
+                                onClick={() => configStep < 3 ? setConfigStep(s => s + 1) : updateWebhook(configWorkflow.id, webhookUrl, n8nWorkflowId, selectedServerId, selectedTemplateId)}
+                                disabled={savingId === configWorkflow.id || (configStep === 2 && (!selectedServerId || !n8nWorkflowId))}
                             >
-                                {savingId === configWorkflow.id ? 'SYNCHRONIZING...' : (configStep === 3 ? 'INITIALIZE NODE' : 'CONTINUE CALIBRATION')}
+                                {savingId === configWorkflow.id ? 'SYNCHRONIZING...' : (configStep === 3 ? 'FINALIZE CALIBRATION' : 'CONTINUE CALIBRATION')}
                             </button>
                         </div>
                     </div>
@@ -822,8 +813,7 @@ export default function AdminControlPage() {
                                         <Terminal size={16} color="var(--accent)" />
                                         <span style={{ fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.15em' }}>Operational Logs</span>
                                     </div>
-                                    <h3 className={adminStyles.modalTitle}>{viewingLogs.name}</h3>
-                                    <p className={adminStyles.modalSubtitle}>Node ID: {viewingLogs.id}</p>
+                                    <p className={adminStyles.modalSubtitle}>Autonomous Node: {viewingLogs.id}</p>
                                 </div>
                                 <button className={adminStyles.modalClose} onClick={() => setViewingLogs(null)}>
                                     <X size={20} />
@@ -850,9 +840,14 @@ export default function AdminControlPage() {
                                 </div>
                             </div>
                         </div>
-                        <div className={adminStyles.modalFooter}>
-                             <button className={adminStyles.refreshBtn} style={{ padding: '10px 20px' }} onClick={() => setViewingLogs(null)}>
-                                Close Terminal
+                        <div className={adminStyles.modalFooter} style={{ borderTop: 'none', paddingTop: 0 }}>
+                            <div style={{ flex: 1 }} />
+                            <button 
+                                className={adminStyles.nextBtn} 
+                                style={{ background: 'var(--foreground)', color: 'var(--background)', minWidth: '220px', height: '52px', borderRadius: '16px' }}
+                                onClick={() => setViewingLogs(null)}
+                            >
+                                CLOSE TERMINAL
                             </button>
                         </div>
                     </div>
