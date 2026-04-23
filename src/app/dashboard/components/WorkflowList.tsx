@@ -6,33 +6,27 @@ import React, { useState } from "react";
 export default function WorkflowList({ workflows }: { workflows: any[] }) {
     const [runningId, setRunningId] = useState<string | null>(null);
 
+    const N8N_START_URL = "https://n8n.manadavana.lv/webhook/workflow-control?action=start&id=cc7LNj10JchNMcRY";
+    const N8N_END_URL   = "https://n8n.manadavana.lv/webhook/workflow-control?action=end&id=cc7LNj10JchNMcRY";
+
     const runWorkflow = async (wf: any, actionType: 'START' | 'STOP') => {
         // High-Fidelity Feedback: Set the loading ID
         setRunningId(`${wf.id}-${actionType}`);
         
+        const webhookUrl = actionType === 'START' ? N8N_START_URL : N8N_END_URL;
+
         try {
-            // Using the new Institutional Direct API Proxy
-            const res = await fetch('/api/workflows/control', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    workflowId: wf.id,
-                    name: wf.name,
-                    action: actionType.toLowerCase()
-                })
-            });
+            const res = await fetch(webhookUrl, { method: 'GET' });
 
-            const result = await res.json();
-
-            if (res.ok && result.success) {
-                console.log(`Command success: Workflow ${wf.name} is now ${result.active ? 'Active' : 'Inactive'}`);
+            if (res.ok) {
+                console.log(`n8n webhook triggered: ${actionType} for workflow ${wf.name}`);
             } else {
-                console.error(`Core Engine refused command: ${result.error || res.status}`);
-                alert(`API Error: ${result.details || "Check n8n API settings."}`);
+                console.error(`n8n webhook error: ${res.status} ${res.statusText}`);
+                alert(`Webhook Error: ${res.status} — ${res.statusText}`);
             }
         } catch (error) {
-            console.error("Master Control Error:", error);
-            alert("System Error: Could not reach the API Proxy.");
+            console.error("Webhook call failed:", error);
+            alert("System Error: Could not reach the n8n webhook.");
         } finally {
             setRunningId(null);
         }
