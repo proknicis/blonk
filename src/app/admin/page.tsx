@@ -32,7 +32,8 @@ import {
     Filter,
     ChevronDown,
     MoreHorizontal,
-    TriangleAlert
+    TriangleAlert,
+    Workflow
 } from "lucide-react";
 
 import { Skeleton } from "../components/Skeleton";
