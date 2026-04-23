@@ -4,17 +4,26 @@ import styles from "../page.module.css";
 import React, { useState } from "react";
 
 const N8N_BASE_URL = "https://n8n.manadavana.lv/webhook/workflow-control";
+const ONE_DAY_MS   = 24 * 60 * 60 * 1000;
 
-// ── Derive lifecycle stage from workflow data ──────────────────────────────
-type Stage = 'ordered' | 'setup' | 'ready';
+// ── Types ───────────────────────────────────────────────────────────────────
+type Stage        = 'ordered' | 'setup' | 'ready';
+type RunState     = 'idle' | 'running' | 'stopped';
 
+// ── Helpers ─────────────────────────────────────────────────────────────────
 function getStage(wf: any): Stage {
     if (wf.n8nWorkflowId) return 'ready';
     if (wf.status === 'Syncing' || wf.status === 'Connecting' || wf.status === 'Initializing') return 'setup';
     return 'ordered';
 }
 
-// ── Small inline SVG icons ─────────────────────────────────────────────────
+/** Returns true if the workflow became "ready" less than 24 hours ago */
+function isNewlyReady(wf: any): boolean {
+    if (!wf.updatedAt) return true; // no date? assume new
+    return (Date.now() - new Date(wf.updatedAt).getTime()) < ONE_DAY_MS;
+}
+
+// ── SVG icons ────────────────────────────────────────────────────────────────
 const IconCheck = () => (
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="20 6 9 17 4 12" />
@@ -47,22 +56,21 @@ const IconCopy = () => (
     </svg>
 );
 
-// ── Stage config ────────────────────────────────────────────────────────────
+// ── Stage config ─────────────────────────────────────────────────────────────
 const STAGES: { key: Stage; label: string; sublabel: string }[] = [
-    { key: 'ordered', label: 'Ordered',   sublabel: 'Request received' },
-    { key: 'setup',   label: 'Setup',     sublabel: 'Being configured' },
-    { key: 'ready',   label: 'Ready',     sublabel: 'Controls active'  },
+    { key: 'ordered', label: 'Ordered', sublabel: 'Request received' },
+    { key: 'setup',   label: 'Setup',   sublabel: 'Being configured'  },
+    { key: 'ready',   label: 'Ready',   sublabel: 'Controls active'   },
 ];
-
 const STAGE_ORDER: Record<Stage, number> = { ordered: 0, setup: 1, ready: 2 };
 
 function stageColor(s: Stage) {
-    if (s === 'ready')   return 'var(--accent)';
-    if (s === 'setup')   return '#a78bfa'; // soft purple for "in progress"
+    if (s === 'ready') return 'var(--accent)';
+    if (s === 'setup') return '#a78bfa';
     return 'var(--muted-foreground)';
 }
 
-// ── Lifecycle tracker strip ─────────────────────────────────────────────────
+// ── Lifecycle tracker ────────────────────────────────────────────────────────
 function LifecycleTracker({ stage }: { stage: Stage }) {
     const current = STAGE_ORDER[stage];
     return (
@@ -72,71 +80,53 @@ function LifecycleTracker({ stage }: { stage: Stage }) {
             border: '1px solid var(--border)',
             borderRadius: '14px',
             padding: '10px 16px',
-            overflow: 'hidden',
         }}>
             {STAGES.map((s, idx) => {
                 const done    = STAGE_ORDER[s.key] < current;
                 const active  = STAGE_ORDER[s.key] === current;
                 const pending = STAGE_ORDER[s.key] > current;
                 const color   = done ? 'var(--accent)' : active ? stageColor(s.key) : 'var(--border)';
-
                 return (
                     <React.Fragment key={s.key}>
-                        {/* connector line */}
                         {idx > 0 && (
                             <div style={{
-                                flex: 1,
-                                height: '2px',
+                                flex: 1, height: '2px', minWidth: '20px',
                                 background: done || active ? color : 'var(--border)',
                                 transition: 'background 0.4s ease',
-                                minWidth: '20px',
                             }} />
                         )}
-
-                        {/* step node */}
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
                             <div style={{
-                                width: '26px', height: '26px',
-                                borderRadius: '50%',
+                                width: '26px', height: '26px', borderRadius: '50%',
                                 border: `2px solid ${color}`,
                                 background: done ? 'var(--accent)' : active ? `${stageColor(s.key)}22` : 'transparent',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 color: done ? 'var(--card)' : color,
                                 boxShadow: active ? `0 0 10px ${stageColor(s.key)}55` : 'none',
-                                position: 'relative',
-                                transition: 'all 0.4s ease',
+                                position: 'relative', transition: 'all 0.4s ease',
                             }}>
-                                {done
-                                    ? <IconCheck />
-                                    : active && s.key === 'setup'
-                                    ? <IconClock />
-                                    : active && s.key === 'ready'
-                                    ? <IconZap />
+                                {done ? <IconCheck />
+                                    : active && s.key === 'setup' ? <IconClock />
+                                    : active && s.key === 'ready' ? <IconZap />
                                     : <span style={{ fontSize: '0.6rem', fontWeight: 900 }}>{idx + 1}</span>
                                 }
-                                {/* pulse ring on active */}
                                 {active && (
                                     <span style={{
-                                        position: 'absolute', inset: '-5px',
-                                        borderRadius: '50%',
+                                        position: 'absolute', inset: '-5px', borderRadius: '50%',
                                         border: `1.5px solid ${stageColor(s.key)}`,
-                                        animation: 'lifecyclePulse 2s infinite',
-                                        opacity: 0.4,
+                                        animation: 'lifecyclePulse 2s infinite', opacity: 0.4,
                                     }} />
                                 )}
                             </div>
                             <div style={{
-                                fontSize: '0.6rem', fontWeight: 900,
+                                fontSize: '0.6rem', fontWeight: 900, whiteSpace: 'nowrap',
                                 color: pending ? 'var(--muted-foreground)' : color,
                                 textTransform: 'uppercase', letterSpacing: '0.07em',
                                 opacity: pending ? 0.5 : 1,
-                                whiteSpace: 'nowrap',
                             }}>{s.label}</div>
                             <div style={{
-                                fontSize: '0.55rem', fontWeight: 700,
-                                color: 'var(--muted-foreground)',
-                                opacity: pending ? 0.35 : 0.65,
-                                whiteSpace: 'nowrap',
+                                fontSize: '0.55rem', fontWeight: 700, whiteSpace: 'nowrap',
+                                color: 'var(--muted-foreground)', opacity: pending ? 0.35 : 0.65,
                             }}>{s.sublabel}</div>
                         </div>
                     </React.Fragment>
@@ -146,22 +136,72 @@ function LifecycleTracker({ stage }: { stage: Stage }) {
     );
 }
 
-// ── Main component ──────────────────────────────────────────────────────────
+// ── Run state banner ─────────────────────────────────────────────────────────
+function RunStateBanner({ state }: { state: RunState }) {
+    if (state === 'idle') return null;
+
+    const isRunning = state === 'running';
+    return (
+        <div style={{
+            display: 'flex', alignItems: 'center', gap: '10px',
+            padding: '10px 16px', borderRadius: '12px',
+            background: isRunning ? 'rgba(52,209,134,0.08)' : 'rgba(100,100,120,0.07)',
+            border: `1px solid ${isRunning ? 'rgba(52,209,134,0.3)' : 'rgba(100,100,120,0.2)'}`,
+            fontSize: '0.78rem', fontWeight: 800,
+            color: isRunning ? 'var(--accent)' : 'var(--muted-foreground)',
+            transition: 'all 0.3s ease',
+        }}>
+            {isRunning ? (
+                <>
+                    {/* pulsing green dot */}
+                    <span style={{
+                        width: '8px', height: '8px', borderRadius: '50%',
+                        background: 'var(--accent)',
+                        boxShadow: '0 0 8px var(--accent)',
+                        animation: 'runningPulse 1.2s ease-in-out infinite',
+                        flexShrink: 0,
+                    }} />
+                    Workflow is running
+                </>
+            ) : (
+                <>
+                    {/* grey square dot */}
+                    <span style={{
+                        width: '8px', height: '8px', borderRadius: '2px',
+                        background: 'var(--muted-foreground)', flexShrink: 0, opacity: 0.6,
+                    }} />
+                    Workflow stopped
+                </>
+            )}
+        </div>
+    );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
 export default function WorkflowList({ workflows }: { workflows: any[] }) {
-    const [runningId, setRunningId] = useState<string | null>(null);
+    const [fetching, setFetching]     = useState<string | null>(null);
+    // Per-workflow run state: maps wf.id → RunState
+    const [runStates, setRunStates]   = useState<Record<string, RunState>>({});
+
+    const setRunState = (id: string, state: RunState) =>
+        setRunStates(prev => ({ ...prev, [id]: state }));
 
     const runWorkflow = async (wf: any, actionType: 'START' | 'STOP') => {
         if (!wf.n8nWorkflowId) return;
-        setRunningId(`${wf.id}-${actionType}`);
+        setFetching(`${wf.id}-${actionType}`);
         const action = actionType === 'START' ? 'start' : 'end';
         const url = `${N8N_BASE_URL}?action=${action}&id=${wf.n8nWorkflowId}`;
         try {
             const res = await fetch(url, { method: 'GET' });
-            if (!res.ok) alert(`Webhook Error: ${res.status} — ${res.statusText}`);
+            if (res.ok) {
+                setRunState(wf.id, actionType === 'START' ? 'running' : 'stopped');
+            } else {
+                alert(`Webhook Error: ${res.status} — ${res.statusText}`);
+            }
         } catch {
             alert("System Error: Could not reach the n8n webhook.");
         } finally {
-            setRunningId(null);
+            setFetching(null);
         }
     };
 
@@ -178,26 +218,48 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
 
     return (
         <>
-            {/* pulse keyframe injected once */}
             <style>{`
                 @keyframes lifecyclePulse {
                     0%   { transform: scale(1);   opacity: 0.4; }
                     50%  { transform: scale(1.7); opacity: 0.1; }
                     100% { transform: scale(1);   opacity: 0.4; }
                 }
+                @keyframes runningPulse {
+                    0%, 100% { opacity: 1;   transform: scale(1);    }
+                    50%      { opacity: 0.4; transform: scale(1.35); }
+                }
             `}</style>
 
             <div className={styles.workflowList}>
                 {workflows.map((wf, i) => {
-                    const stage   = getStage(wf);
-                    const isReady = stage === 'ready';
-                    const isOnline = wf.status === 'Active' || wf.status === 'Success' || wf.status === 'Completed';
+                    const stage     = getStage(wf);
+                    const isReady   = stage === 'ready';
+                    const runState  = runStates[wf.id] ?? 'idle';
 
-                    // border accent by stage
+                    // Show lifecycle tracker only while not ready, OR within 24 h of going ready
+                    const showTracker = !isReady || isNewlyReady(wf);
+
+                    // Live status label
+                    const liveLabel =
+                        runState === 'running' ? 'Running'
+                        : runState === 'stopped' ? 'Stopped'
+                        : stage === 'ready'   ? (wf.status || 'Ready')
+                        : stage === 'setup'   ? 'Being Configured'
+                        : 'Pending Setup';
+
+                    const liveColor =
+                        runState === 'running' ? 'var(--accent)'
+                        : runState === 'stopped' ? 'var(--muted-foreground)'
+                        : stage === 'setup'   ? '#a78bfa'
+                        : stage === 'ordered' ? '#f59e0b'
+                        : 'var(--muted-foreground)';
+
                     const cardBorderColor =
-                        stage === 'ready'   ? undefined :
-                        stage === 'setup'   ? 'rgba(167,139,250,0.35)' :
-                        'rgba(245,158,11,0.25)';
+                        runState === 'running'  ? 'rgba(52,209,134,0.35)' :
+                        runState === 'stopped'  ? undefined :
+                        stage === 'setup'       ? 'rgba(167,139,250,0.35)' :
+                        stage === 'ordered'     ? 'rgba(245,158,11,0.25)' :
+                        undefined;
 
                     return (
                         <div
@@ -205,45 +267,34 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                             className={styles.workflowItem}
                             style={cardBorderColor ? { borderColor: cardBorderColor } : undefined}
                         >
-                            {/* ── TOP ROW ─────────────────────────────── */}
+                            {/* ── TOP ROW ──────────────────────────────────── */}
                             <div className={styles.workflowHeader}>
                                 <div className={styles.workflowInfo}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
                                         {/* status dot */}
-                                        {isReady && isOnline
+                                        {runState === 'running'
                                             ? <div className={styles.activeDot} />
                                             : <div style={{
                                                 width: '8px', height: '8px', borderRadius: '2px',
-                                                background: stage === 'setup' ? '#a78bfa'
-                                                    : stage === 'ordered' ? '#f59e0b'
-                                                    : 'var(--muted)',
+                                                background: stage === 'setup'   ? '#a78bfa'
+                                                          : stage === 'ordered' ? '#f59e0b'
+                                                          : 'var(--muted)',
                                               }} />
                                         }
                                         <strong className={styles.workflowTitle}>{wf.name}</strong>
                                         <span className={styles.workflowBadge}>Autonomous Loop</span>
                                     </div>
-
-                                    {/* copy-ID pill */}
                                     <button className={styles.loopIdBtn} onClick={() => copyId(wf.id)}>
                                         <IconCopy />
                                         {wf.id?.substring(0, 8) || '...'}
                                     </button>
                                 </div>
 
-                                {/* ── CONTROLS / LOCKED ── */}
+                                {/* ── STATUS + CONTROLS ─────────────────────── */}
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                    {/* status label */}
                                     <div style={{ textAlign: 'right' }}>
-                                        <div className={styles.statusText} style={{
-                                            color: stage === 'ready' && isOnline ? 'var(--accent)'
-                                                : stage === 'setup'   ? '#a78bfa'
-                                                : stage === 'ordered' ? '#f59e0b'
-                                                : 'var(--muted-foreground)',
-                                        }}>
-                                            {stage === 'ready'
-                                                ? (isOnline ? 'Active' : (wf.status || 'Ready'))
-                                                : stage === 'setup' ? 'Being Configured'
-                                                : 'Pending Setup'}
+                                        <div className={styles.statusText} style={{ color: liveColor }}>
+                                            {liveLabel}
                                         </div>
                                         <div className={styles.statusSubtext}>Live Status</div>
                                     </div>
@@ -254,25 +305,26 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                                                 className={styles.forceStartBtn}
                                                 title="Start workflow"
                                                 onClick={() => runWorkflow(wf, 'START')}
-                                                disabled={!!runningId}
+                                                disabled={!!fetching}
+                                                style={runState === 'running' ? { opacity: 0.5 } : undefined}
                                             >
-                                                {runningId === `${wf.id}-START` ? '...' : <><IconPlay /> START</>}
+                                                {fetching === `${wf.id}-START` ? '...' : <><IconPlay /> START</>}
                                             </button>
                                             <button
                                                 className={styles.forceEndBtn}
                                                 title="End workflow"
                                                 onClick={() => runWorkflow(wf, 'STOP')}
-                                                disabled={!!runningId}
+                                                disabled={!!fetching}
+                                                style={runState === 'stopped' ? { opacity: 0.5 } : undefined}
                                             >
-                                                {runningId === `${wf.id}-STOP` ? '...' : <><IconStop /> END</>}
+                                                {fetching === `${wf.id}-STOP` ? '...' : <><IconStop /> END</>}
                                             </button>
                                         </div>
                                     ) : (
                                         <div title="Controls unlock once admin commissions this node" style={{
                                             display: 'flex', alignItems: 'center', gap: '6px',
                                             fontSize: '0.68rem', fontWeight: 800,
-                                            color: 'var(--muted-foreground)',
-                                            background: 'var(--muted)',
+                                            color: 'var(--muted-foreground)', background: 'var(--muted)',
                                             padding: '8px 14px', borderRadius: '10px',
                                             cursor: 'not-allowed', letterSpacing: '0.04em',
                                             textTransform: 'uppercase',
@@ -283,10 +335,13 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                                 </div>
                             </div>
 
-                            {/* ── LIFECYCLE TRACKER ────────────────────── */}
-                            <LifecycleTracker stage={stage} />
+                            {/* ── RUN STATE BANNER (shown after START/END) ──── */}
+                            {isReady && <RunStateBanner state={runState} />}
 
-                            {/* ── METRICS ──────────────────────────────── */}
+                            {/* ── LIFECYCLE TRACKER (hidden after 24 h of ready) */}
+                            {showTracker && <LifecycleTracker stage={stage} />}
+
+                            {/* ── METRICS ───────────────────────────────────── */}
                             <div className={styles.metricsRow} style={!isReady ? { opacity: 0.45, pointerEvents: 'none' } : undefined}>
                                 <div>
                                     <div className={styles.metricMiniLabel}>Throughput</div>
