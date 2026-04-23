@@ -641,24 +641,6 @@ export default function AdminControlPage() {
                                             Enter the n8n workflow ID. This value is inserted into the webhook URL so the user can trigger start/end directly from their dashboard.
                                         </p>
                                     </div>
-
-                                    {/* ── OPTIONAL: Custom webhook URL ── */}
-                                    <div className={adminStyles.inputWrapper}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                                            <Link2 size={18} color="var(--foreground)" />
-                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Custom Endpoint (Optional)</h4>
-                                        </div>
-                                        <input
-                                            type="text"
-                                            className={adminStyles.mainInput}
-                                            placeholder="https://n8n.yourfirm.com/webhook/... (leave blank to use default)"
-                                            value={webhookUrl}
-                                            onChange={(e) => setWebhookUrl(e.target.value)}
-                                        />
-                                        <p style={{ marginTop: '10px', fontSize: '0.78rem', color: 'var(--muted-foreground)', fontWeight: 700, lineHeight: '1.6' }}>
-                                            Override the default webhook base URL if this node uses a custom n8n instance.
-                                        </p>
-                                    </div>
                                 </div>
                             )}
 
