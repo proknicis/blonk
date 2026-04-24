@@ -86,13 +86,22 @@ export default function AdminControlPage() {
     }, []);
 
     const toggleMenu = (e: React.MouseEvent, id: string) => {
+        e.stopPropagation();
         const rect = e.currentTarget.getBoundingClientRect();
         setMenuPosition({
-            top: rect.bottom + window.scrollY,
-            right: window.innerWidth - rect.right - window.scrollX
+            top: rect.bottom,
+            right: window.innerWidth - rect.right
         });
         setActiveMenuId(activeMenuId === id ? null : id);
     };
+
+    useEffect(() => {
+        if (selectedServerId) {
+            fetchLiveWorkflows(selectedServerId);
+        } else {
+            setServerWorkflows([]);
+        }
+    }, [selectedServerId]);
 
     useEffect(() => {
         fetchWorkflows();
@@ -327,8 +336,22 @@ export default function AdminControlPage() {
                                     </td>
                                     <td style={{ textAlign: 'right' }}>
                                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                            <button className={adminStyles.actionIconBtn} onClick={() => { setConfigWorkflow(wf); setConfigStep(1); }}><Settings size={18} /></button>
-                                            <button className={adminStyles.actionIconBtn} onClick={(e) => toggleMenu(e, wf.id)}><MoreHorizontal size={18} /></button>
+                                            <button 
+                                                className={adminStyles.actionIconBtn} 
+                                                onClick={(e) => { 
+                                                    e.stopPropagation();
+                                                    setConfigWorkflow(wf); 
+                                                    setConfigStep(1); 
+                                                }}
+                                            >
+                                                <Settings size={18} />
+                                            </button>
+                                            <button 
+                                                className={adminStyles.actionIconBtn} 
+                                                onClick={(e) => toggleMenu(e, wf.id)}
+                                            >
+                                                <MoreHorizontal size={18} />
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -400,6 +423,43 @@ export default function AdminControlPage() {
                                                     ))}
                                                 </select>
                                             </div>
+
+                                            {/* LIVE DIAGNOSTICS PANE */}
+                                            {selectedServerId && (
+                                                <div style={{ background: 'var(--foreground)', borderRadius: '24px', padding: '32px', color: 'var(--background)' }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                            <Activity size={18} color="var(--accent)" className={isFetchingLive ? adminStyles.spinning : ''} />
+                                                            <span style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.1em' }}>LIVE TELEMETRY</span>
+                                                        </div>
+                                                        <div style={{ fontSize: '0.65rem', fontWeight: 950, opacity: 0.6 }}>{serverWorkflows.length} PROTOCOLS DETECTED</div>
+                                                    </div>
+                                                    
+                                                    <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }} className={adminStyles.customScroll}>
+                                                        {isFetchingLive ? (
+                                                            <div style={{ opacity: 0.5, fontSize: '0.85rem', fontWeight: 750, textAlign: 'center', padding: '20px' }}>SCANNING SECTOR...</div>
+                                                        ) : serverWorkflows.length > 0 ? (
+                                                            serverWorkflows.map((wf: any) => (
+                                                                <div key={wf.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                                                    <div>
+                                                                        <div style={{ fontSize: '0.85rem', fontWeight: 950 }}>{wf.name}</div>
+                                                                        <div style={{ fontSize: '0.65rem', opacity: 0.5 }}>{wf.id}</div>
+                                                                    </div>
+                                                                    <button 
+                                                                        onClick={() => { setN8nWorkflowId(wf.id); setWebhookUrl(wf.webhookUrl || ""); }}
+                                                                        style={{ padding: '6px 12px', background: 'var(--accent)', color: 'var(--background)', border: 'none', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 950, cursor: 'pointer' }}
+                                                                    >
+                                                                        SYNC
+                                                                    </button>
+                                                                </div>
+                                                            ))
+                                                        ) : (
+                                                            <div style={{ opacity: 0.5, fontSize: '0.85rem', fontWeight: 750, textAlign: 'center', padding: '20px' }}>NO ACTIVE PROTOCOLS FOUND</div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+
                                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                                                 <div>
                                                     <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '12px', textTransform: 'uppercase' }}>Webhook Endpoint</label>
