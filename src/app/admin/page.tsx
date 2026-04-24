@@ -343,28 +343,86 @@ export default function AdminControlPage() {
                 <ModalPortal>
                     <div className={adminStyles.modalOverlay} onClick={() => setConfigWorkflow(null)}>
                         <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '800px' }}>
-                            <div className={adminStyles.modalHeader} style={{ background: 'var(--foreground)', color: 'var(--background)' }}>
-                                <h2 style={{ fontSize: '2rem', fontWeight: 950, margin: 0 }}>Cluster Calibration</h2>
-                                <p style={{ opacity: 0.6, margin: '8px 0 0' }}>Orchestrating node {configWorkflow.id.substring(0, 8)}</p>
+                            <div className={adminStyles.modalHeader} style={{ background: 'var(--foreground)', color: 'var(--background)', padding: '48px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                    <div>
+                                        <h2 style={{ fontSize: '2.25rem', fontWeight: 950, margin: 0, letterSpacing: '-0.04em' }}>Cluster Calibration</h2>
+                                        <p style={{ opacity: 0.6, margin: '8px 0 0', fontWeight: 750 }}>Orchestrating node {configWorkflow.id.substring(0, 8)}</p>
+                                    </div>
+                                    <button onClick={() => setConfigWorkflow(null)} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '12px', borderRadius: '12px', cursor: 'pointer' }}><X size={24} /></button>
+                                </div>
+                                <div style={{ display: 'flex', gap: '32px', marginTop: '40px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <div style={{ width: '24px', height: '24px', background: configStep >= 1 ? 'var(--accent)' : 'rgba(255,255,255,0.1)', color: configStep >= 1 ? 'var(--background)' : 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 950 }}>01</div>
+                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.1em', opacity: configStep === 1 ? 1 : 0.6 }}>MATRIX</span>
+                                    </div>
+                                    <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)', alignSelf: 'center' }} />
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <div style={{ width: '24px', height: '24px', background: configStep >= 2 ? 'var(--accent)' : 'rgba(255,255,255,0.1)', color: configStep >= 2 ? 'var(--background)' : 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 950 }}>02</div>
+                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.1em', opacity: configStep === 2 ? 1 : 0.6 }}>ORCHESTRATION</span>
+                                    </div>
+                                </div>
                             </div>
                             <div className={adminStyles.modalBody} style={{ padding: '48px' }}>
-                                {configStep === 1 && (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                                        <div style={{ fontSize: '0.8rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase' }}>Configuration Matrix</div>
+                                {configStep === 1 ? (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <Database size={20} color="var(--accent)" />
+                                            <h3 style={{ fontSize: '1rem', fontWeight: 950, margin: 0 }}>CONFIGURATION MATRIX</h3>
+                                        </div>
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                             {Object.entries(configWorkflow.inputs || {}).map(([k, v]: any) => (
-                                                <div key={k} style={{ padding: '20px', background: 'var(--muted)', borderRadius: '16px', border: '1px solid var(--border)' }}>
-                                                    <div style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', marginBottom: '4px' }}>{k}</div>
-                                                    <div style={{ fontWeight: 800 }}>{String(v)}</div>
+                                                <div key={k} style={{ padding: '24px', background: '#FAFAFA', borderRadius: '20px', border: '1px solid var(--border)' }}>
+                                                    <div style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.05em' }}>{k}</div>
+                                                    <div style={{ fontWeight: 850, fontSize: '1.1rem', wordBreak: 'break-all' }}>{String(v)}</div>
                                                 </div>
                                             ))}
                                         </div>
                                     </div>
+                                ) : (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <Zap size={20} color="var(--accent)" />
+                                            <h3 style={{ fontSize: '1rem', fontWeight: 950, margin: 0 }}>ORCHESTRATION SETTINGS</h3>
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                                            <div>
+                                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '12px', textTransform: 'uppercase' }}>Select Target Node</label>
+                                                <select 
+                                                    className={adminStyles.searchField} 
+                                                    style={{ paddingLeft: '24px' }}
+                                                    value={selectedServerId || configWorkflow.serverId || ""}
+                                                    onChange={e => setSelectedServerId(e.target.value)}
+                                                >
+                                                    <option value="">-- No Node Allocated --</option>
+                                                    {servers.map(s => (
+                                                        <option key={s.id} value={s.id}>{s.name} ({s.status})</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                                                <div>
+                                                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '12px', textTransform: 'uppercase' }}>Webhook Endpoint</label>
+                                                    <input className={adminStyles.searchField} style={{ paddingLeft: '24px' }} placeholder="https://..." value={webhookUrl || configWorkflow.n8nWebhookUrl || ""} onChange={e => setWebhookUrl(e.target.value)} />
+                                                </div>
+                                                <div>
+                                                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '12px', textTransform: 'uppercase' }}>Protocol ID</label>
+                                                    <input className={adminStyles.searchField} style={{ paddingLeft: '24px' }} placeholder="Workflow UUID" value={n8nWorkflowId || configWorkflow.n8nWorkflowId || ""} onChange={e => setN8nWorkflowId(e.target.value)} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 )}
                             </div>
-                            <div className={adminStyles.modalFooter}>
-                                <button className={adminStyles.refreshBtn} onClick={() => setConfigWorkflow(null)}>Cancel</button>
-                                <button className={adminStyles.primaryBtn} onClick={() => setConfigStep(2)}>Next Step</button>
+                            <div className={adminStyles.modalFooter} style={{ padding: '32px 48px', background: '#FAFAFA' }}>
+                                <button className={adminStyles.refreshBtn} onClick={() => setConfigWorkflow(null)} style={{ border: 'none', width: 'auto', padding: '0 24px' }}>Discard Changes</button>
+                                {configStep === 1 ? (
+                                    <button className={adminStyles.primaryBtn} onClick={() => setConfigStep(2)}>Calibrate Fleet</button>
+                                ) : (
+                                    <button className={adminStyles.primaryBtn} onClick={() => updateWebhook(configWorkflow.id, webhookUrl || configWorkflow.n8nWebhookUrl, n8nWorkflowId || configWorkflow.n8nWorkflowId, selectedServerId || configWorkflow.serverId)}>
+                                        {savingId ? 'SYNCHRONIZING...' : 'FINALIZE ORCHESTRATION'}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -399,6 +457,37 @@ export default function AdminControlPage() {
                         </div>
                     </div>
                 </ModalPortal>
+            )}
+            {/* CONTEXT MENU */}
+            {activeMenuId && (
+                <div 
+                    ref={menuRef}
+                    style={{
+                        position: 'fixed',
+                        top: menuPosition.top,
+                        right: menuPosition.right,
+                        background: 'white',
+                        borderRadius: '16px',
+                        boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+                        border: '1px solid var(--border)',
+                        padding: '12px',
+                        zIndex: 10000,
+                        width: '240px',
+                        animation: 'fadeIn 0.2s ease'
+                    }}
+                >
+                    <div style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)', padding: '12px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Node Operations</div>
+                    <button className={adminStyles.navLink} style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer' }} onClick={() => { updateWorkflowStatus(activeMenuId, 'Ready'); setActiveMenuId(null); }}>
+                        <RefreshCcw size={16} /> Mark as Ready
+                    </button>
+                    <button className={adminStyles.navLink} style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer' }} onClick={() => { updateWorkflowStatus(activeMenuId, 'Active'); setActiveMenuId(null); }}>
+                        <Zap size={16} /> Force Active
+                    </button>
+                    <div style={{ height: '1px', background: 'var(--border)', margin: '8px 12px' }} />
+                    <button className={adminStyles.navLink} style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer', color: '#EF4444' }} onClick={() => { deleteWorkflow(activeMenuId); setActiveMenuId(null); }}>
+                        <Trash2 size={16} /> Decommission Node
+                    </button>
+                </div>
             )}
         </div>
     );
