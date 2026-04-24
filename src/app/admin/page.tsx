@@ -440,17 +440,27 @@ export default function AdminControlPage() {
                                                             <div style={{ opacity: 0.5, fontSize: '0.85rem', fontWeight: 750, textAlign: 'center', padding: '20px' }}>SCANNING SECTOR...</div>
                                                         ) : serverWorkflows.length > 0 ? (
                                                             serverWorkflows.map((wf: any) => (
-                                                                <div key={wf.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                                                <div 
+                                                                    key={wf.id} 
+                                                                    style={{ 
+                                                                        display: 'flex', 
+                                                                        justifyContent: 'space-between', 
+                                                                        alignItems: 'center', 
+                                                                        padding: '16px', 
+                                                                        background: n8nWorkflowId === wf.id ? 'var(--accent)' : 'rgba(255,255,255,0.05)', 
+                                                                        color: n8nWorkflowId === wf.id ? 'var(--background)' : 'inherit',
+                                                                        borderRadius: '16px', 
+                                                                        border: '1px solid rgba(255,255,255,0.1)',
+                                                                        transition: 'all 0.2s ease',
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                    onClick={() => { setN8nWorkflowId(wf.id); setWebhookUrl(wf.webhookUrl || ""); }}
+                                                                >
                                                                     <div>
-                                                                        <div style={{ fontSize: '0.85rem', fontWeight: 950 }}>{wf.name}</div>
-                                                                        <div style={{ fontSize: '0.65rem', opacity: 0.5 }}>{wf.id}</div>
+                                                                        <div style={{ fontSize: '0.9rem', fontWeight: 950 }}>{wf.name}</div>
+                                                                        <div style={{ fontSize: '0.7rem', opacity: 0.6 }}>{wf.id}</div>
                                                                     </div>
-                                                                    <button 
-                                                                        onClick={() => { setN8nWorkflowId(wf.id); setWebhookUrl(wf.webhookUrl || ""); }}
-                                                                        style={{ padding: '6px 12px', background: 'var(--accent)', color: 'var(--background)', border: 'none', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 950, cursor: 'pointer' }}
-                                                                    >
-                                                                        SYNC
-                                                                    </button>
+                                                                    {n8nWorkflowId === wf.id && <ShieldCheck size={18} />}
                                                                 </div>
                                                             ))
                                                         ) : (
@@ -460,16 +470,24 @@ export default function AdminControlPage() {
                                                 </div>
                                             )}
 
-                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                                                <div>
-                                                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '12px', textTransform: 'uppercase' }}>Webhook Endpoint</label>
-                                                    <input className={adminStyles.searchField} style={{ paddingLeft: '24px' }} placeholder="https://..." value={webhookUrl || configWorkflow.n8nWebhookUrl || ""} onChange={e => setWebhookUrl(e.target.value)} />
+                                            {n8nWorkflowId && (
+                                                <div style={{ padding: '24px', background: '#FAFAFA', borderRadius: '20px', border: '1px solid var(--accent)', animation: 'fadeIn 0.4s ease' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                                                        <ShieldCheck size={20} color="var(--accent)" />
+                                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.1em' }}>SELECTED PROTOCOL</span>
+                                                    </div>
+                                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                                                        <div>
+                                                            <div style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '4px' }}>WEBHOOK</div>
+                                                            <div style={{ fontSize: '0.85rem', fontWeight: 800, wordBreak: 'break-all' }}>{webhookUrl}</div>
+                                                        </div>
+                                                        <div>
+                                                            <div style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '4px' }}>PROTOCOL ID</div>
+                                                            <div style={{ fontSize: '0.85rem', fontWeight: 800 }}>{n8nWorkflowId}</div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '12px', textTransform: 'uppercase' }}>Protocol ID</label>
-                                                    <input className={adminStyles.searchField} style={{ paddingLeft: '24px' }} placeholder="Workflow UUID" value={n8nWorkflowId || configWorkflow.n8nWorkflowId || ""} onChange={e => setN8nWorkflowId(e.target.value)} />
-                                                </div>
-                                            </div>
+                                            )}
                                         </div>
                                     </div>
                                 )}
