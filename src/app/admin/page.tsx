@@ -497,7 +497,11 @@ export default function AdminControlPage() {
                                 {configStep === 1 ? (
                                     <button className={adminStyles.primaryBtn} onClick={() => setConfigStep(2)}>Calibrate Fleet</button>
                                 ) : (
-                                    <button className={adminStyles.primaryBtn} onClick={() => updateWebhook(configWorkflow.id, webhookUrl || configWorkflow.n8nWebhookUrl, n8nWorkflowId || configWorkflow.n8nWorkflowId, selectedServerId || configWorkflow.serverId)}>
+                                    <button 
+                                        className={adminStyles.primaryBtn} 
+                                        disabled={!!savingId || !n8nWorkflowId}
+                                        onClick={() => updateWebhook(configWorkflow.id, webhookUrl || configWorkflow.n8nWebhookUrl, n8nWorkflowId || configWorkflow.n8nWorkflowId, selectedServerId || configWorkflow.serverId)}
+                                    >
                                         {savingId ? 'SYNCHRONIZING...' : 'FINALIZE ORCHESTRATION'}
                                     </button>
                                 )}
@@ -511,24 +515,41 @@ export default function AdminControlPage() {
             {isProvisioning && (
                 <ModalPortal>
                     <div className={adminStyles.modalOverlay} onClick={() => setIsProvisioning(false)}>
-                        <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '600px', borderRadius: '32px' }}>
-                            <div className={adminStyles.modalHeader} style={{ padding: '48px' }}>
-                                <h3 style={{ fontSize: '1.75rem', fontWeight: 950, margin: 0 }}>Provision Node Cluster</h3>
-                                <p style={{ color: 'var(--muted-foreground)', marginTop: '8px' }}>Initialize a new sovereign compute instance.</p>
-                            </div>
-                            <div className={adminStyles.modalBody} style={{ padding: '0 48px 48px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '8px', textTransform: 'uppercase' }}>Client Identity</label>
-                                    <input className={adminStyles.searchField} style={{ paddingLeft: '24px' }} placeholder="Organization Name" value={provisionData.clientName} onChange={e => setProvisionData({...provisionData, clientName: e.target.value})} />
-                                </div>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '8px', textTransform: 'uppercase' }}>Email Anchor</label>
-                                    <input className={adminStyles.searchField} style={{ paddingLeft: '24px' }} placeholder="admin@org.com" value={provisionData.email} onChange={e => setProvisionData({...provisionData, email: e.target.value})} />
+                        <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '640px' }}>
+                            <div className={adminStyles.modalHeader} style={{ background: 'var(--foreground)', color: 'var(--background)', padding: '48px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                    <div>
+                                        <h3 style={{ fontSize: '2.25rem', fontWeight: 950, margin: 0, letterSpacing: '-0.05em' }}>Provision Node Cluster</h3>
+                                        <p style={{ opacity: 0.6, margin: '12px 0 0', fontWeight: 750 }}>Initialize a new sovereign compute instance.</p>
+                                    </div>
+                                    <button onClick={() => setIsProvisioning(false)} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '12px', borderRadius: '12px', cursor: 'pointer' }}><X size={24} /></button>
                                 </div>
                             </div>
-                            <div className={adminStyles.modalFooter} style={{ padding: '32px 48px', background: 'var(--muted)' }}>
-                                <button className={adminStyles.refreshBtn} onClick={() => setIsProvisioning(false)} style={{ border: 'none' }}>Cancel</button>
-                                <button className={adminStyles.primaryBtn} onClick={provisionClient} disabled={isProvisioningLoading}>
+                            <div className={adminStyles.modalBody} style={{ padding: '48px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                                <div style={{ background: '#FAFAFA', padding: '32px', borderRadius: '24px', border: '1px solid var(--border)' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                                        <Globe size={20} color="var(--accent)" />
+                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.1em' }}>IDENTITY ANCHOR</span>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                                        <div>
+                                            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '12px', textTransform: 'uppercase' }}>Client Identity</label>
+                                            <input className={adminStyles.searchField} style={{ paddingLeft: '24px' }} placeholder="Organization Name" value={provisionData.clientName} onChange={e => setProvisionData({...provisionData, clientName: e.target.value})} />
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '12px', textTransform: 'uppercase' }}>Email Anchor</label>
+                                            <input className={adminStyles.searchField} style={{ paddingLeft: '24px' }} placeholder="admin@org.com" value={provisionData.email} onChange={e => setProvisionData({...provisionData, email: e.target.value})} />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', gap: '16px', padding: '20px', background: 'rgba(16, 185, 129, 0.05)', borderRadius: '16px', border: '1px solid rgba(16, 185, 129, 0.1)' }}>
+                                    <ShieldCheck size={20} color="#10B981" />
+                                    <p style={{ fontSize: '0.85rem', color: '#065F46', margin: 0, fontWeight: 750 }}>This will generate an immutable root tenant and provision a dedicated sovereign node on the default cluster.</p>
+                                </div>
+                            </div>
+                            <div className={adminStyles.modalFooter} style={{ padding: '32px 48px', background: '#FAFAFA' }}>
+                                <button className={adminStyles.refreshBtn} onClick={() => setIsProvisioning(false)} style={{ border: 'none', width: 'auto', padding: '0 24px' }}>Cancel Operation</button>
+                                <button className={adminStyles.primaryBtn} onClick={provisionClient} disabled={isProvisioningLoading || !provisionData.clientName || !provisionData.email}>
                                     {isProvisioningLoading ? 'HANDSHAKING...' : 'INITIALIZE CLUSTER'}
                                 </button>
                             </div>

@@ -56,8 +56,9 @@ export default function FleetMonitoringPage() {
                         ...node,
                         status,
                         firm: node.url.replace(/^https?:\/\//, '').split('/')[0],
-                        telemetry: Array.from({ length: 12 }, () => 
-                            Math.max(1, Math.round(node.cpu + (Math.random() * 12 - 6)))
+                        // Use actual telemetry from server if available
+                        telemetry: node.telemetry || Array.from({ length: 12 }, () => 
+                            Math.max(1, Math.round((node.cpu || 0) + (Math.random() * 12 - 6)))
                         )
                     };
                 });
@@ -136,25 +137,25 @@ export default function FleetMonitoringPage() {
                         <Network size={14} color={isEmergency ? '#EF4444' : "var(--accent)"} />
                     </div>
                     <div className={adminStyles.metricAmount} style={{ color: isEmergency ? '#EF4444' : '' }}>{totalQueue}</div>
-                    <div className={adminStyles.metricDetail}>Pending Operational Packets</div>
+                    <div className={adminStyles.metricDetail}>Active Execution Threads</div>
                 </div>
 
                 <div className={adminStyles.adminMetricCard} style={{ borderColor: isEmergency ? '#EF4444' : '' }}>
                     <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>Reliability SLA</span>
+                        <span className={adminStyles.metricTag}>Operational Success</span>
                         <ShieldCheck size={14} color={isEmergency ? "#EF4444" : "#10B981"} />
                     </div>
-                    <div className={adminStyles.metricAmount} style={{ color: isEmergency ? "#EF4444" : "#10B981" }}>{isEmergency ? 'FAIL' : '99.9%'}</div>
-                    <div className={adminStyles.metricDetail}>{isEmergency ? 'SLA BREACH DETECTED' : 'System Integrity Aggregate'}</div>
+                    <div className={adminStyles.metricAmount} style={{ color: isEmergency ? "#EF4444" : "#10B981" }}>{isEmergency ? '0%' : '100%'}</div>
+                    <div className={adminStyles.metricDetail}>Protocol Integrity Rate</div>
                 </div>
 
                 <div className={adminStyles.adminMetricCard} style={{ borderColor: isEmergency ? '#EF4444' : '' }}>
                     <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>Cluster Latency</span>
+                        <span className={adminStyles.metricTag}>Cluster Synchronization</span>
                         <Activity size={14} color={isEmergency ? '#EF4444' : "var(--accent)"} />
                     </div>
-                    <div className={adminStyles.metricAmount} style={{ color: isEmergency ? '#EF4444' : '' }}>{isEmergency ? '> 500ms' : '14ms'}</div>
-                    <div className={adminStyles.metricDetail}>Intra-fleet Handshake Time</div>
+                    <div className={adminStyles.metricAmount} style={{ color: isEmergency ? '#EF4444' : '' }}>{nodes.filter(n => n.status === 'Healthy').length}/{nodes.length}</div>
+                    <div className={adminStyles.metricDetail}>Nominal Node Distribution</div>
                 </div>
             </div>
 
@@ -162,8 +163,8 @@ export default function FleetMonitoringPage() {
             <div className={adminStyles.registryCard} style={{ borderColor: isEmergency ? '#EF4444' : '' }}>
                 <div className={adminStyles.registryHeader}>
                     <div>
-                        <h3 className={adminStyles.registryTitle} style={{ color: isEmergency ? '#EF4444' : '' }}>Operational Registry</h3>
-                        <p className={adminStyles.registrySubtitle}>{isEmergency ? 'NODES IN CRITICAL STATE - INTERVENTION REQUIRED' : 'Real-time telemetry from every provisioned instance.'}</p>
+                        <h3 className={adminStyles.registryTitle} style={{ color: isEmergency ? '#EF4444' : '' }}>Sovereign Fleet Registry</h3>
+                        <p className={adminStyles.registrySubtitle}>{isEmergency ? 'CRITICAL FAILURE DETECTED - NODE INTERVENTION REQUIRED' : 'Real-time telemetry and diagnostic control for all provisioned instances.'}</p>
                     </div>
                     <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                          <FleetManager />
@@ -174,12 +175,12 @@ export default function FleetMonitoringPage() {
                     <table className={adminStyles.registryTable}>
                         <thead>
                             <tr>
-                                <th className={adminStyles.registryTH}>Server Identity</th>
-                                <th className={adminStyles.registryTH}>Location / Role</th>
-                                <th className={adminStyles.registryTH}>Telemetry</th>
+                                <th className={adminStyles.registryTH}>Node Identity</th>
+                                <th className={adminStyles.registryTH}>Infrastructure</th>
+                                <th className={adminStyles.registryTH}>Active Load</th>
                                 <th className={adminStyles.registryTH}>Resource Distribution</th>
-                                <th className={adminStyles.registryTH}>Health</th>
-                                <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Controls</th>
+                                <th className={adminStyles.registryTH}>Sentinel Status</th>
+                                <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Orchestration</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -187,7 +188,7 @@ export default function FleetMonitoringPage() {
                                 [1, 2, 3, 4].map(i => (
                                     <tr key={i}>
                                         <td colSpan={6} style={{ padding: '24px 0' }}>
-                                            <div style={{ width: '100%', height: '80px', background: 'var(--muted)', borderRadius: '20px', animation: 'pulse 2s infinite' }} />
+                                            <div style={{ width: '100%', height: '80px', background: 'var(--muted)', borderRadius: '24px', animation: 'pulse 2s infinite' }} />
                                         </td>
                                     </tr>
                                 ))
@@ -196,43 +197,45 @@ export default function FleetMonitoringPage() {
                                     <tr key={node.id} className={adminStyles.registryRow}>
                                         <td>
                                             <div className={adminStyles.loopDetail}>
-                                                <div className={`${adminStyles.loopIcon} ${adminStyles.floatingNode}`} style={{ background: isEmergency ? '#FEF2F2' : 'var(--muted)', color: isEmergency ? '#EF4444' : 'var(--foreground)' }}>
-                                                    <Terminal size={18} />
+                                                <div className={`${adminStyles.loopIcon} ${adminStyles.floatingNode}`} style={{ background: isEmergency ? '#FEF2F2' : 'var(--muted)', color: isEmergency ? '#EF4444' : 'var(--foreground)', borderRadius: '16px' }}>
+                                                    <Server size={18} />
                                                 </div>
                                                 <div>
                                                     <div className={adminStyles.loopName}>{node.name}</div>
                                                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
                                                         <code className={adminStyles.identityHash}>{node.id.substring(0, 10)}</code>
-                                                        <span className={adminStyles.tierBadge}>{isEmergency ? 'CRITICAL' : (node.status || 'Active')}</span>
+                                                        <span style={{ fontSize: '0.6rem', fontWeight: 950, color: 'var(--muted-foreground)' }}>{node.uptime || 'ONLINE'}</span>
                                                     </div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <div style={{ fontWeight: 950, color: 'var(--foreground)' }}>
-                                                {node.name.toLowerCase().includes('primary') ? 'Latvia - Riga Hub' : 'AWS - Europe Central'}
+                                            <div style={{ fontWeight: 950, color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <Globe size={14} color="var(--muted-foreground)" />
+                                                {node.name.toLowerCase().includes('primary') ? 'Riga Hub' : 'AWS Europe'}
                                             </div>
-                                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>{node.firm}</div>
+                                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 800, marginTop: '4px' }}>{node.firm}</div>
                                         </td>
                                         <td>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                <Sparkline data={node.telemetry} color={getStatusColor(node.status)} />
-                                                <div style={{ fontSize: '0.7rem', fontWeight: 950, color: getStatusColor(node.status) }}>
-                                                    {isEmergency ? 'SYNC FAIL' : `${Math.max(...node.telemetry)} OP/s`}
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                                <div style={{ textAlign: 'center' }}>
+                                                    <div style={{ fontSize: '1rem', fontWeight: 950, color: node.queue > 0 ? 'var(--accent)' : 'inherit' }}>{node.queue || 0}</div>
+                                                    <div style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--muted-foreground)', textTransform: 'uppercase' }}>Queue</div>
                                                 </div>
+                                                <Sparkline data={node.telemetry} color={getStatusColor(node.status)} />
                                             </div>
                                         </td>
                                         <td>
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', minWidth: '160px' }}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                                                    <span>CPU</span>
+                                                    <span>CPU Intensity</span>
                                                     <span style={{ color: (isEmergency || node.cpu > 80) ? '#EF4444' : 'var(--foreground)' }}>{isEmergency ? 'ERR' : `${node.cpu}%`}</span>
                                                 </div>
                                                 <div style={{ width: "100%", height: "4px", background: 'var(--muted)', borderRadius: "2px", overflow: "hidden" }}>
                                                     <div style={{ width: `${isEmergency ? 100 : node.cpu}%`, height: "100%", background: (isEmergency || node.cpu > 80) ? '#EF4444' : 'var(--foreground)', transition: 'width 1s cubic-bezier(0.16, 1, 0.3, 1)' }} />
                                                 </div>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                                                    <span>Memory</span>
+                                                    <span>Memory Load</span>
                                                     <span style={{ color: (isEmergency || node.ram > 80) ? '#EF4444' : 'var(--foreground)' }}>{isEmergency ? 'ERR' : `${node.ram}%`}</span>
                                                 </div>
                                                 <div style={{ width: "100%", height: "4px", background: 'var(--muted)', borderRadius: "2px", overflow: "hidden" }}>
@@ -241,10 +244,10 @@ export default function FleetMonitoringPage() {
                                             </div>
                                         </td>
                                         <td>
-                                            <div style={{ display: "flex", alignItems: "center", gap: "10px", background: `${getStatusColor(node.status)}15`, padding: '6px 14px', borderRadius: '100px', width: 'fit-content' }}>
+                                            <div style={{ display: "flex", alignItems: "center", gap: "10px", background: `${getStatusColor(node.status)}15`, padding: '8px 16px', borderRadius: '100px', width: 'fit-content' }}>
                                                 <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: getStatusColor(node.status), boxShadow: `0 0 10px ${getStatusColor(node.status)}` }} />
                                                 <span style={{ fontWeight: 950, fontSize: "0.7rem", color: getStatusColor(node.status), textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                                                    {isEmergency ? 'CRITICAL' : (node.cpu < 50 && node.ram < 50 && node.status === 'Healthy' ? 'STABLE' : node.status)}
+                                                    {isEmergency ? 'CRITICAL' : node.status}
                                                 </span>
                                             </div>
                                         </td>
