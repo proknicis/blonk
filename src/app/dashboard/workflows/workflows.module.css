@@ -9,6 +9,10 @@
     flex-direction: column;
     gap: 48px;
     animation: workflowsEntrance 0.6s ease-out;
+    background-image: radial-gradient(rgba(0,0,0,0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+    padding: 0 20px 40px;
+    min-height: 100vh;
 }
 
 @keyframes workflowsEntrance {
@@ -137,9 +141,10 @@
 
 .cardHeader p {
     color: var(--muted-foreground);
-    font-size: 1rem;
-    line-height: 1.5;
+    font-size: 0.95rem;
+    line-height: 1.6;
     font-weight: 600;
+    margin-top: 12px;
 }
 
 .metadataGrid {

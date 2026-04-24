@@ -2,7 +2,7 @@
 
 import styles from "./workflows.module.css";
 import React, { useState, useEffect } from "react";
-import { Activity, Zap, CheckCircle, AlertCircle, Plus, FileText, Link2, ArrowUpRight, ShieldCheck, ShieldAlert, X, MousePointer2, Settings, Cpu, Link, Search, Layers, Key, Euro } from "lucide-react";
+import { Activity, Zap, CheckCircle, AlertCircle, Plus, FileText, Link2, ArrowUpRight, ShieldCheck, ShieldAlert, X, MousePointer2, Settings, Cpu, Link, Search, Layers, Key, Euro, ShoppingCart } from "lucide-react";
 import ModalPortal from "@/app/components/ModalPortal";
 import { Skeleton } from "@/app/components/Skeleton";
 
@@ -93,9 +93,12 @@ export default function WorkflowsPage() {
             if (typeof val === 'string') {
                 try {
                     const parsed = JSON.parse(val);
-                    if (typeof parsed === 'string') return robustParse(parsed);
-                    return Array.isArray(parsed) ? parsed : [];
+                    return robustParse(parsed);
                 } catch (e) { return []; }
+            }
+            if (typeof val === 'object' && val !== null) {
+                // If it's a single object, wrap it in an array
+                return [val];
             }
             return [];
         };
@@ -129,15 +132,19 @@ export default function WorkflowsPage() {
                 showToast(`Loop "${template.name}" requested! Admin will configure the backend.`);
                 setConfigureTemplate(null);
                 fetchMarketplace();
+            } else {
+                const err = await res.json();
+                showToast(err.error || "Deployment failed. Please contact administration.", 'error');
             }
         } catch (error) {
             console.error("Error deploying workflow:", error);
+            showToast("Network disruption detected. Deployment sequence aborted.", 'error');
         } finally {
             setIsDeploying(false);
         }
     };
 
-    const showToast = (msg: string) => {
+    const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
         setToast(msg);
         setTimeout(() => setToast(null), 3500);
     };
@@ -189,7 +196,13 @@ export default function WorkflowsPage() {
                             {wf.featured === 1 && <div className={styles.cardFeatured}>Featured</div>}
                             <div className={styles.cardHeader}>
                                 <div className={styles.iconContainer}>
-                                    <span style={{ fontSize: '32px' }}>{wf.icon || '⚙️'}</span>
+                                    <span style={{ fontSize: '32px' }}>
+                                        {wf.icon === 'Zap' ? <Zap size={32} color="var(--accent)" /> : 
+                                         wf.icon === 'Layers' ? <Layers size={32} color="var(--accent)" /> : 
+                                         wf.icon === 'ShoppingCart' ? <ShoppingCart size={32} color="var(--accent)" /> :
+                                         wf.icon === 'Search' ? <Search size={32} color="var(--accent)" /> :
+                                         wf.icon || '⚙️'}
+                                    </span>
                                 </div>
                                 <h3>{wf.name}</h3>
                                 <p>{wf.description}</p>
@@ -202,17 +215,21 @@ export default function WorkflowsPage() {
                                 </div>
                                 <div className={styles.metaItem}>
                                     <label>Value</label>
-                                    <span style={{ color: 'var(--accent)', fontWeight: 950 }}>Saves {wf.savings || '10h/mo'}</span>
+                                    <span style={{ color: 'var(--accent)', fontWeight: 950 }}>Saves {wf.productInfo?.setupTime || wf.savings || '10h/mo'}</span>
                                 </div>
                                 <div className={styles.metaItem}>
                                     <label>Adoption</label>
-                                    <span>Used by {Math.floor(Math.random() * 200) + 50} teams</span>
+                                    <span>Used by {(wf.installs || (wf.id.charCodeAt(0) % 100) + 50)} teams</span>
                                 </div>
                             </div>
 
                              <div className={styles.cardFooter}>
-                                    <button className={styles.btnPrimary} onClick={() => handleAddClick(wf)}>
-                                        Add to Firm
+                                    <button 
+                                        className={styles.btnPrimary} 
+                                        disabled={isDeploying}
+                                        onClick={() => handleAddClick(wf)}
+                                    >
+                                        {isDeploying ? 'Processing...' : 'Add to Firm'}
                                     </button>
                                     <button className={styles.btnSecondary} onClick={() => handlePreviewClick(wf)}>
                                         Preview
