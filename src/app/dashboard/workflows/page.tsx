@@ -2,6 +2,7 @@
 
 import styles from "./workflows.module.css";
 import React, { useState, useEffect } from "react";
+import { Activity, Zap, CheckCircle, AlertCircle, Plus, FileText, Link2, ArrowUpRight, ShieldCheck, ShieldAlert, X, MousePointer2, Settings, Cpu, Link, Search, Layers, Key, Euro } from "lucide-react";
 import ModalPortal from "@/app/components/ModalPortal";
 import { Skeleton } from "@/app/components/Skeleton";
 
@@ -238,111 +239,115 @@ export default function WorkflowsPage() {
                 <ModalPortal>
                     <div className={styles.guideModal}>
                         <div className={styles.guideContainer}>
-                        {/* Header */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                                <div className={styles.iconContainer}>
-                                    {configureTemplate.icon || '⚙️'}
+                            
+                            {/* MISSION CONTROL HEADER */}
+                            <div className={styles.modalIntegrityHeader}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
+                                    <div className={styles.iconContainer} style={{ margin: 0 }}>
+                                        {configureTemplate.icon === 'Zap' ? <Zap size={40} color="var(--accent)" /> : <Layers size={40} color="var(--accent)" />}
+                                    </div>
+                                    <div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                                            <div style={{ padding: '4px 8px', background: 'var(--accent)', color: 'var(--background)', borderRadius: '4px', fontSize: '0.6rem', fontWeight: 950, letterSpacing: '0.1em' }}>ORCHESTRATION</div>
+                                            <span style={{ fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--muted-foreground)' }}>PROTOCOL INITIALIZATION</span>
+                                        </div>
+                                        <h2 className={styles.sectionTitle} style={{ fontSize: '2rem' }}>Provision {configureTemplate.name}</h2>
+                                        <p className={styles.guideStepText}>Calibrate the autonomous loop for your firm's environment.</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h2 className={styles.sectionTitle}>Set up {configureTemplate.name}</h2>
-                                    <p className={styles.guideStepText}>Follow these simple steps to start automating.</p>
-                                </div>
+                                <button onClick={() => setConfigureTemplate(null)} style={{ background: 'var(--muted)', border: 'none', cursor: 'pointer', width: '48px', height: '48px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <X size={20} />
+                                </button>
                             </div>
-                            <button onClick={() => setConfigureTemplate(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.4 }}>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                            </button>
-                        </div>
 
-                        {/* Visual How It Works */}
-                        <div className={styles.visualSteps}>
-                            <div className={`${styles.visualStep} ${styles.visualStepActive}`}>
-                                <div className={styles.stepIconBox}>🔌</div>
-                                <div className={styles.stepLabel}>Connect</div>
-                            </div>
-                            <div className={styles.stepConnector} />
-                            <div className={styles.visualStep}>
-                                <div className={styles.stepIconBox}>⚙️</div>
-                                <div className={styles.stepLabel}>Configure</div>
-                            </div>
-                            <div className={styles.stepConnector} />
-                            <div className={styles.visualStep}>
-                                <div className={styles.stepIconBox}>🚀</div>
-                                <div className={styles.stepLabel}>Result</div>
-                            </div>
-                        </div>
-
-                        {/* Requirements / Connections */}
-                        {configureTemplate.parsedReqs && configureTemplate.parsedReqs.length > 0 && (
-                            <div style={{ marginBottom: '48px' }}>
-                                <div className={styles.sectionHeader}>
-                                    <div className={styles.sectionNumber}>1</div>
-                                    <h3 className={styles.sectionTitle}>Connect Services</h3>
+                            {/* PROVISIONING TIMELINE */}
+                            <div className={styles.timelineInstitutional}>
+                                <div className={`${styles.timelineStep} ${styles.timelineStepActive}`}>
+                                    <div className={styles.timelineIconBox}><Link size={20} color="var(--accent)" /></div>
+                                    <div className={styles.timelineLabel}>CONNECT</div>
                                 </div>
-                                <div className={styles.requirementsList}>
-                                    {configureTemplate.parsedReqs.map((req: any, idx: number) => (
-                                        <div key={idx} className={styles.requirementCard}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                                                <div className={styles.reqIcon}>
-                                                    {req.name.toLowerCase().includes('stripe') ? '💳' : 
-                                                     req.name.toLowerCase().includes('google') ? '🔍' : 
-                                                     req.name.toLowerCase().includes('notion') ? '📝' : '🔌'}
-                                                </div>
-                                                <div>
-                                                    <div className={styles.reqName}>{req.name}</div>
-                                                    <div className={styles.helpLink} onClick={() => setHelpStep(req)}>
-                                                        Where to find this?
+                                <div className={styles.timelineConnector} />
+                                <div className={`${styles.timelineStep} ${templateInputs && Object.keys(templateInputs).length > 0 ? styles.timelineStepActive : ''}`}>
+                                    <div className={styles.timelineIconBox}><Settings size={20} /></div>
+                                    <div className={styles.timelineLabel}>CONFIGURE</div>
+                                </div>
+                                <div className={styles.timelineConnector} />
+                                <div className={styles.timelineStep}>
+                                    <div className={styles.timelineIconBox}><Cpu size={20} /></div>
+                                    <div className={styles.timelineLabel}>RESULT</div>
+                                </div>
+                            </div>
+
+                            {/* INTEGRATION DOSSIERS */}
+                            {configureTemplate.parsedReqs && configureTemplate.parsedReqs.length > 0 && (
+                                <div style={{ marginBottom: '48px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                                        <div style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '50%' }} />
+                                        <h3 className={styles.sectionTitle} style={{ fontSize: '1rem' }}>STEP 01: ESTABLISH HANDSHAKE</h3>
+                                    </div>
+                                    <div className={styles.requirementsList}>
+                                        {configureTemplate.parsedReqs.map((req: any, idx: number) => (
+                                            <div key={idx} className={styles.integrationDossier}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                                                    <div className={styles.integrationIcon}>
+                                                        {req.name.toLowerCase().includes('stripe') ? <Euro size={24} color="var(--accent)" /> : 
+                                                         req.name.toLowerCase().includes('google') ? <Search size={24} color="var(--accent)" /> : 
+                                                         req.name.toLowerCase().includes('notion') ? <FileText size={24} color="var(--accent)" /> : <Key size={24} color="var(--accent)" />}
+                                                    </div>
+                                                    <div>
+                                                        <div className={styles.integrationName}>{req.name} Registry</div>
+                                                        <div className={styles.integrationMeta} onClick={() => setHelpStep(req)}>
+                                                            Retrieve Institutional Credentials <ArrowUpRight size={10} />
+                                                        </div>
                                                     </div>
                                                 </div>
+                                                <div style={{ display: 'flex', gap: '12px' }}>
+                                                    <button className={styles.btnSecondary} style={{ width: 'auto', padding: '0 20px', height: '44px', borderRadius: '12px' }} onClick={() => setHelpStep(req)}>MANUAL</button>
+                                                    <button className={styles.btnPrimary} style={{ width: 'auto', padding: '0 24px', height: '44px', borderRadius: '12px', background: 'var(--foreground)' }} onClick={() => setHelpStep(req)}>AUTHENTICATE</button>
+                                                </div>
                                             </div>
-                                            <div style={{ display: 'flex', gap: '12px' }}>
-                                                <button className={styles.btnSecondary} onClick={() => setHelpStep(req)}>Get API Key</button>
-                                                <button className={styles.btnPrimary} onClick={() => setHelpStep(req)}>Connect</button>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
 
-                        {/* Setup Guide */}
-                        {configureTemplate.parsedGuide && configureTemplate.parsedGuide.length > 0 && (
-                            <div style={{ marginBottom: '48px' }}>
-                                <div className={styles.sectionHeader}>
-                                    <div className={styles.sectionNumber}>2</div>
-                                    <h3 className={styles.sectionTitle}>Setup Guide</h3>
-                                </div>
-                                <div className={styles.setupGuideContainer}>
-                                    {configureTemplate.parsedGuide.map((step: any, idx: number) => (
-                                        <div key={idx} className={styles.guideStep}>
-                                            <div className={styles.guideStepNumber}>{idx + 1}</div>
-                                            <div>
-                                                <h4 className={styles.guideStepTitle}>{step.title}</h4>
-                                                <p className={styles.guideStepText}>{step.text}</p>
+                            {/* PROTOCOL BRIEFING */}
+                            {configureTemplate.parsedGuide && configureTemplate.parsedGuide.length > 0 && (
+                                <div style={{ marginBottom: '48px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                                        <div style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '50%' }} />
+                                        <h3 className={styles.sectionTitle} style={{ fontSize: '1rem' }}>PROTOCOL BRIEFING</h3>
+                                    </div>
+                                    <div style={{ background: '#FAFAFA', padding: '32px', borderRadius: '24px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                        {configureTemplate.parsedGuide.map((step: any, idx: number) => (
+                                            <div key={idx} style={{ display: 'flex', gap: '16px' }}>
+                                                <div style={{ width: '24px', height: '24px', background: 'var(--foreground)', color: 'var(--background)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 950, flexShrink: 0 }}>{idx + 1}</div>
+                                                <div>
+                                                    <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 950, color: 'var(--foreground)' }}>{step.title}</h4>
+                                                    <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: 'var(--muted-foreground)', fontWeight: 750, lineHeight: 1.5 }}>{step.text}</p>
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
 
-                        {/* Configuration Form */}
-                        {configureTemplate.parsedReqs && configureTemplate.parsedReqs.length > 0 && (
+                            {/* CONFIGURATION FIELDSET */}
                             <div style={{ marginBottom: '48px' }}>
-                                <div className={styles.sectionHeader}>
-                                    <div className={styles.sectionNumber}>3</div>
-                                    <h3 className={styles.sectionTitle}>Configuration</h3>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                                    <div style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '50%' }} />
+                                    <h3 className={styles.sectionTitle} style={{ fontSize: '1rem' }}>STEP 02: CALIBRATE PARAMETERS</h3>
                                 </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                                <div className={styles.configFieldset}>
                                     {configureTemplate.parsedReqs.map((req: any, idx: number) => (
-                                        <div key={idx}>
-                                            <label className={styles.configLabel}>
+                                        <div key={idx} className={styles.fieldGroup}>
+                                            <label className={styles.fieldLabel}>
                                                 {req.name} {req.required && <span style={{ color: 'var(--destructive)' }}>*</span>}
                                             </label>
                                             <input 
-                                                className={styles.configInput}
+                                                className={styles.fieldInput}
                                                 type={req.type === 'file' ? 'file' : 'text'}
-                                                placeholder={req.example || `Paste your ${req.name} here...`}
+                                                placeholder={req.example || `Enter ${req.name}...`}
                                                 value={req.type === 'file' ? undefined : (templateInputs[req.name] || '')}
                                                 onChange={e => setTemplateInputs({...templateInputs, [req.name]: e.target.value})}
                                             />
@@ -350,15 +355,19 @@ export default function WorkflowsPage() {
                                     ))}
                                 </div>
                             </div>
-                        )}
 
-                        {/* Footer */}
-                        <div style={{ display: 'flex', gap: '16px', marginTop: '48px', paddingTop: '32px', borderTop: '1px solid var(--border)' }}>
-                            <button className={styles.btnSecondary} style={{ flex: 1 }} onClick={() => setConfigureTemplate(null)}>Cancel</button>
-                            <button className={styles.btnPrimary} style={{ flex: 1 }} disabled={isDeploying} onClick={() => deployWorkflow(configureTemplate, templateInputs)}>
-                                {isDeploying ? 'Deploying...' : 'Deploy Automation'}
-                            </button>
-                        </div>
+                            {/* INSTITUTIONAL FOOTER */}
+                            <div className={styles.premiumModalFooter}>
+                                <button className={styles.btnSecondary} style={{ height: '64px', borderRadius: '20px' }} onClick={() => setConfigureTemplate(null)}>CANCEL INITIALIZATION</button>
+                                <button 
+                                    className={styles.btnPrimary} 
+                                    style={{ height: '64px', borderRadius: '20px', background: 'var(--accent)', color: 'var(--background)' }} 
+                                    disabled={isDeploying} 
+                                    onClick={() => deployWorkflow(configureTemplate, templateInputs)}
+                                >
+                                    {isDeploying ? 'DEPLOYING ENGINE...' : 'FINALIZE & DEPLOY AUTOMATION'}
+                                </button>
+                            </div>
                         </div>
                     </div>
 
