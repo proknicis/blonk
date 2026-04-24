@@ -27,7 +27,7 @@ import {
 } from "lucide-react";
 import { Skeleton } from "../../../components/Skeleton";
 import styles from "./builder.module.css";
-import adminStyles from "../../admin/admin.module.css";
+import adminStyles from "../../admin.module.css";
 
 const STEPS = [
     { id: 1, name: "Core Protocol", description: "Identity & Logic Matrix", icon: <Database size={18} /> },

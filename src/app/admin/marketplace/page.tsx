@@ -196,7 +196,7 @@ export default function MarketplaceManagementPage() {
                         <div style={{ width: '64px', height: '64px', background: 'var(--background)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 30px rgba(255,255,255,0.1)' }}>
                             <ShoppingCart size={32} color="var(--foreground)" />
                         </div>
-                        <div style={{ position: 'absolute', -8: '-8px', -8: '-8px', width: '20px', height: '20px', background: '#10B981', borderRadius: '50%', border: '4px solid var(--foreground)', boxShadow: '0 0 10px #10B981' }} />
+                        <div style={{ position: 'absolute', bottom: '-8px', right: '-8px', width: '20px', height: '20px', background: '#10B981', borderRadius: '50%', border: '4px solid var(--foreground)', boxShadow: '0 0 10px #10B981' }} />
                     </div>
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
