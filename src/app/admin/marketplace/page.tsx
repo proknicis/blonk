@@ -21,7 +21,8 @@ import {
     Star,
     Euro,
     ShoppingCart,
-    BarChart
+    BarChart,
+    X
 } from "lucide-react";
 
 import { Skeleton } from "../../components/Skeleton";
