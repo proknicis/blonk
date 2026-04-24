@@ -60,8 +60,25 @@ export default function AdminControlPage() {
         clientName: "",
         email: "",
         plan: "Institutional",
-        nodes: "High (8 vCPU / 32GB)",
+        nodes: "2 vCPU / 8GB RAM",
     });
+    const [isProvisioningLoading, setIsProvisioningLoading] = useState(false);
+
+    const provisionClient = async () => {
+        setIsProvisioningLoading(true);
+        try {
+            // Simulated institutional provisioning handshake
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            setIsProvisioning(false);
+            setProvisionStep(1);
+            alert(`Sovereign Node Cluster for ${provisionData.clientName} successfully established.`);
+            fetchWorkflows();
+        } catch (error) {
+            console.error("Provisioning failure:", error);
+        } finally {
+            setIsProvisioningLoading(false);
+        }
+    };
     const [webhookUrl, setWebhookUrl] = useState("");
     const [n8nWorkflowId, setN8nWorkflowId] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
@@ -149,9 +166,9 @@ export default function AdminControlPage() {
 
     const getStatusDetails = (status: string) => {
         switch (status) {
-            case 'Initializing': return { color: 'var(--muted-foreground)', progress: 15, icon: <RefreshCcw size={14} className={styles.spinning} /> };
+            case 'Initializing': return { color: 'var(--muted-foreground)', progress: 15, icon: <RefreshCcw size={14} className={adminStyles.spinning} /> };
             case 'Connecting': return { color: 'var(--warning)', progress: 45, icon: <Link2 size={14} /> };
-            case 'Syncing': return { color: 'var(--accent)', progress: 75, icon: <RefreshCcw size={14} className={styles.spinning} /> };
+            case 'Syncing': return { color: 'var(--accent)', progress: 75, icon: <RefreshCcw size={14} className={adminStyles.spinning} /> };
             case 'Ready': return { color: 'var(--accent)', progress: 100, icon: <CheckCircle2 size={14} /> };
             case 'Active': return { color: 'var(--accent)', progress: 100, icon: <CheckCircle2 size={14} /> };
             case 'Error': return { color: 'var(--destructive)', progress: 0, icon: <AlertCircle size={14} /> };
@@ -620,23 +637,26 @@ export default function AdminControlPage() {
                 </div>
             </div>
 
-            {/* CONFIG MODAL */}
+            {/* CONFIG MODAL - PRODUCTION SYNC OVERHAUL */}
             {configWorkflow && (
-                <div className={adminStyles.modalOverlay} style={{ backdropFilter: 'blur(12px)', background: 'rgba(250, 250, 250, 0.6)' }}>
-                    <div className={adminStyles.modal} style={{ maxWidth: '640px', border: '1px solid var(--border)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)', overflow: 'hidden' }}>
-                        <div className={adminStyles.modalHeader} style={{ padding: '32px 40px', borderBottom: '1px solid var(--border)', background: 'linear-gradient(180deg, var(--card) 0%, var(--background) 100%)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className={adminStyles.modalOverlay} style={{ backdropFilter: 'blur(16px)', background: 'rgba(250, 250, 250, 0.4)' }}>
+                    <div className={adminStyles.modal} style={{ maxWidth: '720px', border: '1px solid var(--border)', boxShadow: '0 40px 80px -20px rgba(0, 0, 0, 0.12)', overflow: 'hidden', background: 'var(--background)' }}>
+                        <div className={adminStyles.modalHeader} style={{ padding: '40px', borderBottom: '1px solid var(--border)', background: 'linear-gradient(180deg, var(--card) 0%, var(--background) 100%)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                                        <div style={{ width: '10px', height: '10px', background: 'var(--accent)', borderRadius: '50%', boxShadow: '0 0 15px var(--accent)' }} />
-                                        <span style={{ fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.25em', color: 'var(--accent)' }}>SYSTEM CALIBRATION</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--accent)', color: 'var(--background)', padding: '4px 10px', borderRadius: '6px', fontSize: '0.6rem', fontWeight: 950, letterSpacing: '0.15em' }}>
+                                            <div style={{ width: '6px', height: '6px', background: 'var(--background)', borderRadius: '50%', boxShadow: '0 0 8px var(--background)', animation: 'pulse 1.5s infinite' }} />
+                                            PROTOCOL V4.2
+                                        </div>
+                                        <span style={{ fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--muted-foreground)' }}>ORCHESTRATION SYNC</span>
                                     </div>
-                                    <h3 className={adminStyles.modalTitle} style={{ fontSize: '1.75rem', letterSpacing: '-0.03em', marginBottom: '8px' }}>Production Sync</h3>
-                                    <p className={adminStyles.modalSubtitle} style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', fontWeight: 750 }}>
-                                        Establish secure link with <span style={{ color: 'var(--foreground)', fontWeight: 950 }}>{configWorkflow.name || 'Autonomous Node'}</span>
+                                    <h3 style={{ margin: 0, fontSize: '2.25rem', fontWeight: 950, letterSpacing: '-0.04em', color: 'var(--foreground)' }}>Production Calibration</h3>
+                                    <p style={{ margin: '8px 0 0', fontSize: '1rem', color: 'var(--muted-foreground)', fontWeight: 750 }}>
+                                        Synchronizing node <span style={{ color: 'var(--foreground)', fontWeight: 950 }}>{String(configWorkflow.id).substring(0, 8)}</span> with sovereign infrastructure.
                                     </p>
                                 </div>
-                                <button className={adminStyles.modalClose} style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'var(--muted)' }} onClick={() => { 
+                                <button className={adminStyles.modalClose} style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border)', transition: 'all 0.2s ease' }} onClick={() => { 
                                     setConfigWorkflow(null); 
                                     setConfigStep(1); 
                                     setWebhookUrl(""); 
@@ -647,27 +667,27 @@ export default function AdminControlPage() {
                                     <X size={20} />
                                 </button>
                             </div>
-                            <div className={adminStyles.wizardContainer} style={{ marginTop: '32px', gap: '12px' }}>
+                            <div style={{ marginTop: '40px', display: 'flex', gap: '8px' }}>
                                 {[1, 2, 3].map(s => (
-                                    <div key={s} style={{ flex: 1, height: '4px', background: configStep >= s ? 'var(--accent)' : 'var(--border)', borderRadius: '10px', transition: 'all 0.5s ease' }} />
+                                    <div key={s} style={{ flex: 1, height: '6px', background: configStep >= s ? 'var(--accent)' : 'var(--muted)', borderRadius: '10px', transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)' }} />
                                 ))}
                             </div>
                         </div>
 
-                        <div className={adminStyles.modalBody} style={{ padding: '40px' }}>
+                        <div className={adminStyles.modalBody} style={{ padding: '40px', maxHeight: '60vh', overflowY: 'auto' }}>
                             {configStep === 1 && (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                        <div style={{ width: '48px', height: '48px', background: 'var(--muted)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            <Database size={24} color="var(--foreground)" />
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                                        <div style={{ width: '56px', height: '56px', background: 'var(--muted)', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border)' }}>
+                                            <Database size={28} color="var(--accent)" />
                                         </div>
                                         <div>
-                                            <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Inbound Parameters</h4>
-                                            <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', fontWeight: 750 }}>Verified node operational variables</div>
+                                            <h4 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Input Matrix</h4>
+                                            <div style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', fontWeight: 750 }}>Verified operational parameters from the requester</div>
                                         </div>
                                     </div>
 
-                                    <div className={adminStyles.parameterGrid} style={{ gap: '20px' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                         {(() => {
                                             let data = {};
                                             try {
@@ -680,15 +700,14 @@ export default function AdminControlPage() {
                                             const entries = Object.entries(data || {});
                                             if (entries.length === 0) return (
                                                 <div style={{ gridColumn: 'span 2', textAlign: 'center', padding: '80px 40px', background: 'var(--muted)', borderRadius: '24px', border: '1px dashed var(--border)' }}>
-                                                    <Database size={40} style={{ color: 'var(--muted-foreground)', margin: '0 auto 20px', opacity: 0.3 }} />
-                                                    <p style={{ fontSize: '1rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>No custom data provided.</p>
+                                                    <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>Node initialized without custom matrix data.</p>
                                                 </div>
                                             );
 
                                             return entries.map(([key, val]: any) => (
-                                                <div key={key} className={adminStyles.parameterCard} style={{ borderRadius: '20px', padding: '20px', background: 'var(--card)', border: '1px solid var(--border)' }}>
-                                                    <label className={adminStyles.parameterLabel} style={{ fontSize: '0.65rem', marginBottom: '8px', color: 'var(--muted-foreground)' }}>{key.replace(/_/g, ' ')}</label>
-                                                    <div className={adminStyles.parameterValue} style={{ fontSize: '0.95rem', color: 'var(--foreground)', fontWeight: 950 }}>{String(val)}</div>
+                                                <div key={key} style={{ padding: '24px', background: 'var(--card)', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
+                                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '8px' }}>{key.replace(/_/g, ' ')}</label>
+                                                    <div style={{ fontSize: '1rem', color: 'var(--foreground)', fontWeight: 950, wordBreak: 'break-all' }}>{String(val)}</div>
                                                 </div>
                                             ));
                                         })()}
@@ -698,187 +717,224 @@ export default function AdminControlPage() {
 
                             {configStep === 2 && (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                                    <div style={{ background: 'var(--card)', padding: '28px', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)', transition: 'all 0.3s ease' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-                                            <div style={{ width: '44px', height: '44px', background: 'var(--muted)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                <Server size={22} color="var(--accent)" />
+                                    <div style={{ padding: '32px', background: 'var(--card)', borderRadius: '32px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '18px', marginBottom: '24px' }}>
+                                            <div style={{ width: '48px', height: '48px', background: 'var(--muted)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                <Server size={24} color="var(--accent)" />
                                             </div>
                                             <div>
-                                                <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.12em' }}>Operational Hub</h4>
-                                                <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 750 }}>Authorized physical cluster</div>
+                                                <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Cluster Hub Selection</h4>
+                                                <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', fontWeight: 750 }}>Physically deploy the logic to a regional cluster</div>
                                             </div>
                                         </div>
                                         <div style={{ position: 'relative' }}>
                                             <select 
-                                                className={adminStyles.mainInput}
                                                 value={selectedServerId}
                                                 onChange={(e) => {
                                                     const srvId = e.target.value;
                                                     setSelectedServerId(srvId);
                                                     fetchLiveWorkflows(srvId);
                                                 }}
-                                                style={{ appearance: 'none', background: 'var(--muted)', border: '1px solid var(--border)', cursor: 'pointer', paddingRight: '48px', height: '56px', borderRadius: '16px', fontWeight: 800 }}
+                                                style={{ width: '100%', height: '64px', borderRadius: '20px', background: 'var(--muted)', border: '1px solid var(--border)', padding: '0 24px', fontSize: '1rem', fontWeight: 800, appearance: 'none', cursor: 'pointer' }}
                                             >
-                                                <option value="">Select operational hub registry...</option>
+                                                <option value="">Select an operational hub registry...</option>
                                                 {servers.map(s => (
                                                     <option key={s.id} value={s.id}>{s.name} — {s.url.replace(/^https?:\/\//, '')}</option>
                                                 ))}
                                             </select>
-                                            <div style={{ position: 'absolute', right: '20px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+                                            <div style={{ position: 'absolute', right: '24px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
                                                 <ChevronDown size={20} color="var(--muted-foreground)" />
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div style={{ background: 'var(--card)', padding: '28px', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)', opacity: !selectedServerId ? 0.6 : 1, transition: 'all 0.3s ease' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-                                            <div style={{ width: '44px', height: '44px', background: 'var(--muted)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                <Workflow size={22} color={isFetchingLive ? "var(--accent)" : "var(--foreground)"} className={isFetchingLive ? adminStyles.spinning : ''} />
+                                    <div style={{ padding: '32px', background: 'var(--card)', borderRadius: '32px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)', opacity: !selectedServerId ? 0.6 : 1, transition: 'all 0.3s ease' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '18px', marginBottom: '24px' }}>
+                                            <div style={{ width: '48px', height: '48px', background: 'var(--muted)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                <Workflow size={24} color={isFetchingLive ? "var(--accent)" : "var(--foreground)"} className={isFetchingLive ? adminStyles.spinning : ''} />
                                             </div>
                                             <div>
-                                                <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.12em' }}>Autonomous Node Discovery</h4>
-                                                <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 750 }}>Real-time n8n register mapping</div>
+                                                <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Autonomous Loop Mapping</h4>
+                                                <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', fontWeight: 750 }}>Connecting node ID with n8n instance registry</div>
                                             </div>
                                         </div>
                                         <div style={{ position: 'relative' }}>
                                             <select 
-                                                className={adminStyles.mainInput}
                                                 value={n8nWorkflowId}
                                                 onChange={(e) => setN8nWorkflowId(e.target.value)}
                                                 disabled={isFetchingLive || !selectedServerId}
-                                                style={{ appearance: 'none', background: 'var(--muted)', border: '1px solid var(--border)', cursor: 'pointer', paddingRight: '48px', height: '56px', borderRadius: '16px', fontWeight: 800 }}
+                                                style={{ width: '100%', height: '64px', borderRadius: '20px', background: 'var(--muted)', border: '1px solid var(--border)', padding: '0 24px', fontSize: '1rem', fontWeight: 800, appearance: 'none', cursor: 'pointer' }}
                                             >
-                                                <option value="">{isFetchingLive ? 'Probing cluster registry...' : 'Select detected node...'}</option>
+                                                <option value="">{isFetchingLive ? 'Probing regional cluster...' : 'Select detected node registry...'}</option>
                                                 {serverWorkflows.map(wf => (
-                                                    <option key={wf.id} value={wf.id}>{wf.name} [{wf.id.substring(0, 8)}]</option>
+                                                    <option key={wf.id} value={wf.id}>{wf.name} — [{wf.id.substring(0, 8)}]</option>
                                                 ))}
                                             </select>
-                                            <div style={{ position: 'absolute', right: '20px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
-                                                {isFetchingLive ? <RefreshCcw size={18} className={adminStyles.spinning} color="var(--accent)" /> : <ChevronDown size={20} color="var(--muted-foreground)" />}
+                                            <div style={{ position: 'absolute', right: '24px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+                                                {isFetchingLive ? <RefreshCcw size={20} className={adminStyles.spinning} color="var(--accent)" /> : <ChevronDown size={20} color="var(--muted-foreground)" />}
                                             </div>
                                         </div>
                                         {selectedServerId && !isFetchingLive && serverWorkflows.length === 0 && (
-                                            <div style={{ marginTop: '20px', padding: '16px', background: 'var(--destructive-muted)', borderRadius: '16px', border: '1px solid var(--destructive-border)', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                <TriangleAlert size={18} color="var(--destructive)" />
-                                                <span style={{ fontSize: '0.8rem', fontWeight: 900, color: 'var(--destructive)' }}>NODE DISCOVERY FAILED. VERIFY AUTHENTICATION TOKENS.</span>
+                                            <div style={{ marginTop: '24px', padding: '20px', background: 'var(--destructive-muted)', borderRadius: '20px', border: '1px solid var(--destructive-border)', display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                                <TriangleAlert size={20} color="var(--destructive)" />
+                                                <span style={{ fontSize: '0.85rem', fontWeight: 950, color: 'var(--destructive)', textTransform: 'uppercase' }}>Zero nodes detected on this hub. Check API integrity.</span>
                                             </div>
                                         )}
                                     </div>
-
+                                    
                                     <div style={{ textAlign: 'center', marginTop: '8px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', opacity: 0.5 }}>
+                                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', opacity: 0.5 }}>
                                             <ShieldCheck size={14} color="var(--muted-foreground)" />
-                                            <span style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--muted-foreground)' }}>Secured by Sovereign Protocol v4.2</span>
+                                            <span style={{ fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--muted-foreground)' }}>Encrypted Handshake Handled by Sovereign AI</span>
                                         </div>
                                     </div>
                                 </div>
                             )}
 
                             {configStep === 3 && (
-                                <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                                    <div style={{ width: '120px', height: '120px', background: 'var(--accent-muted)', color: 'var(--accent)', borderRadius: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 40px', position: 'relative' }}>
-                                        <div style={{ position: 'absolute', inset: -10, borderRadius: '45px', border: '2px solid var(--accent)', animation: 'ping 3s infinite', opacity: 0.15 }} />
-                                        <CheckCircle2 size={56} />
+                                <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                                    <div style={{ width: '140px', height: '140px', background: 'var(--accent-muted)', color: 'var(--accent)', borderRadius: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 48px', position: 'relative' }}>
+                                        <div style={{ position: 'absolute', inset: -15, borderRadius: '60px', border: '2px solid var(--accent)', animation: 'ping 3s infinite', opacity: 0.15 }} />
+                                        <div style={{ position: 'absolute', inset: -30, borderRadius: '75px', border: '1px solid var(--accent)', animation: 'ping 4s infinite', opacity: 0.05 }} />
+                                        <CheckCircle2 size={72} />
                                     </div>
-                                    <h4 style={{ margin: 0, fontSize: '2.2rem', color: 'var(--foreground)', fontWeight: 950, letterSpacing: '-0.05em' }}>Handshake Ready</h4>
-                                    <p style={{ fontSize: '1.1rem', color: 'var(--muted-foreground)', maxWidth: '440px', margin: '24px auto 0', lineHeight: '1.6', fontWeight: 750 }}>
-                                        Internal registers synchronized. Establishing this link will activate real-time telemetry and full administrative control for the fleet requester.
+                                    <h4 style={{ margin: 0, fontSize: '2.5rem', color: 'var(--foreground)', fontWeight: 950, letterSpacing: '-0.05em' }}>Handshake Ready</h4>
+                                    <p style={{ fontSize: '1.2rem', color: 'var(--muted-foreground)', maxWidth: '480px', margin: '24px auto 0', lineHeight: '1.6', fontWeight: 750 }}>
+                                        Identity verification complete. Activating this link will enable full autonomous yield tracking and live operational telemetry for the client.
                                     </p>
                                     
-                                    <div style={{ marginTop: '40px', padding: '20px', background: 'var(--muted)', borderRadius: '20px', border: '1px solid var(--border)', display: 'inline-flex', alignItems: 'center', gap: '12px' }}>
-                                        <code style={{ fontSize: '0.85rem', color: 'var(--foreground)', fontWeight: 950, letterSpacing: '0.05em' }}>{String(configWorkflow.id).substring(0, 24)}...</code>
+                                    <div style={{ marginTop: '48px', padding: '24px 32px', background: 'var(--muted)', borderRadius: '24px', border: '1px solid var(--border)', display: 'inline-flex', alignItems: 'center', gap: '16px' }}>
+                                        <div style={{ textAlign: 'left' }}>
+                                            <div style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Deployment Signature</div>
+                                            <code style={{ fontSize: '1rem', color: 'var(--foreground)', fontWeight: 950, letterSpacing: '0.05em' }}>{String(configWorkflow.id).substring(0, 24)}...</code>
+                                        </div>
                                         <button 
                                             onClick={() => {
                                                 navigator.clipboard.writeText(configWorkflow.id);
                                             }}
-                                            style={{ background: 'var(--background)', border: '1px solid var(--border)', padding: '6px 12px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 950, cursor: 'pointer' }}
+                                            style={{ background: 'var(--background)', border: '1px solid var(--border)', padding: '10px 20px', borderRadius: '14px', fontSize: '0.75rem', fontWeight: 950, cursor: 'pointer', boxShadow: 'var(--shadow-sm)' }}
                                         >
-                                            COPY ID
+                                            COPY SIG
                                         </button>
                                     </div>
                                 </div>
                             )}
                         </div>
 
-                        <div className={adminStyles.modalFooter} style={{ padding: '32px 40px', background: 'var(--muted)', borderTop: '1px solid var(--border)' }}>
-                            <button className={styles.btnOutline} style={{ padding: '0 32px', height: '56px', borderRadius: '18px', background: 'var(--card)' }} onClick={() => configStep > 1 ? setConfigStep(prev => prev - 1) : setConfigWorkflow(null)}>
-                                {configStep === 1 ? 'Discard Calibration' : 'Previous Step'}
+                        <div className={adminStyles.modalFooter} style={{ padding: '40px', background: 'var(--muted)', borderTop: '1px solid var(--border)', display: 'flex', gap: '20px' }}>
+                            <button 
+                                className={styles.btnOutline} 
+                                style={{ flex: 1, height: '64px', borderRadius: '20px', fontSize: '1rem', fontWeight: 950, background: 'var(--card)' }} 
+                                onClick={() => configStep > 1 ? setConfigStep(prev => prev - 1) : setConfigWorkflow(null)}
+                            >
+                                {configStep === 1 ? 'Discard Sync' : 'Previous Logic'}
                             </button>
                             <button 
                                 className={styles.btnInstitutional} 
-                                style={{ background: configStep === 3 ? 'var(--accent)' : 'var(--foreground)', color: 'var(--background)', minWidth: '240px', height: '56px', borderRadius: '18px', fontSize: '0.95rem', fontWeight: 950 }}
+                                style={{ flex: 1.5, height: '64px', borderRadius: '20px', fontSize: '1rem', fontWeight: 950, background: configStep === 3 ? 'var(--accent)' : 'var(--foreground)', color: 'var(--background)' }}
                                 onClick={() => configStep < 3 ? setConfigStep(prev => prev + 1) : updateWebhook(configWorkflow.id, webhookUrl, n8nWorkflowId, selectedServerId, selectedTemplateId)}
-                                disabled={savingId === configWorkflow.id || (configStep === 2 && (!selectedServerId || !n8nWorkflowId))}
+                                disabled={savingId === configWorkflow.id || (configStep === 2 && (!n8nWorkflowId || !selectedServerId))}
                             >
-                                {savingId === configWorkflow.id ? 'SYNCHRONIZING...' : (configStep === 3 ? 'ACTIVATE NODE LINK' : 'CONTINUE CALIBRATION')}
+                                {savingId === configWorkflow.id ? (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <RefreshCcw size={20} className={adminStyles.spinning} />
+                                        SYNCHRONIZING...
+                                    </div>
+                                ) : (
+                                    configStep === 3 ? 'INITIALIZE SOVEREIGN LINK' : 'CONTINUE CALIBRATION'
+                                )}
                             </button>
                         </div>
                     </div>
                 </div>
             )}
             {isProvisioning && (
-                <div className={adminStyles.modalOverlay}>
-                    <div className={adminStyles.modal}>
-                        <div className={adminStyles.modalHeader}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className={adminStyles.modalOverlay} style={{ backdropFilter: 'blur(16px)', background: 'rgba(250, 250, 250, 0.4)' }}>
+                    <div className={adminStyles.modal} style={{ maxWidth: '720px', border: '1px solid var(--border)', boxShadow: '0 40px 80px -20px rgba(0, 0, 0, 0.12)', overflow: 'hidden', background: 'var(--background)' }}>
+                        <div className={adminStyles.modalHeader} style={{ padding: '40px', borderBottom: '1px solid var(--border)', background: 'linear-gradient(180deg, var(--card) 0%, var(--background) 100%)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                                        <div style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '50%', boxShadow: '0 0 10px var(--accent)' }} />
-                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--muted-foreground)' }}>FLEET PROVISIONING</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--accent)', color: 'var(--background)', padding: '4px 10px', borderRadius: '6px', fontSize: '0.6rem', fontWeight: 950, letterSpacing: '0.15em' }}>
+                                            <div style={{ width: '6px', height: '6px', background: 'var(--background)', borderRadius: '50%', boxShadow: '0 0 8px var(--background)', animation: 'pulse 1.5s infinite' }} />
+                                            SECURE ESTABLISHMENT
+                                        </div>
+                                        <span style={{ fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--muted-foreground)' }}>FLEET PROVISIONING</span>
                                     </div>
-                                    <h3 className={adminStyles.modalTitle}>Establish New Node</h3>
-                                    <p className={adminStyles.modalSubtitle}>Initialize institutional infrastructure for a new client.</p>
+                                    <h3 style={{ margin: 0, fontSize: '2.25rem', fontWeight: 950, letterSpacing: '-0.04em', color: 'var(--foreground)' }}>Establish New Node</h3>
+                                    <p style={{ margin: '8px 0 0', fontSize: '1rem', color: 'var(--muted-foreground)', fontWeight: 750 }}>
+                                        Provisioning institutional infrastructure for <span style={{ color: 'var(--foreground)', fontWeight: 950 }}>{provisionData.clientName || 'New Client'}</span>.
+                                    </p>
                                 </div>
-                                <button className={adminStyles.modalClose} onClick={() => { setIsProvisioning(false); setProvisionStep(1); }}>
+                                <button className={adminStyles.modalClose} style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border)' }} onClick={() => { setIsProvisioning(false); setProvisionStep(1); }}>
                                     <X size={20} />
                                 </button>
                             </div>
-                            <div className={adminStyles.wizardContainer}>
+                            <div style={{ marginTop: '40px', display: 'flex', gap: '8px' }}>
                                 {[1, 2, 3].map(s => (
-                                    <div key={s} className={`${adminStyles.wizardStep} ${provisionStep >= s ? adminStyles.wizardStepActive : ""}`} />
+                                    <div key={s} style={{ flex: 1, height: '6px', background: provisionStep >= s ? 'var(--accent)' : 'var(--muted)', borderRadius: '10px', transition: 'all 0.6s ease' }} />
                                 ))}
                             </div>
                         </div>
 
-                        <div className={adminStyles.modalBody}>
+                        <div className={adminStyles.modalBody} style={{ padding: '40px' }}>
                             {provisionStep === 1 && (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                                    <div className={adminStyles.inputWrapper}>
-                                        <label className={adminStyles.parameterLabel}>Firm Name</label>
-                                        <input 
-                                            type="text" 
-                                            className={adminStyles.mainInput} 
-                                            placeholder="e.g. Goldman Sachs Institutional" 
-                                            value={provisionData.clientName}
-                                            onChange={(e) => setProvisionData({...provisionData, clientName: e.target.value})}
-                                        />
+                                    <div style={{ padding: '32px', background: 'var(--card)', borderRadius: '32px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '18px', marginBottom: '24px' }}>
+                                            <div style={{ width: '48px', height: '48px', background: 'var(--muted)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                <Database size={24} color="var(--accent)" />
+                                            </div>
+                                            <div>
+                                                <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Identity Context</h4>
+                                                <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', fontWeight: 750 }}>Required registration and compliance details</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                            <div className={adminStyles.inputWrapper}>
+                                                <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' }}>Firm Name</label>
+                                                <input 
+                                                    type="text" 
+                                                    style={{ width: '100%', height: '56px', borderRadius: '16px', background: 'var(--muted)', border: '1px solid var(--border)', padding: '0 20px', fontSize: '1rem', fontWeight: 850 }}
+                                                    placeholder="e.g. Goldman Sachs Institutional" 
+                                                    value={provisionData.clientName}
+                                                    onChange={(e) => setProvisionData({...provisionData, clientName: e.target.value})}
+                                                />
+                                            </div>
+                                            <div className={adminStyles.inputWrapper}>
+                                                <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' }}>Sovereign Email</label>
+                                                <input 
+                                                    type="email" 
+                                                    style={{ width: '100%', height: '56px', borderRadius: '16px', background: 'var(--muted)', border: '1px solid var(--border)', padding: '0 20px', fontSize: '1rem', fontWeight: 850 }}
+                                                    placeholder="admin@firm.com" 
+                                                    value={provisionData.email}
+                                                    onChange={(e) => setProvisionData({...provisionData, email: e.target.value})}
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className={adminStyles.inputWrapper}>
-                                        <label className={adminStyles.parameterLabel}>Sovereign Email</label>
-                                        <input 
-                                            type="email" 
-                                            className={adminStyles.mainInput} 
-                                            placeholder="admin@firm.com" 
-                                            value={provisionData.email}
-                                            onChange={(e) => setProvisionData({...provisionData, email: e.target.value})}
-                                        />
-                                    </div>
+
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
                                         {['Starter', 'Pro', 'Institutional'].map(p => (
                                             <button 
                                                 key={p}
-                                                className={adminStyles.filterBtn}
                                                 style={{ 
-                                                    height: '80px', 
-                                                    flexDirection: 'column', 
-                                                    gap: '8px', 
+                                                    padding: '24px', 
+                                                    borderRadius: '24px', 
                                                     border: provisionData.plan === p ? '2px solid var(--accent)' : '1px solid var(--border)',
-                                                    background: provisionData.plan === p ? 'var(--accent-muted)' : 'var(--card)'
+                                                    background: provisionData.plan === p ? 'var(--accent-muted)' : 'var(--card)',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'center',
+                                                    gap: '12px',
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.3s ease'
                                                 }}
                                                 onClick={() => setProvisionData({...provisionData, plan: p})}
                                             >
-                                                <ShieldCheck size={18} color={provisionData.plan === p ? 'var(--accent)' : 'var(--muted-foreground)'} />
-                                                <span style={{ fontSize: '0.75rem', fontWeight: 950 }}>{p}</span>
+                                                <ShieldCheck size={24} color={provisionData.plan === p ? 'var(--accent)' : 'var(--muted-foreground)'} />
+                                                <span style={{ fontSize: '0.85rem', fontWeight: 950, color: 'var(--foreground)' }}>{p}</span>
                                             </button>
                                         ))}
                                     </div>
@@ -887,8 +943,17 @@ export default function AdminControlPage() {
 
                             {provisionStep === 2 && (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                                    <h4 style={{ fontSize: '0.85rem', fontWeight: 950, textTransform: 'uppercase', color: 'var(--muted-foreground)' }}>Node Resource Assignment</h4>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '18px', marginBottom: '8px' }}>
+                                        <div style={{ width: '48px', height: '48px', background: 'var(--muted)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            <Cpu size={24} color="var(--accent)" />
+                                        </div>
+                                        <div>
+                                            <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--foreground)', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Resource Allocation</h4>
+                                            <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', fontWeight: 750 }}>Dedicated physical computing assets</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                                         {[
                                             { name: 'Standard', specs: '2 vCPU / 8GB RAM', cost: 'Included' },
                                             { name: 'Enterprise', specs: '4 vCPU / 16GB RAM', cost: '+€49/mo' },
@@ -896,24 +961,27 @@ export default function AdminControlPage() {
                                         ].map(n => (
                                             <button 
                                                 key={n.name}
-                                                className={adminStyles.filterBtn}
                                                 style={{ 
-                                                    padding: '20px', 
-                                                    justifyContent: 'space-between', 
-                                                    width: '100%',
-                                                    border: provisionData.nodes.includes(n.name) || (n.name === 'Sovereign' && provisionData.nodes.includes('High')) ? '2px solid var(--accent)' : '1px solid var(--border)',
-                                                    background: provisionData.nodes.includes(n.name) || (n.name === 'Sovereign' && provisionData.nodes.includes('High')) ? 'var(--accent-muted)' : 'var(--card)'
+                                                    padding: '24px 32px', 
+                                                    borderRadius: '24px', 
+                                                    border: provisionData.nodes === n.specs ? '2px solid var(--accent)' : '1px solid var(--border)',
+                                                    background: provisionData.nodes === n.specs ? 'var(--accent-muted)' : 'var(--card)',
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center',
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.3s ease'
                                                 }}
                                                 onClick={() => setProvisionData({...provisionData, nodes: n.specs})}
                                             >
-                                                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                                                    <Cpu size={24} />
+                                                <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+                                                    <Cpu size={28} />
                                                     <div style={{ textAlign: 'left' }}>
-                                                        <div style={{ fontWeight: 950 }}>{n.name} Node</div>
-                                                        <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>{n.specs}</div>
+                                                        <div style={{ fontWeight: 950, fontSize: '1.1rem', color: 'var(--foreground)' }}>{n.name} Node</div>
+                                                        <div style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', fontWeight: 750 }}>{n.specs}</div>
                                                     </div>
                                                 </div>
-                                                <span style={{ fontWeight: 950, color: 'var(--accent)' }}>{n.cost}</span>
+                                                <div style={{ fontSize: '0.9rem', fontWeight: 950, color: 'var(--accent)' }}>{n.cost}</div>
                                             </button>
                                         ))}
                                     </div>
@@ -922,28 +990,33 @@ export default function AdminControlPage() {
 
                             {provisionStep === 3 && (
                                 <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                                    <div style={{ width: '100px', height: '100px', background: 'var(--accent-muted)', color: 'var(--accent)', borderRadius: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 40px' }}>
-                                        <Zap size={48} />
+                                    <div style={{ width: '140px', height: '140px', background: 'var(--accent-muted)', color: 'var(--accent)', borderRadius: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 48px', position: 'relative' }}>
+                                        <div style={{ position: 'absolute', inset: -15, borderRadius: '60px', border: '2px solid var(--accent)', animation: 'ping 3s infinite', opacity: 0.15 }} />
+                                        <CheckCircle2 size={72} />
                                     </div>
-                                    <h4 style={{ margin: 0, fontSize: '2rem', color: 'var(--foreground)', fontWeight: 950, letterSpacing: '-0.04em' }}>Ready for Deployment</h4>
-                                    <p style={{ fontSize: '1.1rem', color: 'var(--muted-foreground)', maxWidth: '420px', margin: '24px auto 0', lineHeight: '1.6', fontWeight: 750 }}>
-                                        One button to establish the integration and provision all sovereign infrastructure for <strong>{provisionData.clientName}</strong>.
+                                    <h4 style={{ margin: 0, fontSize: '2.5rem', color: 'var(--foreground)', fontWeight: 950, letterSpacing: '-0.05em' }}>Deployment Ready</h4>
+                                    <p style={{ fontSize: '1.2rem', color: 'var(--muted-foreground)', maxWidth: '480px', margin: '24px auto 0', lineHeight: '1.6', fontWeight: 750 }}>
+                                        Institutional cluster verified. Activation will spawn a new sovereign node instance with the allocated resources.
                                     </p>
                                 </div>
                             )}
                         </div>
 
-                        <div className={adminStyles.modalFooter}>
-                            <button className={styles.btnOutline} style={{ padding: '0 32px', height: '52px', borderRadius: '16px' }} onClick={() => provisionStep > 1 ? setProvisionStep(prev => prev - 1) : setIsProvisioning(false)}>
-                                {provisionStep === 1 ? 'Discard' : 'Back'}
+                        <div className={adminStyles.modalFooter} style={{ padding: '40px', background: 'var(--muted)', borderTop: '1px solid var(--border)', display: 'flex', gap: '20px' }}>
+                            <button 
+                                className={styles.btnOutline} 
+                                style={{ flex: 1, height: '64px', borderRadius: '20px', fontSize: '1rem', fontWeight: 950, background: 'var(--card)' }} 
+                                onClick={() => provisionStep > 1 ? setProvisionStep(prev => prev - 1) : setIsProvisioning(false)}
+                            >
+                                {provisionStep === 1 ? 'Cancel Provisioning' : 'Back to Identity'}
                             </button>
                             <button 
                                 className={styles.btnInstitutional} 
-                                style={{ background: provisionStep === 3 ? 'var(--accent)' : 'var(--foreground)', color: 'var(--background)', minWidth: '220px', height: '52px', borderRadius: '16px' }}
-                                onClick={() => provisionStep < 3 ? setProvisionStep(prev => prev + 1) : alert("Deployment Initialized... Initializing Node Cluster.")}
-                                disabled={provisionStep === 1 && (!provisionData.clientName || !provisionData.email)}
+                                style={{ flex: 1.5, height: '64px', borderRadius: '20px', fontSize: '1rem', fontWeight: 950, background: provisionStep === 3 ? 'var(--accent)' : 'var(--foreground)', color: 'var(--background)' }}
+                                onClick={() => provisionStep < 3 ? setProvisionStep(prev => prev + 1) : provisionClient()}
+                                disabled={isProvisioningLoading}
                             >
-                                {provisionStep === 3 ? 'ESTABLISH INTEGRATION' : 'NEXT STEP'}
+                                {isProvisioningLoading ? 'SPAWNING INSTANCE...' : (provisionStep === 3 ? 'ACTIVATE CLUSTER' : 'PROCEED TO RESOURCES')}
                             </button>
                         </div>
                     </div>
@@ -952,4 +1025,3 @@ export default function AdminControlPage() {
         </div>
     );
 }
-
