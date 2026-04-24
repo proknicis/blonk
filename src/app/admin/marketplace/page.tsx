@@ -22,7 +22,13 @@ import {
     Euro,
     ShoppingCart,
     BarChart,
-    X
+    X,
+    Clock,
+    MousePointer2,
+    Database,
+    ChevronDown,
+    ArrowUp,
+    ArrowDown
 } from "lucide-react";
 
 import { Skeleton } from "../../components/Skeleton";
@@ -41,140 +47,67 @@ export default function MarketplaceManagementPage() {
         totalRevenue: 0,
         avgConversion: 0
     });
-
     const [previewingTemplate, setPreviewingTemplate] = useState<any>(null);
     const [isPreviewLoading, setIsPreviewLoading] = useState(false);
 
     useEffect(() => {
         fetchTemplates();
-        const script = document.createElement("script");
-        script.src = "/n8n-demo.js";
-        script.type = "module";
-        script.async = true;
-        document.body.appendChild(script);
-        return () => { document.body.removeChild(script); };
     }, []);
 
     const fetchTemplates = async () => {
+        setIsLoading(true);
         try {
             const res = await fetch('/api/admin/templates');
-            const data = await res.json();
-            if (Array.isArray(data)) {
+            if (res.ok) {
+                const data = await res.json();
                 setTemplates(data);
-                const published = data.filter(t => t.status === 'Live').length;
-                const revenue = data.reduce((acc, t) => acc + (parseFloat(t.revenue) || 0), 0);
-                const conversions = data.map(t => parseFloat(t.conversionRate) || 0);
-                const avgConv = conversions.length > 0 ? conversions.reduce((a, b) => a + b, 0) / conversions.length : 0;
+                
+                // Calculate stats
+                const total = data.length;
+                const published = data.filter((t: any) => t.status === 'Published').length;
+                const rev = data.reduce((acc: number, t: any) => acc + (parseFloat(t.productInfo?.price || 0) * (t.installs || 0)), 0);
                 
                 setStats({
-                    total: data.length,
-                    published: published,
-                    totalRevenue: revenue,
-                    avgConversion: avgConv
+                    total,
+                    published,
+                    totalRevenue: rev,
+                    avgConversion: (published / total) * 100 || 0
                 });
             }
-        } catch (error) { console.error(error); } finally { setIsLoading(false); }
-    };
-
-    const updatePrice = async (template: any, newPrice: string) => {
-        try {
-            const res = await fetch('/api/admin/templates', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...template, price: parseFloat(newPrice) })
-            });
-            if (!res.ok) throw new Error(`Status ${res.status}`);
-            fetchTemplates();
-            setEditingPriceId(null);
-        } catch (e: any) { 
-            console.error("Price calibration failure:", e);
-            alert(`Instruction Failure: Failed to update monetization parameters. ${e.message}`);
-        }
-    };
-
-    const duplicateTemplate = async (template: any) => {
-        try {
-            const { id, createdAt, updatedAt, ...rest } = template;
-            const res = await fetch('/api/admin/templates', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...rest, name: `${rest.name} (Copy)`, status: 'Draft' })
-            });
-            if (!res.ok) throw new Error(`Status ${res.status}`);
-            alert("Success: Protocol cloned into 'Draft' state.");
-            fetchTemplates();
-        } catch (e: any) { 
-            console.error("Protocol cloning failure:", e);
-            alert(`Fleet Instruction Failure: ${e.message}`);
-        }
-    };
-
-    const toggleStatus = async (template: any, newStatus: string) => {
-        try {
-            const res = await fetch('/api/admin/templates', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...template, status: newStatus })
-            });
-            if (!res.ok) throw new Error(`Status ${res.status}`);
-            fetchTemplates();
-        } catch (e: any) { 
-            console.error("Status state mutation failure:", e);
-            alert(`Institutional Alert: Failed to transition protocol state. ${e.message}`);
+        } catch (e) {
+            console.error("Failed to fetch templates:", e);
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const deleteTemplate = async (id: string) => {
-        if (!confirm("Permanently purge this administrative protocol? This action is irreversible.")) return;
+        if (!confirm("Are you sure you want to decommission this protocol?")) return;
         try {
             const res = await fetch(`/api/admin/templates?id=${id}`, { method: 'DELETE' });
-            if (!res.ok) throw new Error(`Status ${res.status}`);
-            fetchTemplates();
-        } catch (e: any) { 
-            console.error("Protocol decommissioning failure:", e);
-            alert(`Fleet Decommissioning Failure: ${e.message}`);
-        }
+            if (res.ok) fetchTemplates();
+        } catch (e) { console.error(e); }
     };
 
     const handlePreview = (template: any) => {
-        setIsPreviewLoading(true);
         setPreviewingTemplate(template);
-        setTimeout(() => setIsPreviewLoading(false), 800);
+        setIsPreviewLoading(true);
+        setTimeout(() => setIsPreviewLoading(false), 1200);
     };
 
     const filteredTemplates = templates.filter(t => 
-        t.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        t.sector?.toLowerCase().includes(searchTerm.toLowerCase())
+        t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (t.sector && t.sector.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
     const SkeletonRow = () => (
         <tr className={adminStyles.registryRow}>
-            <td>
-                <div className={adminStyles.loopDetail}>
-                    <Skeleton width="48px" height="48px" borderRadius="14px" />
-                    <div>
-                        <Skeleton width="180px" height="20px" style={{ marginBottom: '8px' }} />
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                            <Skeleton width="80px" height="12px" />
-                            <Skeleton width="40px" height="12px" />
-                        </div>
-                    </div>
-                </div>
-            </td>
-            <td>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <Skeleton width="90px" height="18px" />
-                    <Skeleton width="110px" height="12px" />
-                </div>
-            </td>
-            <td><Skeleton width="60px" height="20px" /></td>
-            <td><Skeleton width="120px" height="32px" borderRadius="100px" /></td>
-            <td><div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}><Skeleton width="38px" height="38px" borderRadius="10px" /><Skeleton width="38px" height="38px" borderRadius="10px" /><Skeleton width="38px" height="38px" borderRadius="10px" /></div></td>
+            <td colSpan={6} style={{ padding: '32px' }}><Skeleton width="100%" height="40px" /></td>
         </tr>
     );
 
     const Sparkline = ({ data, color }: { data: number[], color: string }) => (
-        <svg width="80" height="24" viewBox="0 0 100 30" style={{ overflow: 'visible' }}>
+        <svg width="100" height="30" viewBox="0 0 100 30" style={{ overflow: 'visible' }}>
             <polyline
                 fill="none"
                 stroke={color}
@@ -272,9 +205,9 @@ export default function MarketplaceManagementPage() {
                         <thead>
                             <tr>
                                 <th className={adminStyles.registryTH}>Protocol Product</th>
-                                <th className={adminStyles.registryTH}>Commercial Status</th>
-                                <th className={adminStyles.registryTH}>Growth Pulse</th>
-                                <th className={adminStyles.registryTH}>Version</th>
+                                <th className={adminStyles.registryTH}>Commercial Terms</th>
+                                <th className={adminStyles.registryTH}>Setup Specs</th>
+                                <th className={adminStyles.registryTH}>Client Needs</th>
                                 <th className={adminStyles.registryTH}>Distribution State</th>
                                 <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Controls</th>
                             </tr>
@@ -298,55 +231,36 @@ export default function MarketplaceManagementPage() {
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                         <span style={{ fontSize: '0.65rem', fontWeight: 950, textTransform: 'uppercase', color: 'var(--muted-foreground)' }}>{t.sector || "GENERAL"}</span>
                                                         <span style={{ color: 'var(--border)' }}>•</span>
-                                                        <code style={{ fontSize: '0.65rem', color: 'var(--accent)', fontWeight: 800 }}>{String(t.id).substring(0, 8)}</code>
+                                                        <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--muted-foreground)' }}>V{t.productInfo?.version || "1.0"}</span>
                                                     </div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <div style={{ fontWeight: 950, color: 'var(--foreground)', fontSize: '1.1rem', marginBottom: '6px' }}>
-                                                {editingPriceId === t.id ? (
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                        <Euro size={16} />
-                                                        <input 
-                                                            autoFocus
-                                                            style={{ background: 'var(--muted)', border: '1px solid var(--accent)', padding: '6px 12px', borderRadius: '10px', width: '100px', color: 'var(--foreground)', fontWeight: 950, outline: 'none' }}
-                                                            value={tempPrice}
-                                                            onChange={e => setTempPrice(e.target.value)}
-                                                            onBlur={() => updatePrice(t, tempPrice)}
-                                                            onKeyDown={e => e.key === 'Enter' && updatePrice(t, tempPrice)}
-                                                        />
-                                                    </div>
-                                                ) : (
-                                                    <div onClick={() => { setEditingPriceId(t.id); setTempPrice(String(t.price || 0)); }} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                        <Euro size={18} color="#10B981" />
-                                                        {parseFloat(t.price || 0).toFixed(2)}
-                                                        <Edit3 size={12} style={{ opacity: 0.3 }} />
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 850 }}>LIFETIME: <span style={{ color: 'var(--foreground)' }}>€{(parseFloat(t.revenue) || 0).toLocaleString()}</span></div>
-                                        </td>
-                                        <td>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                                <Sparkline data={[10, 20, 15, 40, 30, 60, 55]} color="#10B981" />
-                                                <div style={{ fontSize: '0.75rem', fontWeight: 950, color: '#10B981', background: '#10B98115', padding: '4px 8px', borderRadius: '6px' }}>
-                                                    {t.conversionRate || 0}%
-                                                </div>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                <div style={{ fontSize: '1.1rem', fontWeight: 950, color: 'var(--foreground)' }}>€{t.productInfo?.price || "0"}</div>
+                                                <div style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--accent)', textTransform: 'uppercase' }}>{t.productInfo?.monetization || "ONE-TIME"}</div>
                                             </div>
                                         </td>
                                         <td>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                <code style={{ fontSize: '0.7rem', padding: '6px 10px', background: 'var(--muted)', borderRadius: '8px', fontWeight: 950, color: 'var(--foreground)' }}>v{t.version || '1.0.0'}</code>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--foreground)' }}>
+                                                <Clock size={14} style={{ opacity: 0.5 }} />
+                                                <div style={{ fontSize: '0.9rem', fontWeight: 800 }}>{t.productInfo?.setupTime || "5 min"}</div>
                                             </div>
                                         </td>
                                         <td>
-                                            <div style={{ display: "flex", alignItems: "center", gap: "10px", background: t.status === 'Live' ? '#10B98115' : 'var(--muted)', padding: '8px 16px', borderRadius: '100px', width: 'fit-content' }}>
-                                                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: t.status === 'Live' ? '#10B981' : 'var(--muted-foreground)', boxShadow: t.status === 'Live' ? '0 0 10px #10B981' : 'none' }} />
-                                                <span style={{ fontWeight: 950, fontSize: "0.7rem", color: t.status === 'Live' ? '#10B981' : 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.status === 'Live' ? 'PUBLISHED' : t.status.toUpperCase()}</span>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <div style={{ width: '8px', height: '8px', background: (t.requirements?.length > 0) ? 'var(--accent)' : 'var(--muted)', borderRadius: '50%' }} />
+                                                <div style={{ fontSize: '0.85rem', fontWeight: 800 }}>{t.requirements?.length || 0} required inputs</div>
                                             </div>
                                         </td>
                                         <td>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <div style={{ width: '10px', height: '10px', background: t.status === 'Published' ? '#10B981' : '#F59E0B', borderRadius: '50%' }} />
+                                                <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.status || 'DRAFT'}</span>
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '32px 16px' }}>
                                             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
                                                 <button className={adminStyles.actionIconBtn} onClick={() => handlePreview(t)} title="Preview Engine" style={{ width: '44px', height: '44px' }}><Eye size={18} /></button>
                                                 <button className={adminStyles.actionIconBtn} onClick={() => router.push(`/admin/marketplace/builder?id=${t.id}`)} title="Edit Configuration" style={{ width: '44px', height: '44px' }}><Edit3 size={18} /></button>
@@ -355,7 +269,7 @@ export default function MarketplaceManagementPage() {
                                         </td>
                                     </tr>
                                 ))
-                            )}
+                             )}
                         </tbody>
                     </table>
                     {!isLoading && filteredTemplates.length === 0 && (
