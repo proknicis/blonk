@@ -189,90 +189,77 @@ export default function MarketplaceManagementPage() {
     return (
         <div style={{ animation: "fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1)", display: 'flex', flexDirection: 'column', gap: '32px' }}>
             
-            {/* INTEGRITY PANEL */}
-            <div className={adminStyles.integrityPanel} style={{ background: 'var(--foreground)', color: 'var(--background)', border: 'none' }}>
+            {/* MISSION CONTROL HEADER - MARKETPLACE DISTRIBUTION */}
+            <div className={adminStyles.integrityPanel} style={{ background: 'var(--foreground)', border: 'none', padding: '40px 48px', borderRadius: '32px' }}>
                 <div className={adminStyles.integrityHub}>
                     <div style={{ position: 'relative' }}>
-                        <div style={{ width: '48px', height: '48px', background: 'var(--background)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <ShoppingCart size={24} color="var(--foreground)" className={adminStyles.pulse} />
+                        <div style={{ width: '64px', height: '64px', background: 'var(--background)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 30px rgba(255,255,255,0.1)' }}>
+                            <ShoppingCart size={32} color="var(--foreground)" />
                         </div>
-                        <div style={{ position: 'absolute', bottom: '-4px', right: '-4px', width: '16px', height: '16px', background: '#10B981', borderRadius: '50%', border: '3px solid var(--foreground)' }} />
+                        <div style={{ position: 'absolute', -8: '-8px', -8: '-8px', width: '20px', height: '20px', background: '#10B981', borderRadius: '50%', border: '4px solid var(--foreground)', boxShadow: '0 0 10px #10B981' }} />
                     </div>
                     <div>
-                        <h2 style={{ color: 'var(--background)', fontSize: '1.4rem', fontWeight: 950, margin: 0 }}>Marketplace Distribution</h2>
-                        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', margin: '4px 0 0' }}>Institutional Registry: {templates.length} provisioned protocols.</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                            <div style={{ padding: '4px 10px', background: 'var(--accent)', color: 'var(--background)', borderRadius: '6px', fontSize: '0.6rem', fontWeight: 950, letterSpacing: '0.15em' }}>SOVEREIGN ASSETS</div>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)' }}>PROTOCOL REGISTRY</span>
+                        </div>
+                        <h2 style={{ color: 'var(--background)', fontSize: '2.25rem', fontWeight: 950, letterSpacing: '-0.04em', margin: 0 }}>Marketplace Distribution</h2>
+                        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '1rem', fontWeight: 750, margin: '8px 0 0' }}>Institutional Library: <span style={{ color: 'var(--background)' }}>{templates.length} provisioned protocols</span> across global sectors.</p>
                     </div>
                 </div>
                 <div className={adminStyles.hubMetrics}>
                     <button 
                         className={adminStyles.primaryBtn}
-                        style={{ background: 'var(--background)', color: 'var(--foreground)', height: '48px', padding: '0 24px', borderRadius: '14px', border: 'none', fontWeight: 950 }}
+                        style={{ background: 'var(--background)', color: 'var(--foreground)', height: '64px', padding: '0 32px', borderRadius: '20px', border: 'none', fontWeight: 950, fontSize: '1rem', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}
                         onClick={() => router.push("/admin/marketplace/builder")}
                     >
-                        <Plus size={18} style={{ marginRight: '8px' }} /> Provision Protocol
+                        <Plus size={20} style={{ marginRight: '12px' }} /> PROVISION PROTOCOL
                     </button>
                 </div>
             </div>
 
+            {/* HIGH-FIDELITY METRICS */}
             <div className={adminStyles.metricMatrix}>
-                <div className={adminStyles.adminMetricCard}>
-                    <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>Library Assets</span>
-                        <Layers size={14} />
+                {[
+                    { label: 'Library Assets', value: stats.total, detail: 'Provisioned marketplace protocols', icon: <Layers size={20} /> },
+                    { label: 'Total Liquidity', value: `€${stats.totalRevenue.toLocaleString()}`, detail: 'Aggregate platform revenue', icon: <Euro size={20} color="var(--accent)" /> },
+                    { label: 'Avg Conversion', value: `${stats.avgConversion.toFixed(1)}%`, detail: 'Investor to operator conversion', icon: <TrendingUp size={20} color="var(--accent)" /> },
+                    { label: 'Protocol Stats', value: 'V3.4', detail: 'Sovereign encryption standards', icon: <ShieldCheck size={20} color="var(--accent)" /> }
+                ].map((m, i) => (
+                    <div key={i} className={adminStyles.adminMetricCard} style={{ padding: '40px' }}>
+                        <div className={adminStyles.metricMeta}>
+                            <span className={adminStyles.metricTag} style={{ fontSize: '0.7rem', letterSpacing: '0.15em' }}>{m.label}</span>
+                            <div style={{ width: '32px', height: '32px', background: 'var(--muted)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                {m.icon}
+                            </div>
+                        </div>
+                        <div className={adminStyles.metricAmount} style={{ fontSize: '3rem', margin: '24px 0 12px' }}>{isLoading ? <Skeleton width="80px" height="48px" /> : m.value}</div>
+                        <div className={adminStyles.metricDetail} style={{ fontSize: '0.9rem', fontWeight: 750 }}>{m.detail}</div>
                     </div>
-                    <div className={adminStyles.metricAmount}>{isLoading ? <Skeleton width="40px" height="40px" /> : stats.total}</div>
-                    <div className={adminStyles.metricDetail}>Provisioned marketplace protocols</div>
-                </div>
-
-                <div className={adminStyles.adminMetricCard}>
-                    <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>Total Liquidity</span>
-                        <Euro size={14} color="var(--accent)" />
-                    </div>
-                    <div className={adminStyles.metricAmount}>{isLoading ? <Skeleton width="40px" height="40px" /> : `€${stats.totalRevenue.toLocaleString()}`}</div>
-                    <div className={adminStyles.metricDetail}>Aggregate platform revenue</div>
-                </div>
-
-                <div className={adminStyles.adminMetricCard}>
-                    <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>Avg Conversion</span>
-                        <TrendingUp size={14} color="var(--accent)"/>
-                    </div>
-                    <div className={adminStyles.metricAmount}>{isLoading ? <Skeleton width="80px" height="40px" /> : `${stats.avgConversion.toFixed(1)}%`}</div>
-                    <div className={adminStyles.metricDetail}>Investor to operator conversion</div>
-                </div>
-
-                <div className={adminStyles.adminMetricCard}>
-                    <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>Protocol State</span>
-                        <ShieldCheck size={14} color="var(--accent)" />
-                    </div>
-                    <div className={adminStyles.metricAmount}>V3.4</div>
-                    <div className={adminStyles.metricDetail}>Sovereign encryption standards</div>
-                </div>
+                ))}
             </div>
 
-            {/* REGISTRY CARD */}
-            <div className={adminStyles.registryCard}>
-                <div className={adminStyles.registryHeader}>
-                    <div style={{ display: 'flex', gap: '8px' }}>
+            {/* DISTRIBUTION REGISTRY */}
+            <div className={adminStyles.registryCard} style={{ padding: '48px', borderRadius: '40px' }}>
+                <div className={adminStyles.registryHeader} style={{ marginBottom: '56px' }}>
+                    <div style={{ display: 'flex', gap: '10px' }}>
                         {["All", "Law", "Finance", "General", "Enterprise"].map(f => (
                             <button 
                                 key={f}
                                 type="button"
-                                style={{ padding: '8px 16px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 950, border: '1px solid var(--border)', background: 'transparent' }}
+                                style={{ padding: '10px 24px', borderRadius: '14px', fontSize: '0.75rem', fontWeight: 950, border: '1px solid var(--border)', background: 'transparent', transition: 'all 0.2s' }}
                             >
-                                {f}
+                                {f.toUpperCase()}
                             </button>
                         ))}
                     </div>
-                    <div style={{ position: 'relative' }}>
-                        <Search size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', opacity: 0.3 }} />
+                    <div style={{ position: 'relative', width: '380px' }}>
+                        <Search size={18} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', opacity: 0.4 }} />
                         <input 
                             type="text" 
                             placeholder="Filter protocols..." 
                             className={adminStyles.searchField}
-                            style={{ paddingLeft: '44px', width: '280px', height: '44px', borderRadius: '12px' }}
+                            style={{ paddingLeft: '56px', width: '100%', height: '56px', borderRadius: '16px', background: 'var(--muted)' }}
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                         />
@@ -293,68 +280,76 @@ export default function MarketplaceManagementPage() {
                         </thead>
                         <tbody>
                             {isLoading ? (
-                                <>
-                                    <SkeletonRow />
-                                    <SkeletonRow />
-                                    <SkeletonRow />
-                                </>
+                                Array(3).fill(0).map((_, i) => <SkeletonRow key={i} />)
                             ) : (
                                 filteredTemplates.map(t => (
                                     <tr key={t.id} className={adminStyles.registryRow}>
-                                        <td>
+                                        <td style={{ padding: '32px 16px' }}>
                                             <div className={adminStyles.loopDetail}>
-                                                <div className={adminStyles.loopIcon} style={{ background: 'var(--muted)', color: 'var(--foreground)' }}>
-                                                    {t.icon === 'Zap' ? <Zap size={18} /> : <Layers size={18} />}
+                                                <div style={{ width: '56px', height: '56px', background: 'var(--muted)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--foreground)', border: '1px solid var(--border)' }}>
+                                                    {t.icon === 'Zap' ? <Zap size={24} /> : <Layers size={24} />}
                                                 </div>
                                                 <div>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                        <div className={adminStyles.loopName}>{t.name}</div>
-                                                        {t.featured && <Star size={12} color="#10B981" fill="#10B981" />}
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                                        <div className={adminStyles.loopName} style={{ fontSize: '1.1rem' }}>{t.name}</div>
+                                                        {t.featured && <div style={{ background: '#10B98120', color: '#10B981', padding: '2px 6px', borderRadius: '4px', fontSize: '0.6rem', fontWeight: 950 }}>FEATURED</div>}
                                                     </div>
-                                                    <div className={adminStyles.identityHash}>{t.sector || "GENERAL"} • {t.id.substring(0, 8)}</div>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        <span style={{ fontSize: '0.65rem', fontWeight: 950, textTransform: 'uppercase', color: 'var(--muted-foreground)' }}>{t.sector || "GENERAL"}</span>
+                                                        <span style={{ color: 'var(--border)' }}>•</span>
+                                                        <code style={{ fontSize: '0.65rem', color: 'var(--accent)', fontWeight: 800 }}>{String(t.id).substring(0, 8)}</code>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <div style={{ fontWeight: 950, color: 'var(--foreground)' }}>
+                                            <div style={{ fontWeight: 950, color: 'var(--foreground)', fontSize: '1.1rem', marginBottom: '6px' }}>
                                                 {editingPriceId === t.id ? (
-                                                    <input 
-                                                        autoFocus
-                                                        style={{ background: 'var(--muted)', border: '1px solid var(--border)', padding: '4px 8px', borderRadius: '8px', width: '80px', color: 'var(--foreground)', fontWeight: 950, outline: 'none' }}
-                                                        value={tempPrice}
-                                                        onChange={e => setTempPrice(e.target.value)}
-                                                        onBlur={() => updatePrice(t, tempPrice)}
-                                                        onKeyDown={e => e.key === 'Enter' && updatePrice(t, tempPrice)}
-                                                    />
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        <Euro size={16} />
+                                                        <input 
+                                                            autoFocus
+                                                            style={{ background: 'var(--muted)', border: '1px solid var(--accent)', padding: '6px 12px', borderRadius: '10px', width: '100px', color: 'var(--foreground)', fontWeight: 950, outline: 'none' }}
+                                                            value={tempPrice}
+                                                            onChange={e => setTempPrice(e.target.value)}
+                                                            onBlur={() => updatePrice(t, tempPrice)}
+                                                            onKeyDown={e => e.key === 'Enter' && updatePrice(t, tempPrice)}
+                                                        />
+                                                    </div>
                                                 ) : (
                                                     <div onClick={() => { setEditingPriceId(t.id); setTempPrice(String(t.price || 0)); }} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                        <Euro size={14} color="#10B981" />
+                                                        <Euro size={18} color="#10B981" />
                                                         {parseFloat(t.price || 0).toFixed(2)}
+                                                        <Edit3 size={12} style={{ opacity: 0.3 }} />
                                                     </div>
                                                 )}
                                             </div>
-                                            <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>LIFETIME: €{(parseFloat(t.revenue) || 0).toLocaleString()}</div>
+                                            <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 850 }}>LIFETIME: <span style={{ color: 'var(--foreground)' }}>€{(parseFloat(t.revenue) || 0).toLocaleString()}</span></div>
                                         </td>
                                         <td>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                                                 <Sparkline data={[10, 20, 15, 40, 30, 60, 55]} color="#10B981" />
-                                                <div style={{ fontSize: '0.7rem', fontWeight: 950, color: '#10B981' }}>{t.conversionRate || 0}%</div>
+                                                <div style={{ fontSize: '0.75rem', fontWeight: 950, color: '#10B981', background: '#10B98115', padding: '4px 8px', borderRadius: '6px' }}>
+                                                    {t.conversionRate || 0}%
+                                                </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <code style={{ fontSize: '0.65rem', padding: '4px 8px', background: 'var(--muted)', borderRadius: '6px', fontWeight: 950 }}>v{t.version || '1.0.0'}</code>
-                                        </td>
-                                        <td>
-                                            <div style={{ display: "flex", alignItems: "center", gap: "10px", background: t.status === 'Live' ? '#10B98115' : '#94A3B815', padding: '6px 14px', borderRadius: '100px', width: 'fit-content' }}>
-                                                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: t.status === 'Live' ? '#10B981' : '#94A3B8' }} />
-                                                <span style={{ fontWeight: 950, fontSize: "0.7rem", color: t.status === 'Live' ? '#10B981' : '#94A3B8', textTransform: 'uppercase' }}>{t.status}</span>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <code style={{ fontSize: '0.7rem', padding: '6px 10px', background: 'var(--muted)', borderRadius: '8px', fontWeight: 950, color: 'var(--foreground)' }}>v{t.version || '1.0.0'}</code>
                                             </div>
                                         </td>
                                         <td>
-                                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                <button className={adminStyles.actionIconBtn} onClick={() => handlePreview(t)} title="Preview Engine"><Eye size={16} /></button>
-                                                <button className={adminStyles.actionIconBtn} onClick={() => router.push(`/admin/marketplace/builder?id=${t.id}`)} title="Edit Configuration"><Edit3 size={16} /></button>
-                                                <button className={adminStyles.actionIconBtn} style={{ color: '#EF4444' }} onClick={() => deleteTemplate(t.id)} title="Decommission Protocol"><Trash2 size={16} /></button>
+                                            <div style={{ display: "flex", alignItems: "center", gap: "10px", background: t.status === 'Live' ? '#10B98115' : 'var(--muted)', padding: '8px 16px', borderRadius: '100px', width: 'fit-content' }}>
+                                                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: t.status === 'Live' ? '#10B981' : 'var(--muted-foreground)', boxShadow: t.status === 'Live' ? '0 0 10px #10B981' : 'none' }} />
+                                                <span style={{ fontWeight: 950, fontSize: "0.7rem", color: t.status === 'Live' ? '#10B981' : 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.status === 'Live' ? 'PUBLISHED' : t.status.toUpperCase()}</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                                                <button className={adminStyles.actionIconBtn} onClick={() => handlePreview(t)} title="Preview Engine" style={{ width: '44px', height: '44px' }}><Eye size={18} /></button>
+                                                <button className={adminStyles.actionIconBtn} onClick={() => router.push(`/admin/marketplace/builder?id=${t.id}`)} title="Edit Configuration" style={{ width: '44px', height: '44px' }}><Edit3 size={18} /></button>
+                                                <button className={adminStyles.actionIconBtn} style={{ width: '44px', height: '44px', color: '#EF4444', border: '1px solid #EF444420' }} onClick={() => deleteTemplate(t.id)} title="Decommission Protocol"><Trash2 size={18} /></button>
                                             </div>
                                         </td>
                                     </tr>
@@ -363,10 +358,12 @@ export default function MarketplaceManagementPage() {
                         </tbody>
                     </table>
                     {!isLoading && filteredTemplates.length === 0 && (
-                        <div className={adminStyles.emptyState}>
-                             <div className={adminStyles.emptyIcon}><ShoppingCart size={64} /></div>
-                             <p style={{ fontWeight: 950, color: 'var(--foreground)', fontSize: '1.25rem' }}>No protocols provisioned.</p>
-                             <p style={{ color: 'var(--muted-foreground)', fontWeight: 700, marginTop: '8px' }}>Provision your first protocol in the Builder above.</p>
+                        <div className={adminStyles.emptyState} style={{ padding: '160px 48px' }}>
+                             <div style={{ width: '100px', height: '100px', background: 'var(--muted)', borderRadius: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '32px' }}>
+                                <ShoppingCart size={48} color="var(--muted-foreground)" />
+                             </div>
+                             <p style={{ fontWeight: 950, color: 'var(--foreground)', fontSize: '1.5rem', letterSpacing: '-0.02em' }}>No protocols provisioned.</p>
+                             <p style={{ color: 'var(--muted-foreground)', fontWeight: 750, marginTop: '12px', maxWidth: '320px', lineHeight: 1.6 }}>Deploy your first administrative protocol using the Builder above.</p>
                         </div>
                     )}
                 </div>
@@ -374,32 +371,32 @@ export default function MarketplaceManagementPage() {
 
             {/* PROTOCOL PREVIEW MODAL */}
             {previewingTemplate && (
-                <div className={adminStyles.modalOverlay} onClick={() => setPreviewingTemplate(null)}>
-                    <div className={adminStyles.modal} style={{ maxWidth: '1000px' }} onClick={e => e.stopPropagation()}>
-                        <div className={adminStyles.modalHeader} style={{ padding: '32px 48px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className={adminStyles.modalOverlay} style={{ backdropFilter: 'blur(16px)', background: 'rgba(250, 250, 250, 0.4)' }} onClick={() => setPreviewingTemplate(null)}>
+                    <div className={adminStyles.modal} style={{ maxWidth: '1100px', border: '1px solid var(--border)', boxShadow: '0 40px 80px -20px rgba(0, 0, 0, 0.12)' }} onClick={e => e.stopPropagation()}>
+                        <div className={adminStyles.modalHeader} style={{ padding: '40px 48px', borderBottom: '1px solid var(--border)', background: 'linear-gradient(180deg, var(--card) 0%, var(--background) 100%)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                                        <div style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '50%', boxShadow: '0 0 10px var(--accent)' }} />
-                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--muted-foreground)' }}>Protocol Preview</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px' }}>
+                                        <div style={{ background: 'var(--accent)', color: 'var(--background)', padding: '4px 10px', borderRadius: '6px', fontSize: '0.6rem', fontWeight: 950, letterSpacing: '0.15em' }}>LIVE PREVIEW</div>
+                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--muted-foreground)' }}>PROTOCOL VISUALIZATION</span>
                                     </div>
-                                    <h3 className={adminStyles.modalTitle} style={{ fontSize: '1.75rem' }}>{previewingTemplate.name}</h3>
-                                    <p className={adminStyles.modalSubtitle}>Sovereign n8n Workflow Visualization</p>
+                                    <h3 style={{ margin: 0, fontSize: '2.25rem', fontWeight: 950, letterSpacing: '-0.04em', color: 'var(--foreground)' }}>{previewingTemplate.name}</h3>
+                                    <p style={{ margin: '8px 0 0', fontSize: '1rem', color: 'var(--muted-foreground)', fontWeight: 750 }}>Sovereign Orchestration Logic for <span style={{ color: 'var(--foreground)' }}>{previewingTemplate.sector || "General"}</span> operations.</p>
                                 </div>
-                                <button className={adminStyles.refreshBtn} onClick={() => setPreviewingTemplate(null)} style={{ border: 'none', background: 'var(--muted)' }}>
-                                    <Plus size={20} style={{ transform: 'rotate(45deg)' }} />
+                                <button className={adminStyles.modalClose} style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setPreviewingTemplate(null)}>
+                                    <X size={20} />
                                 </button>
                             </div>
                         </div>
 
-                        <div className={adminStyles.modalBody} style={{ padding: '0', position: 'relative', height: '600px', background: '#FAFAFA' }}>
+                        <div className={adminStyles.modalBody} style={{ padding: '0', position: 'relative', height: '640px', background: 'var(--background)' }}>
                             {isPreviewLoading ? (
-                                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--card)', zIndex: 10 }}>
-                                    <RefreshCcw size={40} className={styles.spinning} color="var(--accent)" />
-                                    <p style={{ marginTop: '24px', fontWeight: 950, color: 'var(--foreground)', letterSpacing: '-0.02em' }}>Initializing Preview Engine...</p>
+                                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--background)', zIndex: 10 }}>
+                                    <RefreshCcw size={48} className={adminStyles.spinning} color="var(--accent)" />
+                                    <p style={{ marginTop: '24px', fontWeight: 950, color: 'var(--foreground)', letterSpacing: '-0.02em', textTransform: 'uppercase', fontSize: '0.8rem' }}>Initializing Visualization Engine...</p>
                                 </div>
                             ) : (
-                                <div style={{ width: '100%', height: '100%', borderRadius: '0 0 40px 40px', overflow: 'hidden', boxShadow: 'inset 0 0 40px rgba(0,0,0,0.05)' }}>
+                                <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
                                     {/* @ts-ignore */}
                                     <n8n-demo 
                                         workflow={JSON.stringify(typeof previewingTemplate.workflow === 'string' ? JSON.parse(previewingTemplate.workflow) : (previewingTemplate.workflow || { 
@@ -410,15 +407,17 @@ export default function MarketplaceManagementPage() {
                                             ]
                                         }))}
                                     />
-                                    {/* Fallback if logic requires it */}
-                                    <noscript>Preview not available</noscript>
                                 </div>
                             )}
                         </div>
                         
-                        <div className={adminStyles.modalFooter} style={{ padding: '24px 48px' }}>
-                             <button className={adminStyles.refreshBtn} style={{ width: 'auto', padding: '0 32px', height: '52px', borderRadius: '16px', background: 'var(--foreground)', color: 'var(--background)' }} onClick={() => router.push(`/admin/marketplace/builder?id=${previewingTemplate.id}`)}>
-                                Edit Configuration
+                        <div className={adminStyles.modalFooter} style={{ padding: '32px 48px', background: 'var(--muted)' }}>
+                             <button 
+                                className={adminStyles.primaryBtn} 
+                                style={{ height: '64px', padding: '0 40px', borderRadius: '20px' }} 
+                                onClick={() => router.push(`/admin/marketplace/builder?id=${previewingTemplate.id}`)}
+                            >
+                                EDIT PROTOCOL CONFIGURATION
                             </button>
                         </div>
                     </div>

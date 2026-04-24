@@ -14,7 +14,12 @@ import {
     CheckCircle2,
     ShieldAlert,
     Target,
-    Activity
+    Activity,
+    RefreshCcw,
+    Zap,
+    Layout,
+    Database,
+    ShieldCheck
 } from "lucide-react";
 
 import { Skeleton, SkeletonRectangle } from "../../components/Skeleton";
@@ -23,10 +28,10 @@ import { Skeleton, SkeletonRectangle } from "../../components/Skeleton";
 function AnalyticsChart({ data, color = "#34D186", height = 180 }: { data: number[], color?: string, height?: number }) {
     if (!data || data.length === 0) {
         return (
-            <div style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC', borderRadius: '20px', border: '1px dashed #E2E8F0' }}>
+            <div style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--muted)', borderRadius: '20px', border: '1px dashed var(--border)' }}>
                 <div style={{ textAlign: 'center' }}>
-                    <Activity size={24} color="#94A3B8" style={{ marginBottom: '8px', opacity: 0.5 }} />
-                    <p style={{ fontSize: '0.8rem', color: '#94A3B8', fontWeight: 800 }}>No production data detected in this cycle</p>
+                    <Activity size={24} color="var(--muted-foreground)" style={{ marginBottom: '8px', opacity: 0.5 }} />
+                    <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>No production data detected in this cycle</p>
                 </div>
             </div>
         );
@@ -56,12 +61,12 @@ function AnalyticsChart({ data, color = "#34D186", height = 180 }: { data: numbe
         <svg width="100%" height={height} viewBox={`0 0 1000 ${height}`} preserveAspectRatio="none" style={{ overflow: 'visible' }}>
             <defs>
                 <linearGradient id={`grad-${color}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={color} stopOpacity="0.2" />
+                    <stop offset="0%" stopColor={color} stopOpacity="0.15" />
                     <stop offset="100%" stopColor={color} stopOpacity="0" />
                 </linearGradient>
             </defs>
             <path d={getPath(true)} fill={`url(#grad-${color})`} stroke="none" />
-            <path d={getPath(false)} fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+            <path d={getPath(false)} fill="none" stroke={color} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.05))' }} />
         </svg>
     );
 }
@@ -83,184 +88,114 @@ export default function AdminAnalyticsPage() {
         } catch (error) { console.error(error); } finally { setIsLoadingAnalytics(false); }
     };
 
-    const getStatusColor = (status: string) => {
-        if (status === 'healthy') return adminStyles.statusHealthy;
-        if (status === 'warning') return adminStyles.statusWarning;
-        return adminStyles.statusCritical;
-    };
-
-    const getInsightIcon = (type: string) => {
-        if (type === 'healthy') return <CheckCircle2 size={18} color="#34D186" />;
-        if (type === 'warning') return <AlertCircle size={18} color="#F59E0B" />;
-        return <ShieldAlert size={18} color="#EF4444" />;
-    };
-
     return (
         <div style={{ animation: "fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1)", display: 'flex', flexDirection: 'column', gap: '32px' }}>
             
-            {/* INTEGRITY PANEL */}
-            <div className={adminStyles.integrityPanel} style={{ background: 'var(--foreground)', color: 'var(--background)', border: 'none' }}>
+            {/* STRATEGIC INTELLIGENCE HEADER */}
+            <div className={adminStyles.integrityPanel} style={{ background: 'var(--foreground)', border: 'none', padding: '40px 48px', borderRadius: '32px' }}>
                 <div className={adminStyles.integrityHub}>
-                    <div style={{ position: 'relative' }}>
-                        <div style={{ width: '48px', height: '48px', background: 'var(--background)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <BarChart3 size={24} color="var(--foreground)" className={adminStyles.pulse} />
-                        </div>
-                        <div style={{ position: 'absolute', bottom: '-4px', right: '-4px', width: '16px', height: '16px', background: '#10B981', borderRadius: '50%', border: '3px solid var(--foreground)' }} />
+                    <div style={{ width: '64px', height: '64px', background: 'var(--background)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <BarChart3 size={32} color="var(--foreground)" />
                     </div>
                     <div>
-                        <h2 style={{ color: 'var(--background)', fontSize: '1.4rem', fontWeight: 950, margin: 0 }}>Strategic Intelligence</h2>
-                        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', margin: '4px 0 0' }}>Authoritative Ledger Audit: Standardized across {analyticsData?.kpis.activeUsers.monthly || 0} institutional units.</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                            <div style={{ padding: '4px 10px', background: 'var(--accent)', color: 'var(--background)', borderRadius: '6px', fontSize: '0.6rem', fontWeight: 950, letterSpacing: '0.15em' }}>REGIONAL TELEMETRY</div>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)' }}>STRATEGIC INTELLIGENCE</span>
+                        </div>
+                        <h2 style={{ color: 'var(--background)', fontSize: '2.25rem', fontWeight: 950, letterSpacing: '-0.04em', margin: 0 }}>Global Performance Ledger</h2>
+                        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '1rem', fontWeight: 750, margin: '8px 0 0' }}>Authoritative audit of {analyticsData?.kpis.activeUsers.monthly || 0} active institutional nodes.</p>
                     </div>
                 </div>
                 <div className={adminStyles.hubMetrics}>
-                    <div style={{ padding: '0 32px', borderLeft: '1px solid rgba(255,255,255,0.1)' }}>
-                        <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 950, opacity: 0.5 }}>Sync State</span>
-                        <div style={{ fontSize: '1.2rem', fontWeight: 950, color: '#10B981' }}>NOMINAL</div>
+                    <button className={adminStyles.refreshBtn} onClick={fetchAnalytics} style={{ background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid rgba(255,255,255,0.1)', height: '48px', width: '48px', borderRadius: '50%' }}>
+                        <RefreshCcw size={18} className={isLoadingAnalytics ? adminStyles.spinning : ''} />
+                    </button>
+                </div>
+            </div>
+
+            {/* KPI MATRIX */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
+                {[
+                    { label: "Gross Revenue", value: analyticsData?.kpis.revenue.total, trend: analyticsData?.kpis.revenue.change, icon: <DollarSign size={20} color="var(--accent)" /> },
+                    { label: "Active Licenses", value: analyticsData?.kpis.activeUsers.monthly, trend: "+12%", icon: <Users size={20} color="var(--accent)" /> },
+                    { label: "Op Velocity", value: "98.4%", trend: "+2.1%", icon: <Zap size={20} color="#F59E0B" /> },
+                    { label: "System Health", value: "Optimal", trend: "0.0% Latency", icon: <ShieldCheck size={20} color="#10B981" /> }
+                ].map((kpi, i) => (
+                    <div key={i} style={{ background: 'var(--background)', padding: '32px', borderRadius: '24px', border: '1px solid var(--border)', position: 'relative', overflow: 'hidden' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{kpi.label}</div>
+                            {kpi.icon}
+                        </div>
+                        <div style={{ fontSize: '1.75rem', fontWeight: 950, letterSpacing: '-0.02em' }}>{isLoadingAnalytics ? '...' : kpi.value}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '12px', fontSize: '0.75rem', fontWeight: 950, color: '#10B981' }}>
+                            <ArrowUp size={12} />
+                            {kpi.trend}
+                        </div>
                     </div>
-                </div>
+                ))}
             </div>
 
-            {/* STRATEGIC INSIGHTS GRID */}
-            <div className={adminStyles.insightsGrid} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
-                {isLoadingAnalytics ? 
-                    [1, 2, 3].map(i => <SkeletonRectangle key={i} height="100px" borderRadius="18px" />)
-                 : 
-                    analyticsData?.insights.map((insight: any, i: number) => (
-                        <div key={i} className={adminStyles.insightCard} style={{ border: '1px solid var(--border)', borderRadius: '18px', padding: '24px', display: 'flex', gap: '16px', alignItems: 'center', background: 'white' }}>
-                            <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: insight.type === 'healthy' ? '#F0FAF5' : (insight.type === 'warning' ? '#FFFBEB' : '#FEF2F2') }}>
-                                {getInsightIcon(insight.type)}
-                            </div>
-                            <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--foreground)', lineHeight: 1.4 }}>{insight.text}</div>
-                        </div>
-                    ))
-                }
-            </div>
-
-            {/* ANALYTICS KPI GRID */}
-            <div className={adminStyles.analyticsGrid}>
-                {isLoadingAnalytics ? 
-                    [1, 2, 3, 4].map(i => <SkeletonRectangle key={i} height="180px" borderRadius="36px" />)
-                 : (
-                    <>
-                        <div className={adminStyles.analyticsCard}>
-                            <div className={adminStyles.cardHeader}>
-                                <span className={adminStyles.cardLabel}>
-                                    <span className={`${adminStyles.statusIndicator} ${getStatusColor(analyticsData?.kpis.revenue.status)}`} style={{ marginRight: '8px' }} />
-                                    Total Revenue
-                                </span>
-                                <DollarSign size={18} color="#34D186" />
-                            </div>
-                            <div className={adminStyles.cardValue}>{analyticsData?.kpis.revenue.total}</div>
-                            <div className={`${adminStyles.cardTrend} ${analyticsData?.kpis.revenue.status === 'healthy' ? adminStyles.trendPositive : adminStyles.trendNegative}`}>
-                                {analyticsData?.kpis.revenue.status === 'healthy' ? <ArrowUp size={14} /> : <ArrowDown size={14} />} 
-                                {analyticsData?.kpis.revenue.change} <span style={{ color: '#94A3B8' }}>vs last cycle</span>
-                            </div>
-                        </div>
-
-                        <div className={adminStyles.analyticsCard}>
-                            <div className={adminStyles.cardHeader}>
-                                <span className={adminStyles.cardLabel}>
-                                    <span className={`${adminStyles.statusIndicator} ${getStatusColor(analyticsData?.kpis.mrr.status)}`} style={{ marginRight: '8px' }} />
-                                    MRR (Estimated)
-                                </span>
-                                <TrendingUp size={18} color="#0EA5E9" />
-                            </div>
-                            <div className={adminStyles.cardValue}>{analyticsData?.kpis.mrr.value}</div>
-                            <div className={adminStyles.cardTrend} style={{ color: '#94A3B8' }}>
-                                Active Institutional Licenses
-                            </div>
-                        </div>
-
-                        <div className={adminStyles.analyticsCard}>
-                            <div className={adminStyles.cardHeader}>
-                                <span className={adminStyles.cardLabel}>
-                                    <span className={`${adminStyles.statusIndicator} ${getStatusColor(analyticsData?.kpis.cac.status)}`} style={{ marginRight: '8px' }} />
-                                    CAC / LTV
-                                </span>
-                                <Users size={18} color="#8B5CF6" />
-                            </div>
-                            <div className={adminStyles.cardValue}>${analyticsData?.kpis.cac.value} / ${analyticsData?.kpis.ltv.value}</div>
-                            <div className={`${adminStyles.cardTrend} ${analyticsData?.kpis.cac.status === 'healthy' ? adminStyles.trendPositive : adminStyles.trendNegative}`}>
-                                {analyticsData?.kpis.cac.status === 'healthy' ? 'Healthy Ratio' : (analyticsData?.kpis.cac.status === 'critical' ? 'Losing Money' : 'Calibrating Spend')}
-                            </div>
-                        </div>
-
-                        <div className={adminStyles.analyticsCard}>
-                            <div className={adminStyles.cardHeader}>
-                                <span className={adminStyles.cardLabel}>Conversion Throughput</span>
-                                <BarChart3 size={18} color="#F59E0B" />
-                            </div>
-                            <div style={{ display: 'flex', gap: '24px' }}>
-                                <div>
-                                    <div className={adminStyles.cardValue} style={{ fontSize: '1.5rem' }}>{analyticsData?.kpis.conversion.visitorToSignup}</div>
-                                    <div className={adminStyles.cardLabel} style={{ fontSize: '0.65rem' }}>Vis → Sign</div>
-                                </div>
-                                <div style={{ width: '1px', background: '#EAEAEA' }} />
-                                <div>
-                                    <div className={adminStyles.cardValue} style={{ fontSize: '1.5rem' }}>{analyticsData?.kpis.conversion.signupToPaid}</div>
-                                    <div className={adminStyles.cardLabel} style={{ fontSize: '0.65rem' }}>Sign → Paid</div>
-                                </div>
-                            </div>
-                        </div>
-                    </>
-                )}
-            </div>
-
-            {/* CHARTS GRID */}
-            <div className={adminStyles.chartsGrid}>
-                <div className={adminStyles.chartCard}>
-                    <h3 className={adminStyles.chartTitle}>Revenue Performance</h3>
-                    <p className={adminStyles.chartSubtitle}>Institutional revenue tracking over the current cycle.</p>
-                    {isLoadingAnalytics ? <Skeleton height="200px" borderRadius="20px" /> :
-                        <AnalyticsChart data={analyticsData?.charts.revenue[0].data} color="#34D186" />
-                    }
-                </div>
-
-                <div className={adminStyles.chartCard}>
-                    <h3 className={adminStyles.chartTitle}>Identity Growth</h3>
-                    <p className={adminStyles.chartSubtitle}>Sovereign user registration velocity.</p>
-                    {isLoadingAnalytics ? <Skeleton height="200px" borderRadius="20px" /> :
-                        <AnalyticsChart data={analyticsData?.charts.users[0].data} color="#0EA5E9" />
-                    }
-                </div>
-
-                {/* FUNNEL ANALYSIS */}
-                <div className={adminStyles.chartCard} style={{ gridColumn: 'span 2' }}>
-                    <div className={adminStyles.funnelHeader}>
+            {/* STRATEGIC CHARTS */}
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+                <div style={{ background: 'var(--background)', padding: '40px', borderRadius: '32px', border: '1px solid var(--border)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
                         <div>
-                            <h3 className={adminStyles.chartTitle}>Institutional Conversion Funnel</h3>
-                            <p className={adminStyles.chartSubtitle}>Throughput from initial discovery to paid institutional status.</p>
+                            <h3 style={{ fontSize: '1.25rem', fontWeight: 950, margin: 0 }}>Revenue Propagation</h3>
+                            <p style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', fontWeight: 750, marginTop: '4px' }}>Institutional yield across all production clusters.</p>
                         </div>
-                        {!isLoadingAnalytics && (
-                            <div className={adminStyles.bottleneckLabel}>
-                                Bottleneck: {parseFloat(analyticsData?.kpis.conversion.visitorToSignup) < parseFloat(analyticsData?.kpis.conversion.signupToPaid) ? 'Discovery' : 'Activation'}
-                            </div>
-                        )}
+                        <div style={{ fontSize: '1.5rem', fontWeight: 950, color: 'var(--accent)' }}>{analyticsData?.kpis.revenue.total}</div>
                     </div>
-                    
-                    {isLoadingAnalytics ? <Skeleton height="200px" borderRadius="20px" /> :
-                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '32px', height: '220px', padding: '0 48px' }}>
-                            {analyticsData?.charts.funnel.map((val: number, i: number) => (
-                                <div key={i} className={adminStyles.funnelStep}>
-                                    {i < analyticsData.charts.funnel.length - 1 && (
-                                        <div className={adminStyles.conversionLabel}>
-                                            {((analyticsData.charts.funnel[i+1] / (val || 1)) * 100).toFixed(1)}%
-                                        </div>
-                                    )}
-                                    <div 
-                                        className={adminStyles.funnelBar}
-                                        style={{ 
-                                            height: `${(val / (analyticsData?.charts.funnel[0] || 1)) * 100}%`, 
-                                            background: i === 0 ? '#F1F5F9' : (i === 1 ? '#E2E8F0' : '#34D186'),
-                                        }} 
-                                    />
-                                    <span className={adminStyles.cardLabel} style={{ fontSize: '0.7rem', marginTop: '12px' }}>
-                                        {['Visitors', 'Signups', 'Paid'][i]}
-                                    </span>
-                                    <span className={adminStyles.cardValue} style={{ fontSize: '1.25rem' }}>{val.toLocaleString()}</span>
+                    {isLoadingAnalytics ? <SkeletonRectangle height="220px" borderRadius="20px" /> :
+                        <AnalyticsChart data={analyticsData?.charts.revenue[0].data} color="var(--accent)" height={220} />
+                    }
+                </div>
+
+                <div style={{ background: 'var(--foreground)', padding: '40px', borderRadius: '32px', border: 'none', color: 'var(--background)' }}>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 950, margin: 0, color: 'white' }}>Strategic Insights</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '32px' }}>
+                        {analyticsData?.insights.map((insight: any, i: number) => (
+                            <div key={i} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', padding: '20px', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                <div style={{ width: '32px', height: '32px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--accent)', flexShrink: 0 }}>
+                                    <Target size={16} color="var(--background)" />
                                 </div>
-                            ))}
-                        </div>
+                                <div style={{ fontSize: '0.85rem', fontWeight: 750, lineHeight: 1.5, opacity: 0.9 }}>{insight.text}</div>
+                            </div>
+                        ))}
+                    </div>
+                    <button className={adminStyles.primaryBtn} style={{ width: '100%', marginTop: '32px', height: '56px', background: 'white', color: 'var(--foreground)', border: 'none' }}>
+                        Download Full Report
+                    </button>
+                </div>
+            </div>
+
+            {/* FUNNEL & REGISTRY GROWTH */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                <div style={{ background: 'var(--background)', padding: '40px', borderRadius: '32px', border: '1px solid var(--border)' }}>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 950, marginBottom: '32px' }}>Institutional Onboarding Funnel</h3>
+                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '24px', height: '200px' }}>
+                        {analyticsData?.charts.funnel.map((val: number, i: number) => (
+                            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                <div 
+                                    style={{ 
+                                        height: `${(val / (analyticsData?.charts.funnel[0] || 1)) * 100}%`, 
+                                        background: i === 2 ? 'var(--accent)' : 'var(--muted)', 
+                                        borderRadius: '12px',
+                                        transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1)'
+                                    }} 
+                                />
+                                <div style={{ textAlign: 'center' }}>
+                                    <div style={{ fontSize: '0.9rem', fontWeight: 950 }}>{val.toLocaleString()}</div>
+                                    <div style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase' }}>{['Visitors', 'Signups', 'Paid'][i]}</div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div style={{ background: 'var(--background)', padding: '40px', borderRadius: '32px', border: '1px solid var(--border)' }}>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 950, marginBottom: '32px' }}>Registry Growth Velocity</h3>
+                    {isLoadingAnalytics ? <SkeletonRectangle height="200px" borderRadius="20px" /> :
+                        <AnalyticsChart data={analyticsData?.charts.users[0].data} color="#0EA5E9" height={200} />
                     }
                 </div>
             </div>

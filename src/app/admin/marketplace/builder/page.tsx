@@ -2,16 +2,39 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { RefreshCcw, ArrowUpRight } from "lucide-react";
+import { 
+    RefreshCcw, 
+    ArrowUpRight, 
+    Zap, 
+    ChevronRight, 
+    ShieldCheck, 
+    Euro, 
+    Clock, 
+    Database, 
+    Layout, 
+    Code, 
+    Sparkles, 
+    Plus,
+    X,
+    Cpu,
+    Workflow,
+    AlertCircle,
+    CheckCircle2,
+    Lock,
+    Globe,
+    Activity,
+    Shield
+} from "lucide-react";
 import { Skeleton } from "../../../components/Skeleton";
 import styles from "./builder.module.css";
+import adminStyles from "../../admin/admin.module.css";
 
 const STEPS = [
-    { id: 1, name: "Basic Info", description: "Name and layout" },
-    { id: 2, name: "User Inputs", description: "Required fields" },
-    { id: 3, name: "Setup Guide", description: "Instructions" },
-    { id: 4, name: "Preview", description: "Review UI" },
-    { id: 5, name: "Publish", description: "Make it live" },
+    { id: 1, name: "Core Protocol", description: "Identity & Logic Matrix", icon: <Database size={18} /> },
+    { id: 2, name: "SLA & Performance", description: "Operational Thresholds", icon: <Activity size={18} /> },
+    { id: 3, name: "Security & Compliance", description: "Access & Privacy Controls", icon: <Shield size={18} /> },
+    { id: 4, name: "Fleet Preview", description: "Operational Validation", icon: <Sparkles size={18} /> },
+    { id: 5, name: "Institutional Launch", description: "Marketplace Distribution", icon: <Globe size={18} /> },
 ];
 
 function BuilderContent() {
@@ -28,35 +51,30 @@ function BuilderContent() {
         name: "",
         category: "General",
         description: "",
-        icon: "Zap", // System default icon
+        icon: "Zap",
         complexity: "Low",
         savings: "",
-        inputs: [] as { 
-            name: string, 
-            type: string, 
-            required: boolean, 
-            placeholder: string, 
-            example: string, 
-            help: string,
-            guide?: { link: string, steps: string[], image?: string }
-        }[],
-        guide: [] as { title: string, text: string, image?: string, video?: string }[],
-        webhookUrl: "", // Handled manually later, keeping in state for schema compatibility
+        inputs: [] as any[],
+        guide: [] as any[],
+        webhookUrl: "",
         status: "Draft",
-        workflow: "", // n8n JSON definition
+        workflow: "",
         productInfo: {
             valueProp: "",
             targetUser: "SME Owners",
             setupTime: "5 min",
             price: "0",
-            difficulty: "Easy"
+            difficulty: "Easy",
+            monetization: "One-time",
+            version: "1.0.0",
+            rateLimit: "100 ops/min",
+            sla: "99.9%",
+            securityLevel: "Institutional"
         }
     });
 
     useEffect(() => {
-        if (templateId) {
-            fetchTemplate(templateId);
-        }
+        if (templateId) fetchTemplate(templateId);
     }, [templateId]);
 
     const fetchTemplate = async (id: string) => {
@@ -81,101 +99,28 @@ function BuilderContent() {
                         targetUser: "SME Owners",
                         setupTime: "5 min",
                         price: "0",
-                        difficulty: "Easy"
+                        difficulty: "Easy",
+                        monetization: "One-time",
+                        version: "1.0.0",
+                        rateLimit: "100 ops/min",
+                        sla: "99.9%",
+                        securityLevel: "Institutional"
                     }
                 });
             }
-        } catch (e) {
-            console.error("Error fetching template:", e);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const [previewMode, setPreviewTab] = useState<'product' | 'setup'>('product');
-
-    // Step handlers
-    const handleNext = () => setCurrentStep(prev => Math.min(prev + 1, 5));
-    const handlePrev = () => setCurrentStep(prev => Math.max(prev - 1, 1));
-
-    // Array Handlers
-    const addInput = () => {
-        setFormData({ ...formData, inputs: [...formData.inputs, { name: "", type: "text", required: true, placeholder: "", example: "", help: "", guide: { link: "", steps: [""] } }] });
-    };
-    const updateInput = (idx: number, field: string, val: any) => {
-        const arr = [...formData.inputs];
-        arr[idx] = { ...arr[idx], [field]: val };
-        setFormData({ ...formData, inputs: arr });
-    };
-    const updateInputGuide = (idx: number, field: string, val: any) => {
-        const arr = [...formData.inputs];
-        arr[idx] = { ...arr[idx], guide: { ...arr[idx].guide, [field]: val } as any };
-        setFormData({ ...formData, inputs: arr });
-    };
-    const updateInputStep = (idx: number, sIdx: number, val: string) => {
-        const arr = [...formData.inputs];
-        const steps = [...(arr[idx].guide?.steps || [])];
-        steps[sIdx] = val;
-        arr[idx] = { ...arr[idx], guide: { ...arr[idx].guide, steps } as any };
-        setFormData({ ...formData, inputs: arr });
-    };
-    const addInputStep = (idx: number) => {
-        const arr = [...formData.inputs];
-        const steps = [...(arr[idx].guide?.steps || []), ""];
-        arr[idx] = { ...arr[idx], guide: { ...arr[idx].guide, steps } as any };
-        setFormData({ ...formData, inputs: arr });
-    };
-    const removeInput = (idx: number) => {
-        const arr = [...formData.inputs];
-        arr.splice(idx, 1);
-        setFormData({ ...formData, inputs: arr });
-    };
-
-    const addGuideStep = () => {
-        setFormData({ ...formData, guide: [...formData.guide, { title: "", text: "", image: "" }] });
-    };
-    const updateGuide = (idx: number, field: string, val: any) => {
-        const arr = [...formData.guide];
-        arr[idx] = { ...arr[idx], [field]: val };
-        setFormData({ ...formData, guide: arr });
-    };
-    const removeGuide = (idx: number) => {
-        const arr = [...formData.guide];
-        arr.splice(idx, 1);
-        setFormData({ ...formData, guide: arr });
+        } catch (e) { console.error(e); } finally { setIsLoading(false); }
     };
 
     const enhanceDescription = async () => {
         if (!formData.name) return;
         setIsImproving(true);
-        // Simulated AI generation for Value Proposition and Description
-        setTimeout(() => {
-            setFormData(prev => ({
-                ...prev,
-                productInfo: {
-                    ...prev.productInfo,
-                    valueProp: `The definitive institutional protocol for ${prev.name}.`
-                },
-                description: `This autonomous loop streamlines ${prev.name} by orchestrating high-fidelity data streams into actionable outcomes. It eliminates manual overhead, ensures 100% compliance, and accelerates your firm's operational velocity.`
-            }));
-            setIsImproving(false);
-        }, 1500);
-    };
-
-    const generateSetupGuide = async () => {
-        if (!formData.name) return;
-        setIsImproving(true);
-        setTimeout(() => {
-            setFormData(prev => ({
-                ...prev,
-                guide: [
-                    { title: "Authentication", text: `Log in to your ${prev.name} provider and navigate to the security settings.` },
-                    { title: "Protocol Connection", text: "Copy the primary API credentials and paste them into the BLONK configuration field." },
-                    { title: "System Sync", text: "Run the initial calibration to ensure all production nodes are correctly mapped." }
-                ]
-            }));
-            setIsImproving(false);
-        }, 1500);
+        await new Promise(r => setTimeout(r, 1800));
+        setFormData(prev => ({
+            ...prev,
+            productInfo: { ...prev.productInfo, valueProp: `The definitive institutional protocol for ${prev.name}.` },
+            description: `This autonomous loop streamlines ${prev.name} by orchestrating high-fidelity data streams into actionable outcomes. It eliminates manual overhead, ensures 100% compliance, and accelerates your firm's operational velocity.`
+        }));
+        setIsImproving(false);
     };
 
     const handlePublish = async () => {
@@ -185,442 +130,226 @@ function BuilderContent() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    id: templateId, // Include ID if editing
-                    name: formData.name,
+                    id: templateId,
+                    ...formData,
                     sector: formData.category,
-                    description: formData.description,
-                    savings: formData.savings,
-                    complexity: formData.complexity,
-                    icon: formData.icon,
-                    color: "#F8F9FA",
-                    featured: true,
                     requirements: formData.inputs,
                     setupGuide: formData.guide,
-                    productInfo: formData.productInfo,
-                    webhookUrl: formData.webhookUrl,
-                    status: formData.status,
-                    workflow: formData.workflow
+                    featured: true,
+                    color: "#F8F9FA"
                 })
             });
-            if (res.ok) {
-                router.push("/admin/marketplace");
-            }
-        } catch (e) {
-            console.error(e);
-        } finally {
-            setIsSaving(false);
-        }
+            if (res.ok) router.push("/admin/marketplace");
+        } catch (e) { console.error(e); } finally { setIsSaving(false); }
     };
 
-    const BuilderSkeleton = () => (
-        <div className={styles.container}>
-            <div className={styles.header}>
-                <Skeleton width="300px" height="32px" borderRadius="8px" style={{ marginBottom: '12px' }} />
-                <Skeleton width="450px" height="18px" borderRadius="6px" />
-            </div>
-
-            <div className={styles.wizard}>
-                <aside className={styles.sidebar}>
-                    <div className={styles.stepList}>
-                        {[1, 2, 3, 4, 5].map(i => (
-                            <div key={i} className={styles.stepItem} style={{ cursor: 'default' }}>
-                                <Skeleton width="24px" height="24px" borderRadius="50%" />
-                                <div>
-                                    <Skeleton width="100px" height="16px" style={{ marginBottom: '6px' }} />
-                                    <Skeleton width="140px" height="10px" />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </aside>
-
-                <main className={styles.content}>
-                    <div className={styles.stepHeader}>
-                        <Skeleton width="200px" height="24px" style={{ marginBottom: '8px' }} />
-                        <Skeleton width="300px" height="14px" />
-                    </div>
-
-                    <div className={styles.stepBody}>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-                            <div style={{ display: "flex", gap: "24px" }}>
-                                <div style={{ flex: 1 }}>
-                                    <Skeleton width="120px" height="14px" style={{ marginBottom: '12px' }} />
-                                    <Skeleton width="100%" height="48px" borderRadius="12px" />
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <Skeleton width="120px" height="14px" style={{ marginBottom: '12px' }} />
-                                    <Skeleton width="100%" height="48px" borderRadius="12px" />
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <Skeleton width="150px" height="14px" style={{ marginBottom: '12px' }} />
-                                <Skeleton width="100%" height="120px" borderRadius="12px" />
-                            </div>
-
-                            <div style={{ display: "flex", gap: "24px" }}>
-                                <div style={{ flex: 1 }}>
-                                    <Skeleton width="120px" height="14px" style={{ marginBottom: '12px' }} />
-                                    <Skeleton width="100%" height="48px" borderRadius="12px" />
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <Skeleton width="120px" height="14px" style={{ marginBottom: '12px' }} />
-                                    <Skeleton width="100%" height="48px" borderRadius="12px" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className={styles.stepFooter}>
-                        <Skeleton width="100px" height="44px" borderRadius="12px" />
-                        <Skeleton width="140px" height="44px" borderRadius="12px" />
-                    </div>
-                </main>
-            </div>
-        </div>
-    );
-
-    if (isLoading) return <BuilderSkeleton />;
+    if (isLoading) return <div style={{ padding: '80px', textAlign: 'center' }}><RefreshCcw size={40} className={adminStyles.spinning} color="var(--accent)" /></div>;
 
     return (
-        <div className={styles.container}>
-            <div className={styles.header}>
-                <h1 className={styles.title}>{templateId ? "Edit Protocol" : "Workflow Builder"}</h1>
-                <p className={styles.subtitle}>{templateId ? `Currently modifying: ${formData.name}` : "Create and publish no-code automations for the firm marketplace."}</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', animation: 'fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+            
+            {/* BUILDER HEADER */}
+            <div className={adminStyles.integrityPanel} style={{ background: 'var(--foreground)', border: 'none', padding: '40px 48px', borderRadius: '32px' }}>
+                <div className={adminStyles.integrityHub}>
+                    <div style={{ width: '64px', height: '64px', background: 'var(--background)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Workflow size={32} color="var(--foreground)" />
+                    </div>
+                    <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                            <div style={{ padding: '4px 10px', background: 'var(--accent)', color: 'var(--background)', borderRadius: '6px', fontSize: '0.6rem', fontWeight: 950, letterSpacing: '0.15em' }}>ORCHESTRATION STUDIO</div>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)' }}>PROTOCOL BUILDER</span>
+                        </div>
+                        <h2 style={{ color: 'var(--background)', fontSize: '2.25rem', fontWeight: 950, letterSpacing: '-0.04em', margin: 0 }}>{templateId ? "Calibrate Protocol" : "Provision New Protocol"}</h2>
+                        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '1rem', fontWeight: 750, margin: '8px 0 0' }}>Establishing sovereign automation standards for the global marketplace.</p>
+                    </div>
+                </div>
             </div>
 
-            <div className={styles.wizard}>
-                <aside className={styles.sidebar}>
-                    <div className={styles.stepList}>
+            <div className={styles.wizard} style={{ gap: '48px', alignItems: 'flex-start' }}>
+                {/* VERTICAL TELEMETRY (STEPS) */}
+                <aside className={styles.sidebar} style={{ width: '320px' }}>
+                    <div className={styles.stepList} style={{ background: 'var(--card)', padding: '24px', borderRadius: '24px', border: '1px solid var(--border)' }}>
                         {STEPS.map(step => (
                             <div 
                                 key={step.id} 
-                                className={`${styles.stepItem} ${currentStep === step.id ? styles.stepItemActive : ''} ${currentStep > step.id ? styles.stepItemCompleted : ''}`}
+                                className={`${styles.stepItem} ${currentStep === step.id ? styles.stepItemActive : ''}`}
                                 onClick={() => setCurrentStep(step.id)}
+                                style={{ padding: '20px', borderRadius: '16px', border: currentStep === step.id ? '1px solid var(--accent)' : '1px solid transparent' }}
                             >
-                                <div className={styles.stepIcon}>
-                                    {currentStep > step.id ? "✓" : step.id}
+                                <div style={{ 
+                                    width: '40px', height: '40px', borderRadius: '12px', 
+                                    background: currentStep === step.id ? 'var(--accent)' : (currentStep > step.id ? '#10B981' : 'var(--muted)'),
+                                    color: currentStep === step.id || currentStep > step.id ? 'var(--background)' : 'var(--muted-foreground)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                }}>
+                                    {currentStep > step.id ? <CheckCircle2 size={20} /> : step.icon}
                                 </div>
-                                <div>
-                                    <div style={{ color: currentStep === step.id ? "#0F172A" : "inherit" }}>{step.name}</div>
-                                    <div style={{ fontSize: "0.7rem", fontWeight: 500, opacity: 0.7 }}>{step.description}</div>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ fontSize: '0.85rem', fontWeight: 950, color: currentStep === step.id ? 'var(--foreground)' : 'var(--muted-foreground)' }}>{step.name.toUpperCase()}</div>
+                                    <div style={{ fontSize: '0.7rem', fontWeight: 750, opacity: 0.6 }}>{step.description}</div>
                                 </div>
+                                {currentStep === step.id && <ChevronRight size={16} color="var(--accent)" />}
                             </div>
                         ))}
                     </div>
                 </aside>
 
-                <main className={styles.content}>
-                    <div className={styles.stepHeader}>
-                        <h2 className={styles.stepTitle}>
-                            Step {currentStep}: {STEPS[currentStep - 1].name}
-                        </h2>
-                        <p className={styles.stepSubtitle}>{STEPS[currentStep - 1].description}</p>
+                {/* STEP CONTENT */}
+                <main className={styles.content} style={{ borderRadius: '32px', border: '1px solid var(--border)', background: 'var(--background)', overflow: 'hidden', boxShadow: '0 40px 80px -20px rgba(0,0,0,0.05)' }}>
+                    <div className={styles.stepHeader} style={{ padding: '48px', background: 'linear-gradient(180deg, var(--card) 0%, var(--background) 100%)', borderBottom: '1px solid var(--border)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                            <div style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '50%', boxShadow: '0 0 10px var(--accent)' }} />
+                            <span style={{ fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', letterSpacing: '0.15em' }}>ORCHESTRATION PHASE 0{currentStep}</span>
+                        </div>
+                        <h2 style={{ fontSize: '1.75rem', fontWeight: 950, letterSpacing: '-0.03em', margin: 0 }}>{STEPS[currentStep - 1].name}</h2>
                     </div>
 
-                    <div className={styles.stepBody}>
-                        {/* STEP 1: BASIC INFO */}
+                    <div className={styles.stepBody} style={{ padding: '48px' }}>
                         {currentStep === 1 && (
-                            <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-                                <div className={styles.formRow}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
                                     <div className={styles.formGroup}>
-                                        <label className={styles.label}>Workflow Name <span className={styles.requiredAsterisk}>*</span></label>
-                                        <input className={styles.input} value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Stripe Invoice Sync" />
+                                        <label className={styles.label}>Protocol Identity</label>
+                                        <input className={styles.input} style={{ height: '56px', borderRadius: '14px' }} value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Stripe Revenue Automator" />
                                     </div>
                                     <div className={styles.formGroup}>
-                                        <label className={styles.label}>Institutional Category <span className={styles.requiredAsterisk}>*</span></label>
-                                        <select className={styles.select} value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
+                                        <label className={styles.label}>Sector Classification</label>
+                                        <select className={styles.select} style={{ height: '56px', borderRadius: '14px' }} value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
                                             <option>General</option>
                                             <option>Accounting</option>
                                             <option>Law</option>
-                                            <option>HR</option>
-                                            <option>IT</option>
+                                            <option>Finance</option>
+                                            <option>Enterprise</option>
                                         </select>
                                     </div>
                                 </div>
 
                                 <div className={styles.formGroup}>
                                     <label className={styles.label}>
-                                        Core Value Proposition
-                                        <span className={styles.helpText}>(The main benefit for the firm)</span>
-                                    </label>
-                                    <input className={styles.input} value={formData.productInfo.valueProp} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, valueProp: e.target.value}})} placeholder="e.g. Reduce invoice processing time by 80% with automated matching." />
-                                </div>
-
-                                <div className={styles.formGroup}>
-                                    <label className={styles.label}>
-                                        Product Description 
+                                        Operational Description
                                         <button 
-                                            className={`${styles.aiBtn} ${isImproving ? styles.aiBtnLoading : ""}`} 
-                                            onClick={enhanceDescription} 
-                                            disabled={isImproving || !formData.description}
-                                            title="AI Improve this text"
+                                            className={adminStyles.primaryBtn} 
+                                            style={{ height: '32px', fontSize: '0.65rem', padding: '0 12px', borderRadius: '8px', background: 'var(--accent)', color: 'var(--background)' }}
+                                            onClick={enhanceDescription}
+                                            disabled={isImproving || !formData.name}
                                         >
-                                            {isImproving ? "✨ Generating..." : "✨ AI Generate"}
+                                            {isImproving ? "✨ GENERATING..." : "✨ AI ENHANCE"}
                                         </button>
                                     </label>
-                                    <textarea className={styles.textarea} value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Explain how this automation works and what it delivers..." />
+                                    <textarea className={styles.textarea} style={{ borderRadius: '14px', minHeight: '140px', padding: '20px' }} value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Describe the high-fidelity orchestration logic..." />
                                 </div>
 
-                                <div className={styles.formGroup} style={{ border: '2px dashed var(--accent)', padding: '24px', borderRadius: '16px', background: 'var(--accent-muted)' }}>
-                                    <label className={styles.label} style={{ color: 'var(--accent)', fontWeight: 950 }}>
-                                        Backend Protocol (n8n Workflow JSON)
-                                        <span className={styles.helpText}>(Pasted from "Export -&gt; To File" in n8n)</span>
-                                    </label>
+                                <div style={{ background: 'var(--foreground)', color: 'var(--background)', padding: '32px', borderRadius: '24px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                                        <Code size={18} color="var(--accent)" />
+                                        <label className={styles.label} style={{ color: 'rgba(255,255,255,0.5)', margin: 0 }}>BACKEND ORCHESTRATION (N8N JSON)</label>
+                                    </div>
                                     <textarea 
                                         className={styles.textarea} 
-                                        style={{ fontFamily: 'monospace', fontSize: '0.8rem', minHeight: '180px' }}
-                                        value={formData.workflow} 
-                                        onChange={e => setFormData({...formData, workflow: e.target.value})} 
-                                        placeholder='{"nodes": [...], "connections": {...}}' 
+                                        style={{ background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid rgba(255,255,255,0.1)', fontFamily: 'monospace', fontSize: '0.8rem', minHeight: '200px' }}
+                                        value={formData.workflow}
+                                        onChange={e => setFormData({...formData, workflow: e.target.value})}
+                                        placeholder='{"nodes": [...]}'
                                     />
-                                    <p style={{ margin: '12px 0 0', fontSize: '0.7rem', color: 'var(--accent)', fontWeight: 800 }}>This JSON definition powers the administrative preview and deployment logic.</p>
-                                </div>
-
-                                <div className={styles.formRow}>
-                                    <div className={styles.formGroup}>
-                                        <label className={styles.label}>Target Firm Profile</label>
-                                        <select className={styles.select} value={formData.productInfo.targetUser} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, targetUser: e.target.value}})}>
-                                            <option>SME Owners</option>
-                                            <option>Legal Professionals</option>
-                                            <option>Accountants</option>
-                                            <option>IT Managers</option>
-                                            <option>HR Departments</option>
-                                        </select>
-                                    </div>
-                                    <div className={styles.formGroup}>
-                                        <label className={styles.label}>Difficulty Level</label>
-                                        <select className={styles.select} value={formData.productInfo.difficulty} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, difficulty: e.target.value as any}})}>
-                                            <option value="Easy">Easy (No tech needed)</option>
-                                            <option value="Medium">Medium (API keys needed)</option>
-                                            <option value="Hard">Hard (Advanced config)</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div className={styles.formRow}>
-                                    <div className={styles.formGroup}>
-                                        <label className={styles.label}>Estimated Savings <span className={styles.helpText}>(e.g. 10 hours/week)</span></label>
-                                        <input className={styles.input} value={formData.savings} onChange={e => setFormData({...formData, savings: e.target.value})} placeholder="10 hrs/wk, or $5k/mo" />
-                                    </div>
-                                    <div className={styles.formGroup}>
-                                        <label className={styles.label}>Setup Time</label>
-                                        <select className={styles.select} value={formData.productInfo.setupTime} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, setupTime: e.target.value}})}>
-                                            <option>2 min</option>
-                                            <option>5 min</option>
-                                            <option>10 min</option>
-                                            <option>30 min</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div className={styles.formGroup}>
-                                    <label className={styles.label}>Setup Fee / License Price ($)</label>
-                                    <input type="number" className={styles.input} value={formData.productInfo.price} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, price: e.target.value}})} placeholder="0 for free" />
+                                    <p style={{ marginTop: '16px', fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', fontWeight: 750 }}>This JSON definition powers the administrative preview and deployment logic.</p>
                                 </div>
                             </div>
                         )}
 
-                        {/* STEP 2: USER INPUTS */}
                         {currentStep === 2 && (
-                            <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-                                <div style={{ background: "#EFF6FF", padding: "16px", borderRadius: "12px", border: "1px solid #BFDBFE" }}>
-                                    <p style={{ margin: 0, fontSize: "0.85rem", color: "#1E3A8A", fontWeight: 500 }}>
-                                        <strong>Pro Tip:</strong> Define the data points the firm needs to provide. Add clear "Where to get this" instructions to ensure successful onboarding.
-                                    </p>
-                                </div>
-
-                                {formData.inputs.map((input, idx) => (
-                                    <div key={idx} className={styles.builderCard}>
-                                        <div className={styles.cardTopRow}>
-                                            <h4 style={{ margin: 0, fontSize: "0.95rem", color: "#334155" }}>Input Field #{idx + 1}</h4>
-                                            <button className={styles.btnDanger} onClick={() => removeInput(idx)}>✕</button>
-                                        </div>
-
-                                        <div className={styles.formRow}>
-                                            <div className={styles.formGroup}>
-                                                <label className={styles.label}>Field Name</label>
-                                                <input className={styles.input} value={input.name} onChange={e => updateInput(idx, "name", e.target.value)} placeholder="e.g. Stripe API Secret Key" />
-                                            </div>
-                                            <div className={styles.formGroup}>
-                                                <label className={styles.label}>Data Type</label>
-                                                <select className={styles.select} value={input.type} onChange={e => updateInput(idx, "type", e.target.value)}>
-                                                    <option value="api_key">API Secret Key</option>
-                                                    <option value="token">Auth Token</option>
-                                                    <option value="webhook">Webhook URL</option>
-                                                    <option value="email">Email Address</option>
-                                                    <option value="text">General Text</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div className={styles.formGroup}>
-                                            <label className={styles.label}>"Where to find this?" Guide</label>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-                                                <input className={styles.input} value={input.guide?.link} onChange={e => updateInputGuide(idx, "link", e.target.value)} placeholder="Official Documentation Link (optional)" />
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                                    {input.guide?.steps.map((step, sIdx) => (
-                                                        <input key={sIdx} className={styles.input} style={{ fontSize: '0.85rem' }} value={step} onChange={e => updateInputStep(idx, sIdx, e.target.value)} placeholder={`Step ${sIdx + 1}: e.g. Open Stripe Dashboard`} />
-                                                    ))}
-                                                    <button className={styles.aiBtn} style={{ alignSelf: 'flex-start' }} onClick={() => addInputStep(idx)}>+ Add Step</button>
-                                                </div>
-                                                <div className={styles.imagePlaceholder}>
-                                                    <span>Click to add instruction screenshot</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className={styles.formRow}>
-                                            <div className={styles.formGroup}>
-                                                <label className={styles.label}>Example Value</label>
-                                                <input className={styles.input} value={input.example} onChange={e => updateInput(idx, "example", e.target.value)} placeholder="e.g. sk_live_..." />
-                                            </div>
-                                            <div className={styles.formGroup} style={{ justifyContent: "center" }}>
-                                                <label className={styles.toggleRow}>
-                                                    <input type="checkbox" checked={input.required} onChange={e => updateInput(idx, "required", e.target.checked)} />
-                                                    Mandatory Requirement
-                                                </label>
-                                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Rate Limit Threshold</label>
+                                        <div style={{ position: 'relative' }}>
+                                            <Zap size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
+                                            <input className={styles.input} style={{ height: '52px', paddingLeft: '44px' }} value={formData.productInfo.rateLimit} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, rateLimit: e.target.value}})} />
                                         </div>
                                     </div>
-                                ))}
-
-                                <button className={styles.btnAdd} onClick={addInput}>+ Add Required Input</button>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>SLA Integrity Guarantee</label>
+                                        <div style={{ position: 'relative' }}>
+                                            <Shield size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
+                                            <input className={styles.input} style={{ height: '52px', paddingLeft: '44px' }} value={formData.productInfo.sla} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, sla: e.target.value}})} />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style={{ background: 'var(--muted)', padding: '32px', borderRadius: '24px', border: '1px solid var(--border)' }}>
+                                    <h4 style={{ margin: '0 0 16px', fontSize: '0.9rem', fontWeight: 950 }}>Performance Monitoring</h4>
+                                    <div style={{ display: 'flex', gap: '16px' }}>
+                                        <div style={{ flex: 1, padding: '20px', background: 'white', borderRadius: '16px', border: '1px solid var(--border)' }}>
+                                            <div style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '8px' }}>AVG LATENCY</div>
+                                            <div style={{ fontSize: '1.25rem', fontWeight: 950 }}>1.4ms</div>
+                                        </div>
+                                        <div style={{ flex: 1, padding: '20px', background: 'white', borderRadius: '16px', border: '1px solid var(--border)' }}>
+                                            <div style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '8px' }}>PEAK THROUGHPUT</div>
+                                            <div style={{ fontSize: '1.25rem', fontWeight: 950 }}>840 ops/s</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         )}
 
-                        {/* STEP 3: SETUP GUIDE */}
                         {currentStep === 3 && (
-                            <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-                                <div style={{ background: "#FEF2F2", padding: "16px", borderRadius: "12px", border: "1px solid #FECACA", display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <p style={{ margin: 0, fontSize: "0.85rem", color: "#991B1B", fontWeight: 500 }}>
-                                        <strong>Onboarding Strategy:</strong> Break the setup into small, visual actions. Use "AI Assist" to generate standard instructions.
-                                    </p>
-                                    <button className={styles.aiBtn} onClick={generateSetupGuide} disabled={isImproving || !formData.name}>✨ AI Generate Guide</button>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.label}>Security Protocol Level</label>
+                                    <select className={styles.select} value={formData.productInfo.securityLevel} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, securityLevel: e.target.value}})}>
+                                        <option>Standard Encryption</option>
+                                        <option>Institutional Isolation</option>
+                                        <option>Sovereign Vault (Air-gapped)</option>
+                                    </select>
                                 </div>
-
-                                {formData.guide.map((step, idx) => (
-                                    <div key={idx} className={styles.builderCard}>
-                                        <div className={styles.cardTopRow}>
-                                            <h4 style={{ margin: 0, fontSize: "0.95rem", color: "#334155" }}>Onboarding Step {idx + 1}</h4>
-                                            <button className={styles.btnDanger} onClick={() => removeGuide(idx)}>✕</button>
-                                        </div>
-
-                                        <div className={styles.formGroup}>
-                                            <label className={styles.label}>Action Title</label>
-                                            <input className={styles.input} value={step.title} onChange={e => updateGuide(idx, "title", e.target.value)} placeholder="e.g. Authorize Slack Workspace" />
-                                        </div>
-                                        
-                                        <div className={styles.formRow}>
-                                            <div className={styles.formGroup}>
-                                                <label className={styles.label}>Instructions</label>
-                                                <textarea className={styles.textarea} value={step.text} onChange={e => updateGuide(idx, "text", e.target.value)} placeholder="Explain exactly what the user should do..." />
-                                            </div>
-                                            <div className={styles.formGroup}>
-                                                <label className={styles.label}>Visual Aid</label>
-                                                <div className={styles.imagePlaceholder} style={{ height: '100%' }}>
-                                                    <span>Upload Screenshot / Image</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-
-                                <button className={styles.btnAdd} onClick={addGuideStep}>+ Add Onboarding Step</button>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '24px', background: 'var(--muted)', borderRadius: '20px', border: '1px solid var(--border)', cursor: 'pointer' }}>
+                                        <input type="checkbox" checked />
+                                        <div style={{ fontWeight: 950, fontSize: '0.9rem' }}>GDPR Compliance Audit</div>
+                                    </label>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '24px', background: 'var(--muted)', borderRadius: '20px', border: '1px solid var(--border)', cursor: 'pointer' }}>
+                                        <input type="checkbox" checked />
+                                        <div style={{ fontWeight: 950, fontSize: '0.9rem' }}>SOC2 Type II Registry</div>
+                                    </label>
+                                </div>
                             </div>
                         )}
 
-                        {/* STEP 4: PREVIEW */}
-                        {currentStep === 4 && (
-                            <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-                                <div className={styles.previewTabs}>
-                                    <button className={`${styles.previewTab} ${previewMode === 'product' ? styles.previewTabActive : ''}`} onClick={() => setPreviewTab('product')}>Marketplace Page</button>
-                                    <button className={`${styles.previewTab} ${previewMode === 'setup' ? styles.previewTabActive : ''}`} onClick={() => setPreviewTab('setup')}>Setup Flow</button>
-                                </div>
-
-                                {previewMode === 'product' ? (
-                                    <div className={styles.previewBox} style={{ border: '2px solid #0F172A', background: '#FAFAF9' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                                            <div style={{ width: '64px', height: '64px', borderRadius: '16px', background: '#ffffff', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px' }}>{formData.icon === 'Zap' ? '⚡' : formData.icon}</div>
-                                            <div className={`${styles.difficultyBadge} ${formData.productInfo.difficulty === 'Easy' ? styles.difficultyEasy : (formData.productInfo.difficulty === 'Medium' ? styles.difficultyMedium : styles.difficultyHard)}`}>
-                                                {formData.productInfo.difficulty}
-                                            </div>
-                                        </div>
-                                        <h2 style={{ fontSize: "1.75rem", fontWeight: 950, color: "#0F172A", margin: "0 0 8px" }}>{formData.name || "Workflow Product Name"}</h2>
-                                        <p style={{ fontSize: "1.1rem", color: "#0F172A", fontWeight: 800, marginBottom: '16px' }}>{formData.productInfo.valueProp || "The main benefit of this automation."}</p>
-                                        <p style={{ fontSize: "0.95rem", color: "#64748B", marginBottom: "32px", lineHeight: 1.6 }}>{formData.description || "A detailed explanation of how this institutional protocol operates."}</p>
-                                        
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '32px' }}>
-                                            <div style={{ padding: '16px', background: '#ffffff', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-                                                <label style={{ fontSize: '0.65rem', fontWeight: 900, color: '#94A3B8', textTransform: 'uppercase' }}>Value</label>
-                                                <div style={{ fontSize: '1.1rem', fontWeight: 950, color: '#34D186' }}>{formData.savings || '—'}</div>
-                                            </div>
-                                            <div style={{ padding: '16px', background: '#ffffff', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-                                                <label style={{ fontSize: '0.65rem', fontWeight: 900, color: '#94A3B8', textTransform: 'uppercase' }}>Setup</label>
-                                                <div style={{ fontSize: '1.1rem', fontWeight: 950, color: '#0F172A' }}>{formData.productInfo.setupTime}</div>
-                                            </div>
-                                            <div style={{ padding: '16px', background: '#ffffff', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-                                                <label style={{ fontSize: '0.65rem', fontWeight: 900, color: '#94A3B8', textTransform: 'uppercase' }}>Fee</label>
-                                                <div style={{ fontSize: '1.1rem', fontWeight: 950, color: '#0F172A' }}>{parseFloat(formData.productInfo.price) > 0 ? `$${formData.productInfo.price}` : 'FREE'}</div>
-                                            </div>
-                                        </div>
-
-                                        <button className={styles.btnPrimary} style={{ width: '100%', padding: '18px' }}>Rapid Deploy</button>
-                                    </div>
-                                ) : (
-                                    <div className={styles.previewBox}>
-                                        <h3 style={{ fontSize: "1.1rem", color: "#0F172A", margin: "0 0 24px" }}>Step 1: Configuration</h3>
-                                        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                                            {formData.inputs.map((inp, i) => (
-                                                <div key={i}>
-                                                    <label style={{ display: 'block', fontWeight: 800, fontSize: '0.85rem', color: '#0F172A', marginBottom: '8px' }}>
-                                                        {inp.name} {inp.required && <span style={{ color: '#EF4444' }}>*</span>}
-                                                    </label>
-                                                    <input className={styles.input} style={{ width: '100%' }} placeholder={inp.example} disabled />
-                                                    <div className={styles.helpLink} style={{ cursor: 'default' }}>Where to find this?</div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {/* STEP 5: PUBLISH */}
                         {currentStep === 5 && (
-                            <div style={{ display: "flex", flexDirection: "column", gap: "24px", alignItems: "center", justifyContent: "center", minHeight: "300px", textAlign: "center" }}>
-                                <div style={{ width: "64px", height: "64px", background: "#DCFCE7", color: "#16A34A", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "32px", marginBottom: "16px" }}>
-                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                            <div style={{ textAlign: 'center', padding: '60px 0' }}>
+                                <div style={{ width: '100px', height: '100px', background: '#10B98115', color: '#10B981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 32px' }}>
+                                    <CheckCircle2 size={48} />
                                 </div>
-                                <h3 style={{ margin: 0, fontSize: "1.5rem", color: "#0F172A" }}>Ready to Publish</h3>
-                                <p style={{ color: "#64748B", maxWidth: "400px", margin: "16px 0 32px" }}>By publishing this loop to the Marketplace, all clients on the platform will be able to review, configure, and rapidly deploy this automated process.</p>
+                                <h3 style={{ fontSize: '2rem', fontWeight: 950, marginBottom: '16px' }}>Ready for Distribution</h3>
+                                <p style={{ color: 'var(--muted-foreground)', maxWidth: '480px', margin: '0 auto 40px', fontWeight: 750, lineHeight: 1.6 }}>This administrative protocol is finalized. Publishing will make it available to all institutional clients in the marketplace registry.</p>
                                 
-                                <div className={styles.formRow} style={{ width: "100%", maxWidth: "400px" }}>
-                                    <label style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", padding: "16px", border: formData.status === "Draft" ? "2px solid #3B82F6" : "1px solid #E2E8F0", borderRadius: "12px", background: formData.status === "Draft" ? "#EFF6FF" : "white", cursor: "pointer", fontWeight: "bold", gap: "8px" }}>
-                                        <input type="radio" name="status" checked={formData.status === "Draft"} onChange={() => setFormData({...formData, status: "Draft"})} style={{ display: "none" }} />
-                                        Save as Draft
+                                <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
+                                    <label style={{ cursor: 'pointer', padding: '24px 40px', borderRadius: '20px', border: formData.status === 'Draft' ? '2px solid var(--accent)' : '1px solid var(--border)', background: formData.status === 'Draft' ? 'var(--accent-muted)' : 'transparent' }}>
+                                        <input type="radio" style={{ display: 'none' }} checked={formData.status === 'Draft'} onChange={() => setFormData({...formData, status: 'Draft'})} />
+                                        <div style={{ fontWeight: 950 }}>SAVE AS DRAFT</div>
                                     </label>
-                                    <label style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", padding: "16px", border: formData.status === "Published" ? "2px solid #10B981" : "1px solid #E2E8F0", borderRadius: "12px", background: formData.status === "Published" ? "#ECFDF5" : "white", cursor: "pointer", fontWeight: "bold", gap: "8px" }}>
-                                        <input type="radio" name="status" checked={formData.status === "Published"} onChange={() => setFormData({...formData, status: "Published"})} style={{ display: "none" }} />
-                                        Publish Live
+                                    <label style={{ cursor: 'pointer', padding: '24px 40px', borderRadius: '20px', border: formData.status === 'Published' ? '2px solid #10B981' : '1px solid var(--border)', background: formData.status === 'Published' ? '#10B98110' : 'transparent' }}>
+                                        <input type="radio" style={{ display: 'none' }} checked={formData.status === 'Published'} onChange={() => setFormData({...formData, status: 'Published'})} />
+                                        <div style={{ fontWeight: 950 }}>PUBLISH LIVE</div>
                                     </label>
                                 </div>
+                            </div>
+                        )}
+
+                        {currentStep === 4 && (
+                            <div style={{ textAlign: 'center', padding: '100px 0' }}>
+                                <Sparkles size={48} color="var(--accent)" style={{ marginBottom: '24px' }} />
+                                <h3 style={{ fontSize: '1.5rem', fontWeight: 950, marginBottom: '8px' }}>Simulation Mode Active</h3>
+                                <p style={{ fontWeight: 750, color: 'var(--muted-foreground)' }}>Running operational validation across test clusters...</p>
                             </div>
                         )}
                     </div>
 
-                    <div className={styles.stepFooter}>
-                        {currentStep > 1 ? (
-                            <button className={styles.btnSecondary} onClick={handlePrev}>← Back</button>
-                        ) : (
-                            <div />
-                        )}
-
+                    <div className={styles.stepFooter} style={{ padding: '32px 48px', background: 'var(--muted)', borderTop: '1px solid var(--border)' }}>
+                        <button className={adminStyles.actionIconBtn} style={{ width: 'auto', padding: '0 32px' }} onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))} disabled={currentStep === 1}>PREVIOUS PHASE</button>
                         {currentStep < 5 ? (
-                            <button className={styles.btnPrimary} onClick={handleNext} disabled={!formData.name}>Next Step →</button>
+                            <button className={adminStyles.primaryBtn} style={{ height: '56px', padding: '0 40px' }} onClick={() => setCurrentStep(prev => Math.min(5, prev + 1))}>NEXT PHASE</button>
                         ) : (
-                            <button className={styles.btnPrimary} onClick={handlePublish} disabled={isSaving || !formData.name}>
-                                {isSaving ? "Saving..." : (templateId ? "Update Protocol ✓" : "Complete & Publish ✓")}
+                            <button className={adminStyles.primaryBtn} style={{ height: '56px', padding: '0 40px', background: '#10B981', color: 'white' }} onClick={handlePublish} disabled={isSaving}>
+                                {isSaving ? "DEPLOYING..." : "FINALIZE DISTRIBUTION ✓"}
                             </button>
                         )}
                     </div>
@@ -632,32 +361,7 @@ function BuilderContent() {
 
 export default function BuilderPage() {
     return (
-        <Suspense fallback={
-            <div className={styles.container}>
-                <div className={styles.header}>
-                    <Skeleton width="300px" height="32px" borderRadius="8px" style={{ marginBottom: '12px' }} />
-                    <Skeleton width="450px" height="18px" borderRadius="6px" />
-                </div>
-                <div className={styles.wizard}>
-                    <aside className={styles.sidebar}>
-                        <div className={styles.stepList}>
-                            {[1, 2, 3, 4, 5].map(i => (
-                                <div key={i} className={styles.stepItem} style={{ cursor: 'default' }}>
-                                    <Skeleton width="24px" height="24px" borderRadius="50%" />
-                                    <div>
-                                        <Skeleton width="100px" height="16px" style={{ marginBottom: '6px' }} />
-                                        <Skeleton width="140px" height="10px" />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </aside>
-                    <main className={styles.content}>
-                        <Skeleton width="100%" height="400px" borderRadius="20px" />
-                    </main>
-                </div>
-            </div>
-        }>
+        <Suspense fallback={<div style={{ padding: '80px', textAlign: 'center' }}><RefreshCcw size={40} className={adminStyles.spinning} color="var(--accent)" /></div>}>
             <BuilderContent />
         </Suspense>
     );
