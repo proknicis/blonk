@@ -183,7 +183,7 @@ export default function AdminControlPage() {
                     createdAt: wf.createdAt || new Date().toISOString(),
                     updatedAt: wf.updatedAt || new Date().toISOString(),
                     userTier: wf.userTier || 'Starter',
-                    workflowCount: typeof wf.userWorkflows === 'number' ? wf.userWorkflows : (Array.isArray(wf.userWorkflows) ? wf.userWorkflows.length : 0)
+                    // workflowCount is already provided correctly by the API subquery
                 }));
                 setWorkflows(processed);
             }
@@ -371,17 +371,24 @@ export default function AdminControlPage() {
                         <span className={adminStyles.metricTag}>Fleet Health</span>
                         <ShieldCheck size={14} color="var(--accent)"/>
                     </div>
-                    <div className={adminStyles.metricAmount}>98.2%</div>
+                    <div className={adminStyles.metricAmount}>
+                        {isLoadingWorkflows ? <Skeleton width="60px" height="40px" /> : (
+                            workflows.length === 0 ? "100%" : 
+                            `${Math.round(((workflows.length - workflows.filter(wf => wf.status === 'Error').length) / workflows.length) * 100)}%`
+                        )}
+                    </div>
                     <div className={adminStyles.metricDetail}>Integrity metrics aggregate</div>
                 </div>
 
                 <div className={adminStyles.adminMetricCard}>
                     <div className={adminStyles.metricMeta}>
-                        <span className={adminStyles.metricTag}>Stuck Handshakes</span>
-                        <Clock size={14} color="var(--warning)" />
+                        <span className={adminStyles.metricTag}>Autonomous Yield</span>
+                        <Zap size={14} color="var(--accent)" />
                     </div>
-                    <div className={adminStyles.metricAmount}>{workflows.filter(wf => wf.status === 'Connecting').length}</div>
-                    <div className={adminStyles.metricDetail}>Stalled connections (24h)</div>
+                    <div className={adminStyles.metricAmount}>
+                        {isLoadingWorkflows ? <Skeleton width="40px" height="40px" /> : workflows.reduce((acc, wf) => acc + (wf.tasksCount || 0), 0)}
+                    </div>
+                    <div className={adminStyles.metricDetail}>Total successful operations</div>
                 </div>
             </div>
 
@@ -459,14 +466,17 @@ export default function AdminControlPage() {
                                         <td>
                                             <div className={adminStyles.userContext}>
                                                 <div className={adminStyles.userMain} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 950, color: 'var(--accent)' }}>
+                                                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 950, color: 'var(--accent)', border: '1px solid var(--border)' }}>
                                                         {wf.workflowCount || 0}
                                                     </div>
                                                     <div>
-                                                        <div style={{ fontSize: '0.9rem', fontWeight: 950, color: 'var(--foreground)' }}>{wf.userEmail || 'Anonymous'}</div>
-                                                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                                            <code style={{ fontSize: '0.6rem', color: 'var(--muted-foreground)', fontWeight: 800, background: 'var(--muted)', padding: '2px 6px', borderRadius: '4px' }}>{String(wf.id || '').substring(0, 10)}</code>
-                                                            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--muted-foreground)', textTransform: 'uppercase' }}>{wf.userTier}</span>
+                                                        <div style={{ fontSize: '0.85rem', fontWeight: 950, color: 'var(--foreground)' }}>{wf.userEmail || 'Anonymous'}</div>
+                                                        <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginTop: '2px' }}>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--muted)', padding: '2px 6px', borderRadius: '4px' }}>
+                                                                <ShieldCheck size={10} color="var(--accent)" />
+                                                                <code style={{ fontSize: '0.55rem', color: 'var(--foreground)', fontWeight: 800 }}>{String(wf.id || '').substring(0, 12)}</code>
+                                                            </div>
+                                                            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{wf.userTier}</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -477,15 +487,16 @@ export default function AdminControlPage() {
                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                                     <div style={{ fontSize: '0.8rem', fontWeight: 950, color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                         <Server size={12} color="var(--accent)" />
-                                                        {wf.serverName}
+                                                        {String(wf.serverName).length < 3 ? `Node Cluster ${wf.serverName}` : wf.serverName}
                                                     </div>
-                                                    <div style={{ fontSize: '0.65rem', color: 'var(--muted-foreground)', fontWeight: 800, fontFamily: 'monospace' }}>
+                                                    <div style={{ fontSize: '0.65rem', color: 'var(--muted-foreground)', fontWeight: 800, fontFamily: 'monospace', opacity: 0.7 }}>
                                                         {wf.serverUrl?.replace(/^https?:\/\//, '')}
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800, fontStyle: 'italic' }}>
-                                                    Unassigned Hub
+                                                <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800, fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                    <AlertCircle size={10} />
+                                                    Pending Allocation
                                                 </div>
                                             )}
                                         </td>
@@ -494,7 +505,7 @@ export default function AdminControlPage() {
                                                 <Zap size={14} color="var(--accent)" />
                                                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                                                     <span style={{ fontSize: '0.85rem', fontWeight: 950, color: 'var(--foreground)' }}>{wf.tasksCount || 0}</span>
-                                                    <span style={{ fontSize: '0.55rem', fontWeight: 800, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tasks Done</span>
+                                                    <span style={{ fontSize: '0.55rem', fontWeight: 800, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Yield</span>
                                                 </div>
                                             </div>
                                         </td>
@@ -517,19 +528,29 @@ export default function AdminControlPage() {
                                                     <span style={{ fontSize: '0.75rem', fontWeight: 950, color: 'var(--foreground)' }}>{wf.progress}%</span>
                                                 </div>
                                                 <div style={{ height: '5px', width: '100%', background: 'var(--muted)', borderRadius: '10px', overflow: 'hidden' }}>
-                                                    <div style={{ height: '100%', width: `${wf.progress}%`, background: sd.color, transition: 'width 1s cubic-bezier(0.16, 1, 0.3, 1)' }} />
+                                                    <div style={{ height: '100%', width: `${wf.progress}%`, background: sd.color, transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1)' }} />
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                <div style={{ fontSize: '0.8rem', fontWeight: 950, color: 'var(--foreground)' }}>
-                                                    {wf.status === 'Ready' || wf.status === 'Active' ? 'Integrity Verified' : (wf.errorMessage || 'Syncing node...')}
+                                                <div style={{ fontSize: '0.75rem', fontWeight: 950, color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                    {wf.status === 'Ready' || wf.status === 'Active' ? (
+                                                        <>
+                                                            <CheckCircle2 size={12} color="var(--accent)" />
+                                                            <span>Operational: {wf.name || 'Core Loop'}</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <AlertCircle size={12} color={sd.color} />
+                                                            <span>{wf.errorMessage || 'Handshaking...'}</span>
+                                                        </>
+                                                    )}
                                                 </div>
                                                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                                                     <Clock size={12} color="var(--muted-foreground)" />
-                                                    <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>
-                                                        {Math.floor((Date.now() - new Date(wf.updatedAt).getTime()) / 60000)}m ago
+                                                    <span style={{ fontSize: '0.65rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>
+                                                        Updated {Math.floor((Date.now() - new Date(wf.updatedAt).getTime()) / 60000)}m ago
                                                     </span>
                                                 </div>
                                             </div>
