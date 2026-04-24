@@ -8,23 +8,28 @@ async function probeNode(node: any) {
     const baseUrl = node.url.replace(/\/+$/, '');
 
     try {
+        console.log(`[Fleet] Probing node ${node.name} at ${baseUrl}...`);
+        
         // Health check
         const healthRes = await fetch(`${baseUrl}/api/v1/health`, {
             headers: { "X-N8N-API-KEY": apiKey },
             cache: 'no-store',
-            signal: AbortSignal.timeout(6000)
+            signal: AbortSignal.timeout(10000) // Increased to 10s for slower VPS
         });
 
         if (!healthRes.ok) {
-            return { ...node, status: 'Unreachable', cpu: 0, ram: 0, queue: 0, uptime: 'OFFLINE' };
+            console.warn(`[Fleet] Node ${node.name} health check failed with status: ${healthRes.status}`);
+            return { ...node, status: 'Unreachable', cpu: 0, ram: 0, queue: 0, uptime: `HTTP ${healthRes.status}` };
         }
 
         const ct = healthRes.headers.get('content-type') || '';
         if (!ct.includes('application/json')) {
-            return { ...node, status: 'Auth Failed', cpu: 0, ram: 0, queue: 0, uptime: 'N/A' };
+            console.error(`[Fleet] Node ${node.name} returned non-JSON content: ${ct}`);
+            return { ...node, status: 'Protocol Err', cpu: 0, ram: 0, queue: 0, uptime: 'N/A' };
         }
 
         const health = await healthRes.json();
+        console.log(`[Fleet] Node ${node.name} is ONLINE. Status: ${health.status}`);
 
         // Fetch executions for queue/activity metrics
         let activeExecs = 0;
@@ -33,30 +38,27 @@ async function probeNode(node: any) {
             const execRes = await fetch(`${baseUrl}/api/v1/executions?status=running&limit=50`, {
                 headers: { "X-N8N-API-KEY": apiKey },
                 cache: 'no-store',
-                signal: AbortSignal.timeout(6000)
+                signal: AbortSignal.timeout(8000)
             });
-            const ect = execRes.headers.get('content-type') || '';
-            if (execRes.ok && ect.includes('application/json')) {
+            if (execRes.ok) {
                 const execData = await execRes.json();
                 activeExecs = (execData.data || execData || []).length;
             }
-        } catch { /* non-critical */ }
+        } catch (e) { /* non-critical */ }
 
         try {
             const recentRes = await fetch(`${baseUrl}/api/v1/executions?limit=100`, {
                 headers: { "X-N8N-API-KEY": apiKey },
                 cache: 'no-store',
-                signal: AbortSignal.timeout(6000)
+                signal: AbortSignal.timeout(8000)
             });
-            const rct = recentRes.headers.get('content-type') || '';
-            if (recentRes.ok && rct.includes('application/json')) {
+            if (recentRes.ok) {
                 const recentData = await recentRes.json();
                 recentCount = (recentData.data || recentData || []).length;
             }
-        } catch { /* non-critical */ }
+        } catch (e) { /* non-critical */ }
 
         // Estimate resource usage from activity levels
-        // n8n doesn't expose system metrics, so we estimate from execution load
         const cpuEstimate = Math.min(95, Math.max(5, activeExecs * 15 + recentCount * 0.3 + 8));
         const ramEstimate = Math.min(90, Math.max(10, recentCount * 0.5 + 15));
 
@@ -77,7 +79,17 @@ async function probeNode(node: any) {
             telemetry
         };
     } catch (error: any) {
-        return { ...node, status: 'Unreachable', cpu: 0, ram: 0, queue: 0, uptime: 'TIMEOUT', telemetry: Array(12).fill(0) };
+        console.error(`[Fleet] Critical failure probing ${node.name}:`, error.message);
+        const isTimeout = error.name === 'TimeoutError' || error.message?.includes('timeout');
+        return { 
+            ...node, 
+            status: isTimeout ? 'Timeout' : 'Unreachable', 
+            cpu: 0, 
+            ram: 0, 
+            queue: 0, 
+            uptime: isTimeout ? 'LATENCY' : 'OFFLINE', 
+            telemetry: Array(12).fill(0) 
+        };
     }
 }
 

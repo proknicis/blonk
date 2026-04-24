@@ -154,6 +154,23 @@ export default function AdminControlPage() {
         } catch (error) { console.error(error); } finally { setIsLoadingWorkflows(false); }
     };
 
+    const handleOpenCalibration = (wf: any) => {
+        setConfigWorkflow(wf);
+        setSelectedServerId(wf.serverId || "");
+        setN8nWorkflowId(wf.n8nWorkflowId || "");
+        setWebhookUrl(wf.n8nWebhookUrl || "");
+        setConfigStep(1);
+    };
+
+    const closeCalibration = () => {
+        setConfigWorkflow(null);
+        setSelectedServerId("");
+        setN8nWorkflowId("");
+        setWebhookUrl("");
+        setConfigStep(1);
+        setServerWorkflows([]);
+    };
+
     const provisionClient = async () => {
         setIsProvisioningLoading(true);
         try {
@@ -340,8 +357,7 @@ export default function AdminControlPage() {
                                                 className={adminStyles.actionIconBtn} 
                                                 onClick={(e) => { 
                                                     e.stopPropagation();
-                                                    setConfigWorkflow(wf); 
-                                                    setConfigStep(1); 
+                                                    handleOpenCalibration(wf); 
                                                 }}
                                             >
                                                 <Settings size={18} />
@@ -364,7 +380,7 @@ export default function AdminControlPage() {
             {/* CONFIG MODAL */}
             {configWorkflow && (
                 <ModalPortal>
-                    <div className={adminStyles.modalOverlay} onClick={() => setConfigWorkflow(null)}>
+                    <div className={adminStyles.modalOverlay} onClick={closeCalibration}>
                         <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '800px' }}>
                             <div className={adminStyles.modalHeader} style={{ background: 'var(--foreground)', color: 'var(--background)', padding: '48px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -372,7 +388,7 @@ export default function AdminControlPage() {
                                         <h2 style={{ fontSize: '2.25rem', fontWeight: 950, margin: 0, letterSpacing: '-0.04em' }}>Cluster Calibration</h2>
                                         <p style={{ opacity: 0.6, margin: '8px 0 0', fontWeight: 750 }}>Orchestrating node {configWorkflow.id.substring(0, 8)}</p>
                                     </div>
-                                    <button onClick={() => setConfigWorkflow(null)} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '12px', borderRadius: '12px', cursor: 'pointer' }}><X size={24} /></button>
+                                    <button onClick={closeCalibration} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '12px', borderRadius: '12px', cursor: 'pointer' }}><X size={24} /></button>
                                 </div>
                                 <div style={{ display: 'flex', gap: '32px', marginTop: '40px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -493,7 +509,7 @@ export default function AdminControlPage() {
                                 )}
                             </div>
                             <div className={adminStyles.modalFooter} style={{ padding: '32px 48px', background: '#FAFAFA' }}>
-                                <button className={adminStyles.refreshBtn} onClick={() => setConfigWorkflow(null)} style={{ border: 'none', width: 'auto', padding: '0 24px' }}>Discard Changes</button>
+                                <button className={adminStyles.refreshBtn} onClick={closeCalibration} style={{ border: 'none', width: 'auto', padding: '0 24px' }}>Discard Changes</button>
                                 {configStep === 1 ? (
                                     <button className={adminStyles.primaryBtn} onClick={() => setConfigStep(2)}>Calibrate Fleet</button>
                                 ) : (
