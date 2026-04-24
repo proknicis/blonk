@@ -73,14 +73,52 @@ async function probeNode(node: any) {
     }
 }
 
-export async function GET() {
+// In-memory cache for probe results to avoid blocking UI
+let nodeCache: any[] = [];
+let lastProbe = 0;
+const CACHE_TTL = 30000; // 30 seconds
+
+export async function GET(request: Request) {
     try {
-        const nodes = await db.query('SELECT * FROM "ClusterNode" ORDER BY "createdAt" DESC');
+        const { searchParams } = new URL(request.url);
+        const forceProbe = searchParams.get('probe') === 'true';
         
-        // Probe all nodes in parallel
-        const probedNodes = await Promise.all(nodes.map(probeNode));
+        // Fetch base node data from the Sovereign Ledger
+        const nodes = await db.query('SELECT * FROM "ClusterNode" ORDER BY "createdAt" DESC') as any[];
         
-        return NextResponse.json(probedNodes);
+        // If we don't need a probe or have a fresh cache, return immediately
+        const now = Date.now();
+        if (!forceProbe && (now - lastProbe < CACHE_TTL) && nodeCache.length > 0) {
+            const merged = nodes.map(n => {
+                const cached = nodeCache.find(c => c.id === n.id);
+                return cached || { ...n, cpu: 0, ram: 0, queue: 0, uptime: '...' };
+            });
+            return NextResponse.json(merged);
+        }
+
+        // If forceProbe is true, we WAIT for it (Institutional requirement for Fleet page)
+        if (forceProbe) {
+            const probedNodes = await Promise.all(nodes.map(node => 
+                probeNode(node).catch(err => ({ ...node, status: 'Error', cpu: 0, ram: 0, queue: 0, uptime: 'OFFLINE' }))
+            ));
+            nodeCache = probedNodes;
+            lastProbe = now;
+            return NextResponse.json(probedNodes);
+        }
+
+        // If cache is stale but not forcing, return DB immediately and trigger background probe
+        if (now - lastProbe >= CACHE_TTL) {
+            // Trigger background probe (non-blocking)
+            Promise.all(nodes.map(node => probeNode(node).catch(() => null))).then(probed => {
+                nodeCache = probed.filter(p => p !== null);
+                lastProbe = Date.now();
+            });
+        }
+
+        return NextResponse.json(nodes.map(n => {
+            const cached = nodeCache.find(c => c.id === n.id);
+            return cached || { ...n, cpu: 0, ram: 0, queue: 0, uptime: '...' };
+        }));
     } catch (error) {
         console.error("[Fleet] Failed to fetch nodes:", error);
         return NextResponse.json({ error: "Failed to fetch nodes" }, { status: 500 });
