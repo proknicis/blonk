@@ -1436,3 +1436,170 @@
     gap: 10px;
     align-items: center;
 }
+
+/* ── SUPPORT COMMAND CENTER ── */
+
+.supportInboxGrid {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 32px;
+    height: calc(100vh - 320px);
+}
+
+.ticketList {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.ticketListHeader {
+    padding: 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--muted);
+}
+
+.ticketItems {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.ticketItem {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ticketItem:hover {
+    background: var(--muted);
+}
+
+.ticketItemActive {
+    background: var(--muted);
+    border-left: 4px solid var(--accent);
+}
+
+.ticketMeta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.ticketStatus {
+    font-size: 0.6rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+}
+
+.ticketStatusOpen { background: rgba(52, 209, 134, 0.1); color: #34D186; }
+.ticketStatusClosed { background: var(--border); color: var(--muted-foreground); }
+
+.chatPanel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chatHeader {
+    padding: 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chatMessages {
+    flex: 1;
+    padding: 32px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.msgWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 70%;
+}
+
+.msgUser { align-self: flex-start; }
+.msgAdmin { align-self: flex-end; }
+
+.msgBubble {
+    padding: 16px 20px;
+    border-radius: 18px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.msgUser .msgBubble {
+    background: var(--muted);
+    color: var(--foreground);
+    border-top-left-radius: 4px;
+}
+
+.msgAdmin .msgBubble {
+    background: var(--foreground);
+    color: var(--background);
+    border-top-right-radius: 4px;
+}
+
+.msgMeta {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--muted-foreground);
+    margin: 0 4px;
+}
+
+.chatInputArea {
+    padding: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 16px;
+}
+
+.chatInput {
+    flex: 1;
+    height: 52px;
+    background: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 0 20px;
+    color: var(--foreground);
+    font-weight: 700;
+    outline: none;
+}
+
+.chatInput:focus {
+    border-color: var(--accent);
+}
+
+.sendBtn {
+    width: 52px;
+    height: 52px;
+    background: var(--accent);
+    color: var(--background);
+    border: none;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sendBtn:hover {
+    transform: scale(1.05);
+}

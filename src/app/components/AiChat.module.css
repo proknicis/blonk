@@ -242,6 +242,12 @@
     border-top-right-radius: 4px;
 }
 
+.adminMessage .bubble {
+    background: #111111;
+    color: #FFFFFF;
+    border-top-left-radius: 4px;
+}
+
 /* Suggested Action Chips */
 .suggestions {
     display: flex;

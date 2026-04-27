@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useState, useRef, useEffect } from "react";
-import { Users, Zap, Shield, Search, Bell, LogOut, ExternalLink } from "lucide-react";
+import { Users, Zap, Shield, Search, Bell, LogOut, ExternalLink, MessageSquare } from "lucide-react";
 import adminStyles from "./admin.module.css";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -164,6 +164,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             <li>
                                 <Link href="/admin/incidents" className={`${adminStyles.navLink} ${pathname === "/admin/incidents" ? adminStyles.navLinkActive : ""}`}>
                                     <Shield size={20} /> Incident Command
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/admin/support" className={`${adminStyles.navLink} ${pathname === "/admin/support" ? adminStyles.navLinkActive : ""}`}>
+                                    <MessageSquare size={20} /> Support Inbox
                                 </Link>
                             </li>
                         </ul>
