@@ -18,15 +18,15 @@ const SUGGESTED_CHIPS = [
     { label: "Audit logs?", prompt: "Where can I find the audit logs for compliance?" }
 ];
 
+const INITIAL_GREETING: Message = {
+    id: "0",
+    role: "assistant",
+    content: "👋 Hey! I'm **BLONK AI** — your automation co-pilot. Ask me anything about setting up workflows, connecting tools, or saving your firm time.",
+};
+
 export default function AiChat() {
     const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState<Message[]>([
-        {
-            id: "0",
-            role: "assistant",
-            content: "👋 Hey! I'm **BLONK AI** — your automation co-pilot. Ask me anything about setting up workflows, connecting tools, or saving your firm time.",
-        },
-    ]);
+    const [messages, setMessages] = useState<Message[]>([INITIAL_GREETING]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [modelTier, setModelTier] = useState<string>("Ready");
@@ -60,7 +60,7 @@ export default function AiChat() {
         checkActiveTickets();
     }, []);
 
-    // Polling for new messages if escalated
+    // Polling for new messages and status if escalated
     useEffect(() => {
         if (isEscalated && ticketId && isOpen) {
             const interval = setInterval(() => {
@@ -73,8 +73,28 @@ export default function AiChat() {
     const syncMessages = async (id: string) => {
         try {
             const detailsRes = await fetch(`/api/support?ticketId=${id}`);
-            const { messages: ticketMsgs } = await detailsRes.json();
+            const data = await detailsRes.json();
             
+            // Check if ticket was closed by admin
+            if (data.ticket?.status === 'closed') {
+                setIsEscalated(false);
+                setTicketId(null);
+                setMessages(prev => {
+                    // Filter out ticket messages and keep AI conversation if any, or reset
+                    const lastMsg = data.messages[data.messages.length - 1];
+                    return [
+                        ...prev.filter(m => m.id === "0"), // Keep greeting
+                        { 
+                            id: Date.now().toString(), 
+                            role: 'assistant', 
+                            content: `✅ **Support Ticket Resolved.** Our team has closed this request. I'm back and ready to help you with anything else!` 
+                        }
+                    ];
+                });
+                return;
+            }
+
+            const ticketMsgs = data.messages;
             if (ticketMsgs && ticketMsgs.length > 0) {
                 const converted = ticketMsgs.map((m: any) => ({
                     id: m.id,
@@ -82,14 +102,11 @@ export default function AiChat() {
                     content: m.content
                 }));
                 
-                // Only update if message count changed to avoid flickering
+                // Smart merge to prevent duplicates
                 setMessages(prev => {
-                    const existingIds = new Set(prev.map(p => p.id));
-                    const newMessages = converted.filter((m: any) => !existingIds.has(m.id));
-                    if (newMessages.length > 0) {
-                        return [...prev, ...newMessages];
-                    }
-                    return prev;
+                    const greeting = prev.find(m => m.id === "0") || INITIAL_GREETING;
+                    // For escalated chat, the API is the source of truth for all messages except the greeting
+                    return [greeting, ...converted];
                 });
             }
         } catch (err) {
@@ -97,33 +114,17 @@ export default function AiChat() {
         }
     };
 
-    useEffect(() => {
-        const handleOpenAi = (e: any) => {
-            const prompt = e.detail?.prompt;
-            setIsOpen(true);
-            if (prompt) {
-                setTimeout(() => sendMessage(prompt), 300);
-            }
-        };
-        window.addEventListener('OPEN_AI_CHAT', handleOpenAi);
-        return () => window.removeEventListener('OPEN_AI_CHAT', handleOpenAi);
-    }, [messages]);
-
-    useEffect(() => {
-        if (isOpen) {
-            setTimeout(() => inputRef.current?.focus(), 100);
-        }
-    }, [isOpen]);
-
     const sendMessage = async (text: string) => {
         if (!text.trim() || isLoading) return;
 
-        const userMsg: Message = { id: Date.now().toString(), role: "user", content: text };
+        const tempId = "temp-" + Date.now();
+        const userMsg: Message = { id: tempId, role: "user", content: text };
+        
+        // Add locally for instant feedback
         setMessages(prev => [...prev, userMsg]);
         setInput("");
         setIsLoading(true);
 
-        // If we are in an escalated ticket state, we send to the support API instead of the general AI
         if (isEscalated && ticketId) {
             try {
                 const res = await fetch("/api/support", {
@@ -136,7 +137,7 @@ export default function AiChat() {
                 });
 
                 if (res.ok) {
-                    // Message sent to admin. The polling will pick up the user message and any admin reply.
+                    // The next syncMessages call will replace the tempId message with the real one from DB
                 }
             } catch (err) {
                 console.error("Support message failed", err);
@@ -157,7 +158,7 @@ export default function AiChat() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    messages: messages.concat(userMsg).map(m => ({ role: m.role, content: m.content })),
+                    messages: messages.filter(m => !m.id.startsWith("temp-")).concat(userMsg).map(m => ({ role: m.role, content: m.content })),
                 }),
             });
 
@@ -202,7 +203,6 @@ export default function AiChat() {
                 }
             }
 
-            // Check for escalation marker
             if (fullContent.includes("[ESCALATE]")) {
                 setIsEscalated(true);
             }
@@ -223,31 +223,26 @@ export default function AiChat() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     subject: "Technical Support Escalation",
-                    message: messages[messages.length - 2]?.content || "I need help with the platform."
+                    message: messages[messages.length - 1]?.role === 'user' ? messages[messages.length - 1].content : "I need help with the platform."
                 }),
             });
             const data = await res.json();
             if (data.ticketId) {
                 setTicketId(data.ticketId);
-                setMessages(prev => [...prev, { 
-                    id: Date.now().toString(), 
-                    role: 'assistant', 
-                    content: "✅ **Support Ticket Created.** An administrator has been notified and will respond here shortly. You can continue typing to provide more details." 
-                }]);
-                // Start syncing
+                setMessages(prev => [
+                    ...prev.filter(m => m.id === "0"), // Keep greeting
+                    { 
+                        id: Date.now().toString(), 
+                        role: 'assistant', 
+                        content: "✅ **Support Ticket Created.** An administrator has been notified and will respond here shortly." 
+                    }
+                ]);
                 syncMessages(data.ticketId);
             }
         } catch (err) {
             console.error("Escalation failed", err);
         } finally {
             setIsLoading(false);
-        }
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage(input);
         }
     };
 
@@ -372,7 +367,7 @@ export default function AiChat() {
                             className={styles.input}
                             value={input}
                             onChange={e => setInput(e.target.value)}
-                            onKeyDown={handleKeyDown}
+                            onKeyDown={e => e.key === "Enter" && !e.shiftKey && (e.preventDefault(), sendMessage(input))}
                             placeholder={isEscalated ? "Type message to support..." : "Ask BLONK AI anything..."}
                             disabled={isLoading}
                         />
