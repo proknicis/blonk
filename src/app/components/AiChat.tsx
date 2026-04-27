@@ -2,7 +2,8 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import styles from "./AiChat.module.css";
-import { MessageSquare, Shield, Zap, Send, X, Terminal, User, AlertCircle, LifeBuoy } from "lucide-react";
+import { MessageSquare, Shield, Zap, Send, X, Terminal, User, AlertCircle, LifeBuoy, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type Message = {
     id: string;
@@ -25,6 +26,7 @@ const INITIAL_GREETING: Message = {
 };
 
 export default function AiChat() {
+    const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([INITIAL_GREETING]);
     const [input, setInput] = useState("");
@@ -75,22 +77,17 @@ export default function AiChat() {
             const detailsRes = await fetch(`/api/support?ticketId=${id}`);
             const data = await detailsRes.json();
             
-            // Check if ticket was closed by admin
             if (data.ticket?.status === 'closed') {
                 setIsEscalated(false);
                 setTicketId(null);
-                setMessages(prev => {
-                    // Filter out ticket messages and keep AI conversation if any, or reset
-                    const lastMsg = data.messages[data.messages.length - 1];
-                    return [
-                        ...prev.filter(m => m.id === "0"), // Keep greeting
-                        { 
-                            id: Date.now().toString(), 
-                            role: 'assistant', 
-                            content: `✅ **Support Ticket Resolved.** Our team has closed this request. I'm back and ready to help you with anything else!` 
-                        }
-                    ];
-                });
+                setMessages(prev => [
+                    ...prev.filter(m => m.id === "0"),
+                    { 
+                        id: Date.now().toString(), 
+                        role: 'assistant', 
+                        content: `✅ **Support Ticket Resolved.** Our team has closed this request. I'm back and ready to help you with anything else!` 
+                    }
+                ]);
                 return;
             }
 
@@ -102,10 +99,8 @@ export default function AiChat() {
                     content: m.content
                 }));
                 
-                // Smart merge to prevent duplicates
                 setMessages(prev => {
                     const greeting = prev.find(m => m.id === "0") || INITIAL_GREETING;
-                    // For escalated chat, the API is the source of truth for all messages except the greeting
                     return [greeting, ...converted];
                 });
             }
@@ -120,7 +115,6 @@ export default function AiChat() {
         const tempId = "temp-" + Date.now();
         const userMsg: Message = { id: tempId, role: "user", content: text };
         
-        // Add locally for instant feedback
         setMessages(prev => [...prev, userMsg]);
         setInput("");
         setIsLoading(true);
@@ -135,10 +129,6 @@ export default function AiChat() {
                         message: text
                     }),
                 });
-
-                if (res.ok) {
-                    // The next syncMessages call will replace the tempId message with the real one from DB
-                }
             } catch (err) {
                 console.error("Support message failed", err);
             } finally {
@@ -230,7 +220,7 @@ export default function AiChat() {
             if (data.ticketId) {
                 setTicketId(data.ticketId);
                 setMessages(prev => [
-                    ...prev.filter(m => m.id === "0"), // Keep greeting
+                    ...prev.filter(m => m.id === "0"),
                     { 
                         id: Date.now().toString(), 
                         role: 'assistant', 
@@ -246,9 +236,51 @@ export default function AiChat() {
         }
     };
 
-    const renderContent = (text: string) => {
+    // Component-based content rendering to support interactive buttons
+    const renderMessageContent = (msg: Message) => {
+        let text = msg.content.replace(/\[ESCALATE\]/g, "");
+        
+        // Regex to find [Label|Path]
+        const buttonRegex = /\[(.*?)\|(.*?)\]/g;
+        const parts = [];
+        let lastIndex = 0;
+        let match;
+
+        while ((match = buttonRegex.exec(text)) !== null) {
+            // Push text before the match
+            if (match.index > lastIndex) {
+                parts.push(<span key={`text-${lastIndex}`} dangerouslySetInnerHTML={{ __html: formatText(text.substring(lastIndex, match.index)) }} />);
+            }
+
+            const label = match[1];
+            const path = match[2];
+
+            parts.push(
+                <button 
+                    key={`btn-${match.index}`} 
+                    className={styles.navButton}
+                    onClick={() => {
+                        router.push(path);
+                        setIsOpen(false);
+                    }}
+                >
+                    {label} <ArrowRight size={14} />
+                </button>
+            );
+
+            lastIndex = buttonRegex.lastIndex;
+        }
+
+        // Push remaining text
+        if (lastIndex < text.length) {
+            parts.push(<span key={`text-${lastIndex}`} dangerouslySetInnerHTML={{ __html: formatText(text.substring(lastIndex)) }} />);
+        }
+
+        return parts.length > 0 ? parts : <span dangerouslySetInnerHTML={{ __html: formatText(text) }} />;
+    };
+
+    const formatText = (text: string) => {
         return text
-            .replace(/\[ESCALATE\]/g, "")
             .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
             .replace(/\n/g, "<br/>");
     };
@@ -313,10 +345,12 @@ export default function AiChat() {
                                                 <AlertCircle size={12} />
                                                 Strategic Thinking Process
                                             </div>
-                                            <div className={styles.reasoningContent} dangerouslySetInnerHTML={{ __html: renderContent(msg.reasoning) }} />
+                                            <div className={styles.reasoningContent} dangerouslySetInnerHTML={{ __html: formatText(msg.reasoning) }} />
                                         </div>
                                     )}
-                                    <div dangerouslySetInnerHTML={{ __html: renderContent(msg.content) }} />
+                                    <div className={styles.msgContentWrapper}>
+                                        {renderMessageContent(msg)}
+                                    </div>
                                     
                                     {msg.content.includes("[ESCALATE]") && !ticketId && (
                                         <div style={{ marginTop: '16px', padding: '16px', background: 'rgba(52, 209, 134, 0.1)', borderRadius: '12px', border: '1px dashed var(--accent)' }}>
