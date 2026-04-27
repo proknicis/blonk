@@ -377,150 +377,189 @@ export default function AdminControlPage() {
                 </div>
             </div>
 
-            {/* CONFIG MODAL */}
+            {/* CONFIG MODAL — CLUSTER CALIBRATION (PREMIUM REDESIGN) */}
             {configWorkflow && (
                 <ModalPortal>
                     <div className={adminStyles.modalOverlay} onClick={closeCalibration}>
-                        <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '800px' }}>
-                            <div className={adminStyles.modalHeader} style={{ background: 'var(--foreground)', color: 'var(--background)', padding: '48px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                    <div>
-                                        <h2 style={{ fontSize: '2.25rem', fontWeight: 950, margin: 0, letterSpacing: '-0.04em' }}>Cluster Calibration</h2>
-                                        <p style={{ opacity: 0.6, margin: '8px 0 0', fontWeight: 750 }}>Orchestrating node {configWorkflow.id.substring(0, 8)}</p>
-                                    </div>
-                                    <button onClick={closeCalibration} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '12px', borderRadius: '12px', cursor: 'pointer' }}><X size={24} /></button>
-                                </div>
-                                <div style={{ display: 'flex', gap: '32px', marginTop: '40px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <div style={{ width: '24px', height: '24px', background: configStep >= 1 ? 'var(--accent)' : 'rgba(255,255,255,0.1)', color: configStep >= 1 ? 'var(--background)' : 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 950 }}>01</div>
-                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.1em', opacity: configStep === 1 ? 1 : 0.6 }}>MATRIX</span>
-                                    </div>
-                                    <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)', alignSelf: 'center' }} />
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <div style={{ width: '24px', height: '24px', background: configStep >= 2 ? 'var(--accent)' : 'rgba(255,255,255,0.1)', color: configStep >= 2 ? 'var(--background)' : 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 950 }}>02</div>
-                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.1em', opacity: configStep === 2 ? 1 : 0.6 }}>ORCHESTRATION</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className={adminStyles.modalBody} style={{ padding: '48px' }}>
-                                {configStep === 1 ? (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                            <Database size={20} color="var(--accent)" />
-                                            <h3 style={{ fontSize: '1rem', fontWeight: 950, margin: 0 }}>CONFIGURATION MATRIX</h3>
-                                        </div>
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                                            {Object.entries(configWorkflow.inputs || {}).map(([k, v]: any) => (
-                                                <div key={k} style={{ padding: '24px', background: '#FAFAFA', borderRadius: '20px', border: '1px solid var(--border)' }}>
-                                                    <div style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.05em' }}>{k}</div>
-                                                    <div style={{ fontWeight: 850, fontSize: '1.1rem', wordBreak: 'break-all' }}>{String(v)}</div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                            <Zap size={20} color="var(--accent)" />
-                                            <h3 style={{ fontSize: '1rem', fontWeight: 950, margin: 0 }}>ORCHESTRATION SETTINGS</h3>
-                                        </div>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                                            <div>
-                                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '12px', textTransform: 'uppercase' }}>Select Target Node</label>
-                                                <select 
-                                                    className={adminStyles.searchField} 
-                                                    style={{ paddingLeft: '24px' }}
-                                                    value={selectedServerId || configWorkflow.serverId || ""}
-                                                    onChange={e => setSelectedServerId(e.target.value)}
-                                                >
-                                                    <option value="">-- No Node Allocated --</option>
-                                                    {servers.map(s => (
-                                                        <option key={s.id} value={s.id}>{s.name} ({s.status})</option>
-                                                    ))}
-                                                </select>
-                                            </div>
+                        <div className={adminStyles.calibrationModal} onClick={e => e.stopPropagation()}>
 
-                                            {/* LIVE DIAGNOSTICS PANE */}
-                                            {selectedServerId && (
-                                                <div style={{ background: 'var(--foreground)', borderRadius: '24px', padding: '32px', color: 'var(--background)' }}>
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                            <Activity size={18} color="var(--accent)" className={isFetchingLive ? adminStyles.spinning : ''} />
-                                                            <span style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.1em' }}>LIVE TELEMETRY</span>
-                                                        </div>
-                                                        <div style={{ fontSize: '0.65rem', fontWeight: 950, opacity: 0.6 }}>{serverWorkflows.length} PROTOCOLS DETECTED</div>
-                                                    </div>
-                                                    
-                                                    <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }} className={adminStyles.customScroll}>
-                                                        {isFetchingLive ? (
-                                                            <div style={{ opacity: 0.5, fontSize: '0.85rem', fontWeight: 750, textAlign: 'center', padding: '20px' }}>SCANNING SECTOR...</div>
-                                                        ) : serverWorkflows.length > 0 ? (
-                                                            serverWorkflows.map((wf: any) => (
-                                                                <div 
-                                                                    key={wf.id} 
-                                                                    style={{ 
-                                                                        display: 'flex', 
-                                                                        justifyContent: 'space-between', 
-                                                                        alignItems: 'center', 
-                                                                        padding: '16px', 
-                                                                        background: n8nWorkflowId === wf.id ? 'var(--accent)' : 'rgba(255,255,255,0.05)', 
-                                                                        color: n8nWorkflowId === wf.id ? 'var(--background)' : 'inherit',
-                                                                        borderRadius: '16px', 
-                                                                        border: '1px solid rgba(255,255,255,0.1)',
-                                                                        transition: 'all 0.2s ease',
-                                                                        cursor: 'pointer'
-                                                                    }}
-                                                                    onClick={() => { setN8nWorkflowId(wf.id); setWebhookUrl(wf.webhookUrl || ""); }}
-                                                                >
-                                                                    <div>
-                                                                        <div style={{ fontSize: '0.9rem', fontWeight: 950 }}>{wf.name}</div>
-                                                                        <div style={{ fontSize: '0.7rem', opacity: 0.6 }}>{wf.id}</div>
-                                                                    </div>
-                                                                    {n8nWorkflowId === wf.id && <ShieldCheck size={18} />}
-                                                                </div>
-                                                            ))
-                                                        ) : (
-                                                            <div style={{ opacity: 0.5, fontSize: '0.85rem', fontWeight: 750, textAlign: 'center', padding: '20px' }}>NO ACTIVE PROTOCOLS FOUND</div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {n8nWorkflowId && (
-                                                <div style={{ padding: '24px', background: '#FAFAFA', borderRadius: '20px', border: '1px solid var(--accent)', animation: 'fadeIn 0.4s ease' }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                                                        <ShieldCheck size={20} color="var(--accent)" />
-                                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.1em' }}>SELECTED PROTOCOL</span>
-                                                    </div>
-                                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                                                        <div>
-                                                            <div style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '4px' }}>WEBHOOK</div>
-                                                            <div style={{ fontSize: '0.85rem', fontWeight: 800, wordBreak: 'break-all' }}>{webhookUrl}</div>
-                                                        </div>
-                                                        <div>
-                                                            <div style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '4px' }}>PROTOCOL ID</div>
-                                                            <div style={{ fontSize: '0.85rem', fontWeight: 800 }}>{n8nWorkflowId}</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )}
+                            {/* ── HEADER ── */}
+                            <div className={adminStyles.calibrationHeader}>
+                                <div className={adminStyles.calibrationHeaderTop}>
+                                    <div className={adminStyles.calibrationTitleBlock}>
+                                        <div className={adminStyles.calibrationEyebrow}>
+                                            <div className={adminStyles.calibrationEyebrowDot} />
+                                            <span className={adminStyles.calibrationEyebrowLabel}>Operations Control</span>
                                         </div>
+                                        <h2 className={adminStyles.calibrationTitle}>Cluster Calibration</h2>
+                                        <p className={adminStyles.calibrationSubtitle}>node/{configWorkflow.id.substring(0, 12)}</p>
                                     </div>
-                                )}
-                            </div>
-                            <div className={adminStyles.modalFooter} style={{ padding: '32px 48px', background: '#FAFAFA' }}>
-                                <button className={adminStyles.refreshBtn} onClick={closeCalibration} style={{ border: 'none', width: 'auto', padding: '0 24px' }}>Discard Changes</button>
-                                {configStep === 1 ? (
-                                    <button className={adminStyles.primaryBtn} onClick={() => setConfigStep(2)}>Calibrate Fleet</button>
-                                ) : (
-                                    <button 
-                                        className={adminStyles.primaryBtn} 
-                                        disabled={!!savingId || !n8nWorkflowId}
-                                        onClick={() => updateWebhook(configWorkflow.id, webhookUrl || configWorkflow.n8nWebhookUrl, n8nWorkflowId || configWorkflow.n8nWorkflowId, selectedServerId || configWorkflow.serverId)}
-                                    >
-                                        {savingId ? 'SYNCHRONIZING...' : 'FINALIZE ORCHESTRATION'}
+                                    <button className={adminStyles.calibrationCloseBtn} onClick={closeCalibration}>
+                                        <X size={18} />
                                     </button>
+                                </div>
+
+                                {/* Step Track */}
+                                <div className={adminStyles.calibrationStepTrack}>
+                                    {/* Step 1 */}
+                                    <div className={adminStyles.calibrationStep}>
+                                        <div className={`${adminStyles.calibrationStepCircle} ${configStep === 1 ? adminStyles.calibrationStepCircleActive : adminStyles.calibrationStepCircleDone}`}>
+                                            {configStep > 1 ? <ShieldCheck size={14} /> : '01'}
+                                        </div>
+                                        <span className={`${adminStyles.calibrationStepLabel} ${configStep === 1 ? adminStyles.calibrationStepLabelActive : adminStyles.calibrationStepLabelInactive}`}>
+                                            Matrix
+                                        </span>
+                                    </div>
+                                    {/* Connector */}
+                                    <div className={adminStyles.calibrationStepConnector}>
+                                        <div className={adminStyles.calibrationStepConnectorFill} style={{ width: configStep >= 2 ? '100%' : '0%' }} />
+                                    </div>
+                                    {/* Step 2 */}
+                                    <div className={adminStyles.calibrationStep} style={{ flex: 0 }}>
+                                        <div className={`${adminStyles.calibrationStepCircle} ${configStep >= 2 ? adminStyles.calibrationStepCircleActive : adminStyles.calibrationStepCircleInactive}`}>
+                                            02
+                                        </div>
+                                        <span className={`${adminStyles.calibrationStepLabel} ${configStep === 2 ? adminStyles.calibrationStepLabelActive : adminStyles.calibrationStepLabelInactive}`}>
+                                            Orchestration
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* ── BODY ── */}
+                            <div className={adminStyles.calibrationBody}>
+                                {configStep === 1 ? (
+                                    <>
+                                        <div className={adminStyles.calibrationSectionHeader}>
+                                            <div className={adminStyles.calibrationSectionIcon}>
+                                                <Database size={16} />
+                                            </div>
+                                            <h3 className={adminStyles.calibrationSectionTitle}>Configuration Matrix</h3>
+                                        </div>
+
+                                        {Object.keys(configWorkflow.inputs || {}).length > 0 ? (
+                                            <div className={adminStyles.calibrationMatrixGrid}>
+                                                {Object.entries(configWorkflow.inputs || {}).map(([k, v]: any) => (
+                                                    <div key={k} className={adminStyles.calibrationMatrixCell}>
+                                                        <div className={adminStyles.calibrationMatrixKey}>{k}</div>
+                                                        <div className={adminStyles.calibrationMatrixValue}>{String(v)}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div style={{ padding: '32px', background: 'var(--muted)', borderRadius: '16px', border: '1px dashed var(--border)', textAlign: 'center', color: 'var(--muted-foreground)', fontSize: '0.9rem', fontWeight: 700 }}>
+                                                No configuration inputs defined for this node.
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className={adminStyles.calibrationSectionHeader}>
+                                            <div className={adminStyles.calibrationSectionIcon}>
+                                                <Zap size={16} />
+                                            </div>
+                                            <h3 className={adminStyles.calibrationSectionTitle}>Orchestration Settings</h3>
+                                        </div>
+
+                                        {/* Node selector */}
+                                        <div className={adminStyles.calibrationFieldGroup}>
+                                            <label className={adminStyles.calibrationFieldLabel}>Target Node</label>
+                                            <select
+                                                className={adminStyles.calibrationSelect}
+                                                value={selectedServerId || configWorkflow.serverId || ""}
+                                                onChange={e => setSelectedServerId(e.target.value)}
+                                            >
+                                                <option value="">— No Node Allocated —</option>
+                                                {servers.map(s => (
+                                                    <option key={s.id} value={s.id}>{s.name} ({s.status})</option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        {/* Live Telemetry */}
+                                        {selectedServerId && (
+                                            <div className={adminStyles.calibrationTelemetry}>
+                                                <div className={adminStyles.calibrationTelemetryHeader}>
+                                                    <div className={adminStyles.calibrationTelemetryTitle}>
+                                                        <Activity size={14} className={isFetchingLive ? adminStyles.spinning : ''} />
+                                                        Live Telemetry
+                                                    </div>
+                                                    <span className={adminStyles.calibrationTelemetryCount}>
+                                                        {serverWorkflows.length} protocols detected
+                                                    </span>
+                                                </div>
+                                                <div className={adminStyles.calibrationTelemetryList}>
+                                                    {isFetchingLive ? (
+                                                        <div className={adminStyles.calibrationTelemetryScanning}>Scanning sector...</div>
+                                                    ) : serverWorkflows.length > 0 ? (
+                                                        serverWorkflows.map((wf: any) => (
+                                                            <div
+                                                                key={wf.id}
+                                                                className={`${adminStyles.calibrationTelemetryItem} ${n8nWorkflowId === wf.id ? adminStyles.calibrationTelemetryItemActive : ''}`}
+                                                                onClick={() => { setN8nWorkflowId(wf.id); setWebhookUrl(wf.webhookUrl || ""); }}
+                                                            >
+                                                                <div>
+                                                                    <div className={adminStyles.calibrationTelemetryItemName}>{wf.name}</div>
+                                                                    <div className={adminStyles.calibrationTelemetryItemId}>{wf.id}</div>
+                                                                </div>
+                                                                {n8nWorkflowId === wf.id && <ShieldCheck size={16} color="var(--accent)" />}
+                                                            </div>
+                                                        ))
+                                                    ) : (
+                                                        <div className={adminStyles.calibrationTelemetryEmpty}>No active protocols found</div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Selected protocol summary */}
+                                        {n8nWorkflowId && (
+                                            <div className={adminStyles.calibrationSelectedProtocol}>
+                                                <div className={adminStyles.calibrationSelectedProtocolHeader}>
+                                                    <ShieldCheck size={16} color="var(--accent)" />
+                                                    <span className={adminStyles.calibrationSelectedProtocolTitle}>Selected Protocol</span>
+                                                </div>
+                                                <div className={adminStyles.calibrationSelectedProtocolGrid}>
+                                                    <div className={adminStyles.calibrationSelectedProtocolField}>
+                                                        <div className={adminStyles.calibrationMatrixKey}>Webhook</div>
+                                                        <div className={adminStyles.calibrationMatrixValue} style={{ fontSize: '0.82rem' }}>{webhookUrl || '—'}</div>
+                                                    </div>
+                                                    <div className={adminStyles.calibrationSelectedProtocolField}>
+                                                        <div className={adminStyles.calibrationMatrixKey}>Protocol ID</div>
+                                                        <div className={adminStyles.calibrationMatrixValue} style={{ fontSize: '0.82rem', fontFamily: 'monospace' }}>{n8nWorkflowId}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </>
                                 )}
+                            </div>
+
+                            {/* ── FOOTER ── */}
+                            <div className={adminStyles.calibrationFooter}>
+                                <div className={adminStyles.calibrationFooterLeft}>
+                                    <Lock size={12} />
+                                    Step {configStep} of 2
+                                </div>
+                                <div className={adminStyles.calibrationFooterActions}>
+                                    <button className={adminStyles.calibrationDiscardBtn} onClick={closeCalibration}>
+                                        Discard
+                                    </button>
+                                    {configStep === 1 ? (
+                                        <button className={adminStyles.calibrationNextBtn} onClick={() => setConfigStep(2)}>
+                                            Continue <ArrowUpRight size={15} />
+                                        </button>
+                                    ) : (
+                                        <button
+                                            className={adminStyles.calibrationCommitBtn}
+                                            disabled={!!savingId || !n8nWorkflowId}
+                                            onClick={() => updateWebhook(configWorkflow.id, webhookUrl || configWorkflow.n8nWebhookUrl, n8nWorkflowId || configWorkflow.n8nWorkflowId, selectedServerId || configWorkflow.serverId)}
+                                        >
+                                            {savingId ? 'Synchronizing...' : 'Finalize Orchestration'}
+                                            {!savingId && <Zap size={14} />}
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>

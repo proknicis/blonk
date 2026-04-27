@@ -853,3 +853,586 @@
     animation: pulseRed 2s infinite ease-in-out;
     border-color: #ef4444 !important;
 }
+
+/* ═══════════════════════════════════════════════════
+   CLUSTER CALIBRATION — PREMIUM REDESIGN
+   ═══════════════════════════════════════════════════ */
+
+/* Modal base override for calibration */
+.calibrationModal {
+    background: var(--card);
+    width: 100%;
+    max-width: 820px;
+    border-radius: 32px;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.18), 0 0 0 1px rgba(255,255,255,0.06);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    animation: calibrationReveal 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    max-height: 92vh;
+}
+
+@keyframes calibrationReveal {
+    from { opacity: 0; transform: translateY(32px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0)  scale(1);     }
+}
+
+/* ─── HEADER ─────────────────────────────────────── */
+.calibrationHeader {
+    background: var(--foreground);
+    padding: 40px 48px 36px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+/* subtle grid texture */
+.calibrationHeader::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+}
+
+.calibrationHeaderTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    z-index: 1;
+}
+
+.calibrationTitleBlock {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.calibrationEyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+.calibrationEyebrowDot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    animation: calDotPulse 2s ease-in-out infinite;
+}
+
+@keyframes calDotPulse {
+    0%, 100% { opacity: 1;   box-shadow: 0 0 8px var(--accent); }
+    50%       { opacity: 0.6; box-shadow: 0 0 20px var(--accent); }
+}
+
+.calibrationEyebrowLabel {
+    font-size: 0.65rem;
+    font-weight: 950;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+}
+
+.calibrationTitle {
+    font-size: 2rem;
+    font-weight: 950;
+    letter-spacing: -0.045em;
+    color: #ffffff;
+    margin: 0;
+    line-height: 1.05;
+}
+
+.calibrationSubtitle {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.45);
+    margin: 0;
+    font-family: 'SF Mono', 'Fira Mono', monospace;
+    letter-spacing: 0.02em;
+}
+
+.calibrationCloseBtn {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.calibrationCloseBtn:hover {
+    background: rgba(255,255,255,0.14);
+    color: #fff;
+    transform: scale(1.05);
+}
+
+/* ─── STEP TRACK ─────────────────────────────────── */
+.calibrationStepTrack {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-top: 36px;
+    position: relative;
+    z-index: 1;
+}
+
+.calibrationStep {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    position: relative;
+}
+
+.calibrationStep:last-child {
+    flex: 0;
+}
+
+.calibrationStepCircle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 950;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    z-index: 1;
+}
+
+.calibrationStepCircleInactive {
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.35);
+}
+
+.calibrationStepCircleActive {
+    background: var(--accent);
+    border: 1.5px solid var(--accent);
+    color: var(--background);
+    box-shadow: 0 0 0 4px rgba(var(--accent-rgb, 0, 200, 150), 0.15);
+}
+
+.calibrationStepCircleDone {
+    background: rgba(var(--accent-rgb, 0, 200, 150), 0.15);
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+}
+
+.calibrationStepLabel {
+    font-size: 0.72rem;
+    font-weight: 950;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: opacity 0.3s;
+}
+
+.calibrationStepLabelActive   { color: #ffffff; opacity: 1; }
+.calibrationStepLabelInactive { color: rgba(255,255,255,0.3); opacity: 1; }
+
+.calibrationStepConnector {
+    flex: 1;
+    height: 1px;
+    margin: 0 12px;
+    background: rgba(255,255,255,0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.calibrationStepConnectorFill {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    background: var(--accent);
+    transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ─── BODY ───────────────────────────────────────── */
+.calibrationBody {
+    padding: 40px 48px;
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.calibrationBody::-webkit-scrollbar { width: 4px; }
+.calibrationBody::-webkit-scrollbar-track { background: transparent; }
+.calibrationBody::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+/* ─── SECTION HEADER ─────────────────────────────── */
+.calibrationSectionHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.calibrationSectionIcon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: rgba(var(--accent-rgb, 0,200,150), 0.08);
+    border: 1px solid rgba(var(--accent-rgb, 0,200,150), 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+.calibrationSectionTitle {
+    font-size: 0.78rem;
+    font-weight: 950;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--foreground);
+    margin: 0;
+}
+
+/* ─── CONFIG MATRIX GRID ─────────────────────────── */
+.calibrationMatrixGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.calibrationMatrixCell {
+    background: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 22px;
+    transition: border-color 0.2s;
+}
+
+.calibrationMatrixCell:hover {
+    border-color: var(--accent);
+}
+
+.calibrationMatrixKey {
+    font-size: 0.62rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted-foreground);
+    margin-bottom: 8px;
+}
+
+.calibrationMatrixValue {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--foreground);
+    word-break: break-all;
+    line-height: 1.3;
+}
+
+/* ─── FORM CONTROLS ──────────────────────────────── */
+.calibrationFieldGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.calibrationFieldLabel {
+    font-size: 0.7rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--muted-foreground);
+}
+
+.calibrationSelect {
+    width: 100%;
+    height: 52px;
+    background: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 0 18px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--foreground);
+    outline: none;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+}
+
+.calibrationSelect:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb, 0,200,150), 0.12);
+    background-color: var(--card);
+}
+
+/* ─── LIVE TELEMETRY PANEL ───────────────────────── */
+.calibrationTelemetry {
+    background: #0e0e0f;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+.calibrationTelemetryHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 22px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.calibrationTelemetryTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.7rem;
+    font-weight: 950;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+}
+
+.calibrationTelemetryCount {
+    font-size: 0.65rem;
+    font-weight: 950;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.calibrationTelemetryList {
+    padding: 14px;
+    max-height: 220px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.calibrationTelemetryList::-webkit-scrollbar { width: 3px; }
+.calibrationTelemetryList::-webkit-scrollbar-track { background: transparent; }
+.calibrationTelemetryList::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+.calibrationTelemetryItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.calibrationTelemetryItem:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.1);
+}
+
+.calibrationTelemetryItemActive {
+    background: rgba(var(--accent-rgb, 0,200,150), 0.1) !important;
+    border-color: var(--accent) !important;
+}
+
+.calibrationTelemetryItemName {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 3px;
+}
+
+.calibrationTelemetryItemId {
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.3);
+    font-family: 'SF Mono', 'Fira Mono', monospace;
+}
+
+.calibrationTelemetryEmpty {
+    text-align: center;
+    padding: 36px 20px;
+    color: rgba(255,255,255,0.25);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.calibrationTelemetryScanning {
+    text-align: center;
+    padding: 36px 20px;
+    color: var(--accent);
+    font-size: 0.78rem;
+    font-weight: 950;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    animation: scanPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes scanPulse {
+    0%, 100% { opacity: 0.5; }
+    50%       { opacity: 1; }
+}
+
+/* ─── SELECTED PROTOCOL CARD ─────────────────────── */
+.calibrationSelectedProtocol {
+    background: var(--muted);
+    border: 1px solid var(--accent);
+    border-radius: 16px;
+    padding: 20px 24px;
+    animation: fadeIn 0.35s ease;
+}
+
+.calibrationSelectedProtocolHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.calibrationSelectedProtocolTitle {
+    font-size: 0.7rem;
+    font-weight: 950;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+}
+
+.calibrationSelectedProtocolGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.calibrationSelectedProtocolField .calibrationMatrixKey {
+    margin-bottom: 4px;
+}
+
+.calibrationSelectedProtocolField .calibrationMatrixValue {
+    font-size: 0.85rem;
+}
+
+/* ─── FOOTER ─────────────────────────────────────── */
+.calibrationFooter {
+    padding: 24px 48px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    background: var(--card);
+    flex-shrink: 0;
+}
+
+.calibrationFooterLeft {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--muted-foreground);
+    letter-spacing: 0.08em;
+}
+
+.calibrationDiscardBtn {
+    height: 44px;
+    padding: 0 22px;
+    border-radius: 12px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.calibrationDiscardBtn:hover {
+    background: var(--muted);
+    color: var(--foreground);
+    border-color: var(--foreground);
+}
+
+.calibrationNextBtn {
+    height: 44px;
+    padding: 0 28px;
+    border-radius: 12px;
+    background: var(--foreground);
+    border: none;
+    color: var(--background);
+    font-size: 0.875rem;
+    font-weight: 950;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    letter-spacing: -0.01em;
+}
+
+.calibrationNextBtn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    opacity: 0.92;
+}
+
+.calibrationNextBtn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.calibrationCommitBtn {
+    height: 44px;
+    padding: 0 28px;
+    border-radius: 12px;
+    background: var(--accent);
+    border: none;
+    color: var(--background);
+    font-size: 0.875rem;
+    font-weight: 950;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    letter-spacing: -0.01em;
+}
+
+.calibrationCommitBtn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(var(--accent-rgb, 0,200,150), 0.3);
+}
+
+.calibrationCommitBtn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.calibrationFooterActions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
