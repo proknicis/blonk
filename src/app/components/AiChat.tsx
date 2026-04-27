@@ -51,19 +51,7 @@ export default function AiChat() {
                 if (openTicket) {
                     setTicketId(openTicket.id);
                     setIsEscalated(true);
-                    
-                    // Load ticket messages
-                    const detailsRes = await fetch(`/api/support?ticketId=${openTicket.id}`);
-                    const { messages: ticketMsgs } = await detailsRes.json();
-                    
-                    if (ticketMsgs && ticketMsgs.length > 0) {
-                        const converted = ticketMsgs.map((m: any) => ({
-                            id: m.id,
-                            role: m.senderRole === 'admin' ? 'admin' : (m.senderRole === 'user' ? 'user' : 'assistant'),
-                            content: m.content
-                        }));
-                        setMessages(converted);
-                    }
+                    syncMessages(openTicket.id);
                 }
             } catch (err) {
                 console.error("Failed to sync support status", err);
@@ -71,6 +59,43 @@ export default function AiChat() {
         };
         checkActiveTickets();
     }, []);
+
+    // Polling for new messages if escalated
+    useEffect(() => {
+        if (isEscalated && ticketId && isOpen) {
+            const interval = setInterval(() => {
+                syncMessages(ticketId);
+            }, 5000);
+            return () => clearInterval(interval);
+        }
+    }, [isEscalated, ticketId, isOpen]);
+
+    const syncMessages = async (id: string) => {
+        try {
+            const detailsRes = await fetch(`/api/support?ticketId=${id}`);
+            const { messages: ticketMsgs } = await detailsRes.json();
+            
+            if (ticketMsgs && ticketMsgs.length > 0) {
+                const converted = ticketMsgs.map((m: any) => ({
+                    id: m.id,
+                    role: m.senderRole === 'admin' ? 'admin' : (m.senderRole === 'user' ? 'user' : 'assistant'),
+                    content: m.content
+                }));
+                
+                // Only update if message count changed to avoid flickering
+                setMessages(prev => {
+                    const existingIds = new Set(prev.map(p => p.id));
+                    const newMessages = converted.filter((m: any) => !existingIds.has(m.id));
+                    if (newMessages.length > 0) {
+                        return [...prev, ...newMessages];
+                    }
+                    return prev;
+                });
+            }
+        } catch (err) {
+            console.error("Sync error", err);
+        }
+    };
 
     useEffect(() => {
         const handleOpenAi = (e: any) => {
@@ -94,8 +119,7 @@ export default function AiChat() {
         if (!text.trim() || isLoading) return;
 
         const userMsg: Message = { id: Date.now().toString(), role: "user", content: text };
-        const updatedMessages = [...messages, userMsg];
-        setMessages(updatedMessages);
+        setMessages(prev => [...prev, userMsg]);
         setInput("");
         setIsLoading(true);
 
@@ -112,7 +136,7 @@ export default function AiChat() {
                 });
 
                 if (res.ok) {
-                    // Message sent to admin. In a full system, we might poll for responses.
+                    // Message sent to admin. The polling will pick up the user message and any admin reply.
                 }
             } catch (err) {
                 console.error("Support message failed", err);
@@ -133,7 +157,7 @@ export default function AiChat() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    messages: updatedMessages.map(m => ({ role: m.role, content: m.content })),
+                    messages: messages.concat(userMsg).map(m => ({ role: m.role, content: m.content })),
                 }),
             });
 
@@ -210,6 +234,8 @@ export default function AiChat() {
                     role: 'assistant', 
                     content: "✅ **Support Ticket Created.** An administrator has been notified and will respond here shortly. You can continue typing to provide more details." 
                 }]);
+                // Start syncing
+                syncMessages(data.ticketId);
             }
         } catch (err) {
             console.error("Escalation failed", err);

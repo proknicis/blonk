@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Support Ticket System API
@@ -14,7 +15,7 @@ import { db } from '@/lib/db';
 async function ensureTable() {
     await db.execute(`
         CREATE TABLE IF NOT EXISTS "support_tickets" (
-            id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+            id TEXT PRIMARY KEY,
             "userId" TEXT NOT NULL,
             "userEmail" TEXT NOT NULL,
             "userName" TEXT DEFAULT 'User',
@@ -27,7 +28,7 @@ async function ensureTable() {
     `);
     await db.execute(`
         CREATE TABLE IF NOT EXISTS "support_messages" (
-            id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+            id TEXT PRIMARY KEY,
             "ticketId" TEXT NOT NULL REFERENCES "support_tickets"(id) ON DELETE CASCADE,
             "senderId" TEXT NOT NULL,
             "senderRole" TEXT NOT NULL DEFAULT 'user',
@@ -53,10 +54,11 @@ export async function POST(req: Request) {
         // If ticketId is provided, this is a reply to an existing ticket
         if (ticketId) {
             const role = senderRole || 'user';
+            const msgId = uuidv4();
             await db.execute(
-                `INSERT INTO "support_messages" ("ticketId", "senderId", "senderRole", "senderName", content)
-                 VALUES ($1, $2, $3, $4, $5)`,
-                [ticketId, user.id, role, user.name || user.email, message]
+                `INSERT INTO "support_messages" (id, "ticketId", "senderId", "senderRole", "senderName", content)
+                 VALUES ($1, $2, $3, $4, $5, $6)`,
+                [msgId, ticketId, user.id, role, user.name || user.email, message]
             );
             await db.execute(
                 `UPDATE "support_tickets" SET "updatedAt" = NOW() WHERE id = $1`,
@@ -66,20 +68,20 @@ export async function POST(req: Request) {
         }
 
         // Create a new ticket
-        const ticketRows = await db.query(
+        const newTicketId = uuidv4();
+        await db.execute(
             `INSERT INTO "support_tickets" (id, "userId", "userEmail", "userName", subject)
-             VALUES (gen_random_uuid()::text, $1, $2, $3, $4) RETURNING id`,
-            [user.id, user.email, user.name || 'User', subject || 'Support Request']
+             VALUES ($1, $2, $3, $4, $5)`,
+            [newTicketId, user.id, user.email, user.name || 'User', subject || 'Support Request']
         );
 
-        const newTicketId = ticketRows[0]?.id;
-
         // Add the first message
-        if (message && newTicketId) {
+        if (message) {
+            const msgId = uuidv4();
             await db.execute(
-                `INSERT INTO "support_messages" ("ticketId", "senderId", "senderRole", "senderName", content)
-                 VALUES ($1, $2, 'user', $3, $4)`,
-                [newTicketId, user.id, user.name || user.email, message]
+                `INSERT INTO "support_messages" (id, "ticketId", "senderId", "senderRole", "senderName", content)
+                 VALUES ($1, $2, $3, 'user', $4, $5)`,
+                [msgId, newTicketId, user.id, user.name || user.email, message]
             );
         }
 
@@ -87,7 +89,7 @@ export async function POST(req: Request) {
 
     } catch (error) {
         console.error('[Support API Error]', error);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        return NextResponse.json({ error: 'Internal server error', detail: String(error) }, { status: 500 });
     }
 }
 
@@ -125,7 +127,7 @@ export async function GET(req: Request) {
             return NextResponse.json(tickets);
         } else {
             const tickets = await db.query(
-                `SELECT * FROM "support_tickets" WHERE "userId" = $1 ORDER BY "updatedAt" DESC LIMIT 20`,
+                `SELECT * FROM "support_tickets" WHERE "userId" = $1 AND status = 'open' ORDER BY "updatedAt" DESC LIMIT 20`,
                 [user.id]
             );
             return NextResponse.json(tickets);

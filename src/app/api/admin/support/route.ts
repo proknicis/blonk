@@ -1,31 +1,63 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { db } from "@/lib/db";
 import { cookies } from 'next/headers';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
- * Admin Support API
- * POST — Admin replies to a ticket or updates its status
- * GET  — List all tickets with latest message preview (admin only)
+ * ADMIN Support Inbox API
+ * 
+ * Secure route for administrators to manage support tickets.
  */
 
 async function verifyAdmin() {
     const cookieStore = await cookies();
     const token = cookieStore.get('admin_token')?.value;
-    if (!token) return null;
+    if (!token || !token.startsWith('admin_')) return null;
+
+    const adminId = token.split('_')[1];
 
     try {
         const rows = await db.query(
-            'SELECT id, email, name FROM "AdminUser" WHERE token = $1 LIMIT 1',
-            [token]
-        );
+            'SELECT id, name, email, plan FROM "User" WHERE id = $1 AND plan = \'SuperAdmin\' LIMIT 1',
+            [adminId]
+        ) as any[];
         return rows[0] || null;
     } catch {
         return null;
     }
 }
 
+// Ensure the support_tickets table exists
+async function ensureTable() {
+    await db.execute(`
+        CREATE TABLE IF NOT EXISTS "support_tickets" (
+            id TEXT PRIMARY KEY,
+            "userId" TEXT NOT NULL,
+            "userEmail" TEXT NOT NULL,
+            "userName" TEXT DEFAULT 'User',
+            subject TEXT NOT NULL,
+            status TEXT DEFAULT 'open',
+            priority TEXT DEFAULT 'normal',
+            "createdAt" TIMESTAMPTZ DEFAULT NOW(),
+            "updatedAt" TIMESTAMPTZ DEFAULT NOW()
+        )
+    `);
+    await db.execute(`
+        CREATE TABLE IF NOT EXISTS "support_messages" (
+            id TEXT PRIMARY KEY,
+            "ticketId" TEXT NOT NULL REFERENCES "support_tickets"(id) ON DELETE CASCADE,
+            "senderId" TEXT NOT NULL,
+            "senderRole" TEXT NOT NULL DEFAULT 'user',
+            "senderName" TEXT DEFAULT 'User',
+            content TEXT NOT NULL,
+            "createdAt" TIMESTAMPTZ DEFAULT NOW()
+        )
+    `);
+}
+
 export async function POST(req: Request) {
     try {
+        await ensureTable();
         const admin = await verifyAdmin();
         if (!admin) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -48,10 +80,11 @@ export async function POST(req: Request) {
 
         // Add admin reply message if provided
         if (message) {
+            const msgId = uuidv4();
             await db.execute(
-                `INSERT INTO "support_messages" ("ticketId", "senderId", "senderRole", "senderName", content)
-                 VALUES ($1, $2, 'admin', $3, $4)`,
-                [ticketId, admin.id, admin.name || 'Admin', message]
+                `INSERT INTO "support_messages" (id, "ticketId", "senderId", "senderRole", "senderName", content)
+                 VALUES ($1, $2, $3, 'admin', $4, $5)`,
+                [msgId, ticketId, admin.id, admin.name || 'Admin', message]
             );
             await db.execute(
                 `UPDATE "support_tickets" SET "updatedAt" = NOW() WHERE id = $1`,
@@ -68,6 +101,7 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
     try {
+        await ensureTable();
         const admin = await verifyAdmin();
         if (!admin) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -77,15 +111,11 @@ export async function GET(req: Request) {
         const ticketId = searchParams.get('ticketId');
 
         if (ticketId) {
-            const ticket = await db.query(
-                `SELECT * FROM "support_tickets" WHERE id = $1`,
-                [ticketId]
-            );
             const messages = await db.query(
                 `SELECT * FROM "support_messages" WHERE "ticketId" = $1 ORDER BY "createdAt" ASC`,
                 [ticketId]
             );
-            return NextResponse.json({ ticket: ticket[0] || null, messages });
+            return NextResponse.json({ messages });
         }
 
         // All tickets with latest message preview
@@ -103,7 +133,6 @@ export async function GET(req: Request) {
         `);
 
         return NextResponse.json(tickets);
-
     } catch (error) {
         console.error('[Admin Support GET Error]', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
