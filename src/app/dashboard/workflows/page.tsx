@@ -137,9 +137,17 @@ export default function WorkflowsPage() {
 
             if (res.ok) {
                 const orchestration = data.orchestration || {};
+                console.log("[DEBUG_ORCHESTRATION] Received Data:", orchestration);
+                
+                // Set result data first
                 setDeployResult(orchestration);
-                setStep('result');
-                showToast(`Orchestration sequence initiated!`);
+                
+                // Small delay to ensure state is committed before UI transition
+                setTimeout(() => {
+                    setStep('result');
+                    showToast(`Orchestration sequence initiated!`);
+                }, 100);
+                
                 fetchMarketplace();
             } else {
                 showToast(data.details || data.error || "Deployment failed.", 'error');
