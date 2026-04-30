@@ -75,6 +75,8 @@ export async function POST(request: Request) {
 
         let n8nWorkflowId = null;
         let n8nWebhookUrl = null;
+        let credentialStatus = 'Skipped';
+        let deploymentStatus = 'Pending';
 
         // 2. FETCH TEMPLATE JSON
         if (templateId) {
