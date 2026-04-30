@@ -110,7 +110,6 @@ export async function POST(request: Request) {
                         } else {
                             const errorText = await credRes.text();
                             console.error("[Orchestrator] n8n Credential Error:", errorText);
-                            // We don't throw here to allow deployment even if credentials fail (manual fix possible)
                         }
                     }
 
@@ -197,8 +196,8 @@ export async function POST(request: Request) {
             orchestration: {
                 server: availableNode.name,
                 serverUrl: availableNode.url,
-                credentialStatus: n8nWorkflowId ? 'Success' : 'Check Logs',
-                deploymentStatus: n8nWorkflowId ? 'Success' : 'Pending',
+                credentialStatus: n8nWorkflowId ? 'Success' : 'Failed or Skipped',
+                deploymentStatus: n8nWorkflowId ? 'Success' : 'Failed to reach n8n',
                 n8nWorkflowId
             }
         });
