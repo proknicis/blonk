@@ -111,6 +111,8 @@ export default function WorkflowsPage() {
         if (reqs.length > 0 || guide.length > 0) {
             setConfigureTemplate({ ...template, parsedReqs: reqs, parsedGuide: guide });
             setTemplateInputs({});
+            setStep('configure');
+            setDeployResult(null);
         } else {
             deployWorkflow(template, {});
         }
@@ -134,7 +136,8 @@ export default function WorkflowsPage() {
             const data = await res.json();
 
             if (res.ok) {
-                setDeployResult(data.orchestration);
+                const orchestration = data.orchestration || {};
+                setDeployResult(orchestration);
                 setStep('result');
                 showToast(`Orchestration sequence initiated!`);
                 fetchMarketplace();
