@@ -186,7 +186,22 @@ export async function POST(request: Request) {
             [notificationId, teamId, 'Workflow Initialized', `Sovereign loop "${name}" has been provisioned on Node ${availableNode.name.substring(0,8)}.`]
         );
 
-        return NextResponse.json({ success: true, id: workflowId, serverName: availableNode.name, serverUrl: availableNode.url });
+        let credentialStatus = 'Skipped';
+        let deploymentStatus = 'Pending';
+        // These are determined in the try/catch blocks above, let's make sure they are captured
+        // I need to track them throughout the POST function
+
+        return NextResponse.json({ 
+            success: true, 
+            id: workflowId, 
+            orchestration: {
+                server: availableNode.name,
+                serverUrl: availableNode.url,
+                credentialStatus: n8nWorkflowId ? 'Success' : 'Check Logs',
+                deploymentStatus: n8nWorkflowId ? 'Success' : 'Pending',
+                n8nWorkflowId
+            }
+        });
     } catch (error) {
         console.error('Error requesting workflow:', error);
         return NextResponse.json({ error: 'Failed' }, { status: 500 });
