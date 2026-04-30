@@ -19,7 +19,8 @@ export function FleetManager() {
     const [formData, setFormData] = useState({
         name: '',
         url: '',
-        api_key: ''
+        api_key: '',
+        max_workflows: 100
     });
 
     const handleAddNode = async (e: React.FormEvent) => {
@@ -111,6 +112,21 @@ export function FleetManager() {
                                         placeholder="Enter secure API key..."
                                         value={formData.api_key}
                                         onChange={e => setFormData({...formData, api_key: e.target.value})}
+                                        style={{ width: '100%', padding: '12px 16px 12px 48px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '16px', color: 'var(--foreground)', fontSize: '0.9rem', outline: 'none' }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', marginBottom: '8px' }}>Max Capacity (Workflows)</label>
+                                <div style={{ position: 'relative' }}>
+                                    <Activity style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} size={16} />
+                                    <input 
+                                        type="number" 
+                                        required
+                                        placeholder="e.g. 100"
+                                        value={formData.max_workflows}
+                                        onChange={e => setFormData({...formData, max_workflows: parseInt(e.target.value)})}
                                         style={{ width: '100%', padding: '12px 16px 12px 48px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '16px', color: 'var(--foreground)', fontSize: '0.9rem', outline: 'none' }}
                                     />
                                 </div>

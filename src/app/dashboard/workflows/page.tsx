@@ -124,6 +124,7 @@ export default function WorkflowsPage() {
                     name: template.name,
                     sector: template.sector,
                     performance: "0",
+                    templateId: template.id,
                     inputs
                 })
             });

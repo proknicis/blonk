@@ -180,6 +180,7 @@ export default function FleetMonitoringPage() {
                                 <th className={adminStyles.registryTH}>Active Load</th>
                                 <th className={adminStyles.registryTH}>Resource Distribution</th>
                                 <th className={adminStyles.registryTH}>Sentinel Status</th>
+                                <th className={adminStyles.registryTH}>Fleet Load</th>
                                 <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Orchestration</th>
                             </tr>
                         </thead>
@@ -249,6 +250,17 @@ export default function FleetMonitoringPage() {
                                                 <span style={{ fontWeight: 950, fontSize: "0.7rem", color: getStatusColor(node.status), textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                                                     {isEmergency ? 'CRITICAL' : node.status}
                                                 </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                <div style={{ fontSize: '0.9rem', fontWeight: 950, color: 'var(--foreground)' }}>
+                                                    {node.workflow_count || 0} / {node.max_workflows || 100}
+                                                </div>
+                                                <div style={{ width: "100%", height: "4px", background: 'var(--muted)', borderRadius: "2px", overflow: "hidden" }}>
+                                                    <div style={{ width: `${Math.min(100, ((node.workflow_count || 0) / (node.max_workflows || 100)) * 100)}%`, height: "100%", background: 'var(--accent)', transition: 'width 1s cubic-bezier(0.16, 1, 0.3, 1)' }} />
+                                                </div>
+                                                <div style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--muted-foreground)', textTransform: 'uppercase' }}>Fleet Load</div>
                                             </div>
                                         </td>
                                         <td>

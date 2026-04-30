@@ -103,15 +103,24 @@ export async function GET(request: Request) {
         const { searchParams } = new URL(request.url);
         const forceProbe = searchParams.get('probe') === 'true';
         
-        // Fetch base node data from the Sovereign Ledger
-        const nodes = await db.query('SELECT * FROM "ClusterNode" ORDER BY "createdAt" DESC') as any[];
+        // Fetch base node data with workflow counts from the Sovereign Ledger
+        const nodes = await db.query(`
+            SELECT n.*, 
+                   (SELECT COUNT(*) FROM "Workflow" w WHERE w."serverId" = n.id) as workflow_count
+            FROM "ClusterNode" n
+            ORDER BY n."createdAt" DESC
+        `) as any[];
         
         // If we don't need a probe or have a fresh cache, return immediately
         const now = Date.now();
         if (!forceProbe && (now - lastProbe < CACHE_TTL) && nodeCache.length > 0) {
             const merged = nodes.map(n => {
                 const cached = nodeCache.find(c => c.id === n.id);
-                return cached || { ...n, cpu: 0, ram: 0, queue: 0, uptime: '...' };
+                return { 
+                    ...(cached || n), 
+                    workflow_count: n.workflow_count,
+                    max_workflows: n.max_workflows || 100 
+                };
             });
             return NextResponse.json(merged);
         }
@@ -123,7 +132,11 @@ export async function GET(request: Request) {
             ));
             nodeCache = probedNodes;
             lastProbe = now;
-            return NextResponse.json(probedNodes);
+            return NextResponse.json(probedNodes.map(p => ({
+                ...p,
+                workflow_count: nodes.find(n => n.id === p.id)?.workflow_count || 0,
+                max_workflows: p.max_workflows || 100
+            })));
         }
 
         // If cache is stale but not forcing, return DB immediately and trigger background probe
@@ -137,7 +150,11 @@ export async function GET(request: Request) {
 
         return NextResponse.json(nodes.map(n => {
             const cached = nodeCache.find(c => c.id === n.id);
-            return cached || { ...n, cpu: 0, ram: 0, queue: 0, uptime: '...' };
+            return { 
+                ...(cached || n), 
+                workflow_count: n.workflow_count,
+                max_workflows: n.max_workflows || 100
+            };
         }));
     } catch (error) {
         console.error("[Fleet] Failed to fetch nodes:", error);
@@ -147,15 +164,15 @@ export async function GET(request: Request) {
 
 export async function POST(req: Request) {
     try {
-        const { name, url, api_key } = await req.json();
+        const { name, url, api_key, max_workflows } = await req.json();
         
         if (!name || !url || !api_key) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
         const res = await db.execute(
-            'INSERT INTO "ClusterNode" (name, url, api_key, status) VALUES ($1, $2, $3, $4) RETURNING *',
-            [name, url, api_key, 'Pending']
+            'INSERT INTO "ClusterNode" (name, url, api_key, status, max_workflows) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+            [name, url, api_key, 'Pending', max_workflows || 100]
         );
 
         return NextResponse.json(res.rows[0]);
