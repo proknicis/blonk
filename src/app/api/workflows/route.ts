@@ -99,7 +99,11 @@ export async function POST(request: Request) {
                                     clientSecret: process.env.N8N_GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET,
                                     authUrl: "https://accounts.google.com/o/oauth2/v2/auth",
                                     accessTokenUrl: "https://oauth2.googleapis.com/token",
-                                    authData: inputs.authData // This contains access_token, refresh_token, etc.
+                                    accessToken: inputs.authData?.access_token,
+                                    refreshToken: inputs.authData?.refresh_token,
+                                    expiry: inputs.authData?.expiry_date,
+                                    scope: inputs.authData?.scope,
+                                    tokenType: inputs.authData?.token_type
                                 }
                             })
                         });
