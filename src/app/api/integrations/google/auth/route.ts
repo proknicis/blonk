@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientId = process.env.N8N_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
     const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/integrations/google/callback`;
     
     // Scopes needed for n8n Google nodes (Gmail, Sheets, etc.)

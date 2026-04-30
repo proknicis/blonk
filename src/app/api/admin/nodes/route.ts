@@ -10,26 +10,31 @@ async function probeNode(node: any) {
     try {
         console.log(`[Fleet] Probing node ${node.name} at ${baseUrl}...`);
         
-        // Health check
-        const healthRes = await fetch(`${baseUrl}/api/v1/health`, {
-            headers: { "X-N8N-API-KEY": apiKey },
-            cache: 'no-store',
-            signal: AbortSignal.timeout(10000) // Increased to 10s for slower VPS
-        });
+        // Try multiple health endpoints
+        const healthEndpoints = ['/api/v1/health', '/healthz', '/api/v1/workflows?limit=1'];
+        let healthRes = null;
+        let successEndpoint = '';
 
-        if (!healthRes.ok) {
-            console.warn(`[Fleet] Node ${node.name} health check failed with status: ${healthRes.status}`);
-            return { ...node, status: 'Unreachable', cpu: 0, ram: 0, queue: 0, uptime: `HTTP ${healthRes.status}` };
+        for (const endpoint of healthEndpoints) {
+            try {
+                const res = await fetch(`${baseUrl}${endpoint}`, {
+                    headers: { "X-N8N-API-KEY": apiKey },
+                    cache: 'no-store',
+                    signal: AbortSignal.timeout(5000)
+                });
+                if (res.ok) {
+                    healthRes = res;
+                    successEndpoint = endpoint;
+                    break;
+                }
+            } catch (e) { continue; }
         }
 
-        const ct = healthRes.headers.get('content-type') || '';
-        if (!ct.includes('application/json')) {
-            console.error(`[Fleet] Node ${node.name} returned non-JSON content: ${ct}`);
-            return { ...node, status: 'Protocol Err', cpu: 0, ram: 0, queue: 0, uptime: 'N/A' };
+        if (!healthRes) {
+            return { ...node, status: 'Unreachable', cpu: 0, ram: 0, queue: 0, uptime: 'OFFLINE' };
         }
 
-        const health = await healthRes.json();
-        console.log(`[Fleet] Node ${node.name} is ONLINE. Status: ${health.status}`);
+        console.log(`[Fleet] Node ${node.name} is ONLINE via ${successEndpoint}`);
 
         // Fetch executions for queue/activity metrics
         let activeExecs = 0;
@@ -75,7 +80,7 @@ async function probeNode(node: any) {
             cpu: Math.round(cpuEstimate),
             ram: Math.round(ramEstimate),
             queue: activeExecs,
-            uptime: health.status === 'ok' ? 'ONLINE' : health.status?.toUpperCase() || 'ONLINE',
+            uptime: 'ONLINE',
             telemetry
         };
     } catch (error: any) {

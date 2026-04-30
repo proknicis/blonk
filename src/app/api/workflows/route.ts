@@ -79,8 +79,8 @@ export async function POST(request: Request) {
                                 name: `Marketplace-Gmail-${teamId}-${Date.now()}`,
                                 type: 'gmailOAuth2Api', 
                                 data: {
-                                    clientId: process.env.GOOGLE_CLIENT_ID,
-                                    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+                                    clientId: process.env.N8N_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID,
+                                    clientSecret: process.env.N8N_GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET,
                                     authUrl: "https://accounts.google.com/o/oauth2/v2/auth",
                                     accessTokenUrl: "https://oauth2.googleapis.com/token",
                                     authData: inputs.authData // This contains access_token, refresh_token, etc.
