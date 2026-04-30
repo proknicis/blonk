@@ -34,7 +34,7 @@ export function FleetManager() {
             });
             if (res.ok) {
                 setShowAddModal(false);
-                setFormData({ name: '', url: '', api_key: '' });
+                setFormData({ name: '', url: '', api_key: '', max_workflows: 100 });
                 window.location.reload(); // Refresh to show new node
             }
         } catch (err) {
