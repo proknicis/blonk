@@ -41,20 +41,30 @@ export async function POST(request: Request) {
         const notificationId = uuidv4();
 
         // 1. FIND AVAILABLE SERVER
-        const nodes = await db.query(`
-            SELECT n.*, (SELECT COUNT(*) FROM "Workflow" w WHERE w."serverId" = n.id) as assigned_count
-            FROM "ClusterNode" n
-            WHERE n.status = 'Active'
-            ORDER BY assigned_count ASC
-        `) as any[];
+        const allNodes = await db.query('SELECT * FROM "ClusterNode" WHERE status = \'Active\'') as any[];
+        const allWorkflows = await db.query('SELECT "serverId" FROM "Workflow"') as any[];
 
-        const availableNode = nodes.find(n => Number(n.assigned_count || 0) < (n.max_workflows || 10));
+        // Calculate load in-memory for maximum reliability
+        const nodeLoadMap: Record<string, number> = {};
+        allWorkflows.forEach(w => {
+            if (w.serverId) nodeLoadMap[w.serverId] = (nodeLoadMap[w.serverId] || 0) + 1;
+        });
+
+        const nodesWithLoad = allNodes.map(n => ({
+            ...n,
+            assigned_count: nodeLoadMap[n.id] || 0
+        })).sort((a, b) => a.assigned_count - b.assigned_count);
+
+        const availableNode = nodesWithLoad.find(n => n.assigned_count < (n.max_workflows || 10));
 
         if (!availableNode) {
-            console.error("[Orchestrator] No available nodes found. Nodes in DB:", nodes.length);
+            console.error("[Orchestrator] FAILURE: No active nodes found.", {
+                totalNodesInDb: allNodes.length,
+                dbUrl: process.env.DATABASE_URL?.split('@')[1] // Log host for sanity check
+            });
             return NextResponse.json({ 
                 error: 'Global Capacity Exhausted', 
-                details: nodes.length === 0 ? 'No active nodes found in the registry.' : `All ${nodes.length} nodes are at max capacity.`
+                details: allNodes.length === 0 ? 'No active nodes found in the registry. Please check Fleet Control.' : `All ${allNodes.length} nodes are at maximum capacity.`
             }, { status: 503 });
         }
 
