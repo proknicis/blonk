@@ -40,8 +40,15 @@ export async function POST(request: Request) {
         const workflowId = uuidv4();
         const notificationId = uuidv4();
 
-        // 1. FIND AVAILABLE SERVER
-        const allNodes = await db.query('SELECT * FROM "ClusterNode" WHERE status = \'Active\'') as any[];
+        // 1. FIND AVAILABLE SERVER (Fail-safe logic)
+        let allNodes = await db.query('SELECT * FROM "ClusterNode" WHERE status ILIKE \'Active\'') as any[];
+        
+        // If no 'Active' nodes found, fallback to ANY node as a last resort
+        if (allNodes.length === 0) {
+            console.warn("[Orchestrator] No 'Active' nodes found. Falling back to all registry nodes.");
+            allNodes = await db.query('SELECT * FROM "ClusterNode"') as any[];
+        }
+
         const allWorkflows = await db.query('SELECT "serverId" FROM "Workflow"') as any[];
 
         // Calculate load in-memory for maximum reliability
@@ -55,16 +62,14 @@ export async function POST(request: Request) {
             assigned_count: nodeLoadMap[n.id] || 0
         })).sort((a, b) => a.assigned_count - b.assigned_count);
 
-        const availableNode = nodesWithLoad.find(n => n.assigned_count < (n.max_workflows || 10));
+        // Pick the node with most space, fallback to 100 capacity if not set
+        const availableNode = nodesWithLoad.find(n => n.assigned_count < (n.max_workflows || 100)) || nodesWithLoad[0];
 
         if (!availableNode) {
-            console.error("[Orchestrator] FAILURE: No active nodes found.", {
-                totalNodesInDb: allNodes.length,
-                dbUrl: process.env.DATABASE_URL?.split('@')[1] // Log host for sanity check
-            });
+            console.error("[Orchestrator] CRITICAL FAILURE: Node registry is empty.");
             return NextResponse.json({ 
-                error: 'Global Capacity Exhausted', 
-                details: allNodes.length === 0 ? 'No active nodes found in the registry. Please check Fleet Control.' : `All ${allNodes.length} nodes are at maximum capacity.`
+                error: 'Infrastructure Missing', 
+                details: 'No sovereign nodes found in the registry. Please add at least one node in Fleet Control.'
             }, { status: 503 });
         }
 
