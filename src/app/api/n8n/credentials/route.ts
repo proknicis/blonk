@@ -9,10 +9,22 @@ export async function POST(request: Request) {
         if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
         const body = await request.json();
-        const { nodeId, type, name, data } = body;
+        const { nodeId, type, name, data: incomingData } = body;
 
-        if (!nodeId || !type || !name || !data) {
-            return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
+        if (!nodeId || !type || !name || !incomingData) {
+            return NextResponse.json({ 
+                error: 'Missing parameters', 
+                received: { nodeId: !!nodeId, type: !!type, name: !!name, data: !!incomingData } 
+            }, { status: 400 });
+        }
+
+        // Auto-inject Google Client ID/Secret if it's an OAuth2 credential
+        const data = { ...incomingData };
+        if (type === 'gmailOAuth2Api' || type === 'googleSheetsOAuth2Api') {
+            if (!data.clientId) data.clientId = process.env.N8N_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
+            if (!data.clientSecret) data.clientSecret = process.env.N8N_GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET;
+            if (!data.authUrl) data.authUrl = "https://accounts.google.com/o/oauth2/v2/auth";
+            if (!data.accessTokenUrl) data.accessTokenUrl = "https://oauth2.googleapis.com/token";
         }
 
         // 1. Fetch Node Details
