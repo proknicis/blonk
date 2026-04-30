@@ -23,12 +23,16 @@ export default async function IncidentCommandPage() {
             wl."workflowName", 
             COALESCE(wl.result::jsonb->>'error', 'Unknown Operational Fault') as "errorMessage", 
             wl."createdAt",
-            wl.status
+            wl.status,
+            n.url as "serverUrl",
+            w."n8nWorkflowId"
         FROM "WorkflowLog" wl
         LEFT JOIN "Team" t ON wl."teamId" = t.id
+        LEFT JOIN "Workflow" w ON wl."workflowId" = w.id
+        LEFT JOIN "ClusterNode" n ON w."serverId" = n.id
         WHERE wl.status = 'error'
         ORDER BY wl."createdAt" DESC
-        LIMIT 10
+        LIMIT 20
     `) as any[];
 
     const incidents = errorLogs.map(log => {
@@ -42,9 +46,10 @@ export default async function IncidentCommandPage() {
             id: log.id.substring(0, 8),
             firm: log.firmName || 'System Archive',
             description: log.errorMessage || `Unknown failure in ${log.workflowName}`,
-            severity: 'High' as 'High' | 'Medium' | 'Low', // Errors are generally high severity
+            severity: 'High' as 'High' | 'Medium' | 'Low',
             timestamp: timeStr,
-            status: 'Active' as 'Active' | 'Investigating' | 'Resolved'
+            status: 'Active' as 'Active' | 'Investigating' | 'Resolved',
+            debugUrl: log.serverUrl && log.n8nWorkflowId ? `${log.serverUrl.replace(/\/+$/, '')}/workflow/${log.n8nWorkflowId}` : log.serverUrl
         };
     });
 
@@ -115,7 +120,13 @@ export default async function IncidentCommandPage() {
                                         </div>
                                     </div>
                                     <div style={{ display: "flex", gap: "12px" }}>
-                                        <button className={adminStyles.actionIconBtn} title="Establish Bridge"><Terminal size={18} /></button>
+                                        {inc.debugUrl ? (
+                                            <a href={inc.debugUrl} target="_blank" rel="noopener noreferrer" className={adminStyles.actionIconBtn} title="Establish Bridge" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
+                                                <Terminal size={18} />
+                                            </a>
+                                        ) : (
+                                            <button className={adminStyles.actionIconBtn} title="No Debug URL" disabled><Terminal size={18} style={{ opacity: 0.3 }} /></button>
+                                        )}
                                         <button className={adminStyles.actionIconBtn} title="Dispatch Alert"><BellRing size={18} /></button>
                                         <button className={adminStyles.actionIconBtn} title="External Logs"><ExternalLink size={18} /></button>
                                     </div>
