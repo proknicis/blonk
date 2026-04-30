@@ -48,12 +48,13 @@ export async function POST(request: Request) {
             ORDER BY assigned_count ASC
         `) as any[];
 
-        const availableNode = nodes.find(n => n.assigned_count < (n.max_workflows || 100));
+        const availableNode = nodes.find(n => Number(n.assigned_count || 0) < (n.max_workflows || 10));
 
         if (!availableNode) {
+            console.error("[Orchestrator] No available nodes found. Nodes in DB:", nodes.length);
             return NextResponse.json({ 
                 error: 'Global Capacity Exhausted', 
-                details: 'All sovereign nodes are currently at maximum load. Contact engineering for cluster expansion.' 
+                details: nodes.length === 0 ? 'No active nodes found in the registry.' : `All ${nodes.length} nodes are at max capacity.`
             }, { status: 503 });
         }
 
