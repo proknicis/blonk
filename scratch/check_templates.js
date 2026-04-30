@@ -7,8 +7,8 @@ const pool = new Pool({
 
 async function checkTemplates() {
   try {
-    const res = await pool.query('SELECT name, requirements FROM "WorkflowTemplate" WHERE requirements IS NOT NULL');
-    console.log(JSON.stringify(res.rows, null, 2));
+    const res = await pool.query('SELECT id, name, workflow IS NOT NULL as has_json FROM "WorkflowTemplate"');
+    console.log(res.rows);
   } catch (err) {
     console.error('Error:', err);
   } finally {

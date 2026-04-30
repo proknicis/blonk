@@ -17,6 +17,8 @@ export default function WorkflowsPage() {
     const [previewTemplate, setPreviewTemplate] = useState<any>(null);
     const [templateInputs, setTemplateInputs] = useState<Record<string, any>>({});
     const [helpStep, setHelpStep] = useState<any>(null);
+    const [deployResult, setDeployResult] = useState<any>(null);
+    const [step, setStep] = useState<'configure' | 'result'>('configure');
 
     const blueprintMap: Record<string, any> = {
         "Lead Automation": {
@@ -129,13 +131,15 @@ export default function WorkflowsPage() {
                 })
             });
 
+            const data = await res.json();
+
             if (res.ok) {
-                showToast(`Loop "${template.name}" requested! Admin will configure the backend.`);
-                setConfigureTemplate(null);
+                setDeployResult(data.orchestration);
+                setStep('result');
+                showToast(`Orchestration sequence initiated!`);
                 fetchMarketplace();
             } else {
-                const err = await res.json();
-                showToast(err.error || "Deployment failed. Please contact administration.", 'error');
+                showToast(data.details || data.error || "Deployment failed.", 'error');
             }
         } catch (error) {
             console.error("Error deploying workflow:", error);
@@ -323,114 +327,129 @@ export default function WorkflowsPage() {
                                 </div>
                             </div>
 
-                            {/* INTEGRATION DOSSIERS */}
-                            {configureTemplate.parsedReqs && configureTemplate.parsedReqs.length > 0 && (
-                                <div style={{ marginBottom: '48px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                                        <div style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '50%' }} />
-                                        <h3 className={styles.sectionTitle} style={{ fontSize: '1rem' }}>STEP 01: ESTABLISH HANDSHAKE</h3>
-                                    </div>
-                                    <div className={styles.requirementsList}>
-                                        {configureTemplate.parsedReqs.map((req: any, idx: number) => (
-                                            <div key={idx} className={styles.integrationDossier}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                                                    <div className={styles.integrationIcon}>
-                                                        {req.name.toLowerCase().includes('stripe') ? <Euro size={24} color="var(--accent)" /> : 
-                                                         req.name.toLowerCase().includes('google') ? <Search size={24} color="var(--accent)" /> : 
-                                                         req.name.toLowerCase().includes('notion') ? <FileText size={24} color="var(--accent)" /> : <Key size={24} color="var(--accent)" />}
-                                                    </div>
-                                                    <div>
-                                                        <div className={styles.integrationName}>{req.name} Registry</div>
-                                                        <div className={styles.integrationMeta} onClick={() => setHelpStep(req)}>
-                                                            Retrieve Institutional Credentials <ArrowUpRight size={10} />
+                            {/* CONDITIONAL RENDERING BASED ON STEP */}
+                            {step === 'configure' ? (
+                                <>
+                                    {/* INTEGRATION DOSSIERS */}
+                                    {configureTemplate.parsedReqs && configureTemplate.parsedReqs.length > 0 && (
+                                        <div style={{ marginBottom: '48px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                                                <div style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '50%' }} />
+                                                <h3 className={styles.sectionTitle} style={{ fontSize: '1rem' }}>STEP 01: ESTABLISH HANDSHAKE</h3>
+                                            </div>
+                                            <div className={styles.requirementsList}>
+                                                {configureTemplate.parsedReqs.map((req: any, idx: number) => (
+                                                    <div key={idx} className={styles.integrationDossier}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                                                            <div className={styles.integrationIcon}>
+                                                                {req.name.toLowerCase().includes('stripe') ? <Euro size={24} color="var(--accent)" /> : 
+                                                                 req.name.toLowerCase().includes('google') ? <Search size={24} color="var(--accent)" /> : 
+                                                                 req.name.toLowerCase().includes('notion') ? <FileText size={24} color="var(--accent)" /> : <Key size={24} color="var(--accent)" />}
+                                                            </div>
+                                                            <div>
+                                                                <div className={styles.integrationName}>{req.name} Registry</div>
+                                                                <div className={styles.integrationMeta} onClick={() => setHelpStep(req)}>
+                                                                    Retrieve Institutional Credentials <ArrowUpRight size={10} />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div style={{ display: 'flex', gap: '12px' }}>
+                                                            <button className={styles.btnSecondary} style={{ width: 'auto', padding: '0 20px', height: '44px', borderRadius: '12px' }} onClick={() => setHelpStep(req)}>MANUAL</button>
+                                                            <button 
+                                                                className={styles.btnPrimary} 
+                                                                style={{ 
+                                                                    width: 'auto', 
+                                                                    padding: '0 24px', 
+                                                                    height: '44px', 
+                                                                    borderRadius: '12px', 
+                                                                    background: templateInputs.google_creds === 'CONNECTED' ? '#10B981' : 'var(--foreground)' 
+                                                                }} 
+                                                                onClick={() => {
+                                                                    if (req.name.toLowerCase().includes('google') || req.name.toLowerCase().includes('gmail')) {
+                                                                        handleGoogleAuth();
+                                                                    } else {
+                                                                        setHelpStep(req);
+                                                                    }
+                                                                }}
+                                                            >
+                                                                {templateInputs.google_creds === 'CONNECTED' ? 'CONNECTED' : 'AUTHENTICATE'}
+                                                            </button>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div style={{ display: 'flex', gap: '12px' }}>
-                                                    <button className={styles.btnSecondary} style={{ width: 'auto', padding: '0 20px', height: '44px', borderRadius: '12px' }} onClick={() => setHelpStep(req)}>MANUAL</button>
-                                                    <button 
-                                                        className={styles.btnPrimary} 
-                                                        style={{ 
-                                                            width: 'auto', 
-                                                            padding: '0 24px', 
-                                                            height: '44px', 
-                                                            borderRadius: '12px', 
-                                                            background: templateInputs.google_creds === 'CONNECTED' ? '#10B981' : 'var(--foreground)' 
-                                                        }} 
-                                                        onClick={() => {
-                                                            if (req.name.toLowerCase().includes('google') || req.name.toLowerCase().includes('gmail')) {
-                                                                handleGoogleAuth();
-                                                            } else {
-                                                                setHelpStep(req);
-                                                            }
-                                                        }}
-                                                    >
-                                                        {templateInputs.google_creds === 'CONNECTED' ? 'CONNECTED' : 'AUTHENTICATE'}
-                                                    </button>
-                                                </div>
+                                                ))}
                                             </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* PROTOCOL BRIEFING */}
-                            {configureTemplate.parsedGuide && configureTemplate.parsedGuide.length > 0 && (
-                                <div style={{ marginBottom: '48px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                                        <div style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '50%' }} />
-                                        <h3 className={styles.sectionTitle} style={{ fontSize: '1rem' }}>PROTOCOL BRIEFING</h3>
-                                    </div>
-                                    <div style={{ background: '#FAFAFA', padding: '32px', borderRadius: '24px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                                        {configureTemplate.parsedGuide.map((step: any, idx: number) => (
-                                            <div key={idx} style={{ display: 'flex', gap: '16px' }}>
-                                                <div style={{ width: '24px', height: '24px', background: 'var(--foreground)', color: 'var(--background)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 950, flexShrink: 0 }}>{idx + 1}</div>
-                                                <div>
-                                                    <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 950, color: 'var(--foreground)' }}>{step.title}</h4>
-                                                    <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: 'var(--muted-foreground)', fontWeight: 750, lineHeight: 1.5 }}>{step.text}</p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* CONFIGURATION FIELDSET */}
-                            <div style={{ marginBottom: '48px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                                    <div style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '50%' }} />
-                                    <h3 className={styles.sectionTitle} style={{ fontSize: '1rem' }}>STEP 02: CALIBRATE PARAMETERS</h3>
-                                </div>
-                                <div className={styles.configFieldset}>
-                                    {configureTemplate.parsedReqs.map((req: any, idx: number) => (
-                                        <div key={idx} className={styles.fieldGroup}>
-                                            <label className={styles.fieldLabel}>
-                                                {req.name} {req.required && <span style={{ color: 'var(--destructive)' }}>*</span>}
-                                            </label>
-                                            <input 
-                                                className={styles.fieldInput}
-                                                type={req.type === 'file' ? 'file' : 'text'}
-                                                placeholder={req.example || `Enter ${req.name}...`}
-                                                value={req.type === 'file' ? undefined : (templateInputs[req.name] || '')}
-                                                onChange={e => setTemplateInputs({...templateInputs, [req.name]: e.target.value})}
-                                            />
                                         </div>
-                                    ))}
-                                </div>
-                            </div>
+                                    )}
 
-                            {/* INSTITUTIONAL FOOTER */}
-                            <div className={styles.premiumModalFooter}>
-                                <button className={styles.btnSecondary} style={{ height: '64px', borderRadius: '20px' }} onClick={() => setConfigureTemplate(null)}>CANCEL INITIALIZATION</button>
-                                <button 
-                                    className={styles.btnPrimary} 
-                                    style={{ height: '64px', borderRadius: '20px', background: 'var(--accent)', color: 'var(--background)' }} 
-                                    disabled={isDeploying} 
-                                    onClick={() => deployWorkflow(configureTemplate, templateInputs)}
-                                >
-                                    {isDeploying ? 'DEPLOYING ENGINE...' : 'FINALIZE & DEPLOY AUTOMATION'}
-                                </button>
-                            </div>
+                                    {/* CONFIGURATION FIELDSET */}
+                                    <div style={{ marginBottom: '48px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                                            <div style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '50%' }} />
+                                            <h3 className={styles.sectionTitle} style={{ fontSize: '1rem' }}>STEP 02: CALIBRATE PARAMETERS</h3>
+                                        </div>
+                                        <div className={styles.configFieldset}>
+                                            {configureTemplate.parsedReqs.map((req: any, idx: number) => (
+                                                <div key={idx} className={styles.fieldGroup}>
+                                                    <label className={styles.fieldLabel}>
+                                                        {req.name} {req.required && <span style={{ color: 'var(--destructive)' }}>*</span>}
+                                                    </label>
+                                                    <input 
+                                                        className={styles.fieldInput}
+                                                        type={req.type === 'file' ? 'file' : 'text'}
+                                                        placeholder={req.example || `Enter ${req.name}...`}
+                                                        value={req.type === 'file' ? undefined : (templateInputs[req.name] || '')}
+                                                        onChange={e => setTemplateInputs({...templateInputs, [req.name]: e.target.value})}
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.premiumModalFooter}>
+                                        <button className={styles.btnSecondary} style={{ height: '64px', borderRadius: '20px' }} onClick={() => setConfigureTemplate(null)}>CANCEL INITIALIZATION</button>
+                                        <button 
+                                            className={styles.btnPrimary} 
+                                            style={{ height: '64px', borderRadius: '20px', background: 'var(--accent)', color: 'var(--background)' }} 
+                                            disabled={isDeploying} 
+                                            onClick={() => deployWorkflow(configureTemplate, templateInputs)}
+                                        >
+                                            {isDeploying ? 'DEPLOYING ENGINE...' : 'FINALIZE & DEPLOY AUTOMATION'}
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                                    <div style={{ width: '80px', height: '80px', background: '#10B981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 32px', boxShadow: '0 0 30px rgba(16, 185, 129, 0.3)' }}>
+                                        <ShieldCheck size={40} color="white" />
+                                    </div>
+                                    <h2 className={styles.sectionTitle} style={{ fontSize: '1.8rem', marginBottom: '12px' }}>Orchestration Successful</h2>
+                                    <p className={styles.guideStepText} style={{ marginBottom: '48px' }}>The sovereign loop has been provisioned and synchronized with the institutional cluster.</p>
+                                    
+                                    <div style={{ background: '#FAFAFA', borderRadius: '24px', padding: '32px', border: '1px solid var(--border)', textAlign: 'left', marginBottom: '48px' }}>
+                                        <h4 style={{ fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--muted-foreground)', marginBottom: '20px' }}>Deployment Dossier</h4>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
+                                                <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>Target Node</span>
+                                                <span style={{ fontWeight: 950, fontSize: '0.9rem', color: 'var(--accent)' }}>{deployResult?.server}</span>
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
+                                                <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>Node URL</span>
+                                                <span style={{ fontWeight: 750, fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>{deployResult?.serverUrl}</span>
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
+                                                <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>Credentials Status</span>
+                                                <span style={{ fontWeight: 950, fontSize: '0.9rem', color: deployResult?.credentialStatus?.includes('Failed') ? '#EF4444' : '#10B981' }}>{deployResult?.credentialStatus}</span>
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>n8n Deployment</span>
+                                                <span style={{ fontWeight: 950, fontSize: '0.9rem', color: deployResult?.deploymentStatus?.includes('Failed') ? '#EF4444' : '#10B981' }}>{deployResult?.deploymentStatus}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button className={styles.btnPrimary} style={{ height: '64px', borderRadius: '20px' }} onClick={() => setConfigureTemplate(null)}>CLOSE & MONITOR FLEET</button>
+                                </div>
+                            )}
                         </div>
                     </div>
 
