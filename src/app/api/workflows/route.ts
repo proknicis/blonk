@@ -106,8 +106,11 @@ export async function POST(request: Request) {
                         if (credRes.ok) {
                             const credData = await credRes.json();
                             credentialId = credData.id;
+                            console.log(`[Orchestrator] Credential created: ${credentialId}`);
                         } else {
-                            console.error("Failed to create n8n credentials:", await credRes.text());
+                            const errorText = await credRes.text();
+                            console.error("[Orchestrator] n8n Credential Error:", errorText);
+                            // We don't throw here to allow deployment even if credentials fail (manual fix possible)
                         }
                     }
 
@@ -183,7 +186,7 @@ export async function POST(request: Request) {
             [notificationId, teamId, 'Workflow Initialized', `Sovereign loop "${name}" has been provisioned on Node ${availableNode.name.substring(0,8)}.`]
         );
 
-        return NextResponse.json({ success: true, id: workflowId, serverName: availableNode.name });
+        return NextResponse.json({ success: true, id: workflowId, serverName: availableNode.name, serverUrl: availableNode.url });
     } catch (error) {
         console.error('Error requesting workflow:', error);
         return NextResponse.json({ error: 'Failed' }, { status: 500 });
