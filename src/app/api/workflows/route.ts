@@ -153,13 +153,18 @@ export async function POST(request: Request) {
                     if (deployRes.ok) {
                         const deployData = await deployRes.json();
                         n8nWorkflowId = deployData.id;
+                        deploymentStatus = 'Success';
                         // n8n v1 doesn't return webhook URL directly in create, might need to find it from nodes
                         const webhookNode = deployData.nodes?.find((n: any) => n.type?.includes('Webhook'));
                         if (webhookNode) {
                             n8nWebhookUrl = `${baseUrl}/webhook/${deployData.id}/${webhookNode.parameters?.path || 'webhook'}`;
                         }
+                    } else {
+                        const errorBody = await deployRes.text();
+                        deploymentStatus = `n8n Error: ${errorBody.substring(0, 100)}`;
                     }
-                } catch (e) {
+                } catch (e: any) {
+                    deploymentStatus = `Fetch Error: ${e.message}`;
                     console.error("Failed to auto-deploy to n8n:", e);
                 }
             }
@@ -189,19 +194,14 @@ export async function POST(request: Request) {
             [notificationId, teamId, 'Workflow Initialized', `Sovereign loop "${name}" has been provisioned on Node ${availableNode.name.substring(0,8)}.`]
         );
 
-        let credentialStatus = 'Skipped';
-        let deploymentStatus = 'Pending';
-        // These are determined in the try/catch blocks above, let's make sure they are captured
-        // I need to track them throughout the POST function
-
         return NextResponse.json({ 
             success: true, 
             id: workflowId, 
             orchestration: {
                 server: availableNode.name,
                 serverUrl: availableNode.url,
-                credentialStatus: n8nWorkflowId ? 'Success' : 'Failed or Skipped',
-                deploymentStatus: n8nWorkflowId ? 'Success' : 'Failed to reach n8n',
+                credentialStatus: credentialStatus,
+                deploymentStatus: deploymentStatus,
                 n8nWorkflowId
             }
         });
