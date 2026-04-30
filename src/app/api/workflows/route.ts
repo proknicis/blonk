@@ -146,8 +146,8 @@ export async function POST(request: Request) {
                         body: JSON.stringify({
                             name: `${name} (${teamId})`,
                             nodes: workflowJson.nodes,
-                            connections: workflowJson.connections
-                            // settings and active are best handled later or left as defaults
+                            connections: workflowJson.connections,
+                            settings: {} // Required by API but must be clean
                         })
                     });
 
