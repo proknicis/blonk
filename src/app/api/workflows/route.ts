@@ -146,9 +146,8 @@ export async function POST(request: Request) {
                         body: JSON.stringify({
                             name: `${name} (${teamId})`,
                             nodes: workflowJson.nodes,
-                            connections: workflowJson.connections,
-                            // active: true is NOT allowed on create in v1 API
-                            settings: workflowJson.settings
+                            connections: workflowJson.connections
+                            // settings and active are best handled later or left as defaults
                         })
                     });
 
