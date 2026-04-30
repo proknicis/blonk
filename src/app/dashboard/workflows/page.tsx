@@ -150,6 +150,33 @@ export default function WorkflowsPage() {
         setTimeout(() => setToast(null), 3500);
     };
 
+    const handleGoogleAuth = () => {
+        const width = 600, height = 700;
+        const left = window.screenX + (window.innerWidth - width) / 2;
+        const top = window.screenY + (window.innerHeight - height) / 2;
+        
+        const authWindow = window.open(
+            '/api/integrations/google/auth',
+            'google-auth',
+            `width=${width},height=${height},left=${left},top=${top}`
+        );
+
+        const handleMessage = (event: MessageEvent) => {
+            if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
+                const tokens = event.data.tokens;
+                setTemplateInputs(prev => ({
+                    ...prev,
+                    google_creds: 'CONNECTED',
+                    authData: tokens
+                }));
+                showToast("Google account linked successfully!");
+                window.removeEventListener('message', handleMessage);
+            }
+        };
+
+        window.addEventListener('message', handleMessage);
+    };
+
     const filteredTemplates = templates.filter(wf => {
         const matchesSearch = wf.name.toLowerCase().includes(search.toLowerCase()) ||
             (wf.description && wf.description.toLowerCase().includes(search.toLowerCase()));
@@ -321,7 +348,25 @@ export default function WorkflowsPage() {
                                                 </div>
                                                 <div style={{ display: 'flex', gap: '12px' }}>
                                                     <button className={styles.btnSecondary} style={{ width: 'auto', padding: '0 20px', height: '44px', borderRadius: '12px' }} onClick={() => setHelpStep(req)}>MANUAL</button>
-                                                    <button className={styles.btnPrimary} style={{ width: 'auto', padding: '0 24px', height: '44px', borderRadius: '12px', background: 'var(--foreground)' }} onClick={() => setHelpStep(req)}>AUTHENTICATE</button>
+                                                    <button 
+                                                        className={styles.btnPrimary} 
+                                                        style={{ 
+                                                            width: 'auto', 
+                                                            padding: '0 24px', 
+                                                            height: '44px', 
+                                                            borderRadius: '12px', 
+                                                            background: templateInputs.google_creds === 'CONNECTED' ? '#10B981' : 'var(--foreground)' 
+                                                        }} 
+                                                        onClick={() => {
+                                                            if (req.name.toLowerCase().includes('google') || req.name.toLowerCase().includes('gmail')) {
+                                                                handleGoogleAuth();
+                                                            } else {
+                                                                setHelpStep(req);
+                                                            }
+                                                        }}
+                                                    >
+                                                        {templateInputs.google_creds === 'CONNECTED' ? 'CONNECTED' : 'AUTHENTICATE'}
+                                                    </button>
                                                 </div>
                                             </div>
                                         ))}

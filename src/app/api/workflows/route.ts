@@ -69,28 +69,29 @@ export async function POST(request: Request) {
                     const apiKey = availableNode.api_key;
 
                     // 2a. Handle Credentials (GMAIL Example)
-                    // If the user provided credentials in inputs, we should create them in n8n first
-                    // For now, let's look for 'google_creds' or similar in inputs
                     let credentialId = null;
-                    if (inputs && (inputs.google_creds || inputs.gmail_api_key)) {
-                        // Example: Create Gmail OAuth2 credentials
+                    if (inputs && inputs.google_creds === 'CONNECTED' && inputs.authData) {
+                        // Create Gmail OAuth2 credentials in n8n
                         const credRes = await fetch(`${baseUrl}/api/v1/credentials`, {
                             method: 'POST',
                             headers: { 'X-N8N-API-KEY': apiKey, 'Content-Type': 'application/json' },
                             body: JSON.stringify({
-                                name: `Marketplace-Gmail-${teamId}`,
-                                type: 'googleSheetsOAuth2Api', // Or gmailOAuth2Api
+                                name: `Marketplace-Gmail-${teamId}-${Date.now()}`,
+                                type: 'gmailOAuth2Api', 
                                 data: {
-                                    // This mapping depends on what the user actually sends
-                                    clientId: inputs.clientId || process.env.GOOGLE_CLIENT_ID,
-                                    clientSecret: inputs.clientSecret || process.env.GOOGLE_CLIENT_SECRET,
-                                    // ... other fields
+                                    clientId: process.env.GOOGLE_CLIENT_ID,
+                                    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+                                    authUrl: "https://accounts.google.com/o/oauth2/v2/auth",
+                                    accessTokenUrl: "https://oauth2.googleapis.com/token",
+                                    authData: inputs.authData // This contains access_token, refresh_token, etc.
                                 }
                             })
                         });
                         if (credRes.ok) {
                             const credData = await credRes.json();
                             credentialId = credData.id;
+                        } else {
+                            console.error("Failed to create n8n credentials:", await credRes.text());
                         }
                     }
 
@@ -100,8 +101,16 @@ export async function POST(request: Request) {
                     // Inject credentialId if we created one
                     if (credentialId && workflowJson.nodes) {
                         workflowJson.nodes = workflowJson.nodes.map((node: any) => {
+                            // Link to Gmail or Google Sheets nodes
                             if (node.type === 'n8n-nodes-base.googleSheets' || node.type === 'n8n-nodes-base.gmail') {
-                                return { ...node, credentials: { ...node.credentials, googleSheetsOAuth2Api: { id: credentialId } } };
+                                return { 
+                                    ...node, 
+                                    credentials: { 
+                                        ...node.credentials, 
+                                        googleSheetsOAuth2Api: { id: credentialId },
+                                        gmailOAuth2Api: { id: credentialId }
+                                    } 
+                                };
                             }
                             return node;
                         });
