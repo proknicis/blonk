@@ -147,7 +147,7 @@ export async function POST(request: Request) {
                             name: `${name} (${teamId})`,
                             nodes: workflowJson.nodes,
                             connections: workflowJson.connections,
-                            active: true,
+                            // active: true is NOT allowed on create in v1 API
                             settings: workflowJson.settings
                         })
                     });
@@ -155,8 +155,17 @@ export async function POST(request: Request) {
                     if (deployRes.ok) {
                         const deployData = await deployRes.json();
                         n8nWorkflowId = deployData.id;
-                        deploymentStatus = 'Success';
-                        // n8n v1 doesn't return webhook URL directly in create, might need to find it from nodes
+                        deploymentStatus = 'Created';
+
+                        // Secondary request to ACTIVATE the workflow
+                        await fetch(`${baseUrl}/api/v1/workflows/${n8nWorkflowId}`, {
+                            method: 'PATCH',
+                            headers: { 'X-N8N-API-KEY': apiKey, 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ active: true })
+                        });
+                        
+                        deploymentStatus = 'Success (Active)';
+
                         const webhookNode = deployData.nodes?.find((n: any) => n.type?.includes('Webhook'));
                         if (webhookNode) {
                             n8nWebhookUrl = `${baseUrl}/webhook/${deployData.id}/${webhookNode.parameters?.path || 'webhook'}`;
