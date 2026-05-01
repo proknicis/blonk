@@ -112,9 +112,11 @@ export async function POST(request: Request) {
                         if (credRes.ok) {
                             const credData = await credRes.json();
                             credentialId = credData.id;
+                            credentialStatus = 'Success';
                             console.log(`[Orchestrator] Credential created: ${credentialId}`);
                         } else {
                             const errorText = await credRes.text();
+                            credentialStatus = `Failed: ${errorText.substring(0, 50)}`;
                             console.error("[Orchestrator] n8n Credential Error:", errorText);
                         }
                     }
