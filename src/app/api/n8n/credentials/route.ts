@@ -60,6 +60,7 @@ export async function POST(request: Request) {
             body: JSON.stringify({
                 name: name,
                 type: type,
+                isResolvable: false,
                 data: data
             })
         });

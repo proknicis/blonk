@@ -416,46 +416,52 @@ export default function WorkflowsPage() {
                                         </div>
                                     </div>
 
-                                    <div className={styles.premiumModalFooter} style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
-                                        <button className={styles.btnSecondary} style={{ height: '64px', borderRadius: '20px' }} onClick={() => setConfigureTemplate(null)}>CANCEL</button>
+                                    <div className={styles.premiumModalFooter} style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+                                        <button className={styles.btnSecondary} style={{ height: '64px', borderRadius: '20px', width: '200px' }} onClick={() => setConfigureTemplate(null)}>CANCEL</button>
                                         
                                         <button 
-                                            className={styles.btnSecondary} 
-                                            style={{ height: '64px', borderRadius: '20px', border: '1px solid var(--accent)', color: 'var(--accent)' }} 
+                                            className={styles.btnPrimary} 
+                                            style={{ height: '64px', borderRadius: '20px', background: 'var(--accent)', color: 'var(--background)', width: '300px' }} 
                                             disabled={isDeploying} 
                                             onClick={async () => {
                                                 setIsDeploying(true);
                                                 try {
-                                                    // Find the active node for this request
-                                                    const nodeRes = await fetch('/api/nodes');
-                                                    const nodes = await nodeRes.json();
-                                                    const targetNode = nodes[0]; // For now pick the first active node
+                                                    console.log("[DEBUG] Syncing credentials initiated...");
+                                                    let nodes = [];
+                                                    try {
+                                                        const nodeRes = await fetch('/api/nodes');
+                                                        nodes = await nodeRes.json();
+                                                    } catch (e) { console.error("Failed to fetch nodes", e); }
+                                                    
+                                                    const targetNode = Array.isArray(nodes) ? nodes[0] : null;
+
+                                                    const payload = {
+                                                        nodeId: targetNode?.id || null,
+                                                        type: 'gmailOAuth2Api', 
+                                                        name: `Google-Loop-${Date.now()}`,
+                                                        data: {
+                                                            accessToken: templateInputs.authData?.access_token,
+                                                            refreshToken: templateInputs.authData?.refresh_token,
+                                                            expiry: templateInputs.authData?.expiry_date,
+                                                            scope: templateInputs.authData?.scope,
+                                                            tokenType: templateInputs.authData?.token_type
+                                                        }
+                                                    };
+
+                                                    console.log("[DEBUG] Sending Payload:", payload);
 
                                                     const res = await fetch('/api/n8n/credentials', {
                                                         method: 'POST',
                                                         headers: { 'Content-Type': 'application/json' },
-                                                        body: JSON.stringify({
-                                                            nodeId: targetNode.id,
-                                                            type: 'gmailOAuth2Api', // Dynamic based on req
-                                                            name: `Google-Loop-${Date.now()}`,
-                                                            data: {
-                                                                clientId: templateInputs.authData?.clientId, // Might need from env
-                                                                clientSecret: templateInputs.authData?.clientSecret,
-                                                                accessToken: templateInputs.authData?.access_token,
-                                                                refreshToken: templateInputs.authData?.refresh_token,
-                                                                expiry: templateInputs.authData?.expiry_date,
-                                                                scope: templateInputs.authData?.scope,
-                                                                tokenType: templateInputs.authData?.token_type
-                                                            }
-                                                        })
+                                                        body: JSON.stringify(payload)
                                                     });
                                                     const data = await res.json();
                                                     if (res.ok) {
                                                         showToast("Credentials provisioned successfully!");
                                                         setStep('result');
                                                         setDeployResult({
-                                                            server: targetNode.name,
-                                                            serverUrl: targetNode.url,
+                                                            server: targetNode?.name || 'Auto-Selected Node',
+                                                            serverUrl: targetNode?.url || 'https://n8n.manadavana.lv',
                                                             credentialStatus: 'Success',
                                                             deploymentStatus: 'Skipped (Provision Only)'
                                                         });
@@ -469,16 +475,7 @@ export default function WorkflowsPage() {
                                                 }
                                             }}
                                         >
-                                            {isDeploying ? 'SYNCING...' : 'SYNC CREDENTIALS ONLY'}
-                                        </button>
-
-                                        <button 
-                                            className={styles.btnPrimary} 
-                                            style={{ height: '64px', borderRadius: '20px', background: 'var(--accent)', color: 'var(--background)' }} 
-                                            disabled={isDeploying} 
-                                            onClick={() => deployWorkflow(configureTemplate, templateInputs)}
-                                        >
-                                            {isDeploying ? 'DEPLOYING...' : 'FINALIZE & DEPLOY'}
+                                            {isDeploying ? 'PROVISIONING...' : 'PROVISION TO CLUSTER'}
                                         </button>
                                     </div>
                                 </>
