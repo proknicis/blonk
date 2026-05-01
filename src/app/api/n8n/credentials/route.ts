@@ -44,8 +44,14 @@ export async function POST(request: Request) {
             data.accessToken = incomingData.accessToken || incomingData.access_token;
             data.refreshToken = incomingData.refreshToken || incomingData.refresh_token;
             data.expiry = incomingData.expiry || incomingData.expiry_date || 0;
-            data.scope = incomingData.scope || "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.send";
+            data.scope = incomingData.scope || "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly";
             data.tokenType = incomingData.tokenType || "Bearer";
+            
+            // n8n v1 API specific schema requirements
+            data.authentication = "header"; 
+            data.grantType = "authorizationCode";
+            data.sendAdditionalBodyProperties = false;
+            data.additionalBodyProperties = "";
             
             if (!data.clientId || !data.clientSecret) {
                 console.error("[PROVISIONER] Critical Error: Google Client ID/Secret missing in .env");
