@@ -33,27 +33,27 @@ export async function POST(request: Request) {
         }
 
         // Auto-inject Google Client ID/Secret if it's an OAuth2 credential
-        const data: any = {};
+        // Map to exact n8n schema
+        let finalData: any = { ...incomingData };
         if (type === 'gmailOAuth2Api' || type === 'googleSheetsOAuth2Api' || type === 'googleOAuth2Api') {
-            data.clientId = process.env.N8N_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
-            data.clientSecret = process.env.N8N_GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET;
-            data.authUrl = "https://accounts.google.com/o/oauth2/v2/auth";
-            data.accessTokenUrl = "https://oauth2.googleapis.com/token";
+            type = 'googleOAuth2Api'; // Always use the core type that n8n respects
             
-            // Map incoming tokens to exact n8n field names
-            data.accessToken = incomingData.accessToken || incomingData.access_token;
-            data.refreshToken = incomingData.refreshToken || incomingData.refresh_token;
-            data.expiry = incomingData.expiry || incomingData.expiry_date || 0;
-            data.scope = incomingData.scope || "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly";
-            data.tokenType = incomingData.tokenType || "Bearer";
+            finalData = {
+                serverUrl: "", // Required by n8n schema validator
+                clientId: process.env.N8N_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID,
+                clientSecret: process.env.N8N_GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET,
+                scope: incomingData.scope || "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/drive.file",
+                sendAdditionalBodyProperties: false, // Required by n8n schema
+                additionalBodyProperties: {}, // Required by n8n schema
+                oauthTokenData: {
+                    access_token: incomingData.accessToken || incomingData.access_token,
+                    refresh_token: incomingData.refreshToken || incomingData.refresh_token,
+                    token_type: incomingData.tokenType || incomingData.token_type || "Bearer",
+                    expiry_date: incomingData.expiry || incomingData.expiry_date || Date.now() + 3600000 // Ensure valid expiry
+                }
+            };
             
-            // n8n v1 API specific schema requirements
-            data.authentication = "header"; 
-            data.grantType = "authorizationCode";
-            data.sendAdditionalBodyProperties = false;
-            data.additionalBodyProperties = "";
-            
-            if (!data.clientId || !data.clientSecret) {
+            if (!finalData.clientId || !finalData.clientSecret) {
                 console.error("[PROVISIONER] Critical Error: Google Client ID/Secret missing in .env");
                 return NextResponse.json({ error: 'Server Configuration Error: Google secrets missing' }, { status: 500 });
             }
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
 
         console.log(`[PROVISIONER] Sending ${type} credentials to ${node.name} (${baseUrl})`);
 
-        // 2. Direct call to n8n API (Following the official sample)
+        // 2. Direct call to n8n API
         const n8nRes = await fetch(`${baseUrl}/api/v1/credentials`, {
             method: 'POST',
             headers: { 
@@ -79,7 +79,7 @@ export async function POST(request: Request) {
                 name: name,
                 type: type,
                 isResolvable: false,
-                data: data
+                data: finalData
             })
         });
 
