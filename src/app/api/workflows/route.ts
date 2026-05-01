@@ -119,84 +119,19 @@ export async function POST(request: Request) {
                         }
                     }
 
-                    // 2b. Deploy Workflow to n8n
-                    const workflowJson = JSON.parse(template.workflow);
-                    
-                    // Inject credentialId if we created one
-                    if (credentialId && workflowJson.nodes) {
-                        workflowJson.nodes = workflowJson.nodes.map((node: any) => {
-                            // Link to Gmail or Google Sheets nodes
-                            if (node.type === 'n8n-nodes-base.googleSheets' || node.type === 'n8n-nodes-base.gmail') {
-                                return { 
-                                    ...node, 
-                                    credentials: { 
-                                        ...node.credentials, 
-                                        googleSheetsOAuth2Api: { id: credentialId },
-                                        gmailOAuth2Api: { id: credentialId }
-                                    } 
-                                };
-                            }
-                            return node;
-                        });
-                    }
-
-                    const deployRes = await fetch(`${baseUrl}/api/v1/workflows`, {
-                        method: 'POST',
-                        headers: { 'X-N8N-API-KEY': apiKey, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            name: `${name} (${teamId})`,
-                            nodes: workflowJson.nodes,
-                            connections: workflowJson.connections,
-                            settings: {} // Required by API but must be clean
-                        })
-                    });
-
-                    if (deployRes.ok) {
-                        const deployData = await deployRes.json();
-                        n8nWorkflowId = deployData.id;
-                        deploymentStatus = 'Created';
-
-                        // Secondary request to ACTIVATE the workflow
-                        await fetch(`${baseUrl}/api/v1/workflows/${n8nWorkflowId}`, {
-                            method: 'PATCH',
-                            headers: { 'X-N8N-API-KEY': apiKey, 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ active: true })
-                        });
-                        
-                        deploymentStatus = 'Success (Active)';
-
-                        const webhookNode = deployData.nodes?.find((n: any) => n.type?.includes('Webhook'));
-                        if (webhookNode) {
-                            n8nWebhookUrl = `${baseUrl}/webhook/${deployData.id}/${webhookNode.parameters?.path || 'webhook'}`;
-                        }
-                    } else {
-                        const errorBody = await deployRes.text();
-                        deploymentStatus = `n8n Error: ${errorBody.substring(0, 100)}`;
-                    }
+                    // 2b. Standalone Credential Provisioning (Following n8n v1 API sample)
+                    // At this point, we have credentialId if the creation was successful
+                    // We STOP here and do NOT create a workflow.
                 } catch (e: any) {
-                    deploymentStatus = `Fetch Error: ${e.message}`;
-                    console.error("Failed to auto-deploy to n8n:", e);
+                    credentialStatus = `Provisioning Error: ${e.message}`;
                 }
             }
         }
 
-        // 3. REGISTER IN LOCAL LEDGER
+        // 3. REGISTER IN LOCAL LEDGER (Keep record for dashboard visibility)
         await db.execute(
             'INSERT INTO "Workflow" (id, "teamId", name, sector, status, performance, "tasksCount", inputs, "requestedBy", "serverId", "n8nWorkflowId", "n8nWebhookUrl") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)',
-            [
-                workflowId, 
-                teamId, 
-                name, 
-                sector, 
-                n8nWorkflowId ? 'Active' : 'Pending', 
-                performance || '0', 
-                0, 
-                JSON.stringify(inputs || {}), 
-                session.user.email?.toLowerCase(),
-                availableNode.id,
-                n8nWorkflowId,
-                n8nWebhookUrl
-            ]
+            [workflowId, teamId, name, sector, 'Provisioned', '0', 0, JSON.stringify(inputs || {}), session.user.email?.toLowerCase(), availableNode.id, null, null]
         );
 
         await db.execute(
@@ -210,9 +145,9 @@ export async function POST(request: Request) {
             orchestration: {
                 server: availableNode.name,
                 serverUrl: availableNode.url,
-                credentialStatus: credentialStatus,
-                deploymentStatus: deploymentStatus,
-                n8nWorkflowId
+                credentialStatus,
+                deploymentStatus: 'Skipped (As Requested)',
+                n8nWorkflowId: null
             }
         });
     } catch (error) {
