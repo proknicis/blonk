@@ -10,7 +10,19 @@ export async function POST(request: Request) {
 
         const body = await request.json();
         console.log("[PROVISIONER] Received Request Body:", body);
-        const { nodeId, type, name, data: incomingData } = body;
+        let { nodeId, type, name, data: incomingData } = body;
+
+        // 1. FIND AVAILABLE SERVER if nodeId is missing
+        if (!nodeId) {
+            console.log("[PROVISIONER] nodeId missing, selecting best available node...");
+            let allNodes = await db.query('SELECT * FROM "ClusterNode" WHERE status ILIKE \'Active\'') as any[];
+            if (allNodes.length === 0) allNodes = await db.query('SELECT * FROM "ClusterNode"') as any[];
+            
+            if (allNodes.length > 0) {
+                // Simplified selection: just pick the first one for now or add load balancing later
+                nodeId = allNodes[0].id;
+            }
+        }
 
         if (!nodeId || !type || !name || !incomingData) {
             console.error("[PROVISIONER] Validation Failed. Missing fields:", { nodeId: !!nodeId, type: !!type, name: !!name, data: !!incomingData });
@@ -29,7 +41,7 @@ export async function POST(request: Request) {
             if (!data.accessTokenUrl) data.accessTokenUrl = "https://oauth2.googleapis.com/token";
         }
 
-        // 1. Fetch Node Details
+        // 2. Fetch Node Details
         const [node] = await db.query('SELECT * FROM "ClusterNode" WHERE id = $1', [nodeId]) as any[];
         if (!node) return NextResponse.json({ error: 'Node not found' }, { status: 404 });
 
