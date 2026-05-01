@@ -9,9 +9,11 @@ export async function POST(request: Request) {
         if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
         const body = await request.json();
+        console.log("[PROVISIONER] Received Request Body:", body);
         const { nodeId, type, name, data: incomingData } = body;
 
         if (!nodeId || !type || !name || !incomingData) {
+            console.error("[PROVISIONER] Validation Failed. Missing fields:", { nodeId: !!nodeId, type: !!type, name: !!name, data: !!incomingData });
             return NextResponse.json({ 
                 error: 'Missing parameters', 
                 received: { nodeId: !!nodeId, type: !!type, name: !!name, data: !!incomingData } 
