@@ -33,12 +33,24 @@ export async function POST(request: Request) {
         }
 
         // Auto-inject Google Client ID/Secret if it's an OAuth2 credential
-        const data = { ...incomingData };
-        if (type === 'gmailOAuth2Api' || type === 'googleSheetsOAuth2Api') {
-            if (!data.clientId) data.clientId = process.env.N8N_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
-            if (!data.clientSecret) data.clientSecret = process.env.N8N_GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET;
-            if (!data.authUrl) data.authUrl = "https://accounts.google.com/o/oauth2/v2/auth";
-            if (!data.accessTokenUrl) data.accessTokenUrl = "https://oauth2.googleapis.com/token";
+        const data: any = {};
+        if (type === 'gmailOAuth2Api' || type === 'googleSheetsOAuth2Api' || type === 'googleOAuth2Api') {
+            data.clientId = process.env.N8N_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
+            data.clientSecret = process.env.N8N_GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET;
+            data.authUrl = "https://accounts.google.com/o/oauth2/v2/auth";
+            data.accessTokenUrl = "https://oauth2.googleapis.com/token";
+            
+            // Map incoming tokens to exact n8n field names
+            data.accessToken = incomingData.accessToken || incomingData.access_token;
+            data.refreshToken = incomingData.refreshToken || incomingData.refresh_token;
+            data.expiry = incomingData.expiry || incomingData.expiry_date || 0;
+            data.scope = incomingData.scope || "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.send";
+            data.tokenType = incomingData.tokenType || "Bearer";
+            
+            if (!data.clientId || !data.clientSecret) {
+                console.error("[PROVISIONER] Critical Error: Google Client ID/Secret missing in .env");
+                return NextResponse.json({ error: 'Server Configuration Error: Google secrets missing' }, { status: 500 });
+            }
         }
 
         // 2. Fetch Node Details
