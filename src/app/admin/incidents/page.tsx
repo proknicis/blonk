@@ -56,15 +56,15 @@ export default async function IncidentCommandPage() {
                         </div>
                     </div>
                     <div>
-                        <h2 style={{ color: 'white', fontSize: '1.6rem', fontWeight: 950, margin: 0, letterSpacing: '-0.03em' }}>Incident Command</h2>
-                        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.95rem', margin: '6px 0 0', fontWeight: 700 }}>{incidents.length} active exceptions detected in the institutional ledger.</p>
+                        <h2 style={{ color: 'white', fontSize: '1.6rem', fontWeight: 950, margin: 0, letterSpacing: '-0.03em' }}>Incident Management</h2>
+                        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.95rem', margin: '6px 0 0', fontWeight: 700 }}>{incidents.length} active incidents detected</p>
                     </div>
                 </div>
                 <div className={adminStyles.hubMetrics}>
                     <div style={{ padding: '0 40px', borderLeft: '1px solid rgba(255,255,255,0.1)' }}>
-                        <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', fontWeight: 950, opacity: 0.4, letterSpacing: '0.1em' }}>System State</span>
+                        <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', fontWeight: 950, opacity: 0.4, letterSpacing: '0.1em' }}>System Status</span>
                         <div style={{ fontSize: '1.4rem', fontWeight: 950, color: incidents.length > 0 ? '#EF4444' : '#10B981', marginTop: '4px' }}>
-                            {incidents.length > 0 ? 'COMPROMISED' : 'NOMINAL'}
+                            {incidents.length > 0 ? 'Compromised' : 'Healthy'}
                         </div>
                     </div>
                 </div>

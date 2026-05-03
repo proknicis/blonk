@@ -121,7 +121,7 @@ export function NodeActions({ nodeId, nodeUrl, nodeName }: NodeActionsProps) {
                                     }
                                 </div>
                                 <div>
-                                    <h3 style={{ margin: 0, fontWeight: 950, fontSize: '1.2rem' }}>{nodeName}</h3>
+                                    <h3 style={{ margin: 0, fontWeight: 950, fontSize: '1.2rem' }}>{nodeName.startsWith('n8n') ? nodeName : `n8n Instance ${nodeName}`}</h3>
                                     <p style={{ margin: '4px 0 0', fontSize: '0.8rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>
                                         {diagnostics?.endpoint || 'Connecting...'}
                                     </p>
@@ -160,7 +160,7 @@ export function NodeActions({ nodeId, nodeUrl, nodeName }: NodeActionsProps) {
                                             </span>
                                         </div>
                                         <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>
-                                            Scanned {new Date(diagnostics.scannedAt).toLocaleTimeString()}
+                                            Last checked: {new Date(diagnostics.scannedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                                         </span>
                                     </div>
 
@@ -169,24 +169,24 @@ export function NodeActions({ nodeId, nodeUrl, nodeName }: NodeActionsProps) {
                                         <div style={{ background: 'var(--muted)', borderRadius: '16px', padding: '20px', textAlign: 'center' }}>
                                             <Workflow size={20} color="var(--accent)" style={{ marginBottom: '8px' }} />
                                             <div style={{ fontSize: '1.8rem', fontWeight: 950, color: 'var(--foreground)' }}>{diagnostics.workflowCount}</div>
-                                            <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Workflows</div>
+                                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--muted-foreground)', letterSpacing: '0.05em' }}>Total Workflows</div>
                                         </div>
                                         <div style={{ background: 'var(--muted)', borderRadius: '16px', padding: '20px', textAlign: 'center' }}>
                                             <Zap size={20} color="#10B981" style={{ marginBottom: '8px' }} />
                                             <div style={{ fontSize: '1.8rem', fontWeight: 950, color: '#10B981' }}>{diagnostics.activeWorkflows}</div>
-                                            <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Active</div>
+                                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--muted-foreground)', letterSpacing: '0.05em' }}>Active Workflows</div>
                                         </div>
                                         <div style={{ background: 'var(--muted)', borderRadius: '16px', padding: '20px', textAlign: 'center' }}>
                                             <Clock size={20} color={diagnostics.failedExecutions > 0 ? '#EF4444' : 'var(--accent)'} style={{ marginBottom: '8px' }} />
                                             <div style={{ fontSize: '1.8rem', fontWeight: 950, color: diagnostics.failedExecutions > 0 ? '#EF4444' : 'var(--foreground)' }}>{diagnostics.recentExecutions}</div>
-                                            <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Recent Runs</div>
+                                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--muted-foreground)', letterSpacing: '0.05em' }}>Recent Executions</div>
                                         </div>
                                     </div>
 
                                     {/* Workflow List */}
                                     {diagnostics.workflows?.length > 0 && (
                                         <div>
-                                            <h4 style={{ fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--muted-foreground)', marginBottom: '12px' }}>Provisioned Workflows</h4>
+                                            <h4 style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.12em', color: 'var(--muted-foreground)', marginBottom: '12px' }}>Assigned Workflows</h4>
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                                 {diagnostics.workflows.map((wf: any) => (
                                                     <div key={wf.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', background: 'var(--muted)', borderRadius: '14px', border: '1px solid var(--border)' }}>
@@ -195,7 +195,6 @@ export function NodeActions({ nodeId, nodeUrl, nodeName }: NodeActionsProps) {
                                                             <span style={{ fontWeight: 800, fontSize: '0.85rem' }}>{wf.name}</span>
                                                         </div>
                                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                            <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--muted-foreground)' }}>{wf.nodes} nodes</span>
                                                             <span style={{ fontSize: '0.6rem', fontWeight: 950, padding: '3px 10px', borderRadius: '8px', background: wf.active ? '#F0FDF4' : 'var(--muted)', color: wf.active ? '#10B981' : '#94A3B8', border: `1px solid ${wf.active ? '#BBF7D0' : 'var(--border)'}` }}>
                                                                 {wf.active ? 'ACTIVE' : 'IDLE'}
                                                             </span>

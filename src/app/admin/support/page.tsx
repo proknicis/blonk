@@ -10,7 +10,7 @@ interface Ticket {
     userEmail: string;
     userName: string;
     subject: string;
-    status: 'open' | 'closed';
+    status: 'open' | 'closed' | 'waiting_for_client' | 'waiting_for_admin' | string;
     priority: string;
     createdAt: string;
     updatedAt: string;
@@ -36,7 +36,7 @@ export default function SupportInboxPage() {
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isSending, setIsSending] = useState(false);
-    const [filter, setFilter] = useState<'all' | 'open' | 'closed'>('open');
+    const [filter, setFilter] = useState<string>('open');
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -145,21 +145,33 @@ export default function SupportInboxPage() {
                 <div className={adminStyles.ticketList}>
                     <div className={adminStyles.ticketListHeader}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                            <h3 style={{ fontSize: '1.1rem', fontWeight: 950, margin: 0 }}>Support Ledger</h3>
+                            <h3 style={{ fontSize: '1.1rem', fontWeight: 950, margin: 0 }}>Support Tickets</h3>
                             <div className={adminStyles.hubMetrics}>
                                 <span className={adminStyles.hubLabel}>{tickets.filter(t => t.status === 'open').length} ACTIVE</span>
                             </div>
                         </div>
-                        <div style={{ display: 'flex', gap: '8px' }}>
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                             <button 
                                 onClick={() => setFilter('open')}
-                                style={{ flex: 1, height: '36px', borderRadius: '10px', border: 'none', background: filter === 'open' ? 'var(--foreground)' : 'var(--muted)', color: filter === 'open' ? 'var(--background)' : 'var(--foreground)', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
+                                style={{ flex: '1 1 calc(50% - 4px)', height: '36px', borderRadius: '10px', border: 'none', background: filter === 'open' ? 'var(--foreground)' : 'var(--muted)', color: filter === 'open' ? 'var(--background)' : 'var(--foreground)', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
                             >
                                 Open
                             </button>
                             <button 
+                                onClick={() => setFilter('waiting_for_client')}
+                                style={{ flex: '1 1 calc(50% - 4px)', height: '36px', borderRadius: '10px', border: 'none', background: filter === 'waiting_for_client' ? 'var(--foreground)' : 'var(--muted)', color: filter === 'waiting_for_client' ? 'var(--background)' : 'var(--foreground)', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
+                            >
+                                Waiting for Client
+                            </button>
+                            <button 
+                                onClick={() => setFilter('waiting_for_admin')}
+                                style={{ flex: '1 1 calc(50% - 4px)', height: '36px', borderRadius: '10px', border: 'none', background: filter === 'waiting_for_admin' ? 'var(--foreground)' : 'var(--muted)', color: filter === 'waiting_for_admin' ? 'var(--background)' : 'var(--foreground)', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
+                            >
+                                Waiting for Admin
+                            </button>
+                            <button 
                                 onClick={() => setFilter('closed')}
-                                style={{ flex: 1, height: '36px', borderRadius: '10px', border: 'none', background: filter === 'closed' ? 'var(--foreground)' : 'var(--muted)', color: filter === 'closed' ? 'var(--background)' : 'var(--foreground)', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
+                                style={{ flex: '1 1 calc(50% - 4px)', height: '36px', borderRadius: '10px', border: 'none', background: filter === 'closed' ? 'var(--foreground)' : 'var(--muted)', color: filter === 'closed' ? 'var(--background)' : 'var(--foreground)', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
                             >
                                 Closed
                             </button>
@@ -170,7 +182,7 @@ export default function SupportInboxPage() {
                         {filteredTickets.length === 0 ? (
                             <div style={{ padding: '48px 24px', textAlign: 'center', color: 'var(--muted-foreground)' }}>
                                 <Inbox size={32} style={{ marginBottom: '12px', opacity: 0.3 }} />
-                                <div style={{ fontSize: '0.85rem', fontWeight: 800 }}>No requests in queue</div>
+                                <div style={{ fontSize: '0.85rem', fontWeight: 800 }}>No open support tickets</div>
                             </div>
                         ) : (
                             filteredTickets.map(ticket => (
@@ -262,7 +274,7 @@ export default function SupportInboxPage() {
                             </div>
                             <h3 style={{ color: 'var(--foreground)', fontWeight: 950, marginBottom: '8px' }}>No Ticket Selected</h3>
                             <p style={{ textAlign: 'center', maxWidth: '320px', lineHeight: 1.6, fontWeight: 700, fontSize: '0.9rem' }}>
-                                Select an escalated support request from the ledger to begin authoritative resolution.
+                                Select a support ticket to view the conversation and reply
                             </p>
                         </div>
                     )}

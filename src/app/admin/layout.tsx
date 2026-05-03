@@ -114,10 +114,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     const getModuleTitle = (path: string) => {
         if (path === "/admin") return "Fleet Provisioning";
-        if (path === "/admin/users") return "User Directory";
+        if (path === "/admin/users") return "Users";
         if (path === "/admin/fleet") return "Fleet Health Monitoring";
         if (path === "/admin/incidents") return "Incident Command Center";
         if (path.startsWith("/admin/marketplace")) return "Marketplace Management";
+        if (path.startsWith("/admin/support")) return "Support Inbox";
         return "Operations Control Panel";
     };
 

@@ -51,8 +51,8 @@ export default function IncidentFeed({ initialIncidents }: { initialIncidents: I
                 <div className={adminStyles.registryCard}>
                     <div className={adminStyles.registryHeader} style={{ marginBottom: '32px' }}>
                         <div>
-                            <h3 className={adminStyles.registryTitle}>Global Incident Feed</h3>
-                            <p className={adminStyles.registrySubtitle}>Real-time institutional exceptions.</p>
+                            <h3 className={adminStyles.registryTitle}>Incident Feed</h3>
+                            <p className={adminStyles.registrySubtitle}>Real-time workflow and server issues</p>
                         </div>
                         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                             <div className={adminStyles.searchContainer} style={{ maxWidth: '300px' }}>
@@ -138,8 +138,8 @@ export default function IncidentFeed({ initialIncidents }: { initialIncidents: I
                                 <div className={adminStyles.emptyIcon} style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', marginBottom: '24px' }}>
                                     <ShieldAlert size={48} />
                                 </div>
-                                <h4 style={{ fontWeight: 950, fontSize: '1.5rem', marginBottom: '8px' }}>Operational Zenith</h4>
-                                <p style={{ color: 'var(--muted-foreground)', fontWeight: 700 }}>Zero active exceptions detected across the fleet.</p>
+                                <h4 style={{ fontWeight: 950, fontSize: '1.5rem', marginBottom: '8px' }}>No Active Incidents</h4>
+                                <p style={{ color: 'var(--muted-foreground)', fontWeight: 700 }}>No active incidents detected across workflows or servers</p>
                             </div>
                         )}
                     </div>
@@ -150,29 +150,29 @@ export default function IncidentFeed({ initialIncidents }: { initialIncidents: I
                         <div style={{ width: '48px', height: '48px', background: 'var(--muted)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>
                             <Terminal size={24} color="var(--foreground)" />
                         </div>
-                        <h4 style={{ fontWeight: 950, fontSize: '1.2rem', marginBottom: "8px" }}>Global Fleet Debug</h4>
-                        <p style={{ fontSize: "0.9rem", color: "var(--muted-foreground)", marginBottom: "32px", lineHeight: 1.6, fontWeight: 700 }}>Establish secure tunnels to any provisioned n8n cluster for deep diagnostics.</p>
-                        <button className={adminStyles.primaryBtn} onClick={() => window.location.href='/admin/fleet'} style={{ width: '100%' }}>Authorize Session</button>
+                        <h4 style={{ fontWeight: 950, fontSize: '1.2rem', marginBottom: "8px" }}>Server Debug</h4>
+                        <p style={{ fontSize: "0.9rem", color: "var(--muted-foreground)", marginBottom: "32px", lineHeight: 1.6, fontWeight: 700 }}>Open a secure admin session for debugging</p>
+                        <button className={adminStyles.primaryBtn} onClick={() => window.location.href='/admin/fleet'} style={{ width: '100%' }}>Start Debug Session</button>
                     </div>
                     <div className={adminStyles.registryCard} style={{ padding: '40px' }}>
                         <div style={{ width: '48px', height: '48px', background: 'var(--muted)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>
                             <MessageSquare size={24} color="var(--foreground)" />
                         </div>
-                        <h4 style={{ fontWeight: 950, fontSize: '1.2rem', marginBottom: "8px" }}>Institutional Bridge</h4>
-                        <p style={{ fontSize: "0.9rem", color: "var(--muted-foreground)", marginBottom: "32px", lineHeight: 1.6, fontWeight: 700 }}>Direct line of communication with firm-level responders and system owners.</p>
-                        <button className={adminStyles.primaryBtn} style={{ width: '100%', background: 'var(--muted)', color: 'var(--foreground)' }}>Open Bridge</button>
+                        <h4 style={{ fontWeight: 950, fontSize: '1.2rem', marginBottom: "8px" }}>Support Bridge</h4>
+                        <p style={{ fontSize: "0.9rem", color: "var(--muted-foreground)", marginBottom: "32px", lineHeight: 1.6, fontWeight: 700 }}>Open direct support communication with the affected client or admin</p>
+                        <button className={adminStyles.primaryBtn} style={{ width: '100%', background: 'var(--muted)', color: 'var(--foreground)' }}>Open Support Bridge</button>
                     </div>
                 </div>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
                 <div className={adminStyles.registryCard} style={{ padding: "32px" }}>
-                    <h4 style={{ fontSize: "0.75rem", fontWeight: 950, textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--muted-foreground)", marginBottom: "24px" }}>Alert Protocol</h4>
+                    <h4 style={{ fontSize: "0.75rem", fontWeight: 950, textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--muted-foreground)", marginBottom: "24px" }}>Alert Channels</h4>
                     <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                         {[
-                            { label: 'Tactical Push', active: true },
-                            { label: 'Discord Bridge', active: true },
-                            { label: 'Global Ops SMS', active: false }
+                            { label: 'Push Notifications', active: true },
+                            { label: 'Discord Alerts', active: true },
+                            { label: 'SMS Alerts', active: false }
                         ].map((opt, i) => (
                             <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                                 <span style={{ fontSize: "0.9rem", fontWeight: 950 }}>{opt.label}</span>
@@ -187,10 +187,10 @@ export default function IncidentFeed({ initialIncidents }: { initialIncidents: I
                 <div className={adminStyles.registryCard} style={{ padding: "32px", background: "#09090B", color: "white", border: 'none' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
                         <div style={{ width: '8px', height: '8px', background: '#10B981', borderRadius: '50%', boxShadow: '0 0 10px #10B981' }} />
-                        <span style={{ fontSize: '0.65rem', fontWeight: 950, letterSpacing: '0.1em', opacity: 0.6 }}>LIVE TELEMETRY</span>
+                        <span style={{ fontSize: '0.65rem', fontWeight: 950, letterSpacing: '0.1em', opacity: 0.6 }}>LIVE STATUS</span>
                     </div>
-                    <h4 style={{ fontWeight: 950, marginBottom: "8px", fontSize: '1.1rem' }}>Sovereign Heartbeat</h4>
-                    <p style={{ fontSize: "0.85rem", opacity: 0.4, marginBottom: "24px", fontWeight: 700 }}>Monitoring institutional cluster broadcasts...</p>
+                    <h4 style={{ fontWeight: 950, marginBottom: "8px", fontSize: '1.1rem' }}>System Heartbeat</h4>
+                    <p style={{ fontSize: "0.85rem", opacity: 0.4, marginBottom: "24px", fontWeight: 700 }}>Monitoring server and workflow status</p>
                     <div style={{ height: "140px", background: "rgba(255,255,255,0.03)", borderRadius: "20px", padding: "20px", fontFamily: "var(--font-mono, monospace)", fontSize: "0.7rem", overflow: "hidden", border: '1px solid rgba(255,255,255,0.05)', lineHeight: 1.8 }}>
                         <div style={{ color: "#71717A" }}>[0.00ms] Sovereignty protocol active</div>
                         <div style={{ color: "#EF4444" }}>[+14ms] ERROR: ECONN_DROPPED @ alpha-node</div>
