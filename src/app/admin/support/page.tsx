@@ -226,7 +226,7 @@ export default function SupportInboxPage() {
                                     <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>Ticket created: {new Date(selectedTicket.createdAt).toLocaleString()}</div>
                                 </div>
                                 <div style={{ display: 'flex', gap: '12px' }}>
-                                    {selectedTicket.status === 'open' && (
+                                    {selectedTicket.status !== 'closed' && (
                                         <button 
                                             className={adminStyles.actionIconBtn} 
                                             title="Close Ticket"

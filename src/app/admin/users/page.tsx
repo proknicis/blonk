@@ -3,6 +3,7 @@
 import styles from "../../dashboard/page.module.css";
 import adminStyles from "../admin.module.css";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { 
     Users, 
     Shield, 
@@ -64,7 +65,7 @@ export default function AdminUsersPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [updatingId, setUpdatingId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedUser, setSelectedUser] = useState<any>(null);
+    const router = useRouter();
     const [activeFilter, setActiveFilter] = useState("All");
     const [modalTab, setModalTab] = useState("Overview");
     const [isInviting, setIsInviting] = useState(false);
@@ -212,7 +213,7 @@ export default function AdminUsersPage() {
                                 return (
                                     <tr key={u.id} className={adminStyles.registryRow} style={{ height: '84px' }}>
                                         <td>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }} onClick={() => setSelectedUser(u)}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer' }} onClick={() => router.push('/admin/users/' + u.id)}>
                                                 <div style={{ width: '48px', height: '48px', background: 'var(--muted)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 950, color: 'var(--accent)', border: '1px solid var(--border)' }}>
                                                     {u.name?.charAt(0)}
                                                 </div>
@@ -256,7 +257,7 @@ export default function AdminUsersPage() {
                                         </td>
                                         <td style={{ textAlign: 'right' }}>
                                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                <button className={adminStyles.actionIconBtn} onClick={() => setSelectedUser(u)}><ChevronRight size={18} /></button>
+                                                <button className={adminStyles.actionIconBtn} onClick={() => router.push('/admin/users/' + u.id)}><ChevronRight size={18} /></button>
                                                 <button className={adminStyles.actionIconBtn} style={{ color: 'var(--destructive)' }} onClick={() => deleteUser(u.id)}><Trash2 size={18} /></button>
                                             </div>
                                         </td>
@@ -267,315 +268,6 @@ export default function AdminUsersPage() {
                     </table>
                 </div>
             </div>
-
-            {/* USER DETAIL MODAL */}
-            {selectedUser && (
-                <ModalPortal>
-                    <div className={adminStyles.modalOverlay} onClick={() => setSelectedUser(null)}>
-                        <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '960px', height: '85vh', background: 'var(--background)', display: 'flex', flexDirection: 'column', border: '1px solid var(--border)', borderRadius: '32px', overflow: 'hidden' }}>
-                            <div style={{ background: 'var(--foreground)', color: 'var(--background)', padding: '56px 64px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                    <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
-                                        <div style={{ width: '100px', height: '100px', background: 'var(--accent)', borderRadius: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', fontWeight: 950, color: 'var(--foreground)' }}>
-                                            {selectedUser.name?.charAt(0)}
-                                        </div>
-                                        <div>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
-                                                <h2 style={{ fontSize: '2.5rem', fontWeight: 950, margin: 0, letterSpacing: '-0.04em' }}>
-                                                    {selectedUser.name?.toLowerCase().replace(/\b\w/g, (l: string) => l.toUpperCase())}
-                                                </h2>
-                                                <div style={{ padding: '4px 12px', background: 'var(--accent)', color: 'var(--foreground)', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 950 }}>
-                                                    Plan: {selectedUser.tier || 'Standard'}
-                                                </div>
-                                            </div>
-                                            <p style={{ fontSize: '1.1rem', opacity: 0.6, margin: 0 }}>{selectedUser.email}</p>
-                                        </div>
-                                    </div>
-                                    <button onClick={() => setSelectedUser(null)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', width: '48px', height: '48px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <X size={20} />
-                                    </button>
-                                </div>
-                                <div style={{ display: 'flex', gap: '48px', marginTop: '56px' }}>
-                                    {["Overview", "Workflows", "Billing", "Audit Logs"].map(t => (
-                                        <button 
-                                            key={t}
-                                            onClick={() => setModalTab(t)}
-                                            style={{ 
-                                                background: 'none', 
-                                                border: 'none', 
-                                                color: modalTab === t ? 'var(--accent)' : 'rgba(255,255,255,0.4)',
-                                                fontSize: '0.9rem',
-                                                fontWeight: 950,
-                                                padding: '0 0 16px 0',
-                                                borderBottom: modalTab === t ? '2px solid var(--accent)' : '2px solid transparent',
-                                                cursor: 'pointer'
-                                            }}
-                                        >
-                                            {t.toUpperCase()}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div style={{ flex: 1, overflowY: 'auto', padding: '64px' }}>
-                                {modalTab === "Overview" && (
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
-                                        {[
-                                            { label: "USER ID", value: selectedUser.id, icon: <Fingerprint size={16} /> },
-                                            { label: "LAST ACTIVE", value: selectedUser.lastActive ? new Date(selectedUser.lastActive).toLocaleString() : 'Never', icon: <Clock size={16} /> },
-                                            { label: "WORKSPACE", value: selectedUser.firmName || "Legacy Firm Hub", icon: <Building2 size={16} /> },
-                                            { label: "ROLE", value: selectedUser.plan || "Starter", icon: <ShieldCheck size={16} /> },
-                                            { label: "JOINED DATE", value: new Date(selectedUser.createdAt).toLocaleDateString(), icon: <Calendar size={16} /> }
-                                        ].map((item, i) => (
-                                            <div key={i} style={{ background: '#FAFAFA', padding: '32px', borderRadius: '24px', border: 'none' }}>
-                                                <div style={{ display: 'flex', gap: '12px', alignItems: 'center', color: '#6B7280', marginBottom: '16px' }}>
-                                                    {item.icon}
-                                                    <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</span>
-                                                </div>
-                                                <div style={{ fontSize: '1.1rem', fontWeight: 950, color: '#111827' }}>{item.value}</div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-
-                                {modalTab === "Workflows" && (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '48px', animation: 'fadeIn 0.5s ease-out' }}>
-                                        <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>
-                                            <button className={adminStyles.primaryBtn} style={{ background: '#0F172A', color: '#FFFFFF', border: 'none', height: '40px', padding: '0 20px', borderRadius: '12px' }}>Add Workflow Access</button>
-                                        </div>
-
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
-                                            {[
-                                                { label: "ASSIGNED WORKFLOWS", value: selectedUser.workflowsUsed || "0", icon: <Activity size={16} /> },
-                                                { label: "ACTIVE WORKFLOWS", value: "0", icon: <Zap size={16} /> },
-                                                { label: "LAST WORKFLOW ACTION", value: "Never", icon: <Clock size={16} /> },
-                                                { label: "ASSIGNED N8N INSTANCE", value: "n8n Instance A", icon: <Building2 size={16} /> }
-                                            ].map((item, i) => (
-                                                <div key={i} style={{ background: i === 0 ? '#F0FDF4' : '#FAFAFA', padding: '24px', borderRadius: '24px', border: i === 0 ? '1px solid #BBF7D0' : 'none' }}>
-                                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', color: i === 0 ? '#166534' : '#6B7280', marginBottom: '16px' }}>
-                                                        {item.icon}
-                                                        <span style={{ fontSize: '0.65rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</span>
-                                                    </div>
-                                                    <div style={{ fontSize: i === 3 ? '1.1rem' : '1.5rem', fontWeight: 950, color: i === 0 ? '#166534' : '#0F172A' }}>{item.value}</div>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        <div>
-                                            <h3 style={{ fontSize: '1.1rem', fontWeight: 950, marginBottom: '24px', textTransform: 'uppercase' }}>ASSIGNED WORKFLOWS</h3>
-                                            <div style={{ background: '#FFFFFF', borderRadius: '24px', border: '1px solid #F3F4F6', overflow: 'hidden' }}>
-                                                <table className={adminStyles.registryTable} style={{ margin: 0 }}>
-                                                    <thead>
-                                                        <tr>
-                                                            <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>WORKFLOW</th>
-                                                            <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>PERMISSION</th>
-                                                            <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>STATUS</th>
-                                                            <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>LAST RUN</th>
-                                                            <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}></th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr className={adminStyles.registryRow} style={{ height: '72px' }}>
-                                                            <td style={{ fontWeight: 950, color: '#0F172A' }}>Invoice processing</td>
-                                                            <td style={{ fontSize: '0.85rem', color: '#6B7280' }}>Admin</td>
-                                                            <td><span style={{ padding: '6px 12px', background: '#F0FDF4', color: '#16A34A', borderRadius: '100px', fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase' }}>ACTIVE</span></td>
-                                                            <td style={{ fontSize: '0.85rem', color: '#6B7280' }}>12m ago<br/><span style={{ fontSize: '0.75rem' }}>(100% success)</span></td>
-                                                            <td style={{ textAlign: 'right' }}>
-                                                                <button style={{ width: '40px', height: '40px', borderRadius: '12px', border: '1px solid #F3F4F6', background: '#FAFAFA', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280', cursor: 'pointer' }}>
-                                                                    <Search size={16} />
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {modalTab === "Billing" && (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '48px', animation: 'fadeIn 0.5s ease-out' }}>
-                                        {/* Actions */}
-                                        <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>
-                                            <button className={adminStyles.primaryBtn} style={{ background: '#0F172A', color: '#FFFFFF', border: 'none', height: '40px', padding: '0 20px', borderRadius: '12px' }}>Open Billing Portal</button>
-                                        </div>
-
-                                        {/* Cards */}
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
-                                            {[
-                                                { label: "CURRENT PLAN", value: selectedUser.plan || "Standard", icon: <Building2 size={16} /> },
-                                                { label: "BILLING STATUS", value: getUserStatus(selectedUser) === 'Active' ? 'Active' : 'Inactive', icon: <Activity size={16} /> },
-                                                { label: "NEXT INVOICE", value: "05/06/2026", icon: <Calendar size={16} /> },
-                                                { label: "TOTAL PAID", value: "€149.00", icon: <CreditCard size={16} /> }
-                                            ].map((item, i) => (
-                                                <div key={i} style={{ background: '#FAFAFA', padding: '24px', borderRadius: '24px', border: 'none' }}>
-                                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', color: '#6B7280', marginBottom: '16px' }}>
-                                                        {item.icon}
-                                                        <span style={{ fontSize: '0.65rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</span>
-                                                    </div>
-                                                    <div style={{ fontSize: '1.25rem', fontWeight: 950, color: item.value === 'Active' ? '#16A34A' : '#0F172A' }}>{item.value}</div>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        {/* Details Grid */}
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px' }}>
-                                            <div style={{ background: '#FAFAFA', padding: '24px', borderRadius: '16px', border: 'none' }}>
-                                                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#6B7280', marginBottom: '8px' }}>Payment Method</div>
-                                                <div style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A' }}>Visa ending in 4242</div>
-                                            </div>
-                                            <div style={{ background: '#FAFAFA', padding: '24px', borderRadius: '16px', border: 'none' }}>
-                                                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#6B7280', marginBottom: '8px' }}>Billing Email</div>
-                                                <div style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A' }}>{selectedUser.email}</div>
-                                            </div>
-                                            <div style={{ background: '#FAFAFA', padding: '24px', borderRadius: '16px', border: 'none' }}>
-                                                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#6B7280', marginBottom: '8px' }}>Monthly Price</div>
-                                                <div style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A' }}>€49.00 / month</div>
-                                            </div>
-                                        </div>
-
-                                        {/* Invoices Table */}
-                                        <div>
-                                            <h3 style={{ fontSize: '1.1rem', fontWeight: 950, marginBottom: '24px', textTransform: 'uppercase' }}>INVOICES</h3>
-                                            <div style={{ background: '#FFFFFF', borderRadius: '24px', border: '1px solid #F3F4F6', overflow: 'hidden' }}>
-                                                <table className={adminStyles.registryTable} style={{ margin: 0 }}>
-                                                    <thead>
-                                                        <tr>
-                                                            <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>INVOICE</th>
-                                                            <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>DATE</th>
-                                                            <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>AMOUNT</th>
-                                                            <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>STATUS</th>
-                                                            <th className={adminStyles.registryTH} style={{ textAlign: 'right', fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>DOWNLOAD</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr className={adminStyles.registryRow} style={{ height: '72px' }}>
-                                                            <td style={{ fontWeight: 950, color: '#0F172A' }}>INV-2026-04</td>
-                                                            <td style={{ fontSize: '0.85rem', color: '#6B7280' }}>05/05/2026</td>
-                                                            <td style={{ fontWeight: 950, color: '#0F172A' }}>€49.00</td>
-                                                            <td><span style={{ padding: '6px 12px', background: '#F0FDF4', color: '#16A34A', borderRadius: '100px', fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase' }}>PAID</span></td>
-                                                            <td style={{ textAlign: 'right' }}>
-                                                                <button style={{ width: '40px', height: '40px', borderRadius: '12px', border: '1px solid #F3F4F6', background: '#FAFAFA', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280', cursor: 'pointer' }}>
-                                                                    <ArrowDownCircle size={16} />
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {modalTab === "Audit Logs" && (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '48px', animation: 'fadeIn 0.5s ease-out' }}>
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
-                                            {[
-                                                { label: "TOTAL USER EVENTS", value: "342", icon: <Activity size={16} /> },
-                                                { label: "LAST LOGIN", value: selectedUser.lastActive ? new Date(selectedUser.lastActive).toLocaleDateString() : 'Today', icon: <Key size={16} /> },
-                                                { label: "LAST WORKFLOW ACTION", value: "12m ago", icon: <Zap size={16} /> },
-                                                { label: "FAILED LOGIN ATTEMPTS", value: "0", icon: <ShieldAlert size={16} color="#EF4444" /> }
-                                            ].map((item, i) => (
-                                                <div key={i} style={{ background: '#FAFAFA', padding: '24px', borderRadius: '24px', border: 'none' }}>
-                                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', color: '#6B7280', marginBottom: '16px' }}>
-                                                        {item.icon}
-                                                        <span style={{ fontSize: '0.65rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</span>
-                                                    </div>
-                                                    <div style={{ fontSize: '1.25rem', fontWeight: 950, color: '#0F172A' }}>{item.value}</div>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '32px' }}>
-                                            {/* Event Filters Sidebar */}
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                                <h4 style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', color: '#6B7280', marginBottom: '12px', letterSpacing: '0.05em' }}>EVENT FILTERS</h4>
-                                                {[
-                                                    "Login events", 
-                                                    "Logout events", 
-                                                    "Role changes", 
-                                                    "Workspace changes",
-                                                    "Workflow starts", 
-                                                    "Workflow pauses", 
-                                                    "Workflow setup approvals",
-                                                    "Credential connections", 
-                                                    "Support tickets created",
-                                                    "Admin changes made to this user", 
-                                                    "Failed login attempts"
-                                                ].map(filterLabel => (
-                                                    <label key={filterLabel} style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
-                                                        <div style={{ width: '16px', height: '16px', background: '#0F172A', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                <path d="M8.5 2.5L3.5 7.5L1.5 5.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                                            </svg>
-                                                        </div>
-                                                        <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A' }}>{filterLabel}</span>
-                                                    </label>
-                                                ))}
-                                            </div>
-
-                                            {/* Table Area */}
-                                            <div>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                                                    <h3 style={{ fontSize: '1.1rem', fontWeight: 950, margin: 0, textTransform: 'uppercase' }}>ACTION LOG</h3>
-                                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                                        <button style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '8px 16px', fontSize: '0.8rem', fontWeight: 800, color: '#0F172A', cursor: 'pointer' }}>All Events</button>
-                                                    </div>
-                                                </div>
-                                                
-                                                <div style={{ background: '#FFFFFF', borderRadius: '24px', border: '1px solid #F3F4F6', overflow: 'hidden' }}>
-                                                    <table className={adminStyles.registryTable} style={{ margin: 0, width: '100%' }}>
-                                                        <thead>
-                                                            <tr>
-                                                                <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>TIME</th>
-                                                                <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>ACTION</th>
-                                                                <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>TARGET</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {[
-                                                                { time: "02/05/2026 14:25", action: "Role changed", target: "Operator → Admin" },
-                                                                { time: "02/05/2026 14:20", action: "Started workflow", target: "Invoice processing" },
-                                                                { time: "02/05/2026 14:11", action: "Logged in", target: "Account" }
-                                                            ].map((log, i) => (
-                                                                <tr key={i} className={adminStyles.registryRow} style={{ height: '72px' }}>
-                                                                    <td style={{ fontSize: '0.85rem', color: '#6B7280', fontWeight: 800 }}>{log.time}</td>
-                                                                    <td style={{ fontWeight: 950, color: '#0F172A', fontSize: '0.95rem' }}>{log.action}</td>
-                                                                    <td style={{ fontSize: '0.85rem', color: '#0F172A' }}>{log.target}</td>
-                                                                </tr>
-                                                            ))}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div style={{ padding: '32px 64px', background: '#FFFFFF', borderTop: '1px solid #F3F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-                                    <button className={adminStyles.primaryBtn} style={{ background: '#0F172A', color: '#FFFFFF', height: '48px', padding: '0 24px', borderRadius: '12px', border: 'none' }}>
-                                        <UserCheck size={18} style={{ marginRight: '8px' }} /> Update Profile
-                                    </button>
-                                    <button 
-                                        onClick={() => updateUser(selectedUser.id, { status: getUserStatus(selectedUser) === 'Suspended' ? 'Active' : 'Suspended' })} 
-                                        style={{ background: 'none', border: 'none', color: '#6B7280', fontWeight: 800, cursor: 'pointer', fontSize: '0.9rem' }}
-                                    >
-                                        {getUserStatus(selectedUser) === 'Suspended' ? 'Reactivate User' : 'Deactivate User'}
-                                    </button>
-                                </div>
-                                <button 
-                                    onClick={() => setSelectedUser(null)} 
-                                    style={{ background: 'none', border: 'none', color: '#6B7280', fontWeight: 800, cursor: 'pointer', fontSize: '0.9rem' }}
-                                >
-                                    Close
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </ModalPortal>
-            )}
 
             {isInviting && (
                 <ModalPortal>
