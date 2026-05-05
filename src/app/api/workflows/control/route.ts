@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { logAudit } from "@/lib/audit";
 
 export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
@@ -60,6 +61,14 @@ export async function POST(req: Request) {
             finalData.active ? 'Active' : 'Ready',
             workflowId
         ]);
+
+        // Log workflow control event
+        await logAudit(
+            (session.user as any).id, 
+            shouldBeActive ? 'workflow_start' : 'workflow_pause', 
+            `Workflow ID: ${workflowId}`,
+            { workflowId, n8nWorkflowId: wf.n8nWorkflowId }
+        );
 
         return NextResponse.json({ 
             success: true, 

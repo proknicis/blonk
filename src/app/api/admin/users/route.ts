@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from "@/lib/db";
+import { logAudit } from "@/lib/audit";
 
 export async function GET() {
     try {
@@ -48,6 +49,11 @@ export async function POST(request: Request) {
                     `UPDATE "User" SET ${updates.join(', ')} WHERE id = $${i}`,
                     params
                 );
+
+                // Log specific changes
+                if (role !== undefined) await logAudit(id, 'role_change', 'Admin Dashboard', { newRole: role });
+                if (status !== undefined) await logAudit(id, 'admin_change', 'User Status Update', { newStatus: status });
+                if (tier !== undefined) await logAudit(id, 'admin_change', 'Plan/Tier Update', { newTier: tier });
             }
         }
 

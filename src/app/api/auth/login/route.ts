@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
+import { logAudit } from "@/lib/audit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -29,14 +30,18 @@ export async function POST(request: NextRequest) {
 
         const user = rows?.[0];
         if (!user) {
+            // Log failed attempt if user email exists but no user found (or just log email for trace)
             return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
+            await logAudit(user.id, 'failed_login', 'Account Login', { email });
             return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
         }
+
+        await logAudit(user.id, 'login', 'Account Login');
 
         return NextResponse.json({
             message: "Login successful",

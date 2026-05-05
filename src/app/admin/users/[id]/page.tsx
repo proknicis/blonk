@@ -15,23 +15,35 @@ export default function UserDetailPage() {
     const userId = params.id as string;
     
     const [user, setUser] = useState<any>(null);
+    const [auditLogs, setAuditLogs] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isLoadingLogs, setIsLoadingLogs] = useState(false);
     const [modalTab, setModalTab] = useState("Overview");
 
     useEffect(() => {
-        const fetchUser = async () => {
+        const fetchData = async () => {
             try {
+                // Fetch User
                 const res = await fetch('/api/admin/users');
                 const data = await res.json();
                 const foundUser = data.find((u: any) => u.id === userId);
                 setUser(foundUser);
+
+                // Fetch Logs
+                setIsLoadingLogs(true);
+                const logsRes = await fetch(`/api/admin/users/${userId}/audit`);
+                if (logsRes.ok) {
+                    const logsData = await logsRes.json();
+                    setAuditLogs(logsData);
+                }
             } catch (error) {
-                console.error("Failed to fetch user", error);
+                console.error("Failed to fetch data", error);
             } finally {
                 setIsLoading(false);
+                setIsLoadingLogs(false);
             }
         };
-        fetchUser();
+        fetchData();
     }, [userId]);
 
     if (isLoading) {
@@ -42,9 +54,6 @@ export default function UserDetailPage() {
         return <div style={{ padding: '64px', textAlign: 'center', color: '#6B7280', fontWeight: 950 }}>USER NOT FOUND</div>;
     }
 
-    // Example mock properties for logic based on real user data
-    // In a real system, you'd fetch from Stripe/Billing APIs. 
-    // Here we deduce from user's current data to show 'no subscription' properly.
     const hasActiveSubscription = user.tier && user.tier !== "Trial" && user.tier !== "Starter";
     const planName = user.tier || "Starter";
     const paymentMethod = hasActiveSubscription ? "Visa ending in 4242" : "None";
@@ -53,14 +62,8 @@ export default function UserDetailPage() {
     const monthlyPrice = hasActiveSubscription ? "€49.00 / month" : "Free";
     const invoices = hasActiveSubscription ? [{ id: 'INV-2026-04', date: '05/05/2026', amount: '€49.00', status: 'PAID' }] : [];
     
-    // Workflows Logic
     const workflowsUsed = user.workflowsUsed || 0;
     const assignedWorkflows = workflowsUsed > 0 ? [{ name: 'Invoice processing', role: 'Admin', status: 'ACTIVE', lastRun: '12m ago (100% success)' }] : [];
-
-    // Audit logs - we'd normally fetch this from an API
-    const auditLogs = [
-        { time: new Date().toLocaleString(), action: "Viewed Profile", target: "Admin Dashboard" }
-    ];
 
     const getUserStatus = (u: any) => {
         if (u.status === 'Suspended' || u.status === 'Blocked') return 'Suspended';
@@ -68,6 +71,8 @@ export default function UserDetailPage() {
         const diffDays = (new Date().getTime() - new Date(u.lastActive).getTime()) / (1000 * 3600 * 24);
         return diffDays > 7 ? 'Inactive' : 'Active';
     };
+
+    const failedLoginCount = auditLogs.filter(log => log.action === 'Failed Login').length;
 
     return (
         <div style={{ animation: "fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1)", display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -297,7 +302,7 @@ export default function UserDetailPage() {
                                     { label: "TOTAL USER EVENTS", value: auditLogs.length.toString(), icon: <Activity size={16} /> },
                                     { label: "LAST LOGIN", value: user.lastActive ? new Date(user.lastActive).toLocaleDateString() : 'Today', icon: <Key size={16} /> },
                                     { label: "LAST WORKFLOW ACTION", value: workflowsUsed > 0 ? "12m ago" : "Never", icon: <Zap size={16} /> },
-                                    { label: "FAILED LOGIN ATTEMPTS", value: "0", icon: <ShieldAlert size={16} color="#EF4444" /> }
+                                    { label: "FAILED LOGIN ATTEMPTS", value: failedLoginCount.toString(), icon: <ShieldAlert size={16} color="#EF4444" /> }
                                 ].map((item, i) => (
                                     <div key={i} style={{ background: '#FAFAFA', padding: '24px', borderRadius: '24px', border: 'none' }}>
                                         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', color: '#6B7280', marginBottom: '16px' }}>
@@ -338,24 +343,30 @@ export default function UserDetailPage() {
                                     </div>
                                     
                                     <div style={{ background: '#FFFFFF', borderRadius: '24px', border: '1px solid #F3F4F6', overflow: 'hidden' }}>
-                                        <table className={adminStyles.registryTable} style={{ margin: 0, width: '100%' }}>
-                                            <thead>
-                                                <tr>
-                                                    <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>TIME</th>
-                                                    <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>ACTION</th>
-                                                    <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>TARGET</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {auditLogs.map((log, i) => (
-                                                    <tr key={i} className={adminStyles.registryRow} style={{ height: '72px' }}>
-                                                        <td style={{ fontSize: '0.85rem', color: '#6B7280', fontWeight: 800 }}>{log.time}</td>
-                                                        <td style={{ fontWeight: 950, color: '#0F172A', fontSize: '0.95rem' }}>{log.action}</td>
-                                                        <td style={{ fontSize: '0.85rem', color: '#0F172A' }}>{log.target}</td>
+                                        {isLoadingLogs ? (
+                                            <div style={{ padding: '48px', textAlign: 'center', color: '#6B7280' }}>Loading logs...</div>
+                                        ) : auditLogs.length > 0 ? (
+                                            <table className={adminStyles.registryTable} style={{ margin: 0, width: '100%' }}>
+                                                <thead>
+                                                    <tr>
+                                                        <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>TIME</th>
+                                                        <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>ACTION</th>
+                                                        <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>TARGET</th>
                                                     </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody>
+                                                    {auditLogs.map((log, i) => (
+                                                        <tr key={i} className={adminStyles.registryRow} style={{ height: '72px' }}>
+                                                            <td style={{ fontSize: '0.85rem', color: '#6B7280', fontWeight: 800 }}>{log.time}</td>
+                                                            <td style={{ fontWeight: 950, color: '#0F172A', fontSize: '0.95rem' }}>{log.action}</td>
+                                                            <td style={{ fontSize: '0.85rem', color: '#0F172A' }}>{log.target}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        ) : (
+                                            <div style={{ padding: '48px', textAlign: 'center', color: '#6B7280' }}>No activity logs found for this user.</div>
+                                        )}
                                     </div>
                                 </div>
                             </div>

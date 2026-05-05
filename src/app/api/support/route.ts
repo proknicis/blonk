@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
+import { logAudit } from '@/lib/audit';
 
 /**
  * Support Ticket System API
@@ -84,6 +85,8 @@ export async function POST(req: Request) {
                 [msgId, newTicketId, user.id, user.name || user.email, message]
             );
         }
+
+        await logAudit(user.id, 'ticket_created', `Support Ticket: ${subject || 'Support Request'}`, { ticketId: newTicketId });
 
         return NextResponse.json({ ticketId: newTicketId, success: true });
 
