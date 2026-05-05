@@ -61,7 +61,7 @@ export async function POST(req: Request) {
                 [msgId, ticketId, user.id, role, user.name || user.email, message]
             );
             await db.execute(
-                `UPDATE "support_tickets" SET "updatedAt" = NOW() WHERE id = $1`,
+                `UPDATE "support_tickets" SET status = 'waiting_for_admin', "updatedAt" = NOW() WHERE id = $1`,
                 [ticketId]
             );
             return NextResponse.json({ success: true });
@@ -127,7 +127,7 @@ export async function GET(req: Request) {
             return NextResponse.json(tickets);
         } else {
             const tickets = await db.query(
-                `SELECT * FROM "support_tickets" WHERE "userId" = $1 AND status = 'open' ORDER BY "updatedAt" DESC LIMIT 20`,
+                `SELECT * FROM "support_tickets" WHERE "userId" = $1 ORDER BY "updatedAt" DESC LIMIT 50`,
                 [user.id]
             );
             return NextResponse.json(tickets);

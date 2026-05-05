@@ -96,13 +96,18 @@ export default function SupportInboxPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     ticketId: selectedTicket.id,
-                    message: input
+                    message: input,
+                    status: 'waiting_for_client'
                 })
             });
 
             if (res.ok) {
                 setInput("");
+                fetchTickets();
                 fetchMessages(selectedTicket.id);
+                if (selectedTicket) {
+                    setSelectedTicket({ ...selectedTicket, status: 'waiting_for_client' });
+                }
             }
         } catch (err) {
             console.error("Failed to send message", err);
@@ -143,35 +148,35 @@ export default function SupportInboxPage() {
                 
                 {/* TICKET LIST */}
                 <div className={adminStyles.ticketList}>
-                    <div className={adminStyles.ticketListHeader}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                            <h3 style={{ fontSize: '1.1rem', fontWeight: 950, margin: 0 }}>Support Tickets</h3>
-                            <div className={adminStyles.hubMetrics}>
-                                <span className={adminStyles.hubLabel}>{tickets.filter(t => t.status === 'open').length} ACTIVE</span>
+                    <div className={adminStyles.ticketListHeader} style={{ background: 'var(--card)', padding: '24px', borderBottom: '1px solid var(--border)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                            <h3 style={{ fontSize: '1.25rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '-0.02em', margin: 0 }}>Support Tickets</h3>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', color: 'var(--muted-foreground)', letterSpacing: '0.05em' }}>
+                                {tickets.filter(t => t.status !== 'closed').length} ACTIVE
                             </div>
                         </div>
-                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                             <button 
                                 onClick={() => setFilter('open')}
-                                style={{ flex: '1 1 calc(50% - 4px)', height: '36px', borderRadius: '10px', border: 'none', background: filter === 'open' ? 'var(--foreground)' : 'var(--muted)', color: filter === 'open' ? 'var(--background)' : 'var(--foreground)', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
+                                style={{ height: '40px', borderRadius: '12px', border: 'none', background: filter === 'open' ? 'var(--foreground)' : 'transparent', color: filter === 'open' ? 'var(--background)' : 'var(--foreground)', fontSize: '0.85rem', fontWeight: 950, cursor: 'pointer', transition: 'all 0.2s' }}
                             >
                                 Open
                             </button>
                             <button 
                                 onClick={() => setFilter('waiting_for_client')}
-                                style={{ flex: '1 1 calc(50% - 4px)', height: '36px', borderRadius: '10px', border: 'none', background: filter === 'waiting_for_client' ? 'var(--foreground)' : 'var(--muted)', color: filter === 'waiting_for_client' ? 'var(--background)' : 'var(--foreground)', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
+                                style={{ height: '40px', borderRadius: '12px', border: 'none', background: filter === 'waiting_for_client' ? 'var(--foreground)' : 'transparent', color: filter === 'waiting_for_client' ? 'var(--background)' : 'var(--foreground)', fontSize: '0.85rem', fontWeight: 950, cursor: 'pointer', transition: 'all 0.2s' }}
                             >
                                 Waiting for Client
                             </button>
                             <button 
                                 onClick={() => setFilter('waiting_for_admin')}
-                                style={{ flex: '1 1 calc(50% - 4px)', height: '36px', borderRadius: '10px', border: 'none', background: filter === 'waiting_for_admin' ? 'var(--foreground)' : 'var(--muted)', color: filter === 'waiting_for_admin' ? 'var(--background)' : 'var(--foreground)', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
+                                style={{ height: '40px', borderRadius: '12px', border: 'none', background: filter === 'waiting_for_admin' ? 'var(--foreground)' : 'transparent', color: filter === 'waiting_for_admin' ? 'var(--background)' : 'var(--foreground)', fontSize: '0.85rem', fontWeight: 950, cursor: 'pointer', transition: 'all 0.2s' }}
                             >
                                 Waiting for Admin
                             </button>
                             <button 
                                 onClick={() => setFilter('closed')}
-                                style={{ flex: '1 1 calc(50% - 4px)', height: '36px', borderRadius: '10px', border: 'none', background: filter === 'closed' ? 'var(--foreground)' : 'var(--muted)', color: filter === 'closed' ? 'var(--background)' : 'var(--foreground)', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
+                                style={{ height: '40px', borderRadius: '12px', border: 'none', background: filter === 'closed' ? 'var(--foreground)' : 'transparent', color: filter === 'closed' ? 'var(--background)' : 'var(--foreground)', fontSize: '0.85rem', fontWeight: 950, cursor: 'pointer', transition: 'all 0.2s' }}
                             >
                                 Closed
                             </button>

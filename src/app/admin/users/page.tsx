@@ -321,18 +321,18 @@ export default function AdminUsersPage() {
                                 {modalTab === "Overview" && (
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
                                         {[
-                                            { label: "USER ID", value: selectedUser.id, icon: <Fingerprint size={18} /> },
-                                            { label: "LAST ACTIVE", value: selectedUser.lastActive ? new Date(selectedUser.lastActive).toLocaleString() : 'Never', icon: <Clock size={18} /> },
-                                            { label: "WORKSPACE", value: selectedUser.firmName || "Independent", icon: <Building2 size={18} /> },
-                                            { label: "ROLE", value: selectedUser.role, icon: <ShieldCheck size={18} /> },
-                                            { label: "JOINED DATE", value: new Date(selectedUser.createdAt).toLocaleDateString(), icon: <Calendar size={18} /> }
+                                            { label: "USER ID", value: selectedUser.id, icon: <Fingerprint size={16} /> },
+                                            { label: "LAST ACTIVE", value: selectedUser.lastActive ? new Date(selectedUser.lastActive).toLocaleString() : 'Never', icon: <Clock size={16} /> },
+                                            { label: "WORKSPACE", value: selectedUser.firmName || "Legacy Firm Hub", icon: <Building2 size={16} /> },
+                                            { label: "ROLE", value: selectedUser.plan || "Starter", icon: <ShieldCheck size={16} /> },
+                                            { label: "JOINED DATE", value: new Date(selectedUser.createdAt).toLocaleDateString(), icon: <Calendar size={16} /> }
                                         ].map((item, i) => (
-                                            <div key={i} style={{ background: 'var(--muted)', padding: '32px', borderRadius: '24px', border: '1px solid var(--border)' }}>
-                                                <div style={{ display: 'flex', gap: '12px', alignItems: 'center', color: 'var(--muted-foreground)', marginBottom: '16px' }}>
+                                            <div key={i} style={{ background: '#FAFAFA', padding: '32px', borderRadius: '24px', border: 'none' }}>
+                                                <div style={{ display: 'flex', gap: '12px', alignItems: 'center', color: '#6B7280', marginBottom: '16px' }}>
                                                     {item.icon}
-                                                    <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{item.label}</span>
+                                                    <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</span>
                                                 </div>
-                                                <div style={{ fontSize: '1.1rem', fontWeight: 950 }}>{item.value}</div>
+                                                <div style={{ fontSize: '1.1rem', fontWeight: 950, color: '#111827' }}>{item.value}</div>
                                             </div>
                                         ))}
                                     </div>
@@ -341,51 +341,49 @@ export default function AdminUsersPage() {
                                 {modalTab === "Workflows" && (
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '48px', animation: 'fadeIn 0.5s ease-out' }}>
                                         <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>
-                                            <button className={adminStyles.primaryBtn} style={{ background: 'var(--foreground)', color: 'var(--background)', border: 'none', height: '40px', padding: '0 20px', borderRadius: '12px' }}>Add Workflow Access</button>
+                                            <button className={adminStyles.primaryBtn} style={{ background: '#0F172A', color: '#FFFFFF', border: 'none', height: '40px', padding: '0 20px', borderRadius: '12px' }}>Add Workflow Access</button>
                                         </div>
 
                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
                                             {[
-                                                { label: "Assigned Workflows", value: selectedUser.workflowsUsed || "0", icon: <Activity size={18} /> },
-                                                { label: "Active Workflows", value: "0", icon: <Zap size={18} /> },
-                                                { label: "Last Workflow Action", value: "Never", icon: <Clock size={18} /> },
-                                                { label: "Assigned n8n Instance", value: "n8n Instance A", icon: <Building2 size={18} /> }
+                                                { label: "ASSIGNED WORKFLOWS", value: selectedUser.workflowsUsed || "0", icon: <Activity size={16} /> },
+                                                { label: "ACTIVE WORKFLOWS", value: "0", icon: <Zap size={16} /> },
+                                                { label: "LAST WORKFLOW ACTION", value: "Never", icon: <Clock size={16} /> },
+                                                { label: "ASSIGNED N8N INSTANCE", value: "n8n Instance A", icon: <Building2 size={16} /> }
                                             ].map((item, i) => (
-                                                <div key={i} style={{ background: i === 0 ? '#F0FDF4' : 'var(--muted)', padding: '24px', borderRadius: '24px', border: i === 0 ? '1px solid #BBF7D0' : '1px solid var(--border)' }}>
-                                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', color: i === 0 ? '#166534' : 'var(--muted-foreground)', marginBottom: '16px' }}>
+                                                <div key={i} style={{ background: i === 0 ? '#F0FDF4' : '#FAFAFA', padding: '24px', borderRadius: '24px', border: i === 0 ? '1px solid #BBF7D0' : 'none' }}>
+                                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', color: i === 0 ? '#166534' : '#6B7280', marginBottom: '16px' }}>
                                                         {item.icon}
                                                         <span style={{ fontSize: '0.65rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</span>
                                                     </div>
-                                                    <div style={{ fontSize: i === 3 ? '1.1rem' : '1.5rem', fontWeight: 950, color: i === 0 ? '#166534' : 'var(--foreground)' }}>{item.value}</div>
+                                                    <div style={{ fontSize: i === 3 ? '1.1rem' : '1.5rem', fontWeight: 950, color: i === 0 ? '#166534' : '#0F172A' }}>{item.value}</div>
                                                 </div>
                                             ))}
                                         </div>
 
                                         <div>
-                                            <h3 style={{ fontSize: '1.2rem', fontWeight: 950, marginBottom: '24px' }}>Assigned Workflows</h3>
-                                            <div style={{ background: 'var(--background)', borderRadius: '24px', border: '1px solid var(--border)', overflow: 'hidden' }}>
+                                            <h3 style={{ fontSize: '1.1rem', fontWeight: 950, marginBottom: '24px', textTransform: 'uppercase' }}>ASSIGNED WORKFLOWS</h3>
+                                            <div style={{ background: '#FFFFFF', borderRadius: '24px', border: '1px solid #F3F4F6', overflow: 'hidden' }}>
                                                 <table className={adminStyles.registryTable} style={{ margin: 0 }}>
                                                     <thead>
                                                         <tr>
-                                                            <th className={adminStyles.registryTH}>Workflow</th>
-                                                            <th className={adminStyles.registryTH}>Permission</th>
-                                                            <th className={adminStyles.registryTH}>Status</th>
-                                                            <th className={adminStyles.registryTH}>Last Run</th>
-                                                            <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Actions</th>
+                                                            <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>WORKFLOW</th>
+                                                            <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>PERMISSION</th>
+                                                            <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>STATUS</th>
+                                                            <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>LAST RUN</th>
+                                                            <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}></th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr className={adminStyles.registryRow} style={{ height: '64px' }}>
-                                                            <td style={{ fontWeight: 800 }}>Invoice processing</td>
-                                                            <td style={{ fontSize: '0.85rem' }}>Admin</td>
-                                                            <td><span style={{ padding: '4px 10px', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', borderRadius: '100px', fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase' }}>Active</span></td>
-                                                            <td style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>12m ago (100% success)</td>
+                                                        <tr className={adminStyles.registryRow} style={{ height: '72px' }}>
+                                                            <td style={{ fontWeight: 950, color: '#0F172A' }}>Invoice processing</td>
+                                                            <td style={{ fontSize: '0.85rem', color: '#6B7280' }}>Admin</td>
+                                                            <td><span style={{ padding: '6px 12px', background: '#F0FDF4', color: '#16A34A', borderRadius: '100px', fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase' }}>ACTIVE</span></td>
+                                                            <td style={{ fontSize: '0.85rem', color: '#6B7280' }}>12m ago<br/><span style={{ fontSize: '0.75rem' }}>(100% success)</span></td>
                                                             <td style={{ textAlign: 'right' }}>
-                                                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                                    <button className={adminStyles.actionIconBtn} title="View Details"><Search size={16} /></button>
-                                                                    <button className={adminStyles.actionIconBtn} title="Change Access"><Shield size={16} /></button>
-                                                                    <button className={adminStyles.actionIconBtn} style={{ color: 'var(--destructive)' }} title="Remove Access"><Trash2 size={16} /></button>
-                                                                </div>
+                                                                <button style={{ width: '40px', height: '40px', borderRadius: '12px', border: '1px solid #F3F4F6', background: '#FAFAFA', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280', cursor: 'pointer' }}>
+                                                                    <Search size={16} />
+                                                                </button>
                                                             </td>
                                                         </tr>
                                                     </tbody>
@@ -399,66 +397,68 @@ export default function AdminUsersPage() {
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '48px', animation: 'fadeIn 0.5s ease-out' }}>
                                         {/* Actions */}
                                         <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>
-                                            <button className={adminStyles.primaryBtn} style={{ background: 'var(--foreground)', color: 'var(--background)', border: 'none', height: '40px', padding: '0 20px', borderRadius: '12px' }}>Open Billing Portal</button>
-                                            <button className={adminStyles.refreshBtn} style={{ height: '40px', padding: '0 20px', borderRadius: '12px' }}>Change Plan</button>
-                                            <button className={adminStyles.refreshBtn} style={{ color: 'var(--destructive)', borderColor: 'var(--destructive)', height: '40px', padding: '0 20px', borderRadius: '12px' }}>Cancel Subscription</button>
+                                            <button className={adminStyles.primaryBtn} style={{ background: '#0F172A', color: '#FFFFFF', border: 'none', height: '40px', padding: '0 20px', borderRadius: '12px' }}>Open Billing Portal</button>
                                         </div>
 
                                         {/* Cards */}
                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
                                             {[
-                                                { label: "Current Plan", value: selectedUser.tier || "Standard", icon: <Building2 size={18} /> },
-                                                { label: "Billing Status", value: "Active", icon: <Activity size={18} /> },
-                                                { label: "Next Invoice", value: "05/06/2026", icon: <Calendar size={18} /> },
-                                                { label: "Total Paid", value: "€149.00", icon: <CreditCard size={18} /> }
+                                                { label: "CURRENT PLAN", value: selectedUser.plan || "Standard", icon: <Building2 size={16} /> },
+                                                { label: "BILLING STATUS", value: getUserStatus(selectedUser) === 'Active' ? 'Active' : 'Inactive', icon: <Activity size={16} /> },
+                                                { label: "NEXT INVOICE", value: "05/06/2026", icon: <Calendar size={16} /> },
+                                                { label: "TOTAL PAID", value: "€149.00", icon: <CreditCard size={16} /> }
                                             ].map((item, i) => (
-                                                <div key={i} style={{ background: 'var(--muted)', padding: '24px', borderRadius: '24px', border: '1px solid var(--border)' }}>
-                                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', color: 'var(--muted-foreground)', marginBottom: '16px' }}>
+                                                <div key={i} style={{ background: '#FAFAFA', padding: '24px', borderRadius: '24px', border: 'none' }}>
+                                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', color: '#6B7280', marginBottom: '16px' }}>
                                                         {item.icon}
                                                         <span style={{ fontSize: '0.65rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</span>
                                                     </div>
-                                                    <div style={{ fontSize: '1.25rem', fontWeight: 950, color: item.value === 'Active' ? '#10B981' : 'var(--foreground)' }}>{item.value}</div>
+                                                    <div style={{ fontSize: '1.25rem', fontWeight: 950, color: item.value === 'Active' ? '#16A34A' : '#0F172A' }}>{item.value}</div>
                                                 </div>
                                             ))}
                                         </div>
 
                                         {/* Details Grid */}
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px' }}>
-                                            <div style={{ background: 'var(--muted)', padding: '24px', borderRadius: '16px', border: '1px solid var(--border)' }}>
-                                                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--muted-foreground)', marginBottom: '8px' }}>Payment Method</div>
-                                                <div style={{ fontSize: '1rem', fontWeight: 950 }}>Visa ending in 4242</div>
+                                            <div style={{ background: '#FAFAFA', padding: '24px', borderRadius: '16px', border: 'none' }}>
+                                                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#6B7280', marginBottom: '8px' }}>Payment Method</div>
+                                                <div style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A' }}>Visa ending in 4242</div>
                                             </div>
-                                            <div style={{ background: 'var(--muted)', padding: '24px', borderRadius: '16px', border: '1px solid var(--border)' }}>
-                                                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--muted-foreground)', marginBottom: '8px' }}>Billing Email</div>
-                                                <div style={{ fontSize: '1rem', fontWeight: 950 }}>{selectedUser.email}</div>
+                                            <div style={{ background: '#FAFAFA', padding: '24px', borderRadius: '16px', border: 'none' }}>
+                                                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#6B7280', marginBottom: '8px' }}>Billing Email</div>
+                                                <div style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A' }}>{selectedUser.email}</div>
                                             </div>
-                                            <div style={{ background: 'var(--muted)', padding: '24px', borderRadius: '16px', border: '1px solid var(--border)' }}>
-                                                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--muted-foreground)', marginBottom: '8px' }}>Monthly Price</div>
-                                                <div style={{ fontSize: '1rem', fontWeight: 950 }}>€49.00 / month</div>
+                                            <div style={{ background: '#FAFAFA', padding: '24px', borderRadius: '16px', border: 'none' }}>
+                                                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#6B7280', marginBottom: '8px' }}>Monthly Price</div>
+                                                <div style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A' }}>€49.00 / month</div>
                                             </div>
                                         </div>
 
                                         {/* Invoices Table */}
                                         <div>
-                                            <h3 style={{ fontSize: '1.2rem', fontWeight: 950, marginBottom: '24px' }}>Invoices</h3>
-                                            <div style={{ background: 'var(--background)', borderRadius: '24px', border: '1px solid var(--border)', overflow: 'hidden' }}>
+                                            <h3 style={{ fontSize: '1.1rem', fontWeight: 950, marginBottom: '24px', textTransform: 'uppercase' }}>INVOICES</h3>
+                                            <div style={{ background: '#FFFFFF', borderRadius: '24px', border: '1px solid #F3F4F6', overflow: 'hidden' }}>
                                                 <table className={adminStyles.registryTable} style={{ margin: 0 }}>
                                                     <thead>
                                                         <tr>
-                                                            <th className={adminStyles.registryTH}>Invoice</th>
-                                                            <th className={adminStyles.registryTH}>Date</th>
-                                                            <th className={adminStyles.registryTH}>Amount</th>
-                                                            <th className={adminStyles.registryTH}>Status</th>
-                                                            <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Download</th>
+                                                            <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>INVOICE</th>
+                                                            <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>DATE</th>
+                                                            <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>AMOUNT</th>
+                                                            <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>STATUS</th>
+                                                            <th className={adminStyles.registryTH} style={{ textAlign: 'right', fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>DOWNLOAD</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr className={adminStyles.registryRow} style={{ height: '64px' }}>
-                                                            <td style={{ fontWeight: 800 }}>INV-2026-04</td>
-                                                            <td style={{ fontSize: '0.85rem' }}>05/05/2026</td>
-                                                            <td style={{ fontWeight: 800 }}>€49.00</td>
-                                                            <td><span style={{ padding: '4px 10px', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', borderRadius: '100px', fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase' }}>Paid</span></td>
-                                                            <td style={{ textAlign: 'right' }}><button className={adminStyles.actionIconBtn}><ArrowDownCircle size={18} /></button></td>
+                                                        <tr className={adminStyles.registryRow} style={{ height: '72px' }}>
+                                                            <td style={{ fontWeight: 950, color: '#0F172A' }}>INV-2026-04</td>
+                                                            <td style={{ fontSize: '0.85rem', color: '#6B7280' }}>05/05/2026</td>
+                                                            <td style={{ fontWeight: 950, color: '#0F172A' }}>€49.00</td>
+                                                            <td><span style={{ padding: '6px 12px', background: '#F0FDF4', color: '#16A34A', borderRadius: '100px', fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase' }}>PAID</span></td>
+                                                            <td style={{ textAlign: 'right' }}>
+                                                                <button style={{ width: '40px', height: '40px', borderRadius: '12px', border: '1px solid #F3F4F6', background: '#FAFAFA', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280', cursor: 'pointer' }}>
+                                                                    <ArrowDownCircle size={16} />
+                                                                </button>
+                                                            </td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
@@ -471,17 +471,17 @@ export default function AdminUsersPage() {
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '48px', animation: 'fadeIn 0.5s ease-out' }}>
                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
                                             {[
-                                                { label: "Total User Events", value: "342", icon: <Activity size={18} /> },
-                                                { label: "Last Login", value: selectedUser.lastActive ? new Date(selectedUser.lastActive).toLocaleDateString() : 'Today', icon: <Key size={18} /> },
-                                                { label: "Last Workflow Action", value: "12m ago", icon: <Zap size={18} /> },
-                                                { label: "Failed Login Attempts", value: "0", icon: <ShieldAlert size={18} color="var(--destructive)" /> }
+                                                { label: "TOTAL USER EVENTS", value: "342", icon: <Activity size={16} /> },
+                                                { label: "LAST LOGIN", value: selectedUser.lastActive ? new Date(selectedUser.lastActive).toLocaleDateString() : 'Today', icon: <Key size={16} /> },
+                                                { label: "LAST WORKFLOW ACTION", value: "12m ago", icon: <Zap size={16} /> },
+                                                { label: "FAILED LOGIN ATTEMPTS", value: "0", icon: <ShieldAlert size={16} color="#EF4444" /> }
                                             ].map((item, i) => (
-                                                <div key={i} style={{ background: 'var(--muted)', padding: '24px', borderRadius: '24px', border: '1px solid var(--border)' }}>
-                                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', color: 'var(--muted-foreground)', marginBottom: '16px' }}>
+                                                <div key={i} style={{ background: '#FAFAFA', padding: '24px', borderRadius: '24px', border: 'none' }}>
+                                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', color: '#6B7280', marginBottom: '16px' }}>
                                                         {item.icon}
                                                         <span style={{ fontSize: '0.65rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</span>
                                                     </div>
-                                                    <div style={{ fontSize: '1.25rem', fontWeight: 950 }}>{item.value}</div>
+                                                    <div style={{ fontSize: '1.25rem', fontWeight: 950, color: '#0F172A' }}>{item.value}</div>
                                                 </div>
                                             ))}
                                         </div>
@@ -489,7 +489,7 @@ export default function AdminUsersPage() {
                                         <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '32px' }}>
                                             {/* Event Filters Sidebar */}
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                                <h4 style={{ fontSize: '0.85rem', fontWeight: 950, textTransform: 'uppercase', color: 'var(--muted-foreground)', marginBottom: '12px', letterSpacing: '0.05em' }}>Event Filters</h4>
+                                                <h4 style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', color: '#6B7280', marginBottom: '12px', letterSpacing: '0.05em' }}>EVENT FILTERS</h4>
                                                 {[
                                                     "Login events", 
                                                     "Logout events", 
@@ -504,8 +504,12 @@ export default function AdminUsersPage() {
                                                     "Failed login attempts"
                                                 ].map(filterLabel => (
                                                     <label key={filterLabel} style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
-                                                        <input type="checkbox" defaultChecked style={{ width: '16px', height: '16px', accentColor: 'var(--foreground)' }} />
-                                                        <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--foreground)' }}>{filterLabel}</span>
+                                                        <div style={{ width: '16px', height: '16px', background: '#0F172A', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                <path d="M8.5 2.5L3.5 7.5L1.5 5.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                                            </svg>
+                                                        </div>
+                                                        <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A' }}>{filterLabel}</span>
                                                     </label>
                                                 ))}
                                             </div>
@@ -513,47 +517,33 @@ export default function AdminUsersPage() {
                                             {/* Table Area */}
                                             <div>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                                                    <h3 style={{ fontSize: '1.2rem', fontWeight: 950, margin: 0 }}>Action Log</h3>
-                                                    <div className={adminStyles.filterBar}>
-                                                        <button className={`${adminStyles.filterBtn} ${adminStyles.filterBtnActive}`}>All Events</button>
-                                                        <button className={adminStyles.filterBtn}>Security</button>
-                                                        <button className={adminStyles.filterBtn}>Workflows</button>
+                                                    <h3 style={{ fontSize: '1.1rem', fontWeight: 950, margin: 0, textTransform: 'uppercase' }}>ACTION LOG</h3>
+                                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                                        <button style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '8px 16px', fontSize: '0.8rem', fontWeight: 800, color: '#0F172A', cursor: 'pointer' }}>All Events</button>
                                                     </div>
                                                 </div>
                                                 
-                                                <div style={{ background: 'var(--background)', borderRadius: '24px', border: '1px solid var(--border)', overflow: 'hidden' }}>
-                                                    <table className={adminStyles.registryTable} style={{ margin: 0 }}>
+                                                <div style={{ background: '#FFFFFF', borderRadius: '24px', border: '1px solid #F3F4F6', overflow: 'hidden' }}>
+                                                    <table className={adminStyles.registryTable} style={{ margin: 0, width: '100%' }}>
                                                         <thead>
                                                             <tr>
-                                                                <th className={adminStyles.registryTH}>Time</th>
-                                                                <th className={adminStyles.registryTH}>Action</th>
-                                                                <th className={adminStyles.registryTH}>Target</th>
-                                                                <th className={adminStyles.registryTH}>Outcome</th>
-                                                                <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Details</th>
+                                                                <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>TIME</th>
+                                                                <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>ACTION</th>
+                                                                <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>TARGET</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            <tr className={adminStyles.registryRow} style={{ height: '64px' }}>
-                                                                <td style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted-foreground)' }}>02/05/2026 14:25</td>
-                                                                <td style={{ fontWeight: 800 }}>Role changed</td>
-                                                                <td style={{ fontSize: '0.85rem' }}>Operator → Admin</td>
-                                                                <td><span style={{ padding: '4px 10px', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', borderRadius: '100px', fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase' }}>Success</span></td>
-                                                                <td style={{ textAlign: 'right' }}><button className={adminStyles.actionIconBtn}><ChevronRight size={18} /></button></td>
-                                                            </tr>
-                                                            <tr className={adminStyles.registryRow} style={{ height: '64px' }}>
-                                                                <td style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted-foreground)' }}>02/05/2026 14:20</td>
-                                                                <td style={{ fontWeight: 800 }}>Started workflow</td>
-                                                                <td style={{ fontSize: '0.85rem' }}>Invoice processing</td>
-                                                                <td><span style={{ padding: '4px 10px', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', borderRadius: '100px', fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase' }}>Success</span></td>
-                                                                <td style={{ textAlign: 'right' }}><button className={adminStyles.actionIconBtn}><ChevronRight size={18} /></button></td>
-                                                            </tr>
-                                                            <tr className={adminStyles.registryRow} style={{ height: '64px' }}>
-                                                                <td style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted-foreground)' }}>02/05/2026 14:11</td>
-                                                                <td style={{ fontWeight: 800 }}>Logged in</td>
-                                                                <td style={{ fontSize: '0.85rem' }}>Account</td>
-                                                                <td><span style={{ padding: '4px 10px', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', borderRadius: '100px', fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase' }}>Success</span></td>
-                                                                <td style={{ textAlign: 'right' }}><button className={adminStyles.actionIconBtn}><ChevronRight size={18} /></button></td>
-                                                            </tr>
+                                                            {[
+                                                                { time: "02/05/2026 14:25", action: "Role changed", target: "Operator → Admin" },
+                                                                { time: "02/05/2026 14:20", action: "Started workflow", target: "Invoice processing" },
+                                                                { time: "02/05/2026 14:11", action: "Logged in", target: "Account" }
+                                                            ].map((log, i) => (
+                                                                <tr key={i} className={adminStyles.registryRow} style={{ height: '72px' }}>
+                                                                    <td style={{ fontSize: '0.85rem', color: '#6B7280', fontWeight: 800 }}>{log.time}</td>
+                                                                    <td style={{ fontWeight: 950, color: '#0F172A', fontSize: '0.95rem' }}>{log.action}</td>
+                                                                    <td style={{ fontSize: '0.85rem', color: '#0F172A' }}>{log.target}</td>
+                                                                </tr>
+                                                            ))}
                                                         </tbody>
                                                     </table>
                                                 </div>
@@ -563,21 +553,21 @@ export default function AdminUsersPage() {
                                 )}
                             </div>
 
-                            <div style={{ padding: '32px 64px', background: 'var(--background)', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ padding: '32px 64px', background: '#FFFFFF', borderTop: '1px solid #F3F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-                                    <button className={adminStyles.primaryBtn} style={{ background: 'var(--foreground)', color: 'var(--background)', height: '48px', padding: '0 24px', borderRadius: '16px' }}>
+                                    <button className={adminStyles.primaryBtn} style={{ background: '#0F172A', color: '#FFFFFF', height: '48px', padding: '0 24px', borderRadius: '12px', border: 'none' }}>
                                         <UserCheck size={18} style={{ marginRight: '8px' }} /> Update Profile
                                     </button>
                                     <button 
                                         onClick={() => updateUser(selectedUser.id, { status: getUserStatus(selectedUser) === 'Suspended' ? 'Active' : 'Suspended' })} 
-                                        style={{ background: 'none', border: 'none', color: 'var(--muted-foreground)', fontWeight: 800, cursor: 'pointer', fontSize: '0.9rem' }}
+                                        style={{ background: 'none', border: 'none', color: '#6B7280', fontWeight: 800, cursor: 'pointer', fontSize: '0.9rem' }}
                                     >
                                         {getUserStatus(selectedUser) === 'Suspended' ? 'Reactivate User' : 'Deactivate User'}
                                     </button>
                                 </div>
                                 <button 
                                     onClick={() => setSelectedUser(null)} 
-                                    style={{ background: 'none', border: 'none', color: 'var(--foreground)', fontWeight: 800, cursor: 'pointer', fontSize: '0.9rem', opacity: 0.6 }}
+                                    style={{ background: 'none', border: 'none', color: '#6B7280', fontWeight: 800, cursor: 'pointer', fontSize: '0.9rem' }}
                                 >
                                     Close
                                 </button>
