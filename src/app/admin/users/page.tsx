@@ -94,9 +94,6 @@ export default function AdminUsersPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id, ...updates })
             });
-            if (selectedUser && selectedUser.id === id) {
-                setSelectedUser({ ...selectedUser, ...updates });
-            }
             await fetchUsers();
         } catch (error: any) { 
             alert(`Sovereign Decree Failure: ${error.message}`);
