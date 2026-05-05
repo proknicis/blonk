@@ -3,10 +3,10 @@ import { db } from "@/lib/db";
 
 export async function GET(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const userId = params.id;
+        const { id: userId } = await params;
         
         const logs = await db.query(`
             SELECT 
