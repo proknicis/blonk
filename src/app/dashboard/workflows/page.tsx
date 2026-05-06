@@ -308,11 +308,11 @@ export default function WorkflowsPage() {
                                     </div>
                                     <div>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-                                            <div style={{ padding: '4px 8px', background: 'var(--accent)', color: 'var(--background)', borderRadius: '4px', fontSize: '0.6rem', fontWeight: 950, letterSpacing: '0.1em' }}>ORCHESTRATION</div>
-                                            <span style={{ fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--muted-foreground)' }}>PROTOCOL INITIALIZATION</span>
+                                            <div style={{ padding: '4px 8px', background: '#10B981', color: 'white', borderRadius: '4px', fontSize: '0.6rem', fontWeight: 950, letterSpacing: '0.1em' }}>ORCHESTRATION</div>
+                                            <span style={{ fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--muted-foreground)' }}>Set Up Workflow</span>
                                         </div>
-                                        <h2 className={styles.sectionTitle} style={{ fontSize: '2rem' }}>Provision {configureTemplate.name}</h2>
-                                        <p className={styles.guideStepText}>Calibrate the autonomous loop for your firm's environment.</p>
+                                        <h2 className={styles.sectionTitle} style={{ fontSize: '2rem' }}>Provision Testing</h2>
+                                        <p className={styles.guideStepText}>Connect the required apps and finish setup</p>
                                     </div>
                                 </div>
                                 <button onClick={() => setConfigureTemplate(null)} style={{ background: 'var(--muted)', border: 'none', cursor: 'pointer', width: '48px', height: '48px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -334,7 +334,7 @@ export default function WorkflowsPage() {
                                 <div className={styles.timelineConnector} />
                                 <div className={styles.timelineStep}>
                                     <div className={styles.timelineIconBox}><Cpu size={20} /></div>
-                                    <div className={styles.timelineLabel}>RESULT</div>
+                                    <div className={styles.timelineLabel}>Finish</div>
                                 </div>
                             </div>
 
@@ -345,8 +345,8 @@ export default function WorkflowsPage() {
                                     {configureTemplate.parsedReqs && configureTemplate.parsedReqs.length > 0 && (
                                         <div style={{ marginBottom: '48px' }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                                                <div style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '50%' }} />
-                                                <h3 className={styles.sectionTitle} style={{ fontSize: '1rem' }}>STEP 01: ESTABLISH HANDSHAKE</h3>
+                                                <div style={{ width: '8px', height: '8px', background: '#10B981', borderRadius: '50%' }} />
+                                                <h3 className={styles.sectionTitle} style={{ fontSize: '1rem' }}>Step 1: Connect Account</h3>
                                             </div>
                                             <div className={styles.requirementsList}>
                                                 {configureTemplate.parsedReqs.map((req: any, idx: number) => (
@@ -358,14 +358,14 @@ export default function WorkflowsPage() {
                                                                  req.name.toLowerCase().includes('notion') ? <FileText size={24} color="var(--accent)" /> : <Key size={24} color="var(--accent)" />}
                                                             </div>
                                                             <div>
-                                                                <div className={styles.integrationName}>{req.name} Registry</div>
+                                                                <div className={styles.integrationName}>{req.name === 'google_creds' ? 'Google Account Connection' : `${req.name} Registry`}</div>
                                                                 <div className={styles.integrationMeta} onClick={() => setHelpStep(req)}>
-                                                                    Retrieve Institutional Credentials <ArrowUpRight size={10} />
+                                                                    Connect the Google account used by this workflow <ArrowUpRight size={10} />
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         <div style={{ display: 'flex', gap: '12px' }}>
-                                                            <button className={styles.btnSecondary} style={{ width: 'auto', padding: '0 20px', height: '44px', borderRadius: '12px' }} onClick={() => setHelpStep(req)}>MANUAL</button>
+                                                            <button className={styles.btnSecondary} style={{ width: 'auto', padding: '0 20px', height: '44px', borderRadius: '12px', fontWeight: 950 }}>Manual Setup</button>
                                                             <button 
                                                                 className={styles.btnPrimary} 
                                                                 style={{ 
@@ -373,7 +373,8 @@ export default function WorkflowsPage() {
                                                                     padding: '0 24px', 
                                                                     height: '44px', 
                                                                     borderRadius: '12px', 
-                                                                    background: templateInputs.google_creds === 'CONNECTED' ? '#10B981' : 'var(--foreground)' 
+                                                                    background: templateInputs.google_creds === 'CONNECTED' ? '#10B981' : '#000000',
+                                                                    color: '#FFFFFF'
                                                                 }} 
                                                                 onClick={() => {
                                                                     if (req.name.toLowerCase().includes('google') || req.name.toLowerCase().includes('gmail')) {
@@ -383,7 +384,7 @@ export default function WorkflowsPage() {
                                                                     }
                                                                 }}
                                                             >
-                                                                {templateInputs.google_creds === 'CONNECTED' ? 'CONNECTED' : 'AUTHENTICATE'}
+                                                                {templateInputs.google_creds === 'CONNECTED' ? 'CONNECTED' : 'Connect Google Account'}
                                                             </button>
                                                         </div>
                                                     </div>
@@ -395,22 +396,28 @@ export default function WorkflowsPage() {
                                     {/* CONFIGURATION FIELDSET */}
                                     <div style={{ marginBottom: '48px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                                            <div style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '50%' }} />
-                                            <h3 className={styles.sectionTitle} style={{ fontSize: '1rem' }}>STEP 02: CALIBRATE PARAMETERS</h3>
+                                            <div style={{ width: '8px', height: '8px', background: '#10B981', borderRadius: '50%' }} />
+                                            <h3 className={styles.sectionTitle} style={{ fontSize: '1rem' }}>Step 2: Setup Details</h3>
                                         </div>
                                         <div className={styles.configFieldset}>
                                             {configureTemplate.parsedReqs.map((req: any, idx: number) => (
                                                 <div key={idx} className={styles.fieldGroup}>
                                                     <label className={styles.fieldLabel}>
-                                                        {req.name} {req.required && <span style={{ color: 'var(--destructive)' }}>*</span>}
+                                                        {req.name === 'google_creds' ? 'Connected Google Account' : req.name} {req.required && <span style={{ color: 'var(--destructive)' }}>*</span>}
                                                     </label>
-                                                    <input 
-                                                        className={styles.fieldInput}
-                                                        type={req.type === 'file' ? 'file' : 'text'}
-                                                        placeholder={req.example || `Enter ${req.name}...`}
-                                                        value={req.type === 'file' ? undefined : (templateInputs[req.name] || '')}
-                                                        onChange={e => setTemplateInputs({...templateInputs, [req.name]: e.target.value})}
-                                                    />
+                                                    {templateInputs[req.name] === 'CONNECTED' ? (
+                                                        <div style={{ padding: '16px 24px', background: '#FAFAFA', borderRadius: '16px', border: '1px solid #E5E7EB', fontWeight: 950, fontSize: '0.95rem', color: '#111827' }}>
+                                                            CONNECTED
+                                                        </div>
+                                                    ) : (
+                                                        <input 
+                                                            className={styles.fieldInput}
+                                                            type={req.type === 'file' ? 'file' : 'text'}
+                                                            placeholder={req.example || `Enter ${req.name}...`}
+                                                            value={req.type === 'file' ? undefined : (templateInputs[req.name] || '')}
+                                                            onChange={e => setTemplateInputs({...templateInputs, [req.name]: e.target.value})}
+                                                        />
+                                                    )}
                                                 </div>
                                             ))}
                                         </div>
@@ -423,59 +430,9 @@ export default function WorkflowsPage() {
                                             className={styles.btnPrimary} 
                                             style={{ height: '64px', borderRadius: '20px', background: 'var(--accent)', color: 'var(--background)', width: '300px' }} 
                                             disabled={isDeploying} 
-                                            onClick={async () => {
-                                                setIsDeploying(true);
-                                                try {
-                                                    console.log("[DEBUG] Syncing credentials initiated...");
-                                                    let nodes = [];
-                                                    try {
-                                                        const nodeRes = await fetch('/api/nodes');
-                                                        nodes = await nodeRes.json();
-                                                    } catch (e) { console.error("Failed to fetch nodes", e); }
-                                                    
-                                                    const targetNode = Array.isArray(nodes) ? nodes[0] : null;
-
-                                                    const payload = {
-                                                        nodeId: targetNode?.id || null,
-                                                        type: 'gmailOAuth2Api', 
-                                                        name: `Google-Loop-${Date.now()}`,
-                                                        data: {
-                                                            accessToken: templateInputs.authData?.access_token,
-                                                            refreshToken: templateInputs.authData?.refresh_token,
-                                                            expiry: templateInputs.authData?.expiry_date,
-                                                            scope: templateInputs.authData?.scope,
-                                                            tokenType: templateInputs.authData?.token_type
-                                                        }
-                                                    };
-
-                                                    console.log("[DEBUG] Sending Payload:", payload);
-
-                                                    const res = await fetch('/api/n8n/credentials', {
-                                                        method: 'POST',
-                                                        headers: { 'Content-Type': 'application/json' },
-                                                        body: JSON.stringify(payload)
-                                                    });
-                                                    const data = await res.json();
-                                                    if (res.ok) {
-                                                        showToast("Credentials provisioned successfully!");
-                                                        setStep('result');
-                                                        setDeployResult({
-                                                            server: targetNode?.name || 'Auto-Selected Node',
-                                                            serverUrl: targetNode?.url || 'https://n8n.manadavana.lv',
-                                                            credentialStatus: 'Success',
-                                                            deploymentStatus: 'Skipped (Provision Only)'
-                                                        });
-                                                    } else {
-                                                        showToast(data.details || data.error, 'error');
-                                                    }
-                                                } catch (e) {
-                                                    showToast("Provisioning failed", 'error');
-                                                } finally {
-                                                    setIsDeploying(false);
-                                                }
-                                            }}
+                                            onClick={() => deployWorkflow(configureTemplate, templateInputs)}
                                         >
-                                            {isDeploying ? 'PROVISIONING...' : 'PROVISION TO CLUSTER'}
+                                            {isDeploying ? 'PROVISIONING...' : 'Finish Setup'}
                                         </button>
                                     </div>
                                 </>
@@ -484,18 +441,18 @@ export default function WorkflowsPage() {
                                     <div style={{ width: '80px', height: '80px', background: '#10B981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 32px', boxShadow: '0 0 30px rgba(16, 185, 129, 0.3)' }}>
                                         <ShieldCheck size={40} color="white" />
                                     </div>
-                                    <h2 className={styles.sectionTitle} style={{ fontSize: '1.8rem', marginBottom: '12px' }}>Orchestration Successful</h2>
-                                    <p className={styles.guideStepText} style={{ marginBottom: '48px' }}>The sovereign loop has been provisioned and synchronized with the institutional cluster.</p>
+                                    <h2 className={styles.sectionTitle} style={{ fontSize: '1.8rem', marginBottom: '12px' }}>(COMPLETED)</h2>
+                                    <p className={styles.guideStepText} style={{ marginBottom: '48px', fontWeight: 800 }}>The workflow will be set up and synchronized in "x" time, please wait patiently.</p>
                                     
                                     <div style={{ background: '#FAFAFA', borderRadius: '24px', padding: '32px', border: '1px solid var(--border)', textAlign: 'left', marginBottom: '48px' }}>
-                                        <h4 style={{ fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--muted-foreground)', marginBottom: '20px' }}>Deployment Dossier</h4>
+                                        <h4 style={{ fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--muted-foreground)', marginBottom: '20px' }}>Deployment report</h4>
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
-                                                <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>Target Node</span>
+                                                <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>target Server</span>
                                                 <span style={{ fontWeight: 950, fontSize: '0.9rem', color: 'var(--accent)' }}>{deployResult?.server}</span>
                                             </div>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
-                                                <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>Node URL</span>
+                                                <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>Server URL</span>
                                                 <span style={{ fontWeight: 750, fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>{deployResult?.serverUrl}</span>
                                             </div>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
