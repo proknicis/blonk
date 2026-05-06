@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Plus, Server, Globe, Key, X, Activity } from 'lucide-react';
+import { Plus, Server, Globe, Key, X, Activity, Cpu } from 'lucide-react';
 import adminStyles from '../admin.module.css';
 
 interface Node {
@@ -49,85 +49,85 @@ export function FleetManager() {
             <button 
                 onClick={() => setShowAddModal(true)}
                 className={adminStyles.activeBadge} 
-                style={{ border: 'none', cursor: 'pointer', background: 'var(--accent)', color: 'white', padding: '8px 16px' }}
+                style={{ border: 'none', cursor: 'pointer', background: '#10B981', color: 'white', padding: '12px 24px', borderRadius: '100px', fontWeight: 950, fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)' }}
             >
-                <Plus size={14} /> 
-                <span>Provision Node</span>
+                <Plus size={16} /> 
+                <span>PROVISION NODE</span>
             </button>
 
             {showAddModal && (
-                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-                    <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '32px', width: '100%', maxWidth: '500px', padding: '32px', boxShadow: 'var(--shadow-premium)', animation: 'fadeInScale 0.3s ease-out' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <div style={{ width: '40px', height: '40px', background: 'var(--accent)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-                                    <Server size={20} />
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(12px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                    <div style={{ background: '#FFFFFF', border: '1px solid #F3F4F6', borderRadius: '40px', width: '100%', maxWidth: '520px', padding: '48px', boxShadow: '0 20px 50px rgba(0,0,0,0.1)', animation: 'fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                <div style={{ width: '56px', height: '56px', background: '#F0FDF4', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10B981' }}>
+                                    <Server size={28} />
                                 </div>
                                 <div>
-                                    <h3 style={{ margin: 0, fontWeight: 950, fontSize: '1.25rem' }}>Add Cluster Node</h3>
-                                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>Register a new n8n instance for monitoring.</p>
+                                    <h3 style={{ margin: 0, fontWeight: 950, fontSize: '1.5rem', color: '#111827', textTransform: 'uppercase', letterSpacing: '-0.02em' }}>Add n8n Instance</h3>
+                                    <p style={{ margin: '4px 0 0 0', fontSize: '0.95rem', color: '#6B7280', fontWeight: 800 }}>Register a new n8n instance for monitoring.</p>
                                 </div>
                             </div>
-                            <button onClick={() => setShowAddModal(false)} style={{ background: 'none', border: 'none', color: 'var(--muted-foreground)', cursor: 'pointer' }}><X size={20} /></button>
+                            <button onClick={() => setShowAddModal(false)} style={{ background: '#F3F4F6', border: 'none', color: '#6B7280', cursor: 'pointer', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={20} /></button>
                         </div>
 
-                        <form onSubmit={handleAddNode} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                        <form onSubmit={handleAddNode} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', marginBottom: '8px' }}>Node Label</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: '#6B7280', textTransform: 'uppercase', marginBottom: '10px', letterSpacing: '0.05em' }}>Instance Name</label>
                                 <div style={{ position: 'relative' }}>
-                                    <Activity style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} size={16} />
+                                    <Activity style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} size={18} />
                                     <input 
                                         type="text" 
                                         required
-                                        placeholder="e.g. ALPHA-CENTAURI-01"
+                                        placeholder="e.g. n8n-eu-01"
                                         value={formData.name}
                                         onChange={e => setFormData({...formData, name: e.target.value})}
-                                        style={{ width: '100%', padding: '12px 16px 12px 48px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '16px', color: 'var(--foreground)', fontSize: '0.9rem', outline: 'none' }}
+                                        style={{ width: '100%', padding: '16px 20px 16px 56px', background: '#F9FAFB', border: '1px solid #F3F4F6', borderRadius: '18px', color: '#111827', fontSize: '1rem', fontWeight: 800, outline: 'none' }}
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', marginBottom: '8px' }}>API URL</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: '#6B7280', textTransform: 'uppercase', marginBottom: '10px', letterSpacing: '0.05em' }}>n8n API URL</label>
                                 <div style={{ position: 'relative' }}>
-                                    <Globe style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} size={16} />
+                                    <Globe style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} size={18} />
                                     <input 
                                         type="url" 
                                         required
                                         placeholder="https://n8n.your-instance.com"
                                         value={formData.url}
                                         onChange={e => setFormData({...formData, url: e.target.value})}
-                                        style={{ width: '100%', padding: '12px 16px 12px 48px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '16px', color: 'var(--foreground)', fontSize: '0.9rem', outline: 'none' }}
+                                        style={{ width: '100%', padding: '16px 20px 16px 56px', background: '#F9FAFB', border: '1px solid #F3F4F6', borderRadius: '18px', color: '#111827', fontSize: '1rem', fontWeight: 800, outline: 'none' }}
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', marginBottom: '8px' }}>X-N8N-API-KEY</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: '#6B7280', textTransform: 'uppercase', marginBottom: '10px', letterSpacing: '0.05em' }}>n8n API Key</label>
                                 <div style={{ position: 'relative' }}>
-                                    <Key style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} size={16} />
+                                    <Key style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} size={18} />
                                     <input 
                                         type="password" 
                                         required
-                                        placeholder="Enter secure API key..."
+                                        placeholder="Paste n8n API key..."
                                         value={formData.api_key}
                                         onChange={e => setFormData({...formData, api_key: e.target.value})}
-                                        style={{ width: '100%', padding: '12px 16px 12px 48px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '16px', color: 'var(--foreground)', fontSize: '0.9rem', outline: 'none' }}
+                                        style={{ width: '100%', padding: '16px 20px 16px 56px', background: '#F9FAFB', border: '1px solid #F3F4F6', borderRadius: '18px', color: '#111827', fontSize: '1rem', fontWeight: 800, outline: 'none' }}
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', marginBottom: '8px' }}>Max Capacity (Workflows)</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: '#6B7280', textTransform: 'uppercase', marginBottom: '10px', letterSpacing: '0.05em' }}>Max Workflow Capacity</label>
                                 <div style={{ position: 'relative' }}>
-                                    <Activity style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} size={16} />
+                                    <Activity style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} size={18} />
                                     <input 
                                         type="number" 
                                         required
-                                        placeholder="e.g. 100"
+                                        placeholder="100"
                                         value={formData.max_workflows}
                                         onChange={e => setFormData({...formData, max_workflows: parseInt(e.target.value)})}
-                                        style={{ width: '100%', padding: '12px 16px 12px 48px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '16px', color: 'var(--foreground)', fontSize: '0.9rem', outline: 'none' }}
+                                        style={{ width: '100%', padding: '16px 20px 16px 56px', background: '#F9FAFB', border: '1px solid #F3F4F6', borderRadius: '18px', color: '#111827', fontSize: '1rem', fontWeight: 800, outline: 'none' }}
                                     />
                                 </div>
                             </div>
@@ -135,10 +135,10 @@ export function FleetManager() {
                             <button 
                                 type="submit" 
                                 disabled={loading}
-                                style={{ width: '100%', padding: '16px', background: 'var(--foreground)', color: 'var(--background)', border: 'none', borderRadius: '16px', fontWeight: 950, fontSize: '0.95rem', cursor: loading ? 'not-allowed' : 'pointer', marginTop: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
+                                style={{ width: '100%', padding: '20px', background: '#0F172A', color: '#FFFFFF', border: 'none', borderRadius: '20px', fontWeight: 950, fontSize: '1.1rem', cursor: loading ? 'not-allowed' : 'pointer', marginTop: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', transition: 'all 0.3s ease' }}
                             >
-                                {loading && <Activity size={18} className={adminStyles.spinning} />}
-                                {loading ? 'Validating Instance...' : 'Deploy Node to Cluster'}
+                                {loading && <Activity size={20} className={adminStyles.spinning} />}
+                                {loading ? 'Validating Instance...' : 'Add n8n Instance'}
                             </button>
                         </form>
                     </div>
@@ -147,8 +147,8 @@ export function FleetManager() {
 
             <style jsx>{`
                 @keyframes fadeInScale {
-                    from { opacity: 0; transform: scale(0.95); }
-                    to { opacity: 1; transform: scale(1); }
+                    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+                    to { opacity: 1; transform: translateY(0) scale(1); }
                 }
             `}</style>
         </>

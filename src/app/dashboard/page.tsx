@@ -121,17 +121,22 @@ export default function DashboardPage() {
                         <div className={styles.pulseEffect} />
                     </div>
                     <div>
-                        <h2 className={styles.integrityTitle}>Global Core: {globalStats.status === 'online' ? 'Operational' : 'Syncing'}</h2>
-                        <p className={styles.integritySubtitle}>Institutional network is stable. All automated nodes reporting nominal latency.</p>
+                        <h2 className={styles.integrityTitle}>System Status: {globalStats.status === 'online' ? 'Operational' : 'Syncing'}</h2>
+                        <h4 style={{ margin: '4px 0', fontSize: '0.9rem', fontWeight: 950, color: 'var(--foreground)', opacity: 0.9 }}>GLOBAL CORE: {globalStats.status === 'online' ? 'OPERATIONAL' : 'SYNCING'}</h4>
+                        <p className={styles.integritySubtitle}>Institutional network is stable. All automated nodes reporting nominal latency. <br/> <span style={{ color: '#10B981', fontWeight: 800 }}>Your workflows are running normally</span></p>
                     </div>
                 </div>
                 <div className={styles.integrityMetricsContainer}>
                     <div className={styles.integrityMetrics}>
-                        <span className={styles.metricLabel}>Network Pulse</span>
+                        <span className={styles.metricLabel}>Total Runs</span>
                         <span className={styles.metricValue} style={{ color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                              {globalStats.total_tasks.toLocaleString()}
                              <Activity size={14} className={styles.heartbeat} />
                         </span>
+                    </div>
+                    <div className={styles.integrityMetrics}>
+                        <span className={styles.metricLabel}>Connection Status</span>
+                        <span className={styles.metricValue}>CONNECTED</span>
                     </div>
                     <div className={styles.integrityMetrics}>
                         <span className={styles.metricLabel}>Handshake Status</span>
@@ -144,34 +149,34 @@ export default function DashboardPage() {
             <div className={styles.metricsMatrix}>
                 <div className={styles.metricCard}>
                     <div className={styles.metricHeader}>
-                        <span className={styles.label}>Fleet Operations</span>
+                        <span className={styles.label}>Total Runs</span>
                         <Zap size={14} className={styles.accentIcon} />
                     </div>
                     <div className={styles.value}>{data.totalTasks.toLocaleString()}</div>
-                    <div className={styles.trend}>Total tasks automated</div>
+                    <div className={styles.trend}>Tasks completed by automation</div>
                 </div>
 
                 <div className={styles.metricCard}>
                     <div className={styles.metricHeader}>
-                        <span className={styles.label}>Capacity Saved</span>
+                        <span className={styles.label}>Hours Saved</span>
                         <span className={styles.neutralBadge}>Real-time</span>
                     </div>
                     <div className={styles.value}>{data.timeSavedHours}h</div>
-                    <div className={styles.trend}>Hours reclaimed to date</div>
+                    <div className={styles.trend}>Estimated hours saved</div>
                 </div>
 
                 <div className={styles.metricCard}>
                     <div className={styles.metricHeader}>
-                        <span className={styles.label}>Active Loops</span>
+                        <span className={styles.label}>Active Workflows</span>
                         <div className={styles.activeDot} />
                     </div>
                     <div className={styles.value}>{data.activeAgents} / {data.totalWorkflows}</div>
-                    <div className={styles.trend}>Running workflow units</div>
+                    <div className={styles.trend}>Workflows currently active</div>
                 </div>
 
                 <div className={styles.metricCard}>
                     <div className={styles.metricHeader}>
-                        <span className={styles.label}>Disruption Events</span>
+                        <span className={styles.label}>Failed Runs</span>
                         {data.failedRuns === 0 ? <ShieldCheck size={14} color="var(--accent)"/> : <ShieldAlert size={14} color="var(--destructive)"/>}
                     </div>
                     <div className={data.failedRuns > 0 ? styles.valueCritical : styles.value}>
@@ -184,9 +189,13 @@ export default function DashboardPage() {
             {/* ANALYTICS PROJECTION */}
             <div className={styles.projectionSection}>
                 <div className={styles.sectionHeader}>
-                    <h3 className={styles.sectionTitle}>Fleet Velocity Projection</h3>
+                    <div>
+                        <h3 className={styles.sectionTitle} style={{ fontSize: '0.8rem', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>Workflow Activity</h3>
+                        <h2 style={{ fontSize: '1.25rem', fontWeight: 950, margin: 0, textTransform: 'uppercase', letterSpacing: '-0.02em' }}>Workflow Runs</h2>
+                        <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#6B7280', fontWeight: 700 }}>Workflow activity across your active automations</p>
+                    </div>
                     <div className={styles.projectionLegend}>
-                        <div className={styles.legendItem}><span /> Real Throughput (24h Window)</div>
+                        <div className={styles.legendItem}><span /> Real Runs (24h Window)</div>
                     </div>
                 </div>
                 <div className={styles.chartWrapper}>
@@ -214,7 +223,10 @@ export default function DashboardPage() {
                 <div className={styles.commandGrid}>
                     <div className={styles.activeWorkflows}>
                         <div className={styles.cardHeader}>
-                            <h3 className={styles.cardTitle}>Operational Loops</h3>
+                            <div>
+                                <h4 style={{ fontSize: '0.7rem', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 4px 0' }}>Operational Loops</h4>
+                                <h3 className={styles.cardTitle}>Your Workflows</h3>
+                            </div>
                             <Link href="/dashboard/workflows" className={styles.viewAllLink}>
                                 Marketplace <ArrowUpRight size={14} />
                             </Link>

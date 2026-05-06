@@ -63,9 +63,9 @@ const IconCopy = () => (
 
 // ── Stage config ──────────────────────────────────────────────────────────────
 const STAGES: { key: Stage; label: string; sublabel: string }[] = [
-    { key: 'ordered', label: 'Ordered', sublabel: 'Request received' },
-    { key: 'setup',   label: 'Setup',   sublabel: 'Being configured'  },
-    { key: 'ready',   label: 'Ready',   sublabel: 'Controls active'   },
+    { key: 'ordered', label: 'Requested',  sublabel: 'Request received' },
+    { key: 'setup',   label: 'Configured', sublabel: 'Being configured'  },
+    { key: 'ready',   label: 'Ready',      sublabel: 'Workflow ready to run' },
 ];
 const STAGE_ORDER: Record<Stage, number> = { ordered: 0, setup: 1, ready: 2 };
 
@@ -294,8 +294,9 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                                                           : 'var(--muted)',
                                               }} />
                                         }
+                                        <span style={{ fontSize: '1rem', fontWeight: 950, color: '#111827', marginRight: '4px' }}>Workflow</span>
                                         <strong className={styles.workflowTitle}>{wf.name}</strong>
-                                        <span className={styles.workflowBadge}>Autonomous Loop</span>
+                                        <span className={styles.workflowBadge}>AUTONOMOUS LOOP</span>
                                     </div>
                                     <button className={styles.loopIdBtn} onClick={() => copyId(wf.id)}>
                                         <IconCopy />
@@ -357,21 +358,21 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                             {/* ── METRICS ───────────────────────────────────── */}
                             <div className={styles.metricsRow} style={!isReady ? { opacity: 0.45, pointerEvents: 'none' } : undefined}>
                                 <div>
-                                    <div className={styles.metricMiniLabel}>Throughput</div>
+                                    <div className={styles.metricMiniLabel}>Runs</div>
                                     <div className={styles.metricMiniValue}>
                                         {wf.performance?.toString().replace(/loops\/hr/gi, '') || '0'}
                                         <span className={styles.metricMiniUnit}> OPS/HR</span>
                                     </div>
                                 </div>
                                 <div>
-                                    <div className={styles.metricMiniLabel}>Autonomous Yield</div>
+                                    <div className={styles.metricMiniLabel}>Completed Runs</div>
                                     <div className={styles.metricMiniValue} style={{ color: 'var(--accent)' }}>
                                         {wf.tasksCount || '0'}
                                         <span className={styles.metricMiniUnit}> DONE</span>
                                     </div>
                                 </div>
                                 <div>
-                                    <div className={styles.metricMiniLabel}>Reliability</div>
+                                    <div className={styles.metricMiniLabel}>Success Rate</div>
                                     <div className={styles.metricMiniValue}>100%</div>
                                 </div>
                             </div>

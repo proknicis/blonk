@@ -99,12 +99,12 @@ export default function DashboardLayout({
 
     const getModuleTitle = (path: string) => {
         if (path === '/dashboard') return 'Fleet Overview';
-        if (path === '/dashboard/office') return 'Mission Control';
+        if (path === '/dashboard/office') return 'My Workflows';
         if (path === '/dashboard/team') return 'Strategic Personnel';
         if (path === '/dashboard/workflows') return 'Marketplace';
-        if (path === '/dashboard/audit') return 'Audit Vault';
+        if (path === '/dashboard/audit') return 'Audit Logs';
         if (path === '/dashboard/reports') return 'Intelligence Reports';
-        if (path === '/dashboard/sovereignty') return 'Sovereignty Settings';
+        if (path === '/dashboard/sovereignty') return 'Security & Controls';
         if (path === '/dashboard/settings') return 'System Control';
         if (path === '/dashboard/help') return 'Support Hub';
         return 'Command Console';
@@ -135,7 +135,7 @@ export default function DashboardLayout({
                             </li>
                             <li>
                                 <Link href="/dashboard/office" className={`${styles.navLink} ${pathname === '/dashboard/office' ? styles.navLinkActive : ''}`}>
-                                    <Monitor size={20} /> Mission Control
+                                    <Monitor size={20} /> My Workflows
                                 </Link>
                             </li>
                         </ul>
@@ -164,7 +164,7 @@ export default function DashboardLayout({
                         <ul>
                             <li>
                                 <Link href="/dashboard/audit" className={`${styles.navLink} ${pathname === '/dashboard/audit' ? styles.navLinkActive : ''}`}>
-                                    <FileText size={20} /> Audit Vault
+                                    <FileText size={20} /> Audit Logs
                                 </Link>
                             </li>
                             <li>
@@ -174,7 +174,7 @@ export default function DashboardLayout({
                             </li>
                             <li>
                                 <Link href="/dashboard/sovereignty" className={`${styles.navLink} ${pathname === '/dashboard/sovereignty' ? styles.navLinkActive : ''}`}>
-                                    <Settings size={20} /> Sovereignty
+                                    <Settings size={20} /> Security & Controls
                                 </Link>
                             </li>
                         </ul>
@@ -223,7 +223,7 @@ export default function DashboardLayout({
                                 <button 
                                     className={styles.createWorkflowBtn} 
                                     onClick={() => window.dispatchEvent(new CustomEvent('OPEN_INVITE_MODAL'))}
-                                    style={{ background: 'var(--accent)', color: 'var(--accent-foreground)' }}
+                                    style={{ background: '#10B981', color: '#FFFFFF' }}
                                 >
                                     <Users size={16} /> Invite Member
                                 </button>

@@ -14,7 +14,7 @@ export async function GET() {
 
     try {
         const members = await db.query(
-            'SELECT id, name, email, role, "createdAt" FROM "User" WHERE "teamId" = $1 ORDER BY role DESC, "createdAt" ASC',
+            'SELECT id, name, email, role, workflows, "createdAt" FROM "User" WHERE "teamId" = $1 ORDER BY role DESC, "createdAt" ASC',
             [teamId]
         );
         return NextResponse.json({ members });
@@ -55,13 +55,63 @@ export async function POST(req: Request) {
 
         const hashedPw = await bcrypt.hash(password, 10);
         await db.execute(
-            'INSERT INTO "User" (id, name, email, password, role, "teamId", "firmName", "onboardingStatus") VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-            [uuidv4(), name.trim(), emailRef, hashedPw, role || 'MEMBER', teamId, firmName, 'COMPLETED']
+            'INSERT INTO "User" (id, name, email, password, role, "teamId", "firmName", "onboardingStatus", workflows) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
+            [uuidv4(), name.trim(), emailRef, hashedPw, role || 'MEMBER', teamId, firmName, 'COMPLETED', JSON.stringify([])]
         );
         return NextResponse.json({ success: true, message: "Sovereign Co-Pilot account successfully provisioned." });
     } catch (error) {
         console.error("Direct Provisioning failure", error);
         return NextResponse.json({ error: "Personnel provisioning failure" }, { status: 500 });
+    }
+}
+
+export async function PUT(req: Request) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const teamId = (session.user as any).teamId;
+    const userRole = (session.user as any).role;
+
+    if (userRole !== 'OWNER' && userRole !== 'ADMIN') {
+        return NextResponse.json({ error: "Insufficient Directive Authority" }, { status: 403 });
+    }
+
+    try {
+        const body = await req.json();
+        const { memberId, role, workflows } = body;
+
+        if (!memberId) return NextResponse.json({ error: "Member ID required" }, { status: 400 });
+
+        // Verify target is in same team and not an OWNER (unless it's self, but usually owners don't edit themselves via this)
+        const target = await db.query('SELECT id, role FROM "User" WHERE id = $1 AND "teamId" = $2', [memberId, teamId]) as any[];
+        if (target.length === 0) return NextResponse.json({ error: "Operator not found in your team." }, { status: 404 });
+        
+        if (target[0].role === 'OWNER' && memberId !== (session.user as any).id) {
+             return NextResponse.json({ error: "Cannot modify the team owner." }, { status: 403 });
+        }
+
+        const updates: string[] = [];
+        const params: any[] = [];
+        let i = 1;
+
+        if (role) {
+            updates.push(`role = $${i++}`);
+            params.push(role);
+        }
+        if (workflows !== undefined) {
+            updates.push(`workflows = $${i++}`);
+            params.push(JSON.stringify(workflows));
+        }
+
+        if (updates.length === 0) return NextResponse.json({ error: "No updates provided" }, { status: 400 });
+
+        params.push(memberId);
+        await db.execute(`UPDATE "User" SET ${updates.join(', ')} WHERE id = $${i}`, params);
+
+        return NextResponse.json({ success: true, message: "Operator profile updated." });
+    } catch (error) {
+        console.error("Member update failure", error);
+        return NextResponse.json({ error: "Operator update failure" }, { status: 500 });
     }
 }
 
