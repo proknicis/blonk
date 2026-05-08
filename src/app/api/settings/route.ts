@@ -15,11 +15,15 @@ export async function GET() {
         // Institutional Heartbeat: Update lastSeen on every settings fetch (which occurs on layout mount)
         await db.execute('UPDATE "User" SET "lastSeen" = NOW() WHERE email = $1', [email]);
 
-        const rows = await db.query('SELECT * FROM "User" WHERE email = $1', [email]);
+        const rows = await db.query('SELECT id, name, email, role, "firmName", industry, plan, tier, "onboardingStatus", "lastSeen", "lastActivity" FROM "User" WHERE email = $1', [email]);
         return NextResponse.json(rows[0] || {});
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error fetching settings:', error);
-        return NextResponse.json({ error: 'Failed to fetch settings' }, { status: 500 });
+        return NextResponse.json({ 
+            error: 'Failed to fetch settings', 
+            details: error.message,
+            stack: error.stack 
+        }, { status: 500 });
     }
 }
 

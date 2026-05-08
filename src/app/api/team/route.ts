@@ -18,9 +18,13 @@ export async function GET() {
             [teamId]
         );
         return NextResponse.json({ members });
-    } catch (error) {
+    } catch (error: any) {
         console.error("Team fetch error:", error);
-        return NextResponse.json({ error: "Institutional fetch failure" }, { status: 500 });
+        return NextResponse.json({ 
+            error: "Institutional fetch failure", 
+            details: error.message,
+            stack: error.stack
+        }, { status: 500 });
     }
 }
 
