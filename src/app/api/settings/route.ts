@@ -6,28 +6,12 @@ import { authOptions } from "@/lib/auth";
 export async function GET() {
     try {
         const session = await getServerSession(authOptions);
-        if (!session?.user?.email) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        if (!session) {
+            return NextResponse.json({ error: 'No session' }, { status: 401 });
         }
-
-        const email = session.user.email.toLowerCase();
-        
-        // Institutional Heartbeat: Update lastSeen on every settings fetch (non-blocking)
-        try {
-            await db.execute('UPDATE "User" SET "lastSeen" = NOW() WHERE email = $1', [email]);
-        } catch (e) {
-            console.error("Heartbeat failure", e);
-        }
-
-        const rows = await db.query('SELECT id, name, email, role, "firmName", industry, plan, tier, "onboardingStatus", "lastSeen", "lastActivity" FROM "User" WHERE email = $1', [email]);
-        return NextResponse.json(rows[0] || {});
+        return NextResponse.json({ success: true, user: session.user });
     } catch (error: any) {
-        console.error('Error fetching settings:', error);
-        return NextResponse.json({ 
-            error: 'Failed to fetch settings', 
-            details: error.message,
-            stack: error.stack 
-        }, { status: 500 });
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
 

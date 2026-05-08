@@ -6,25 +6,14 @@ import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcryptjs";
 
 export async function GET() {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const teamId = (session.user as any).teamId;
-    if (!teamId) return NextResponse.json({ error: "No team associated" }, { status: 400 });
-
     try {
-        const members = await db.query(
-            'SELECT id, name, email, role, "lastSeen", "lastActivity" FROM "User" WHERE "teamId" = $1 ORDER BY role DESC',
-            [teamId]
-        );
-        return NextResponse.json({ members });
+        const session = await getServerSession(authOptions);
+        if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+        const teamId = (session.user as any).teamId;
+        return NextResponse.json({ success: true, teamId });
     } catch (error: any) {
-        console.error("Team fetch error:", error);
-        return NextResponse.json({ 
-            error: "Institutional fetch failure", 
-            details: error.message,
-            stack: error.stack
-        }, { status: 500 });
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
 
