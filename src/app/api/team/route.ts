@@ -14,11 +14,12 @@ export async function GET() {
 
     try {
         const members = await db.query(
-            'SELECT id, name, email, role, workflows, "createdAt" FROM "User" WHERE "teamId" = $1 ORDER BY role DESC, "createdAt" ASC',
+            'SELECT id, name, email, role FROM "User" WHERE "teamId" = $1 ORDER BY role DESC',
             [teamId]
         );
         return NextResponse.json({ members });
     } catch (error) {
+        console.error("Team fetch error:", error);
         return NextResponse.json({ error: "Institutional fetch failure" }, { status: 500 });
     }
 }
@@ -77,8 +78,8 @@ export async function POST(req: Request) {
 
         const hashedPw = await bcrypt.hash(password, 10);
         await db.execute(
-            'INSERT INTO "User" (id, name, email, password, role, "teamId", "firmName", "onboardingStatus", workflows) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
-            [uuidv4(), name.trim(), emailRef, hashedPw, role || 'MEMBER', teamId, inheritedFirm, 'COMPLETED', JSON.stringify([])]
+            'INSERT INTO "User" (id, name, email, password, role, "teamId", "firmName", "onboardingStatus") VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+            [uuidv4(), name.trim(), emailRef, hashedPw, role || 'MEMBER', teamId, inheritedFirm, 'COMPLETED']
         );
         return NextResponse.json({ success: true });
     } catch (error) {
