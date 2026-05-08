@@ -11,6 +11,7 @@ export async function POST(req: Request) {
 
         await sendOTPEmail(email, otp);
 
+        console.log(`[SERVER]: OTP email successfully dispatched to ${email}`);
         return NextResponse.json({ success: true });
     } catch (error: any) {
         console.error('SMTP Error Detailed:', error);

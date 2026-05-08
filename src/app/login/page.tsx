@@ -95,14 +95,18 @@ function AuthContent() {
                     body: JSON.stringify({ email: formData.email, otp: generatedCode }),
                 });
 
+                const data = await res.json();
+
                 if (!res.ok) {
-                    const data = await res.json();
+                    console.error("[SMTP FAILURE]:", data.error, data.details || "");
                     throw new Error(data.error || "Failed to deliver security code.");
                 }
 
+                console.log("[SMTP SUCCESS]: Verification email sent successfully to", formData.email);
                 setPreviousMode(mode);
                 setMode("mfa");
             } catch (err: any) {
+                console.error("[AUTH ERROR]:", err.message);
                 setError(err.message);
             } finally {
                 setIsLoading(false);
