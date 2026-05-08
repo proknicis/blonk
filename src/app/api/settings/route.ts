@@ -12,8 +12,12 @@ export async function GET() {
 
         const email = session.user.email.toLowerCase();
         
-        // Institutional Heartbeat: Update lastSeen on every settings fetch (which occurs on layout mount)
-        await db.execute('UPDATE "User" SET "lastSeen" = NOW() WHERE email = $1', [email]);
+        // Institutional Heartbeat: Update lastSeen on every settings fetch (non-blocking)
+        try {
+            await db.execute('UPDATE "User" SET "lastSeen" = NOW() WHERE email = $1', [email]);
+        } catch (e) {
+            console.error("Heartbeat failure", e);
+        }
 
         const rows = await db.query('SELECT id, name, email, role, "firmName", industry, plan, tier, "onboardingStatus", "lastSeen", "lastActivity" FROM "User" WHERE email = $1', [email]);
         return NextResponse.json(rows[0] || {});
