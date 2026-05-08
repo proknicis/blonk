@@ -13,7 +13,10 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ success: true });
     } catch (error: any) {
-        console.error('SMTP Error:', error);
-        return NextResponse.json({ error: 'Failed to send verification email' }, { status: 500 });
+        console.error('SMTP Error Detailed:', error);
+        return NextResponse.json({ 
+            error: 'Failed to send verification email', 
+            details: error.message 
+        }, { status: 500 });
     }
 }

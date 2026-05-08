@@ -8,6 +8,9 @@ const transporter = nodemailer.createTransport({
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASSWORD,
     },
+    tls: {
+        rejectUnauthorized: false // Helps with certificate issues on some shared hosting
+    }
 });
 
 export const sendOTPEmail = async (to: string, otp: string) => {
