@@ -122,7 +122,6 @@ export default function DashboardPage() {
                     </div>
                     <div>
                         <h2 className={styles.integrityTitle}>System Status: {globalStats.status === 'online' ? 'Operational' : 'Syncing'}</h2>
-                        <h4 style={{ margin: '4px 0', fontSize: '0.9rem', fontWeight: 950, color: 'var(--foreground)', opacity: 0.9 }}>GLOBAL CORE: {globalStats.status === 'online' ? 'OPERATIONAL' : 'SYNCING'}</h4>
                         <p className={styles.integritySubtitle}>Institutional network is stable. All automated nodes reporting nominal latency. <br/> <span style={{ color: '#10B981', fontWeight: 800 }}>Your workflows are running normally</span></p>
                     </div>
                 </div>
