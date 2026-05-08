@@ -30,6 +30,7 @@ export default function DashboardLayout({
 
     const [showNotifs, setShowNotifs] = useState(false);
     const [showUserMenu, setShowUserMenu] = useState(false);
+    const [showMobileMenu, setShowMobileMenu] = useState(false);
     const [notifications, setNotifications] = useState<NotificationItem[]>([]);
     const [user, setUser] = useState<UserData>({ name: "Prokopecs", role: "Strategic Admin", email: "nikolass@blonk.ai" });
     const [isLoadingHeaderData, setIsLoadingHeaderData] = useState(true);
@@ -111,13 +112,16 @@ export default function DashboardLayout({
     };
 
     return (
-        <div className={styles.appShell} onMouseDownCapture={onShellMouseDownCapture}>
+        <div className={`${styles.appShell} ${showMobileMenu ? styles.mobileMenuOpen : ""}`} onMouseDownCapture={onShellMouseDownCapture}>
             <div className={styles.noise} />
             
+            {/* MOBILE OVERLAY */}
+            {showMobileMenu && <div className={styles.mobileOverlay} onClick={() => setShowMobileMenu(false)} />}
+
             {/* SIDEBAR: Sovereign Institutional */}
-            <aside className={styles.sidebar}>
+            <aside className={`${styles.sidebar} ${showMobileMenu ? styles.sidebarOpen : ""}`}>
                 <div className={styles.sidebarBrand}>
-                    <Link href="/dashboard" className={styles.logo}>
+                    <Link href="/dashboard" className={styles.logo} onClick={() => setShowMobileMenu(false)}>
                         <div className={styles.logo_dot} />
                         BLONK
                     </Link>
@@ -173,7 +177,7 @@ export default function DashboardLayout({
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/sovereignty" className={`${styles.navLink} ${pathname === '/dashboard/sovereignty' ? styles.navLinkActive : ''}`}>
+                                <Link href="/dashboard/sovereignty" className={`${styles.navLink} ${pathname === '/dashboard/sovereignty' ? styles.navLinkActive : ''}`} onClick={() => setShowMobileMenu(false)}>
                                     <Settings size={20} /> Security & Controls
                                 </Link>
                             </li>
@@ -206,6 +210,9 @@ export default function DashboardLayout({
                 <header className={styles.topbar}>
                     <div className={styles.topbarInner}>
                         <div className={styles.topbarContext}>
+                            <button className={styles.mobileMenuBtn} onClick={() => setShowMobileMenu(true)}>
+                                <Menu size={24} />
+                            </button>
                             <h1 className={styles.pageTitle}>{getModuleTitle(pathname)}</h1>
                         </div>
 
@@ -273,7 +280,7 @@ export default function DashboardLayout({
                                             <div className={styles.userDropdownRole}>{user.role}</div>
                                             <div className={styles.userDropdownEmail}>{user.email}</div>
                                         </div>
-                                        <Link href="/dashboard/settings" className={styles.userDropdownLink} onClick={() => setShowUserMenu(false)}>
+                                        <Link href="/dashboard/settings" className={styles.userDropdownLink} onClick={() => { setShowUserMenu(false); setShowMobileMenu(false); }}>
                                             <Settings size={18} /> Settings
                                         </Link>
                                         <div className={styles.userDropdownDivider} />

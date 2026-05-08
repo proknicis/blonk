@@ -363,3 +363,35 @@
     color: var(--primary-foreground);
     border: none;
 }
+@media (max-width: 1100px) {
+    .statsGrid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 850px) {
+    .headerSection { flex-direction: column; align-items: flex-start; gap: 24px; }
+    .headerLeft h1 { font-size: 1.75rem; }
+    .statsGrid { grid-template-columns: 1fr; }
+    
+    .controls { flex-direction: column; padding: 12px; }
+    .filterSelect { width: 100%; min-width: 0; }
+    
+    .tableWrapper { 
+        border-radius: 20px; 
+        overflow-x: auto; 
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .teamTable th, .teamTable td { padding: 16px 20px; }
+    .avatar { width: 40px; height: 40px; }
+    .userName { font-size: 0.9rem; }
+    .userEmail { display: none; } /* Hide email on small screens */
+}
+
+@media (max-width: 600px) {
+    .modal { 
+        max-width: 90vw; 
+        border-radius: 24px; 
+    }
+    .modalHeader, .modalBody { padding: 24px; }
+    .statValue { font-size: 1.75rem; }
+}

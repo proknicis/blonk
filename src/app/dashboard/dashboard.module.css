@@ -554,4 +554,81 @@
     .navLink { justify-content: center; padding: 16px; }
     .navLink span, .navGroupLabel, .usageSection, .logo span, .logo_dot { display: none; }
     .logo { justify-content: center; font-size: 1.2rem; }
+    .searchInput { width: 300px; }
+}
+
+/* MOBILE RESPONSIVENESS */
+.mobileMenuBtn {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--foreground);
+    cursor: pointer;
+    padding: 8px;
+    margin-right: 12px;
+}
+
+.mobileOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (max-width: 850px) {
+    .mobileMenuBtn { display: flex; }
+    
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 280px;
+        transform: translateX(-100%);
+        z-index: 2000;
+        display: flex !important; /* Force display when open */
+        padding: 32px 24px;
+    }
+    
+    .sidebarOpen {
+        transform: translateX(0);
+        box-shadow: 20px 0 60px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebarOpen .navLink span, 
+    .sidebarOpen .navGroupLabel, 
+    .sidebarOpen .usageSection, 
+    .sidebarOpen .logo_dot {
+        display: flex;
+    }
+    
+    .sidebarOpen .logo span { display: inline; }
+    .sidebarOpen .logo { justify-content: flex-start; font-size: 2rem; }
+
+    .topbarInner { padding: 0 20px; }
+    .pageContent { padding: 24px 20px; }
+    .topbar { height: 70px; min-height: 70px; }
+    .pageTitle { font-size: 1.2rem; }
+    
+    .searchWrapper { display: none; } /* Hide search on small mobile */
+    .userData { display: none; } /* Hide name on mobile */
+    
+    .createWorkflowBtn span, 
+    .createWorkflowBtn {
+        padding: 0 12px;
+        width: 44px;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 500px) {
+    .topbarActions { gap: 12px; }
+    .pageTitle { max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 }

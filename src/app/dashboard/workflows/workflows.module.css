@@ -448,3 +448,32 @@
     from { opacity: 0; transform: translateX(50px); }
     to { opacity: 1; transform: translateX(0); }
 }
+@media (max-width: 1100px) {
+    .marketplaceActions { flex-direction: column; align-items: stretch; }
+    .searchWrapper { width: 100%; }
+    .timelineInstitutional { gap: 20px; padding: 24px; }
+    .timelineConnector { display: none; }
+}
+
+@media (max-width: 850px) {
+    .workflowGrid { grid-template-columns: 1fr; gap: 24px; }
+    .cardHeader, .cardFooter { padding: 32px; }
+    .iconContainer { width: 64px; height: 64px; }
+    .cardHeader h3 { font-size: 1.4rem; }
+    
+    .guideContainer { padding: 32px 24px; border-radius: 24px; }
+    .modalIntegrityHeader { flex-direction: column; gap: 24px; }
+    .configFieldset { padding: 24px; border-radius: 24px; }
+    
+    .filterTabs { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 4px; }
+    .filterTab { padding: 8px 16px; white-space: nowrap; }
+}
+
+@media (max-width: 500px) {
+    .metadataGrid { grid-template-columns: 1fr; }
+    .metaItem { border-bottom: 1px solid var(--border); }
+    .metaItem:last-child { border-bottom: none; }
+    .integrationDossier { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .integrationIcon { width: 48px; height: 48px; }
+    .premiumModalFooter { flex-direction: column; }
+}
