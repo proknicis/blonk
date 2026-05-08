@@ -211,40 +211,40 @@ export default function TeamPage() {
 
     if (noTeam) {
         return (
-            <div className={styles.teamContainer} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
-                <div className={styles.section} style={{ maxWidth: '600px', width: '100%', padding: '60px', textAlign: 'center' }}>
-                    <div style={{ width: '80px', height: '80px', background: 'var(--accent-muted)', borderRadius: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)', margin: '0 auto 32px' }}>
-                        <Zap size={40} />
+            <div className={styles.onboardingGate}>
+                <div className={styles.onboardingCard}>
+                    <div className={styles.onboardingIconBox}>
+                        <Zap size={44} />
                     </div>
-                    <h1 style={{ fontSize: '2rem', fontWeight: 950, letterSpacing: '-0.04em', marginBottom: '16px' }}>Initialize Command Node</h1>
-                    <p style={{ color: 'var(--muted-foreground)', fontWeight: 700, fontSize: '1.1rem', marginBottom: '40px', lineHeight: 1.6 }}>
-                        You must establish your Institutional Firm before provisioning personnel access. This will create your sovereign command cluster.
+                    <h1 className={styles.onboardingTitle}>Initialize Command Node</h1>
+                    <p className={styles.onboardingText}>
+                        Establish your Institutional Firm before provisioning personnel access. This will create your sovereign command cluster.
                     </p>
                     
-                    <form onSubmit={handleCreateTeam} style={{ display: 'flex', flexDirection: 'column', gap: '20px', textAlign: 'left' }}>
-                        <div className={styles.field}>
+                    <form onSubmit={handleCreateTeam} className={styles.onboardingForm}>
+                        <div className={styles.onboardingField}>
                             <label>Firm Identity</label>
                             <input 
                                 type="text" 
-                                className={styles.input} 
+                                className={styles.onboardingInput} 
                                 placeholder="e.g. Blackwood Capital Global" 
                                 required
                                 value={creationFirm}
                                 onChange={e => setCreationFirm(e.target.value)}
                             />
                         </div>
-                        <div className={styles.field}>
+                        <div className={styles.onboardingField}>
                             <label>Command Node Name</label>
                             <input 
                                 type="text" 
-                                className={styles.input} 
+                                className={styles.onboardingInput} 
                                 placeholder="e.g. Primary Operations Hub" 
                                 required
                                 value={creationNode}
                                 onChange={e => setCreationNode(e.target.value)}
                             />
                         </div>
-                        <button type="submit" className={styles.btnPrimary} style={{ width: '100%', marginTop: '20px', height: '64px', borderRadius: '20px' }} disabled={creationLoading}>
+                        <button type="submit" className={styles.onboardingSubmit} disabled={creationLoading}>
                             {creationLoading ? 'Establishing Node...' : 'Initialize Firm & Team'}
                         </button>
                     </form>
