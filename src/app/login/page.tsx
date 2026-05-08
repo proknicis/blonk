@@ -84,11 +84,29 @@ function AuthContent() {
             // Proceed to MFA step
             const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
             setExpectedCode(generatedCode);
-            // Log to terminal where Next.js runs and browser console for easy access during development
-            console.log(`\n\n[AUTHORIZATION REQUIRED]: Your MFA Code is: ${generatedCode}\n\n`);
             
-            setPreviousMode(mode);
-            setMode("mfa");
+            setIsLoading(true);
+            setLoadingStage("Dispatching verification email...");
+
+            try {
+                const res = await fetch("/api/auth/otp", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: formData.email, otp: generatedCode }),
+                });
+
+                if (!res.ok) {
+                    const data = await res.json();
+                    throw new Error(data.error || "Failed to deliver security code.");
+                }
+
+                setPreviousMode(mode);
+                setMode("mfa");
+            } catch (err: any) {
+                setError(err.message);
+            } finally {
+                setIsLoading(false);
+            }
         } else {
             // Processing MFA -> Finalize Auth
             if (mfaCode !== expectedCode) {
