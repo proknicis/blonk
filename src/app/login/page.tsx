@@ -3,14 +3,14 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { signIn, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import styles from "./login.module.css";
 import React from "react";
 
 function AuthContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { status } = useSession();
+    const { data: session, status } = useSession();
     
     // "register", "login", "mfa"
     const [mode, setMode] = useState<"login" | "register" | "mfa">("login");
@@ -36,12 +36,12 @@ function AuthContent() {
     const [mfaCode, setMfaCode] = useState("");
     const [expectedCode, setExpectedCode] = useState("");
 
-    // Redirection Guard: If already authenticated, proceed to dashboard
-    useEffect(() => {
-        if (status === "authenticated") {
-            router.push("/dashboard");
-        }
-    }, [status, router]);
+    // Redirection Guard: Removed automatic redirect to allow user choice as per request
+    // useEffect(() => {
+    //     if (status === "authenticated") {
+    //         router.push("/dashboard");
+    //     }
+    // }, [status, router]);
 
     useEffect(() => {
         const errorType = searchParams.get("error");
@@ -168,26 +168,30 @@ function AuthContent() {
                     {mode !== "mfa" ? (
                         <>
                             <div className={styles.header}>
-                                <h2 className={styles.title}>{mode === "login" ? "Identity." : "Integrate."}</h2>
+                                <h2 className={styles.title}>{status === "authenticated" ? "Session Detected." : (mode === "login" ? "Identity." : "Integrate.")}</h2>
                                 <p className={styles.subtitle}>
-                                    {mode === "login" ? "Enter your safe-credentials to reach your dashboard." : "Create your institutional profile to start automating."}
+                                    {status === "authenticated" 
+                                        ? `You are currently authenticated as ${session?.user?.email}.`
+                                        : (mode === "login" ? "Enter your safe-credentials to reach your dashboard." : "Create your institutional profile to start automating.")}
                                 </p>
                             </div>
 
-                            <div className={styles.authTabs}>
-                                <div 
-                                    className={`${styles.tab} ${mode === "login" ? styles.activeTab : ""}`}
-                                    onClick={() => { setMode("login"); setError(""); }}
-                                >
-                                    Sign In
+                            {status !== "authenticated" && (
+                                <div className={styles.authTabs}>
+                                    <div 
+                                        className={`${styles.tab} ${mode === "login" ? styles.activeTab : ""}`}
+                                        onClick={() => { setMode("login"); setError(""); }}
+                                    >
+                                        Sign In
+                                    </div>
+                                    <div 
+                                        className={`${styles.tab} ${mode === "register" ? styles.activeTab : ""}`}
+                                        onClick={() => { setMode("register"); setError(""); }}
+                                    >
+                                        Register
+                                    </div>
                                 </div>
-                                <div 
-                                    className={`${styles.tab} ${mode === "register" ? styles.activeTab : ""}`}
-                                    onClick={() => { setMode("register"); setError(""); }}
-                                >
-                                    Register
-                                </div>
-                            </div>
+                            )}
                         </>
                     ) : (
                         <div className={styles.header}>
@@ -213,97 +217,132 @@ function AuthContent() {
                         </div>
                     )}
 
-                    {!isMounted ? (
+                    {!isMounted || status === "loading" ? (
                         <div style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <div className={styles.pulseDot} />
                         </div>
                     ) : (
-                        <form className={styles.form} onSubmit={handleAuth}>
-                            {mode === "register" && (
-                                <div className={styles.formGroup}>
-                                    <label className={styles.modernLabel}>Full Name</label>
-                                    <input
-                                        type="text"
-                                        className={styles.modernInput}
-                                        placeholder="Institutional Operator"
-                                        required
-                                        suppressHydrationWarning
-                                        value={formData.name}
-                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    />
+                        status === "authenticated" ? (
+                            <div className={styles.authenticatedPrompt}>
+                                <div className={styles.profileSection}>
+                                    <div className={styles.profileAvatar}>
+                                        {session?.user?.image ? (
+                                            <img src={session.user.image} alt={session.user.name || ""} className={styles.avatarImg} />
+                                        ) : (
+                                            <div className={styles.avatarPlaceholder}>
+                                                {(session?.user?.name || session?.user?.email || "U").charAt(0).toUpperCase()}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className={styles.profileInfo}>
+                                        <div className={styles.profileName}>{session?.user?.name || "Institutional Operator"}</div>
+                                        <div className={styles.profileEmail}>{session?.user?.email}</div>
+                                    </div>
                                 </div>
-                            )}
-                            
-                            {mode !== "mfa" ? (
-                                <>
+
+                                <button
+                                    onClick={() => router.push("/dashboard")}
+                                    className={styles.submitBtn}
+                                    style={{ marginTop: 0 }}
+                                >
+                                    Continue to Command Center
+                                </button>
+                                
+                                <button
+                                    onClick={() => signOut({ redirect: false })}
+                                    className={styles.secondaryBtn}
+                                >
+                                    Switch Account
+                                </button>
+                            </div>
+                        ) : (
+                            <form className={styles.form} onSubmit={handleAuth}>
+                                {mode === "register" && (
                                     <div className={styles.formGroup}>
-                                        <label className={styles.modernLabel}>Fleet Email</label>
+                                        <label className={styles.modernLabel}>Full Name</label>
                                         <input
-                                            type="email"
+                                            type="text"
                                             className={styles.modernInput}
-                                            placeholder="name@firm.ai"
+                                            placeholder="Institutional Operator"
                                             required
                                             suppressHydrationWarning
-                                            value={formData.email}
-                                            onChange={handleEmailChange}
+                                            value={formData.name}
+                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                         />
                                     </div>
-                                    <div className={styles.formGroup}>
-                                        <label className={styles.modernLabel}>Safe-Password</label>
-                                        <input
-                                            type="password"
-                                            className={styles.modernInput}
-                                            placeholder="••••••••"
-                                            required
-                                            suppressHydrationWarning
-                                            value={formData.password}
-                                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                        />
-                                    </div>
-                                    {mode === "register" && (
+                                )}
+                                
+                                {mode !== "mfa" ? (
+                                    <>
                                         <div className={styles.formGroup}>
-                                            <label className={styles.modernLabel}>Verify Password</label>
+                                            <label className={styles.modernLabel}>Fleet Email</label>
+                                            <input
+                                                type="email"
+                                                className={styles.modernInput}
+                                                placeholder="name@firm.ai"
+                                                required
+                                                suppressHydrationWarning
+                                                value={formData.email}
+                                                onChange={handleEmailChange}
+                                            />
+                                        </div>
+                                        <div className={styles.formGroup}>
+                                            <label className={styles.modernLabel}>Safe-Password</label>
                                             <input
                                                 type="password"
                                                 className={styles.modernInput}
                                                 placeholder="••••••••"
                                                 required
                                                 suppressHydrationWarning
-                                                value={formData.confirmPassword}
-                                                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                                                value={formData.password}
+                                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                             />
                                         </div>
-                                    )}
-                                </>
-                            ) : (
-                                <div className={styles.formGroup}>
-                                    <label className={styles.modernLabel}>6-Digit Code</label>
-                                    <input
-                                        type="text"
-                                        className={styles.modernInput}
-                                        placeholder="000000"
-                                        required
-                                        suppressHydrationWarning
-                                        value={mfaCode}
-                                        onChange={(e) => setMfaCode(e.target.value)}
-                                        maxLength={6}
-                                        style={{ letterSpacing: "0.2em", fontSize: "1.2rem", textAlign: "center" }}
-                                    />
-                                </div>
-                            )}
+                                        {mode === "register" && (
+                                            <div className={styles.formGroup}>
+                                                <label className={styles.modernLabel}>Verify Password</label>
+                                                <input
+                                                    type="password"
+                                                    className={styles.modernInput}
+                                                    placeholder="••••••••"
+                                                    required
+                                                    suppressHydrationWarning
+                                                    value={formData.confirmPassword}
+                                                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                                                />
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.modernLabel}>6-Digit Code</label>
+                                        <input
+                                            type="text"
+                                            className={styles.modernInput}
+                                            placeholder="000000"
+                                            required
+                                            suppressHydrationWarning
+                                            value={mfaCode}
+                                            onChange={(e) => setMfaCode(e.target.value)}
+                                            maxLength={6}
+                                            style={{ letterSpacing: "0.2em", fontSize: "1.2rem", textAlign: "center" }}
+                                        />
+                                    </div>
+                                )}
 
-                            <button
-                                type="submit"
-                                className={styles.submitBtn}
-                                disabled={isLoading}
-                                suppressHydrationWarning
-                            >
-                                {isLoading ? loadingStage : mode === "mfa" ? "Verify Identity" : mode === "login" ? "Initialize Session" : "Establish Integration"}
-                            </button>
-                        </form>
+                                <button
+                                    type="submit"
+                                    className={styles.submitBtn}
+                                    disabled={isLoading}
+                                    suppressHydrationWarning
+                                >
+                                    {isLoading ? loadingStage : mode === "mfa" ? "Verify Identity" : mode === "login" ? "Initialize Session" : "Establish Integration"}
+                                </button>
+                            </form>
+                        )
                     )}
 
-                    {mode !== "mfa" && (
+                    {status !== "authenticated" && mode !== "mfa" && (
                         <>
                             <div className={styles.divider}>
                                 <div className={styles.dividerLine}></div>
