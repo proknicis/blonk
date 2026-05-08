@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { sendOTPEmail } from '@/lib/mail';
 
 export async function POST(req: Request) {
+    console.log(">>> SERVER: OTP REQUEST RECEIVED");
     try {
         const { email, otp } = await req.json();
 

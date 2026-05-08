@@ -24,6 +24,7 @@ function AuthContent() {
     
     useEffect(() => {
         setIsMounted(true);
+        console.log(">>> BLONK AUTH TERMINAL v3.2 [ACTIVE]");
     }, []);
     
     const [formData, setFormData] = useState({
@@ -74,6 +75,7 @@ function AuthContent() {
 
     const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log(">>> AUTH HANDSHAKE INITIATED...");
         setError("");
         
         if (mode !== "mfa") {
