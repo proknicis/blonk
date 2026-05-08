@@ -11,7 +11,13 @@ export async function GET() {
         if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
         const teamId = (session.user as any).teamId;
-        return NextResponse.json({ success: true, teamId });
+        if (!teamId) return NextResponse.json({ success: true, members: [] });
+
+        const members = await db.query(
+            'SELECT id, name, email, role, "lastSeen", "lastActivity" FROM "User" WHERE "teamId" = $1 ORDER BY role DESC',
+            [teamId]
+        );
+        return NextResponse.json({ members });
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }

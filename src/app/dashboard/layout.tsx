@@ -32,7 +32,7 @@ export default function DashboardLayout({
     const [showUserMenu, setShowUserMenu] = useState(false);
     const [showMobileMenu, setShowMobileMenu] = useState(false);
     const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-    const [user, setUser] = useState<UserData>({ name: "Prokopecs", role: "Strategic Admin", email: "nikolass@blonk.ai" });
+    const [user, setUser] = useState<UserData>({ name: "Operator", role: "MEMBER", email: "" });
     const [isLoadingHeaderData, setIsLoadingHeaderData] = useState(true);
 
     const notifsAnchorRef = useRef<HTMLDivElement>(null);
@@ -70,7 +70,7 @@ export default function DashboardLayout({
                     setUser({
                         name: displayName,
                         role: userData.role || "MEMBER",
-                        email: userData.email || "user@blonk.ai",
+                        email: userData.email || "",
                         firmName: userData.firmName
                     });
                 }

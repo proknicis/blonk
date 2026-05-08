@@ -6,10 +6,11 @@ import { authOptions } from "@/lib/auth";
 export async function GET() {
     try {
         const session = await getServerSession(authOptions);
-        if (!session) {
-            return NextResponse.json({ error: 'No session' }, { status: 401 });
-        }
-        return NextResponse.json({ success: true, user: session.user });
+        const email = session.user.email?.toLowerCase();
+        if (!email) return NextResponse.json({ error: 'No email' }, { status: 400 });
+
+        const rows = await db.query('SELECT id, name, email, role, "firmName", industry, plan, tier, "onboardingStatus", "lastSeen", "lastActivity" FROM "User" WHERE email = $1', [email]);
+        return NextResponse.json(rows[0] || {});
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
