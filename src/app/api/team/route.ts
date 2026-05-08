@@ -14,7 +14,7 @@ export async function GET() {
 
     try {
         const members = await db.query(
-            'SELECT id, name, email, role FROM "User" WHERE "teamId" = $1 ORDER BY role DESC',
+            'SELECT id, name, email, role, "lastSeen", "lastActivity" FROM "User" WHERE "teamId" = $1 ORDER BY role DESC',
             [teamId]
         );
         return NextResponse.json({ members });

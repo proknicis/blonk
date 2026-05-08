@@ -6,11 +6,12 @@ import { authOptions } from "@/lib/auth";
 export async function GET() {
     try {
         const session = await getServerSession(authOptions);
-        if (!session?.user?.email) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+        const email = session.user.email.toLowerCase();
+        
+        // Institutional Heartbeat: Update lastSeen on every settings fetch (which occurs on layout mount)
+        await db.execute('UPDATE "User" SET "lastSeen" = NOW() WHERE email = $1', [email]);
 
-        const rows = await db.query('SELECT * FROM "User" WHERE email = $1', [session.user.email.toLowerCase()]);
+        const rows = await db.query('SELECT * FROM "User" WHERE email = $1', [email]);
         return NextResponse.json(rows[0] || {});
     } catch (error) {
         console.error('Error fetching settings:', error);

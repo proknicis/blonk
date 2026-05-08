@@ -64,6 +64,26 @@ export default function TeamPage() {
         }
     };
 
+    const formatTimeAgo = (dateStr: string) => {
+        if (!dateStr) return "Never";
+        const date = new Date(dateStr);
+        const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+        if (seconds < 60) return "Just now";
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        const days = Math.floor(hours / 24);
+        return `${days}d ago`;
+    };
+
+    const isOnline = (dateStr: string) => {
+        if (!dateStr) return false;
+        const date = new Date(dateStr);
+        const diff = (new Date().getTime() - date.getTime()) / 1000;
+        return diff < 300; // 5 minutes window
+    };
+
     const fetchTeamData = async () => {
         setIsLoading(true);
         try {
@@ -76,12 +96,11 @@ export default function TeamPage() {
             const data = await res.json();
             if (data.members) {
                 setNoTeam(false);
-                // Enrich data with activity/workflows for UI if missing
-                const enriched = data.members.map((m: any, i: number) => ({
+                const enriched = data.members.map((m: any) => ({
                     ...m,
-                    status: i === 0 || i === 2 ? 'Active' : 'Offline',
-                    lastActivity: i === 0 ? 'Ran Lead Automation 1h ago' : i === 1 ? 'Edited user permissions 2d ago' : 'Logged in 5h ago',
-                    workflows: m.workflows || (i === 0 ? ['Lead Automation', 'Invoice Processing'] : i === 2 ? ['Client Onboarding'] : [])
+                    status: isOnline(m.lastSeen) ? 'Active' : 'Offline',
+                    lastActivity: m.lastActivity || 'System idle',
+                    lastSeenFormatted: formatTimeAgo(m.lastSeen)
                 }));
                 // Ensure owner is at top
                 enriched.sort((a: any, b: any) => a.role === 'OWNER' ? -1 : b.role === 'OWNER' ? 1 : 0);
@@ -404,7 +423,9 @@ export default function TeamPage() {
                                         <td>
                                             <div className={styles.activityInfo}>
                                                 <span className={styles.activityText} style={{ fontSize: '0.85rem', fontWeight: 950, color: '#111827' }}>{member.lastActivity}</span>
-                                                <span className={styles.activityTime} style={{ fontSize: '0.7rem', fontWeight: 950, color: member.status === 'Active' ? '#10B981' : '#9CA3AF', textTransform: 'uppercase' }}>{member.status === 'Active' ? 'Online' : 'Offline'}</span>
+                                                <span className={styles.activityTime} style={{ fontSize: '0.7rem', fontWeight: 950, color: member.status === 'Active' ? '#10B981' : '#9CA3AF', textTransform: 'uppercase' }}>
+                                                    {member.status === 'Active' ? 'Online' : `Offline • ${member.lastSeenFormatted}`}
+                                                </span>
                                             </div>
                                         </td>
                                         <td style={{ textAlign: 'right' }}>
