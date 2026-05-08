@@ -2,8 +2,7 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { db } from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
-import { sendEmail } from '@/lib/email';
-import WelcomeMFAEmail from '@/emails/WelcomeMFAEmail';
+import { sendWelcomeEmail } from '@/lib/mail';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,20 +46,13 @@ export async function POST(request: Request) {
         // 3. Anchor user as Team owner
         await db.execute('UPDATE "Team" SET "ownerId" = $1 WHERE id = $2', [userId, teamId]);
 
-        // 4. Send Welcome MFA Email
-        const mfaCode = Math.floor(100000 + Math.random() * 900000).toString(); // Generate 6-digit code
-        
-        // In a real app we might store mfaCode in the DB here
-        
-        // Dispatch the email asynchronously
-        const emailRes = await sendEmail(
-            email,
-            'Action Required: Complete your Blonk Identity Setup',
-            <WelcomeMFAEmail userName={name || email.split('@')[0]} mfaCode={mfaCode} />
-        );
-
-        if (!emailRes.success) {
-             console.error('Email Dispatch Error:', emailRes.error);
+        // 4. Send Welcome Email via Hostinger SMTP
+        try {
+            await sendWelcomeEmail(email, name || email.split('@')[0]);
+            console.log(`[SERVER]: Welcome email dispatched to ${email}`);
+        } catch (mailErr) {
+            console.error('Welcome Email Dispatch Error:', mailErr);
+            // We don't fail the whole registration if email fails, but we log it
         }
 
         return NextResponse.json({
