@@ -29,22 +29,11 @@ export async function POST(request: Request) {
         const hashedPassword = await bcrypt.hash(password, 10);
         const userId = uuidv4();
 
-        // 1. Create a Team (Firm) for this user first
-        const teamName = firmName || `${name || email.split('@')[0]}'s Command Node`;
-        const teamRes = await db.query(
-            'INSERT INTO "Team" (name, "firmName") VALUES ($1, $2) RETURNING id',
-            [teamName, firmName || 'Institutional Firm']
-        ) as any[];
-        const teamId = teamRes[0].id;
-
-        // 2. Insert new user as an OWNER
+        // Insert new user as an OWNER but without a team initially
         await db.execute(
-            'INSERT INTO "User" (id, email, password, name, "firmName", industry, plan, role, "onboardingStatus", "teamId") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
-            [userId, email, hashedPassword, name || email.split('@')[0], firmName || '', industry || '', 'Starter', 'OWNER', 'PENDING', teamId]
+            'INSERT INTO "User" (id, email, password, name, "firmName", industry, plan, role, "onboardingStatus") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
+            [userId, email, hashedPassword, name || email.split('@')[0], firmName || '', industry || '', 'Starter', 'OWNER', 'TEAM_PENDING']
         );
-
-        // 3. Anchor user as Team owner
-        await db.execute('UPDATE "Team" SET "ownerId" = $1 WHERE id = $2', [userId, teamId]);
 
         // 4. Send Welcome Email via Hostinger SMTP
         try {

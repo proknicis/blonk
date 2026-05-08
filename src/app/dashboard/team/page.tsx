@@ -29,6 +29,11 @@ export default function TeamPage() {
     const [inviteLoading, setInviteLoading] = useState(false);
     const [inviteError, setInviteError] = useState("");
 
+    const [noTeam, setNoTeam] = useState(false);
+    const [creationLoading, setCreationLoading] = useState(false);
+    const [creationFirm, setCreationFirm] = useState("");
+    const [creationNode, setCreationNode] = useState("");
+
     useEffect(() => {
         fetchTeamData();
         fetchCurrentUser();
@@ -63,8 +68,14 @@ export default function TeamPage() {
         setIsLoading(true);
         try {
             const res = await fetch('/api/team');
+            if (res.status === 400) {
+                setNoTeam(true);
+                setIsLoading(false);
+                return;
+            }
             const data = await res.json();
             if (data.members) {
+                setNoTeam(false);
                 // Enrich data with activity/workflows for UI if missing
                 const enriched = data.members.map((m: any, i: number) => ({
                     ...m,
@@ -80,6 +91,32 @@ export default function TeamPage() {
             console.error("Team fetch failure", error);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleCreateTeam = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setCreationLoading(true);
+        try {
+            const res = await fetch('/api/team', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'CREATE_TEAM',
+                    firmName: creationFirm,
+                    teamName: creationNode
+                })
+            });
+            if (res.ok) {
+                // We need to update the session to reflect the new teamId
+                // For now, we just refetch and hope the server-side session reflects it
+                // Or force a reload
+                window.location.reload();
+            }
+        } catch (err) {
+            console.error("Team creation failure", err);
+        } finally {
+            setCreationLoading(false);
         }
     };
 
@@ -171,6 +208,50 @@ export default function TeamPage() {
 
     const totalWorkflowsAssigned = members.reduce((acc, m) => acc + (m.workflows?.length || 0), 0);
     const activeToday = members.filter(m => m.status === 'Active').length;
+
+    if (noTeam) {
+        return (
+            <div className={styles.teamContainer} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
+                <div className={styles.section} style={{ maxWidth: '600px', width: '100%', padding: '60px', textAlign: 'center' }}>
+                    <div style={{ width: '80px', height: '80px', background: 'var(--accent-muted)', borderRadius: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)', margin: '0 auto 32px' }}>
+                        <Zap size={40} />
+                    </div>
+                    <h1 style={{ fontSize: '2rem', fontWeight: 950, letterSpacing: '-0.04em', marginBottom: '16px' }}>Initialize Command Node</h1>
+                    <p style={{ color: 'var(--muted-foreground)', fontWeight: 700, fontSize: '1.1rem', marginBottom: '40px', lineHeight: 1.6 }}>
+                        You must establish your Institutional Firm before provisioning personnel access. This will create your sovereign command cluster.
+                    </p>
+                    
+                    <form onSubmit={handleCreateTeam} style={{ display: 'flex', flexDirection: 'column', gap: '20px', textAlign: 'left' }}>
+                        <div className={styles.field}>
+                            <label>Firm Identity</label>
+                            <input 
+                                type="text" 
+                                className={styles.input} 
+                                placeholder="e.g. Blackwood Capital Global" 
+                                required
+                                value={creationFirm}
+                                onChange={e => setCreationFirm(e.target.value)}
+                            />
+                        </div>
+                        <div className={styles.field}>
+                            <label>Command Node Name</label>
+                            <input 
+                                type="text" 
+                                className={styles.input} 
+                                placeholder="e.g. Primary Operations Hub" 
+                                required
+                                value={creationNode}
+                                onChange={e => setCreationNode(e.target.value)}
+                            />
+                        </div>
+                        <button type="submit" className={styles.btnPrimary} style={{ width: '100%', marginTop: '20px', height: '64px', borderRadius: '20px' }} disabled={creationLoading}>
+                            {creationLoading ? 'Establishing Node...' : 'Initialize Firm & Team'}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={styles.teamContainer}>

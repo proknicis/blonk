@@ -27,6 +27,34 @@ export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+    const body = await req.json();
+    const { action, teamName, firmName } = body;
+
+    // INITIAL TEAM CREATION FOR OWNERS
+    if (action === 'CREATE_TEAM') {
+        const userId = (session.user as any).id;
+        const userRole = (session.user as any).role;
+        
+        if (userRole !== 'OWNER') return NextResponse.json({ error: "Only Owners can initialize a team" }, { status: 403 });
+
+        try {
+            const finalTeamName = teamName || `${session.user.name}'s Command Node`;
+            const teamRes = await db.query(
+                'INSERT INTO "Team" (name, "firmName", "ownerId") VALUES ($1, $2, $3) RETURNING id',
+                [finalTeamName, firmName || 'Institutional Firm', userId]
+            ) as any[];
+            const teamId = teamRes[0].id;
+
+            await db.execute('UPDATE "User" SET "teamId" = $1, "onboardingStatus" = $2 WHERE id = $3', [teamId, 'COMPLETED', userId]);
+            
+            return NextResponse.json({ success: true, teamId });
+        } catch (error) {
+            console.error("Team initialization failure", error);
+            return NextResponse.json({ error: "Failed to initialize command node" }, { status: 500 });
+        }
+    }
+
+    // REGULAR MEMBER PROVISIONING
     const teamId = (session.user as any).teamId;
     const userRole = (session.user as any).role;
 
@@ -35,32 +63,25 @@ export async function POST(req: Request) {
     }
 
     try {
-        const body = await req.json();
         const { email, password, role, name } = body;
-
         if (!email) return NextResponse.json({ error: "Identity email required" }, { status: 400 });
         if (!password) return NextResponse.json({ error: "Password is required to provision an account" }, { status: 400 });
         if (!name) return NextResponse.json({ error: "Full name is required" }, { status: 400 });
 
         const emailRef = email.toLowerCase().trim();
-
         const existing = await db.query('SELECT id FROM "User" WHERE LOWER(email) = LOWER($1)', [emailRef]) as any[];
-        if (existing.length > 0) {
-            return NextResponse.json({ error: "Operator identity already registered in fleet." }, { status: 400 });
-        }
+        if (existing.length > 0) return NextResponse.json({ error: "Operator identity already registered in fleet." }, { status: 400 });
 
-        // Inherit Firm Context from the inviter
         const ownerData = await db.query('SELECT "firmName" FROM "User" WHERE id = $1', [(session.user as any).id]) as any[];
-        const firmName = ownerData[0]?.firmName || 'Legacy Firm Hub';
+        const inheritedFirm = ownerData[0]?.firmName || 'Legacy Firm Hub';
 
         const hashedPw = await bcrypt.hash(password, 10);
         await db.execute(
             'INSERT INTO "User" (id, name, email, password, role, "teamId", "firmName", "onboardingStatus", workflows) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
-            [uuidv4(), name.trim(), emailRef, hashedPw, role || 'MEMBER', teamId, firmName, 'COMPLETED', JSON.stringify([])]
+            [uuidv4(), name.trim(), emailRef, hashedPw, role || 'MEMBER', teamId, inheritedFirm, 'COMPLETED', JSON.stringify([])]
         );
-        return NextResponse.json({ success: true, message: "Sovereign Co-Pilot account successfully provisioned." });
+        return NextResponse.json({ success: true });
     } catch (error) {
-        console.error("Direct Provisioning failure", error);
         return NextResponse.json({ error: "Personnel provisioning failure" }, { status: 500 });
     }
 }

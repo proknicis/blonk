@@ -61,41 +61,20 @@ export const authOptions: NextAuthOptions = {
                     
                     if (existing.length === 0 && user) {
                         const userId = uuidv4();
-                        const teamRes = await db.query(
-                            'INSERT INTO "Team" (name, "firmName") VALUES ($1, $2) RETURNING id',
-                            [`${user.name || 'Operator'}'s Command`, 'Legacy Firm Hub']
-                        ) as any[];
-                        const teamId = teamRes[0].id;
-
+                        // Google users start without a team but with OWNER role
                         await db.query(
-                            'INSERT INTO "User" (id, email, name, role, "teamId", plan, password, "onboardingStatus") VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-                            [userId, email, user.name, 'OWNER', teamId, 'Starter', 'oauth_' + uuidv4(), 'PENDING']
+                            'INSERT INTO "User" (id, email, name, role, plan, password, "onboardingStatus") VALUES ($1, $2, $3, $4, $5, $6, $7)',
+                            [userId, email, user.name, 'OWNER', 'Starter', 'oauth_' + uuidv4(), 'TEAM_PENDING']
                         );
-
-                        await db.query('UPDATE "Team" SET "ownerId" = $1 WHERE id = $2', [userId, teamId]);
                         
                         token.id = userId;
-                        token.teamId = teamId;
                         token.role = 'OWNER';
                     } else if (existing.length > 0) {
                         const dbUser = existing[0];
                         token.id = dbUser.id;
                         token.role = dbUser.role;
                         token.tier = dbUser.tier || 'Starter';
-
-                        if (!dbUser.teamId) {
-                            // Backfill Team for accounts caught in the zombie registration bug
-                            const teamRes = await db.query(
-                                'INSERT INTO "Team" (name, "firmName", "ownerId") VALUES ($1, $2, $3) RETURNING id',
-                                [`Orphan ${email.split('@')[0]}'s Command`, 'Recovered Institutional Firm', dbUser.id]
-                            ) as any[];
-                            const newTeamId = teamRes[0].id;
-                            
-                            await db.execute('UPDATE "User" SET "teamId" = $1 WHERE id = $2', [newTeamId, dbUser.id]);
-                            token.teamId = newTeamId;
-                        } else {
-                            token.teamId = dbUser.teamId;
-                        }
+                        token.teamId = dbUser.teamId;
                     }
                 }
             }

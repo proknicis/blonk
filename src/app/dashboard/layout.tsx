@@ -40,16 +40,23 @@ export default function DashboardLayout({
 
     const unreadCount = notifications.length;
 
+    const hasTeam = !!(session?.user as any)?.teamId;
+    const isOwner = (session?.user as any)?.role === 'OWNER';
+    const isTeamPage = pathname === '/dashboard/team';
+
     // Strict Institutional Gate: Force exit if unauthenticated
     useEffect(() => {
         if (status === "unauthenticated") {
             router.replace("/login");
+        } else if (status === "authenticated" && !hasTeam && isOwner && !isTeamPage) {
+            // Force redirect to team initialization if no team exists
+            router.replace("/dashboard/team");
         }
-    }, [status, router]);
+    }, [status, router, hasTeam, isOwner, isTeamPage]);
 
     useEffect(() => {
         let isMounted = true;
-        if (status !== "authenticated") return; // Bypass sync if unauthorized
+        if (status !== "authenticated" || !hasTeam) return; // Bypass sync if unauthorized or no team node established
 
         (async () => {
             try {
@@ -79,7 +86,7 @@ export default function DashboardLayout({
             }
         })();
         return () => { isMounted = false; };
-    }, [status]);
+    }, [status, hasTeam]);
 
     const onShellMouseDownCapture = (e: React.MouseEvent) => {
         if (!showNotifs && !showUserMenu) return;
@@ -111,8 +118,10 @@ export default function DashboardLayout({
         return 'Command Console';
     };
 
+    const isLinkDisabled = !hasTeam && isOwner;
+
     return (
-        <div className={`${styles.appShell} ${showMobileMenu ? styles.mobileMenuOpen : ""}`} onMouseDownCapture={onShellMouseDownCapture}>
+        <div className={`${styles.appShell} ${showMobileMenu ? styles.mobileMenuOpen : ""} ${!hasTeam && isOwner ? styles.onboardingShell : ""}`} onMouseDownCapture={onShellMouseDownCapture}>
             <div className={styles.noise} />
             
             {/* MOBILE OVERLAY */}
@@ -129,16 +138,16 @@ export default function DashboardLayout({
 
                 <nav className={styles.sidebarNav}>
                     {/* OPERATIONS */}
-                    <div className={styles.navGroup}>
+                    <div className={`${styles.navGroup} ${isLinkDisabled ? styles.navGroupDisabled : ""}`}>
                         <span className={styles.navGroupLabel}>Operations</span>
                         <ul>
                             <li>
-                                <Link href="/dashboard" className={`${styles.navLink} ${pathname === '/dashboard' ? styles.navLinkActive : ''}`}>
+                                <Link href="/dashboard" className={`${styles.navLink} ${pathname === '/dashboard' ? styles.navLinkActive : ''} ${isLinkDisabled ? styles.disabledLink : ''}`}>
                                     <LayoutGrid size={20} /> Overview
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/office" className={`${styles.navLink} ${pathname === '/dashboard/office' ? styles.navLinkActive : ''}`}>
+                                <Link href="/dashboard/office" className={`${styles.navLink} ${pathname === '/dashboard/office' ? styles.navLinkActive : ''} ${isLinkDisabled ? styles.disabledLink : ''}`}>
                                     <Monitor size={20} /> My Workflows
                                 </Link>
                             </li>
@@ -155,7 +164,7 @@ export default function DashboardLayout({
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/workflows" className={`${styles.navLink} ${pathname === '/dashboard/workflows' ? styles.navLinkActive : ''}`}>
+                                <Link href="/dashboard/workflows" className={`${styles.navLink} ${pathname === '/dashboard/workflows' ? styles.navLinkActive : ''} ${isLinkDisabled ? styles.disabledLink : ''}`}>
                                     <ExternalLink size={20} /> Marketplace
                                 </Link>
                             </li>
@@ -163,21 +172,21 @@ export default function DashboardLayout({
                     </div>
 
                     {/* COMPLIANCE */}
-                    <div className={styles.navGroup}>
+                    <div className={`${styles.navGroup} ${isLinkDisabled ? styles.navGroupDisabled : ""}`}>
                         <span className={styles.navGroupLabel}>Compliance</span>
                         <ul>
                             <li>
-                                <Link href="/dashboard/audit" className={`${styles.navLink} ${pathname === '/dashboard/audit' ? styles.navLinkActive : ''}`}>
+                                <Link href="/dashboard/audit" className={`${styles.navLink} ${pathname === '/dashboard/audit' ? styles.navLinkActive : ''} ${isLinkDisabled ? styles.disabledLink : ''}`}>
                                     <FileText size={20} /> Audit Logs
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/reports" className={`${styles.navLink} ${pathname === '/dashboard/reports' ? styles.navLinkActive : ''}`}>
+                                <Link href="/dashboard/reports" className={`${styles.navLink} ${pathname === '/dashboard/reports' ? styles.navLinkActive : ''} ${isLinkDisabled ? styles.disabledLink : ''}`}>
                                     <FileText size={20} /> Reports
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/sovereignty" className={`${styles.navLink} ${pathname === '/dashboard/sovereignty' ? styles.navLinkActive : ''}`} onClick={() => setShowMobileMenu(false)}>
+                                <Link href="/dashboard/sovereignty" className={`${styles.navLink} ${pathname === '/dashboard/sovereignty' ? styles.navLinkActive : ''} ${isLinkDisabled ? styles.disabledLink : ''}`} onClick={() => setShowMobileMenu(false)}>
                                     <Settings size={20} /> Security & Controls
                                 </Link>
                             </li>

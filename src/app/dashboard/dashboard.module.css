@@ -544,6 +544,26 @@
     margin: 0 auto;
 }
 
+.navGroupDisabled {
+    opacity: 0.4;
+    pointer-events: none;
+    filter: grayscale(1);
+    transition: all 0.3s ease;
+}
+
+.disabledLink {
+    cursor: not-allowed;
+    color: var(--muted-foreground);
+}
+
+.onboardingShell .sidebarBrand {
+    opacity: 1;
+}
+
+.onboardingShell .sidebarNav {
+    /* Focus purely on team */
+}
+
 @media (max-width: 1300px) {
     .topbarInner { padding: 0 32px; }
     .pageContent { padding: 32px; }
