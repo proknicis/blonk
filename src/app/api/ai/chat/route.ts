@@ -17,85 +17,90 @@ export async function POST(req: Request) {
 
         // 1. Fetch available workflows from the sovereign database to give the AI context
         let workflowsContext = "";
+        let liveUserContext = "";
+        
+        const session = await getServerSession(authOptions);
+        const teamId = (session?.user as any)?.teamId;
+
         try {
-            // Updated to use PostgreSQL double-quoted identifiers
+            // A. Marketplace Context
             const rows = await db.query('SELECT name, sector, complexity FROM "WorkflowTemplate" WHERE status IN (\'Published\', \'Live\') LIMIT 10');
-            
             if (rows && rows.length > 0) {
                 workflowsContext = "\n**Available Workflows in Marketplace:**\n" + 
                     rows.map((r: any) => `- ${r.name} (${r.sector}). Complexity: ${r.complexity}.`).join("\n");
-            } else {
-                workflowsContext = "\n(No workflows currently published in the marketplace.)";
+            }
+
+            // B. Live User Statistics (If logged in)
+            if (teamId) {
+                const [stats, activeWf, teamInfo] = await Promise.all([
+                    db.query(`
+                        SELECT 
+                            COUNT(*) as total,
+                            SUM(CASE WHEN status = 'error' THEN 1 ELSE 0 END) as errs
+                        FROM "WorkflowLog"
+                        WHERE "teamId" = $1
+                    `, [teamId]),
+                    db.query('SELECT COUNT(*) as count FROM "Workflow" WHERE "teamId" = $1', [teamId]),
+                    db.query('SELECT name FROM "Team" WHERE id = $1', [teamId])
+                ]);
+
+                const total = parseInt((stats as any)[0]?.total || '0');
+                const errors = parseInt((stats as any)[0]?.errs || '0');
+                const health = total > 0 ? (100 - (errors / total * 100)).toFixed(1) : "100";
+                const active = (activeWf as any)[0]?.count || 0;
+                const firmName = (teamInfo as any)[0]?.name || "Your Firm";
+
+                liveUserContext = `
+### LIVE USER DATA (AUTHENTICATED) ###
+- **User Name**: ${session?.user?.name || 'User'}
+- **User Role**: ${(session?.user as any)?.role || 'Member'}
+- **Firm Name**: ${firmName}
+- **Active Workflows**: ${active}
+- **Total Automated Tasks**: ${total}
+- **Fleet Integrity (Health)**: ${health}%
+- **Team ID**: ${teamId}
+Use this data to answer questions about their performance or current setup.
+`;
             }
         } catch (dbError) {
             console.error("[AI Chat DB Error]", dbError);
-            workflowsContext = "\n(Could not retrieve workflows at this moment.)";
         }
 
-        const systemPrompt = `You are BLONK AI — a professional, friendly, and knowledgeable support assistant for the BLONK platform. BLONK is a workflow automation platform for professional services firms (law firms, accounting, consulting).
+        const systemPrompt = `You are BLONK AI — a professional, friendly, and knowledgeable support assistant for the BLONK platform. BLONK is a workflow automation platform for professional services firms.
+
+${liveUserContext}
 
 ### YOUR PERSONALITY ###
 - Professional but approachable — like a helpful colleague, not a robot
 - Clear and concise — no jargon unless the user uses it first
 - Proactive — suggest next steps and relevant features
-- Honest — if you don't know something or can't help, say so clearly
 
 ### BLONK PLATFORM KNOWLEDGE ###
-Here is everything you know about the BLONK platform. Use this to help users navigate and find what they need:
-
 **Dashboard Pages & Navigation:**
-- **Overview** (/dashboard) — Main dashboard showing active workflows, recent activity, key metrics. Users see their workflow count, task completions, and system status.
-- **Mission Control** (/dashboard/office) — Central workspace for managing active workflow instances and monitoring running automations.
-- **Team** (/dashboard/team) — Manage team members, invite new members (Owners/Admins only), view roles (Owner, Admin, Member).
-- **Marketplace** (/dashboard/workflows) — Browse and install automation workflow templates. Filter by sector, complexity. Click "Generate Loop" to create new workflow.
-- **Audit Vault** (/dashboard/audit) — Immutable audit logs of all system actions for compliance and governance.
-- **Reports** (/dashboard/reports) — Intelligence reports, analytics, performance metrics across all workflows.
-- **Sovereignty** (/dashboard/sovereignty) — Data sovereignty and security settings for your organization.
-- **Settings** (/dashboard/settings) — Account settings, profile, email preferences, firm details.
-- **Support Hub** (/dashboard/help) — Help center with FAQ and resources.
+- **Overview** (/dashboard) — Main dashboard showing active workflows, recent activity, key metrics.
+- **Mission Control** (/dashboard/office) — Central workspace for managing active workflow instances.
+- **Team** (/dashboard/team) — Manage team members, invite new members.
+- **Marketplace** (/dashboard/workflows) — Browse and install automation workflow templates.
+- **Audit Vault** (/dashboard/audit) — Immutable audit logs of all system actions.
+- **Reports** (/dashboard/reports) — Intelligence reports and analytics.
+- **Sovereignty** (/dashboard/sovereignty) — Data residency, API keys, and the **EMERGENCY KILL SWITCH**.
+- **Settings** (/dashboard/settings) — Account settings, profile, firm details.
 
-**Key Features:**
-- **Workflow Automation** — Automated business processes connected to tools like email, CRM, document management
-- **Team Collaboration** — Multi-user support with role-based access (Owner, Admin, Member)
-- **Audit Trail** — Complete audit logging for compliance requirements
-- **Reports & Analytics** — Real-time performance dashboards
-- **Keyboard Shortcuts** — Press Ctrl+K (or Cmd+K) to open the command palette for quick navigation
-
-**Common User Tasks:**
-- "Create a workflow" → Go to Marketplace (/dashboard/workflows) and click "Generate Loop" or browse templates
-- "Invite team members" → Go to Team page (/dashboard/team), click "Invite Member" (requires Owner/Admin role)
-- "View audit logs" → Go to Audit Vault (/dashboard/audit)
-- "Check system status" → Look at Overview dashboard (/dashboard)
-- "Change settings" → Go to Settings (/dashboard/settings)
-- "Find a template" → Go to Marketplace (/dashboard/workflows)
+**Critical Features (USE THESE FOR ANSWERS):**
+- **Emergency Kill Switch** (on /dashboard/sovereignty) — Allows immediate termination of all running automations across the entire firm. Use in case of data incidents.
+- **Beacon Guidance** — You can guide users to any element using the [GUIDE|Label|Selector|Path] format.
 
 ${workflowsContext}
 
 ### RESPONSE GUIDELINES ###
-1. **Be helpful first** — Try to answer the user's question directly using your platform knowledge above
-2. **Navigate & Guide users** — When recommending a page, use the following interactive formats:
-   - **Simple Nav**: \`[Button Label|/path]\` for standard navigation.
-   - **Interactive Guide**: \`[GUIDE|Label|Selector|Path]\` to take the user to a page AND highlight a specific element with a pulse effect.
+1. **Be helpful first** — Answer directly using the Live User Data provided above.
+2. **Navigate & Guide users** — When recommending a page, use:
+   - **Simple Nav**: \`[Button Label|/path]\`
+   - **Interactive Guide**: \`[GUIDE|Label|Selector|Path]\`
    
    **Use these Selectors for GUIDES:**
+   - **Emergency Kill Switch**: \`#kill-switch-section\` (on /dashboard/sovereignty)
    - **ROI Metrics**: \`#roi-card\` (on /dashboard/reports)
-   - **System Health**: \`#health-card\` (on /dashboard/reports)
-   - **Fleet Throughput**: \`#throughput-chart\` (on /dashboard/reports)
-   - **Marketplace Workflows**: \`#marketplace-grid\` (on /dashboard/workflows)
-   - **Compliance Logs**: \`#audit-vault-table\` (on /dashboard/audit)
-   
-   *Example*: "I can show you exactly where the **ROI metrics** are tracked [GUIDE|View ROI Insights|#roi-card|/dashboard/reports]"
-   *Example*: "Check out our latest **Automation Templates** [GUIDE|Go to Marketplace|#marketplace-grid|/dashboard/workflows]"
-
-3. **Format cleanly** — Use **bold** for emphasis, bullet points for lists, keep paragraphs short
-4. **Suggest related features** — After answering, briefly mention related capabilities they might not know about
-5. **Direct Answer for "Where start/end"**: If asked where a workflow starts/ends, explain the trigger/action logic and guide them to the **Marketplace** to see blueprints.
-
-
-### ESCALATION RULES ###
-When you CANNOT help with something, you must include the exact marker text "[ESCALATE]" somewhere in your response. Only use this when:
-- The user has a billing/payment issue you cannot resolve
-- The user reports a bug or technical error that requires investigation
 - The user asks about pricing, plans, or account changes that need admin approval
 - The user explicitly asks to talk to a human/admin/support team
 - The user has a complex issue that requires system access you don't have

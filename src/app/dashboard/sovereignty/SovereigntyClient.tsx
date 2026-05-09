@@ -118,7 +118,7 @@ export default function SovereigntyClient({ initialResidency, initialKillSwitch,
                 </div>
 
                 {/* Kill Switch */}
-                <div style={{ background: "var(--card)", border: `1px solid ${killSwitchArmed ? "#ef4444" : "var(--border)"}`, borderRadius: 24, padding: 32, transition: "border-color 0.3s" }}>
+                <div style={{ background: "var(--card)", border: `1px solid ${killSwitchArmed ? "#ef4444" : "var(--border)"}`, borderRadius: 24, padding: 32, transition: "border-color 0.3s" }} id="kill-switch-section">
                     <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
                         <div style={{ width: 40, height: 40, borderRadius: 12, background: killSwitchArmed ? "rgba(239,68,68,0.12)" : "rgba(239,68,68,0.08)", border: `1px solid ${killSwitchArmed ? "rgba(239,68,68,0.4)" : "rgba(239,68,68,0.15)"}`, display: "flex", alignItems: "center", justifyContent: "center", color: "#ef4444" }}>
                             <Zap size={18} />
