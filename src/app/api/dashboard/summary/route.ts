@@ -139,22 +139,34 @@ export async function GET() {
             `, [teamId, workflowIds]) as any[];
             totalLogCount = parseInt(totalLogs[0]?.count || "0");
         }
-        const successRate = totalLogCount > 0 ? Math.round(((totalLogCount - failedRunsCount) / totalLogCount) * 1000) / 10 : 100;
+
+        // 5. Fetch Total Runs (All time logs for these workflows)
+        let totalRunsCount = 0;
+        if (hasWorkflows) {
+            const runsRes = await db.query(`
+                SELECT COUNT(*) as count 
+                FROM "WorkflowLog" 
+                WHERE "teamId" = $1 
+                AND "workflowId" = ANY($2)
+            `, [teamId, workflowIds]) as any[];
+            totalRunsCount = parseInt(runsRes[0]?.count || "0");
+        }
 
         return NextResponse.json({
             totalWorkflows: workflowRows.length,
             activeAgents: activeUnits,
-            totalTasks: totalTasksDone,
-            timeSavedHours: calculatedTimeSaved,
+            totalTasks: totalRunsCount, // Now showing real runs
+            autonomousYield: totalTasksDone, // Keep yield separate if needed
+            timeSavedHours: Math.round(totalTasksDone * 0.1), // Estimated
             failedRuns: failedRunsCount,
-            efficiencyRate: successRate,
+            efficiencyRate: totalRunsCount > 0 ? Math.round(((totalRunsCount - failedRunsCount) / totalRunsCount) * 100) : 100,
             chartData: Object.values(fleetPaths),
             topWorkflows: workflowRows.slice(0, 5),
             intelligenceFeed: formattedFeed
         });
-    } catch (error) {
-        console.error("Dashboard API error:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    } catch (error: any) {
+        console.error("[DASHBOARD_SUMMARY_ERROR]", error);
+        return NextResponse.json({ error: "Failed to compile dashboard summary", details: error.message }, { status: 500 });
     }
 }
 

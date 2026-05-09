@@ -37,6 +37,11 @@ export async function POST(request: Request) {
 
         const logId = uuidv4();
 
+        // Mapping n8n status to BLONK internal status
+        let logStatus = 'active';
+        if (status === 'COMPLETED' || status === 'success') logStatus = 'success';
+        if (status === 'FAILED' || status === 'error' || status === 'FAILED') logStatus = 'error';
+
         // 1. Insert into WorkflowLog with rich metadata and workflow link
         await db.execute(
             'INSERT INTO "WorkflowLog" (id, "workflowName", "workflowId", status, result, "teamId", "createdAt") VALUES ($1, $2, $3, $4, $5, $6, $7)',
@@ -44,7 +49,7 @@ export async function POST(request: Request) {
                 logId, 
                 process_name, 
                 workflow_id,
-                status === 'COMPLETED' ? 'success' : 'active', 
+                logStatus, 
                 JSON.stringify({ activity, metrics, timestamp }), 
                 teamId,
                 timestamp || new Date()
