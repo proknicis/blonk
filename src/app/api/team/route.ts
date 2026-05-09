@@ -50,14 +50,15 @@ export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+    const teamId = (session.user as any).teamId;
+    const userRole = (session.user as any).role;
+    const userId = (session.user as any).id;
+
     const body = await req.json();
     const { action, teamName, firmName } = body;
 
     // INITIAL TEAM CREATION FOR OWNERS
     if (action === 'CREATE_TEAM') {
-        const userId = (session.user as any).id;
-        const userRole = (session.user as any).role;
-        
         if (userRole !== 'OWNER') return NextResponse.json({ error: "Only Owners can initialize a team" }, { status: 403 });
 
         try {
