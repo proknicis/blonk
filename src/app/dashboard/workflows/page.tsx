@@ -60,7 +60,10 @@ export default function WorkflowsPage() {
         script.type = "module";
         script.async = true;
         document.body.appendChild(script);
-        return () => { document.body.removeChild(script); };
+        return () => { 
+            const existingScript = document.querySelector('script[src="/n8n-demo.js"]');
+            if (existingScript) document.body.removeChild(existingScript); 
+        };
     }, []);
 
     const fetchMarketplace = async () => {
@@ -99,7 +102,6 @@ export default function WorkflowsPage() {
                 } catch (e) { return []; }
             }
             if (typeof val === 'object' && val !== null) {
-                // If it's a single object, wrap it in an array
                 return [val];
             }
             return [];
@@ -137,12 +139,8 @@ export default function WorkflowsPage() {
 
             if (res.ok) {
                 const orchestration = data.orchestration || {};
-                console.log("[DEBUG_ORCHESTRATION] Received Data:", orchestration);
-                
-                // Set result data first
                 setDeployResult(orchestration);
                 
-                // Small delay to ensure state is committed before UI transition
                 setTimeout(() => {
                     setStep('result');
                     showToast(`Orchestration sequence initiated!`);
@@ -201,8 +199,6 @@ export default function WorkflowsPage() {
 
     return (
         <div className={styles.workflowsContainer}>
-
-
             <div className={styles.marketplaceActions}>
                 <div className={styles.filterTabs}>
                     {categories.map(cat => (
@@ -236,7 +232,6 @@ export default function WorkflowsPage() {
                 <div className={styles.workflowGrid} id="marketplace-grid">
                     {filteredTemplates.map(wf => (
                         <div key={wf.id} className={styles.workflowCard}>
-                            {wf.featured === 1 && <div className={styles.cardFeatured}>Featured</div>}
                             <div className={styles.cardHeader}>
                                 <div className={styles.iconContainer}>
                                     <span style={{ fontSize: '32px' }}>
@@ -247,42 +242,39 @@ export default function WorkflowsPage() {
                                          wf.icon || '⚙️'}
                                     </span>
                                 </div>
-                                <h3>{wf.name}</h3>
-                                <p>{wf.description}</p>
-                            </div>
-
-                            <div className={styles.metadataGrid}>
-                                <div className={styles.metaItem}>
-                                    <label>Category</label>
-                                    <span>{wf.sector}</span>
-                                </div>
-                                <div className={styles.metaItem}>
-                                    <label>Value</label>
-                                    <span style={{ color: 'var(--accent)', fontWeight: 950 }}>Saves {wf.productInfo?.setupTime || wf.savings || '10h/mo'}</span>
-                                </div>
-                                <div className={styles.metaItem}>
-                                    <label>Adoption</label>
-                                    <span>Used by {(wf.installs || (wf.id.charCodeAt(0) % 100) + 50)} teams</span>
+                                <div className={styles.cardMeta}>
+                                    <div className={styles.categoryBadge}>{wf.sector}</div>
+                                    <div className={styles.complexityBadge}>Saves {wf.productInfo?.setupTime || wf.savings || '10h/mo'}</div>
                                 </div>
                             </div>
+                            
+                            <div className={styles.cardBody}>
+                                <h3 className={styles.workflowName}>{wf.name}</h3>
+                                <p className={styles.workflowDesc}>{wf.description}</p>
+                            </div>
 
-                             <div className={styles.cardFooter}>
-                                    <button 
-                                        className={styles.btnPrimary} 
-                                        disabled={isDeploying}
-                                        onClick={() => handleAddClick(wf)}
-                                    >
-                                        {isDeploying ? 'Processing...' : 'Add to Firm'}
+                            <div className={styles.cardFooter}>
+                                <div className={styles.statsRow}>
+                                    <div className={styles.stat}>
+                                        <span className={styles.statValue}>{(wf.installs || (wf.id.charCodeAt(0) % 100) + 50)}</span>
+                                        <span className={styles.statLabel}>Adoptions</span>
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button className={styles.btnSecondary} onClick={() => handlePreviewClick(wf)}>Preview</button>
+                                    <button className={styles.btnPrimary} disabled={isDeploying} onClick={() => handleAddClick(wf)}>
+                                        {isDeploying ? '...' : 'Install'}
                                     </button>
-                                    <button className={styles.btnSecondary} onClick={() => handlePreviewClick(wf)}>
-                                        Preview
-                                    </button>
+                                </div>
                             </div>
                         </div>
                     ))}
                     {filteredTemplates.length === 0 && (
-                        <div style={{ textAlign: 'center', gridColumn: '1 / -1', padding: '100px 0', opacity: 0.5 }}>
-                            <div style={{ fontWeight: 800 }}>No workflows match your search.</div>
+                        <div className={styles.onboardingState}>
+                             <div className={styles.onboardingIllustration}><Search size={48} /></div>
+                             <h2 className={styles.onboardingTitle}>No Results Found</h2>
+                             <p className={styles.onboardingSubtitle}>We couldn't find any workflows matching your current search parameters.</p>
+                             <button className={styles.btnInstitutional} onClick={() => setSearch("")}>Reset Search</button>
                         </div>
                     )}
                 </div>
@@ -290,130 +282,121 @@ export default function WorkflowsPage() {
 
             {toast && (
                 <div className={styles.toast}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <CheckCircle size={20} />
                     {toast}
                 </div>
             )}
 
             {configureTemplate && (
                 <ModalPortal>
-                    <div className={styles.guideModal}>
-                        <div className={styles.guideContainer}>
-                            
-                            {/* MISSION CONTROL HEADER */}
-                            <div className={styles.modalIntegrityHeader}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
-                                    <div className={styles.iconContainer} style={{ margin: 0 }}>
-                                        {configureTemplate.icon === 'Zap' ? <Zap size={40} color="var(--accent)" /> : <Layers size={40} color="var(--accent)" />}
-                                    </div>
-                                    <div>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-                                            <div style={{ padding: '4px 8px', background: '#10B981', color: 'white', borderRadius: '4px', fontSize: '0.6rem', fontWeight: 950, letterSpacing: '0.1em' }}>ORCHESTRATION</div>
-                                            <span style={{ fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--muted-foreground)' }}>Set Up Workflow</span>
-                                        </div>
-                                        <h2 className={styles.sectionTitle} style={{ fontSize: '2rem' }}>Provision Testing</h2>
-                                        <p className={styles.guideStepText}>Connect the required apps and finish setup</p>
-                                    </div>
-                                </div>
-                                <button onClick={() => setConfigureTemplate(null)} style={{ background: 'var(--muted)', border: 'none', cursor: 'pointer', width: '48px', height: '48px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <X size={20} />
-                                </button>
-                            </div>
+                    <div className={styles.modalOverlay} onClick={() => setConfigureTemplate(null)}>
+                        <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+                            <button className={styles.closeButton} onClick={() => setConfigureTemplate(null)}>
+                                <X size={20} />
+                            </button>
 
-                            {/* PROVISIONING TIMELINE */}
-                            <div className={styles.timelineInstitutional}>
-                                <div className={`${styles.timelineStep} ${styles.timelineStepActive}`}>
-                                    <div className={styles.timelineIconBox}><Link size={20} color="var(--accent)" /></div>
-                                    <div className={styles.timelineLabel}>CONNECT</div>
-                                </div>
-                                <div className={styles.timelineConnector} />
-                                <div className={`${styles.timelineStep} ${templateInputs && Object.keys(templateInputs).length > 0 ? styles.timelineStepActive : ''}`}>
-                                    <div className={styles.timelineIconBox}><Settings size={20} /></div>
-                                    <div className={styles.timelineLabel}>CONFIGURE</div>
-                                </div>
-                                <div className={styles.timelineConnector} />
-                                <div className={styles.timelineStep}>
-                                    <div className={styles.timelineIconBox}><Cpu size={20} /></div>
-                                    <div className={styles.timelineLabel}>Finish</div>
-                                </div>
-                            </div>
-
-                            {/* CONDITIONAL RENDERING BASED ON STEP */}
                             {step === 'configure' ? (
                                 <>
-                                    {/* INTEGRATION DOSSIERS */}
-                                    {configureTemplate.parsedReqs && configureTemplate.parsedReqs.length > 0 && (
-                                        <div style={{ marginBottom: '48px' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                                                <div style={{ width: '8px', height: '8px', background: '#10B981', borderRadius: '50%' }} />
-                                                <h3 className={styles.sectionTitle} style={{ fontSize: '1rem' }}>Step 1: Connect Account</h3>
+                                    <div className={styles.provisioningHeader}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '16px' }}>
+                                            <div className={styles.integrationIcon} style={{ background: 'var(--accent-muted)', color: 'var(--accent)', width: '80px', height: '80px' }}>
+                                                <Zap size={40} />
                                             </div>
-                                            <div className={styles.requirementsList}>
-                                                {configureTemplate.parsedReqs.map((req: any, idx: number) => (
-                                                    <div key={idx} className={styles.integrationDossier}>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                                                            <div className={styles.integrationIcon}>
-                                                                {req.name.toLowerCase().includes('stripe') ? <Euro size={24} color="var(--accent)" /> : 
-                                                                 req.name.toLowerCase().includes('google') ? <Search size={24} color="var(--accent)" /> : 
-                                                                 req.name.toLowerCase().includes('notion') ? <FileText size={24} color="var(--accent)" /> : <Key size={24} color="var(--accent)" />}
-                                                            </div>
-                                                            <div>
-                                                                <div className={styles.integrationName}>{req.name === 'google_creds' ? 'Google Account Connection' : `${req.name} Registry`}</div>
-                                                                <div className={styles.integrationMeta} onClick={() => setHelpStep(req)}>
-                                                                    Connect the Google account used by this workflow <ArrowUpRight size={10} />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div style={{ display: 'flex', gap: '12px' }}>
-                                                            <button className={styles.btnSecondary} style={{ width: 'auto', padding: '0 20px', height: '44px', borderRadius: '12px', fontWeight: 950 }}>Manual Setup</button>
-                                                            <button 
-                                                                className={styles.btnPrimary} 
-                                                                style={{ 
-                                                                    width: 'auto', 
-                                                                    padding: '0 24px', 
-                                                                    height: '44px', 
-                                                                    borderRadius: '12px', 
-                                                                    background: templateInputs.google_creds === 'CONNECTED' ? '#10B981' : '#000000',
-                                                                    color: '#FFFFFF'
-                                                                }} 
-                                                                onClick={() => {
-                                                                    if (req.name.toLowerCase().includes('google') || req.name.toLowerCase().includes('gmail')) {
-                                                                        handleGoogleAuth();
-                                                                    } else {
-                                                                        setHelpStep(req);
-                                                                    }
-                                                                }}
-                                                            >
-                                                                {templateInputs.google_creds === 'CONNECTED' ? 'CONNECTED' : 'Connect Google Account'}
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                ))}
+                                            <div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                    <span style={{ padding: '6px 12px', background: 'var(--accent)', color: 'white', borderRadius: '8px', fontSize: '0.65rem', fontWeight: 950, textTransform: 'uppercase' }}>ORCHESTRATION</span>
+                                                    <span style={{ fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase' }}>Provision Workflow</span>
+                                                </div>
+                                                <h2 className={styles.sectionTitle} style={{ fontSize: '2.8rem', margin: '8px 0 4px 0', textTransform: 'none' }}>{configureTemplate.name}</h2>
+                                                <p className={styles.guideStepText}>Establish secure connections and configure your autonomous loop.</p>
                                             </div>
                                         </div>
-                                    )}
+                                    </div>
 
-                                    {/* CONFIGURATION FIELDSET */}
+                                    <div className={styles.stepIndicator}>
+                                        <div className={`${styles.step} ${styles.stepActive}`}>
+                                            <div className={styles.stepIcon}><Link size={24} /></div>
+                                            <span className={styles.stepLabel}>Connect</span>
+                                        </div>
+                                        <div className={styles.step}>
+                                            <div className={styles.stepIcon}><Settings size={24} /></div>
+                                            <span className={styles.stepLabel}>Configure</span>
+                                        </div>
+                                        <div className={styles.step}>
+                                            <div className={styles.stepIcon}><CheckCircle size={24} /></div>
+                                            <span className={styles.stepLabel}>Finish</span>
+                                        </div>
+                                        <div className={styles.stepLine} />
+                                    </div>
+
+                                    <div style={{ marginBottom: '48px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                                            <div style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '50%' }} />
+                                            <h3 className={styles.sectionTitle} style={{ fontSize: '1rem', margin: 0 }}>Step 1: Authorization Registry</h3>
+                                        </div>
+                                        
+                                        <div className={styles.requirementsList}>
+                                            {configureTemplate.parsedReqs.map((req: any, idx: number) => (
+                                                <div key={idx} className={styles.integrationDossier}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                                                        <div className={styles.integrationIcon}>
+                                                            {req.name.toLowerCase().includes('stripe') ? <Euro size={24} color="var(--accent)" /> : 
+                                                                req.name.toLowerCase().includes('google') ? <Search size={24} color="var(--accent)" /> : 
+                                                                req.name.toLowerCase().includes('notion') ? <FileText size={24} color="var(--accent)" /> : <Key size={24} color="var(--accent)" />}
+                                                        </div>
+                                                        <div>
+                                                            <div className={styles.integrationName}>{req.name === 'google_creds' ? 'Google Cloud Engine' : `${req.name.replace(/_/g, ' ')} Registry`}</div>
+                                                            <div className={styles.integrationMeta} onClick={() => setHelpStep(req)}>
+                                                                Connect the primary account for this loop <ArrowUpRight size={10} />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ display: 'flex', gap: '12px' }}>
+                                                        <button 
+                                                            className={styles.btnPrimary} 
+                                                            style={{ 
+                                                                background: templateInputs[req.name] === 'CONNECTED' ? '#10B981' : 'var(--foreground)',
+                                                                height: '52px',
+                                                                padding: '0 24px',
+                                                                borderRadius: '14px'
+                                                            }} 
+                                                            onClick={() => {
+                                                                if (req.name.toLowerCase().includes('google') || req.name.toLowerCase().includes('gmail')) {
+                                                                    handleGoogleAuth();
+                                                                } else {
+                                                                    setHelpStep(req);
+                                                                }
+                                                            }}
+                                                        >
+                                                            {templateInputs[req.name] === 'CONNECTED' ? <><CheckCircle size={18} /> CONNECTED</> : 'Secure Connection'}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
                                     <div style={{ marginBottom: '48px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
                                             <div style={{ width: '8px', height: '8px', background: '#10B981', borderRadius: '50%' }} />
-                                            <h3 className={styles.sectionTitle} style={{ fontSize: '1rem' }}>Step 2: Setup Details</h3>
+                                            <h3 className={styles.sectionTitle} style={{ fontSize: '1rem', margin: 0 }}>Step 2: Operational Parameters</h3>
                                         </div>
+                                        
                                         <div className={styles.configFieldset}>
                                             {configureTemplate.parsedReqs.map((req: any, idx: number) => (
                                                 <div key={idx} className={styles.fieldGroup}>
                                                     <label className={styles.fieldLabel}>
-                                                        {req.name === 'google_creds' ? 'Connected Google Account' : req.name} {req.required && <span style={{ color: 'var(--destructive)' }}>*</span>}
+                                                        {req.name.replace(/_/g, ' ')} {req.required && <span style={{ color: 'var(--destructive)' }}>*</span>}
                                                     </label>
                                                     {templateInputs[req.name] === 'CONNECTED' ? (
-                                                        <div style={{ padding: '16px 24px', background: '#FAFAFA', borderRadius: '16px', border: '1px solid #E5E7EB', fontWeight: 950, fontSize: '0.95rem', color: '#111827' }}>
-                                                            CONNECTED
+                                                        <div style={{ padding: '20px 28px', background: 'rgba(16, 185, 129, 0.05)', borderRadius: '20px', border: '1px solid rgba(16, 185, 129, 0.2)', fontWeight: 950, fontSize: '1rem', color: '#10B981', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                            <CheckCircle size={18} /> Verified Connection
                                                         </div>
                                                     ) : (
                                                         <input 
                                                             className={styles.fieldInput}
                                                             type={req.type === 'file' ? 'file' : 'text'}
-                                                            placeholder={req.example || `Enter ${req.name}...`}
+                                                            placeholder={req.example || `Specify ${req.name}...`}
                                                             value={req.type === 'file' ? undefined : (templateInputs[req.name] || '')}
                                                             onChange={e => setTemplateInputs({...templateInputs, [req.name]: e.target.value})}
                                                         />
@@ -423,16 +406,15 @@ export default function WorkflowsPage() {
                                         </div>
                                     </div>
 
-                                    <div className={styles.premiumModalFooter} style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
-                                        <button className={styles.btnSecondary} style={{ height: '64px', borderRadius: '20px', width: '200px' }} onClick={() => setConfigureTemplate(null)}>CANCEL</button>
-                                        
+                                    <div className={styles.premiumModalFooter} style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px' }}>
+                                        <button className={styles.btnSecondary} onClick={() => setConfigureTemplate(null)}>Abort Setup</button>
                                         <button 
                                             className={styles.btnPrimary} 
-                                            style={{ height: '64px', borderRadius: '20px', background: 'var(--accent)', color: 'var(--background)', width: '300px' }} 
+                                            style={{ background: 'var(--accent)', color: 'white', width: '280px' }} 
                                             disabled={isDeploying} 
                                             onClick={() => deployWorkflow(configureTemplate, templateInputs)}
                                         >
-                                            {isDeploying ? 'PROVISIONING...' : 'Finish Setup'}
+                                            {isDeploying ? <><Activity size={20} className={styles.pulseDot} /> PROVISIONING...</> : 'Commission Loop'}
                                         </button>
                                     </div>
                                 </>
@@ -466,33 +448,34 @@ export default function WorkflowsPage() {
                                         </div>
                                     </div>
 
-                                    <button className={styles.btnPrimary} style={{ height: '64px', borderRadius: '20px' }} onClick={() => setConfigureTemplate(null)}>CLOSE & MONITOR FLEET</button>
+                                    <button className={styles.btnPrimary} style={{ height: '64px', borderRadius: '20px', width: '100%' }} onClick={() => setConfigureTemplate(null)}>CLOSE & MONITOR FLEET</button>
                                 </div>
                             )}
                         </div>
                     </div>
+                </ModalPortal>
+            )}
 
-                    {/* API Guide Modal */}
-                    {helpStep && (
-                        <div className={styles.guideModal} style={{ zIndex: 1100, background: 'rgba(0,0,0,0.6)' }}>
-                            <div className={styles.guideContainer} style={{ maxWidth: '500px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                                    <h3 className={styles.sectionTitle}>Guide: {helpStep.name}</h3>
-                                    <button onClick={() => setHelpStep(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.4 }}>
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                                    </button>
+            {helpStep && (
+                <ModalPortal>
+                    <div className={styles.guideModal} style={{ zIndex: 1100, background: 'rgba(0,0,0,0.6)' }}>
+                        <div className={styles.guideContainer} style={{ maxWidth: '500px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                                <h3 className={styles.sectionTitle}>Guide: {helpStep.name}</h3>
+                                <button onClick={() => setHelpStep(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.4 }}>
+                                    <X size={20} />
+                                </button>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                                <div style={{ background: 'var(--muted)', borderRadius: '16px', padding: '20px', border: '1px solid var(--border)' }}>
+                                    <p className={styles.guideStepText}>
+                                        {helpStep.help || `To find your ${helpStep.name}, log in to your service dashboard, navigate to Settings or API section, and copy the value provided.`}
+                                    </p>
                                 </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                                    <div style={{ background: 'var(--muted)', borderRadius: '16px', padding: '20px', border: '1px solid var(--border)' }}>
-                                        <p className={styles.guideStepText}>
-                                            {helpStep.help || `To find your ${helpStep.name}, log in to your service dashboard, navigate to Settings or API section, and copy the value provided.`}
-                                        </p>
-                                    </div>
-                                    <button className={styles.btnPrimary} onClick={() => setHelpStep(null)}>Got it</button>
-                                </div>
+                                <button className={styles.btnPrimary} onClick={() => setHelpStep(null)}>Got it</button>
                             </div>
                         </div>
-                    )}
+                    </div>
                 </ModalPortal>
             )}
 
@@ -500,59 +483,61 @@ export default function WorkflowsPage() {
                 <ModalPortal>
                     <div className={styles.guideModal}>
                         <div className={styles.guideContainer} style={{ maxWidth: '700px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                                <div className={styles.iconContainer}>
-                                    {previewTemplate.icon || '⚙️'}
-                                </div>
-                                <div>
-                                    <h2 className={styles.sectionTitle}>{previewTemplate.name}</h2>
-                                    <p className={styles.guideStepText}>Workflow Preview</p>
-                                </div>
-                            </div>
-                            <button onClick={() => setPreviewTemplate(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.4 }}>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                            </button>
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                            {previewTemplate.workflow ? (
-                                <div style={{ width: '100%', height: '500px', background: '#FAFAFA', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'inset 0 0 40px rgba(0,0,0,0.05)' }}>
-                                    {/* @ts-ignore */}
-                                    <n8n-demo 
-                                        workflow={JSON.stringify(typeof previewTemplate.workflow === 'string' ? JSON.parse(previewTemplate.workflow) : (previewTemplate.workflow || {}))}
-                                    />
-                                </div>
-                            ) : (
-                                <div style={{ background: 'var(--muted)', padding: '24px', borderRadius: '24px', border: '1px solid var(--border)' }}>
-                                    <h3 className={styles.metricLabel} style={{ marginBottom: '20px', display: 'block' }}>Trigger & Action Diagram</h3>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                        {previewTemplate.blueprint.logic.map((step: string, idx: number) => (
-                                            <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                                <div style={{ display: 'flex', gap: '16px', alignItems: 'center', width: '100%', background: 'var(--card)', padding: '16px', borderRadius: '16px', border: '1px solid var(--border)' }}>
-                                                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: idx === 0 ? 'var(--accent-muted)' : 'var(--muted)', color: idx === 0 ? 'var(--accent)' : 'var(--muted-foreground)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{idx === 0 ? '⚡' : '→'}</div>
-                                                    <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--foreground)', fontWeight: 800 }}>{step}</p>
-                                                </div>
-                                                {idx < previewTemplate.blueprint.logic.length - 1 && <div style={{ width: '2px', height: '16px', background: 'var(--border)', alignSelf: 'center' }}></div>}
-                                            </div>
-                                        ))}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                                    <div className={styles.iconContainer}>
+                                        {previewTemplate.icon === 'Zap' ? <Zap size={32} color="var(--accent)" /> : 
+                                         previewTemplate.icon === 'Layers' ? <Layers size={32} color="var(--accent)" /> : 
+                                         previewTemplate.icon || '⚙️'}
+                                    </div>
+                                    <div>
+                                        <h2 className={styles.sectionTitle}>{previewTemplate.name}</h2>
+                                        <p className={styles.guideStepText}>Workflow Architecture Preview</p>
                                     </div>
                                 </div>
-                            )}
+                                <button onClick={() => setPreviewTemplate(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.4 }}>
+                                    <X size={24} />
+                                </button>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                                {previewTemplate.workflow ? (
+                                    <div style={{ width: '100%', height: '500px', background: '#FAFAFA', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'inset 0 0 40px rgba(0,0,0,0.05)' }}>
+                                        {/* @ts-ignore */}
+                                        <n8n-demo 
+                                            workflow={JSON.stringify(typeof previewTemplate.workflow === 'string' ? JSON.parse(previewTemplate.workflow) : (previewTemplate.workflow || {}))}
+                                        />
+                                    </div>
+                                ) : (
+                                    <div style={{ background: 'var(--muted)', padding: '24px', borderRadius: '24px', border: '1px solid var(--border)' }}>
+                                        <h3 className={styles.sectionTitle} style={{ fontSize: '0.8rem', marginBottom: '20px' }}>Logic Flow Diagram</h3>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                            {previewTemplate.blueprint.logic.map((step: string, idx: number) => (
+                                                <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                                    <div style={{ display: 'flex', gap: '16px', alignItems: 'center', width: '100%', background: 'var(--card)', padding: '16px', borderRadius: '16px', border: '1px solid var(--border)' }}>
+                                                        <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: idx === 0 ? 'var(--accent-muted)' : 'var(--muted)', color: idx === 0 ? 'var(--accent)' : 'var(--muted-foreground)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{idx === 0 ? '⚡' : '→'}</div>
+                                                        <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--foreground)', fontWeight: 800 }}>{step}</p>
+                                                    </div>
+                                                    {idx < previewTemplate.blueprint.logic.length - 1 && <div style={{ width: '2px', height: '16px', background: 'var(--border)', alignSelf: 'center' }}></div>}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                                <div style={{ padding: '24px', background: 'var(--muted)', borderRadius: '20px', border: '1px solid var(--border)' }}>
-                                    <label className={styles.metricLabel}>Projected Savings</label>
-                                    <div style={{ fontSize: '1.5rem', fontWeight: 950, color: 'var(--accent)' }}>{previewTemplate.blueprint.impact.time}</div>
-                                </div>
-                                <div style={{ padding: '24px', background: 'var(--muted)', borderRadius: '20px', border: '1px solid var(--border)' }}>
-                                    <label className={styles.metricLabel}>Precision</label>
-                                    <div style={{ fontSize: '1.5rem', fontWeight: 950, color: 'var(--foreground)' }}>{previewTemplate.blueprint.impact.accuracy}</div>
+                                <div style={{ display: grid, gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                                    <div style={{ padding: '24px', background: 'var(--muted)', borderRadius: '20px', border: '1px solid var(--border)' }}>
+                                        <label className={styles.fieldLabel}>Projected Savings</label>
+                                        <div style={{ fontSize: '1.5rem', fontWeight: 950, color: 'var(--accent)' }}>{previewTemplate.blueprint.impact.time}</div>
+                                    </div>
+                                    <div style={{ padding: '24px', background: 'var(--muted)', borderRadius: '20px', border: '1px solid var(--border)' }}>
+                                        <label className={styles.fieldLabel}>Precision</label>
+                                        <div style={{ fontSize: '1.5rem', fontWeight: 950, color: 'var(--foreground)' }}>{previewTemplate.blueprint.impact.accuracy}</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div style={{ display: 'flex', gap: '12px', marginTop: '40px' }}>
-                            <button className={styles.btnPrimary} onClick={() => { setPreviewTemplate(null); handleAddClick(previewTemplate); }}>Use Template</button>
-                        </div>
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '40px' }}>
+                                <button className={styles.btnPrimary} style={{ width: '100%' }} onClick={() => { setPreviewTemplate(null); handleAddClick(previewTemplate); }}>Deploy Blueprint</button>
+                            </div>
                         </div>
                     </div>
                 </ModalPortal>
