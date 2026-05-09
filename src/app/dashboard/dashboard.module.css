@@ -403,23 +403,30 @@
     box-shadow: var(--shadow-sm);
 }
 
+.dropdownAnchor {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
 /* DROPDOWNS */
 .dropdown, .userDropdown {
     position: absolute;
-    top: calc(100% + 16px);
+    top: calc(100% + 12px);
     right: 0;
-    background: var(--card);
-    width: 320px;
-    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    width: 340px;
+    border-radius: 24px;
     border: 1px solid var(--border);
-    box-shadow: var(--shadow-premium);
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
     z-index: 1000;
-    padding: 12px;
+    padding: 8px;
     animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes slideUpFade {
-    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
@@ -440,18 +447,21 @@
 
 .notificationItem {
     padding: 16px 20px;
-    border-radius: 12px;
-    transition: background 0.2s ease;
+    border-radius: 16px;
+    transition: all 0.2s ease;
+    cursor: default;
 }
 
 .notificationItem:hover {
-    background: var(--muted);
+    background: rgba(0, 0, 0, 0.02);
 }
 
 .dropdownItemTitle {
+    font-size: 0.95rem;
     font-weight: 950;
     color: var(--foreground);
-    margin-bottom: 4px;
+    margin-bottom: 6px;
+    letter-spacing: -0.02em;
 }
 
 .dropdownItemBody {
@@ -479,8 +489,10 @@
 
 .userDropdownProfile {
     padding: 24px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 8px;
+    background: var(--muted);
+    border-radius: 20px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
 }
 
 .userDropdownName {

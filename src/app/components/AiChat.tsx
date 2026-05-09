@@ -12,12 +12,7 @@ type Message = {
     reasoning?: string;
 };
 
-const SUGGESTED_CHIPS = [
-    { label: "Analyze Recent Ops", prompt: "Summarize today's logs and flag any anomalies." },
-    { label: "Check System Health", prompt: "Perform a system snapshot and tell me our fleet integrity status." },
-    { label: "How to invite team?", prompt: "How do I invite a new team member to my firm?" },
-    { label: "Audit logs?", prompt: "Where can I find the audit logs for compliance?" }
-];
+
 
 const INITIAL_GREETING: Message = {
     id: "0",
@@ -71,6 +66,19 @@ export default function AiChat() {
             return () => clearInterval(interval);
         }
     }, [isEscalated, ticketId, isOpen]);
+
+    // Handle external chat triggers (Intelligence buttons)
+    useEffect(() => {
+        const handleOpenChat = (e: any) => {
+            const prompt = e.detail?.prompt;
+            if (prompt) {
+                setIsOpen(true);
+                setTimeout(() => sendMessage(prompt), 300);
+            }
+        };
+        window.addEventListener('OPEN_AI_CHAT', handleOpenChat);
+        return () => window.removeEventListener('OPEN_AI_CHAT', handleOpenChat);
+    }, []);
 
     const syncMessages = async (id: string) => {
         try {
@@ -426,18 +434,7 @@ export default function AiChat() {
                             </div>
                         )}
 
-                        {!isEscalated && (
-                            <div className={styles.suggestions}>
-                                <div className={styles.suggestionLabel}>Operational Commands:</div>
-                                <div className={styles.chipGrid}>
-                                    {SUGGESTED_CHIPS.map((chip, i) => (
-                                        <button key={i} className={styles.suggestionChip} onClick={() => sendMessage(chip.prompt)}>
-                                            {chip.label}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+
 
                         <div ref={bottomRef} />
                     </div>

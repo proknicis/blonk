@@ -499,9 +499,9 @@ export default function WorkflowsPage() {
                                     <X size={24} />
                                 </button>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                                 {previewTemplate.workflow ? (
-                                    <div style={{ width: '100%', height: '500px', background: '#FAFAFA', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'inset 0 0 40px rgba(0,0,0,0.05)' }}>
+                                    <div style={{ width: '100%', height: '50vh', minHeight: '300px', maxHeight: '600px', background: '#FAFAFA', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'inset 0 0 40px rgba(0,0,0,0.05)' }}>
                                         {/* @ts-ignore */}
                                         <n8n-demo 
                                             workflow={JSON.stringify(typeof previewTemplate.workflow === 'string' ? JSON.parse(previewTemplate.workflow) : (previewTemplate.workflow || {}))}
@@ -515,23 +515,23 @@ export default function WorkflowsPage() {
                                                 <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                                     <div style={{ display: 'flex', gap: '16px', alignItems: 'center', width: '100%', background: 'var(--card)', padding: '16px', borderRadius: '16px', border: '1px solid var(--border)' }}>
                                                         <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: idx === 0 ? 'var(--accent-muted)' : 'var(--muted)', color: idx === 0 ? 'var(--accent)' : 'var(--muted-foreground)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{idx === 0 ? '⚡' : '→'}</div>
-                                                        <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--foreground)', fontWeight: 800 }}>{step}</p>
+                                                        <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--foreground)', fontWeight: 800 }}>{step}</p>
                                                     </div>
-                                                    {idx < previewTemplate.blueprint.logic.length - 1 && <div style={{ width: '2px', height: '16px', background: 'var(--border)', alignSelf: 'center' }}></div>}
+                                                    {idx < previewTemplate.blueprint.logic.length - 1 && <div style={{ width: '2px', height: '12px', background: 'var(--border)', alignSelf: 'center' }}></div>}
                                                 </div>
                                             ))}
                                         </div>
                                     </div>
                                 )}
 
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                                    <div style={{ padding: '24px', background: 'var(--muted)', borderRadius: '20px', border: '1px solid var(--border)' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+                                    <div style={{ padding: '20px', background: 'var(--muted)', borderRadius: '20px', border: '1px solid var(--border)' }}>
                                         <label className={styles.fieldLabel}>Projected Savings</label>
-                                        <div style={{ fontSize: '1.5rem', fontWeight: 950, color: 'var(--accent)' }}>{previewTemplate.blueprint.impact.time}</div>
+                                        <div style={{ fontSize: '1.25rem', fontWeight: 950, color: 'var(--accent)' }}>{previewTemplate.blueprint.impact.time}</div>
                                     </div>
-                                    <div style={{ padding: '24px', background: 'var(--muted)', borderRadius: '20px', border: '1px solid var(--border)' }}>
+                                    <div style={{ padding: '20px', background: 'var(--muted)', borderRadius: '20px', border: '1px solid var(--border)' }}>
                                         <label className={styles.fieldLabel}>Precision</label>
-                                        <div style={{ fontSize: '1.5rem', fontWeight: 950, color: 'var(--foreground)' }}>{previewTemplate.blueprint.impact.accuracy}</div>
+                                        <div style={{ fontSize: '1.25rem', fontWeight: 950, color: 'var(--foreground)' }}>{previewTemplate.blueprint.impact.accuracy}</div>
                                     </div>
                                 </div>
                             </div>
