@@ -21,14 +21,16 @@ function SettingsContent() {
         real_time_auditing: "true"
     });
     
-    // Team State
-    const [members, setMembers] = useState<any[]>([]);
-    const [inviteName, setInviteName] = useState("");
-    const [inviteEmail, setInviteEmail] = useState("");
-    const [invitePassword, setInvitePassword] = useState("");
-    const [inviteRole, setInviteRole] = useState("MEMBER");
-    const [inviting, setInviting] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
+    const [aiSettings, setAiSettings] = useState<Record<string, string>>({
+        reasoning_effort: "High",
+        response_style: "Institutional",
+        proactive_analysis: "true"
+    });
+    const [securitySettings, setSecuritySettings] = useState<Record<string, string>>({
+        ip_whitelist: "All Restricted",
+        session_timeout: "24h",
+        audit_retention: "365 days"
+    });
 
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -41,65 +43,11 @@ function SettingsContent() {
             handleVerification(sessionId);
         } else {
             fetchInitialData();
-            fetchTeamData();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchParams]);
 
-    const fetchTeamData = async () => {
-        try {
-            const res = await fetch('/api/team');
-            const data = await res.json();
-            if (data.members) setMembers(data.members);
-        } catch (error) {
-            console.error("Team fetch failure", error);
-        }
-    };
 
-    const handleInvite = async () => {
-        if (!inviteEmail || !invitePassword) return;
-        try {
-            setInviting(true);
-            const res = await fetch('/api/team', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    email: inviteEmail, 
-                    password: invitePassword, 
-                    name: inviteName,
-                    role: inviteRole 
-                })
-            });
-            const data = await res.json();
-            if (data.success) {
-                setInviteEmail("");
-                setInvitePassword("");
-                setInviteName("");
-                fetchTeamData();
-            }
-        } catch (error) {
-            console.error("Provisioning failure", error);
-        } finally {
-            setInviting(false);
-        }
-    };
-
-    const handleRemoveMember = async (memberId: string, memberName: string) => {
-        if (!confirm(`Remove ${memberName || 'this operator'} from your team? This cannot be undone.`)) return;
-        try {
-            const res = await fetch('/api/team', {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ memberId })
-            });
-            const data = await res.json();
-            if (data.success) {
-                setMembers(members.filter((m: any) => m.id !== memberId));
-            }
-        } catch (error) {
-            console.error('Member removal failure', error);
-        }
-    };
 
     const handleVerification = async (sessionId: string) => {
         try {
@@ -218,10 +166,16 @@ function SettingsContent() {
                     System Profile
                 </button>
                 <button 
-                    className={`${styles.tab} ${activeTab === 'team' ? styles.activeTab : ''}`}
-                    onClick={() => setActiveTab('team')}
+                    className={`${styles.tab} ${activeTab === 'intelligence' ? styles.activeTab : ''}`}
+                    onClick={() => setActiveTab('intelligence')}
                 >
-                    Personnel Roster
+                    AI Orchestration
+                </button>
+                <button 
+                    className={`${styles.tab} ${activeTab === 'security' ? styles.activeTab : ''}`}
+                    onClick={() => setActiveTab('security')}
+                >
+                    Security Guardrails
                 </button>
                 <button 
                     className={`${styles.tab} ${activeTab === 'billing' ? styles.activeTab : ''}`}
@@ -319,80 +273,70 @@ function SettingsContent() {
                 </div>
             )}
 
-            {activeTab === 'team' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
-                    <div className={styles.section}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div>
-                                <h2>Operator Provisioning</h2>
-                                <p className={styles.planDescription}>Deploy new co-pilots with specialized administrative credentials.</p>
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', background: 'var(--accent-muted)', borderRadius: '14px', border: '1px solid var(--accent)' }}>
-                                <Users size={16} color="var(--accent)" />
-                                <span style={{ fontSize: '0.8rem', fontWeight: 950, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{members.length} Active</span>
-                            </div>
+            {activeTab === 'intelligence' && (
+                <div className={styles.section}>
+                    <h2>AI Logic & Reasoning</h2>
+                    <p className={styles.planDescription}>Tune the cognitive output and behavioral patterns of your autonomous fleet.</p>
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', marginTop: '32px' }}>
+                        <div className={styles.field}>
+                            <label>Reasoning Intensity</label>
+                            <select className={styles.input} value={aiSettings.reasoning_effort} onChange={e => setAiSettings({...aiSettings, reasoning_effort: e.target.value})}>
+                                <option>Conservative — Fast & Efficient</option>
+                                <option>Moderate — Balanced Precision</option>
+                                <option>High — Deep Strategic Analysis</option>
+                            </select>
                         </div>
-
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px' }}>
-                            <div className={styles.field}><label>Presence Name</label><input type="text" className={styles.input} value={inviteName} onChange={e => setInviteName(e.target.value)} placeholder="Jane Smith" /></div>
-                            <div className={styles.field}><label>Identity Token (Email)</label><input type="email" className={styles.input} value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} placeholder="jane@blonk.ai" /></div>
-                            <div className={styles.field}><label>Initial Password</label><input type="text" className={styles.input} value={invitePassword} onChange={e => setInvitePassword(e.target.value)} placeholder="Min. 8 characters" /></div>
-                            <div className={styles.field}><label>System Permission</label><select className={styles.input} value={inviteRole} onChange={e => setInviteRole(e.target.value)}><option value="MEMBER">Member — Standard Loop Access</option><option value="ADMIN">Admin — Full Subsystem Control</option></select></div>
+                        <div className={styles.field}>
+                            <label>Executive Response Style</label>
+                            <select className={styles.input} value={aiSettings.response_style} onChange={e => setAiSettings({...aiSettings, response_style: e.target.value})}>
+                                <option>Institutional — Professional & Concise</option>
+                                <option>Technical — Detailed & Data-Centric</option>
+                                <option>Advisory — Action-Oriented & Strategic</option>
+                            </select>
                         </div>
-
-                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                            <button className={styles.btnPrimary} onClick={handleInvite} disabled={inviting || !inviteEmail || !invitePassword || !inviteName}>
-                                {inviting ? "Provisioning..." : "+ Deploy New Operator"}
-                            </button>
+                        
+                        <div className={styles.toggleField}>
+                            <div className={styles.toggleInfo}>
+                                <strong>Proactive Trend Analysis</strong>
+                                <p>Enable AI to automatically scan your logs for efficiency improvements without being prompted.</p>
+                            </div>
+                            <label className={styles.switch}>
+                                <input type="checkbox" checked={aiSettings.proactive_analysis === "true"} onChange={() => setAiSettings({...aiSettings, proactive_analysis: aiSettings.proactive_analysis === "true" ? "false" : "true"})} />
+                                <span className={styles.slider}></span>
+                            </label>
                         </div>
                     </div>
+                </div>
+            )}
 
-                    <div className={styles.section}>
-                        <h2>Active Personnel Roster</h2>
-                        <table className={styles.billTable}>
-                            <thead>
-                                <tr>
-                                    <th>Identity</th>
-                                    <th>Token</th>
-                                    <th>Status</th>
-                                    <th style={{ textAlign: 'right' }}>Direct Control</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {members.map((member: any) => (
-                                    <tr key={member.id}>
-                                        <td>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                <div style={{ 
-                                                    width: '38px', 
-                                                    height: '38px', 
-                                                    borderRadius: '10px', 
-                                                    background: member.role === 'OWNER' ? 'var(--primary)' : 'var(--accent-muted)', 
-                                                    color: member.role === 'OWNER' ? 'var(--primary-foreground)' : 'var(--accent)', 
-                                                    display: 'flex', 
-                                                    alignItems: 'center', 
-                                                    justifyContent: 'center', 
-                                                    fontWeight: 950, 
-                                                    fontSize: '0.9rem' 
-                                                }}>
-                                                    {(member.name || 'O').charAt(0).toUpperCase()}
-                                                </div>
-                                                <span style={{ fontWeight: 950, color: 'var(--foreground)' }}>{member.name}</span>
-                                            </div>
-                                        </td>
-                                        <td style={{ color: 'var(--muted-foreground)' }}>{member.email}</td>
-                                        <td>
-                                            <span className={styles.statusPaid}>{member.role}</span>
-                                        </td>
-                                        <td style={{ textAlign: 'right' }}>
-                                            {member.role !== 'OWNER' && (
-                                                <button onClick={() => handleRemoveMember(member.id, member.name)} style={{ background: 'none', border: 'none', color: 'var(--destructive)', fontWeight: 950, fontSize: '0.8rem', cursor: 'pointer' }}>Eject Member</button>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+            {activeTab === 'security' && (
+                <div className={styles.section}>
+                    <h2>Infrastructure Hardening</h2>
+                    <p className={styles.planDescription}>Configure global access controls and data retention policies for the vault.</p>
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', marginTop: '32px' }}>
+                        <div className={styles.field}>
+                            <label>IP Access Whitelist</label>
+                            <input type="text" className={styles.input} value={securitySettings.ip_whitelist} onChange={e => setSecuritySettings({...securitySettings, ip_whitelist: e.target.value})} placeholder="e.g. 192.168.1.1, 10.0.0.1" />
+                        </div>
+                        <div className={styles.field}>
+                            <label>Audit Retention Period</label>
+                            <select className={styles.input} value={securitySettings.audit_retention} onChange={e => setSecuritySettings({...securitySettings, audit_retention: e.target.value})}>
+                                <option>90 Days</option>
+                                <option>365 Days</option>
+                                <option>Indefinite (Legal Hold)</option>
+                            </select>
+                        </div>
+                        <div className={styles.field}>
+                            <label>Autonomous Session Timeout</label>
+                            <select className={styles.input} value={securitySettings.session_timeout} onChange={e => setSecuritySettings({...securitySettings, session_timeout: e.target.value})}>
+                                <option>1 Hour</option>
+                                <option>12 Hours</option>
+                                <option>24 Hours</option>
+                                <option>7 Days</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             )}
