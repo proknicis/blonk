@@ -19,25 +19,7 @@ export default async function ReportsPage() {
     const teamId = (session.user as any).teamId;
     if (!teamId) redirect("/setup");
 
-    // 1. Operational ROI (Team Specific)
-    let operationalROI = 0;
-    let savings = 0;
-    let cost = 833; // standard cost
-    try {
-        const kpiQuery = await db.query(`SELECT value FROM "Kpi" WHERE label = 'Total Revenue' AND "teamId" = $1 LIMIT 1`, [teamId]);
-        if (kpiQuery.length > 0) {
-            savings = parseInt(kpiQuery[0].value.replace(/[^0-9.-]+/g,""));
-            operationalROI = savings - cost;
-        } else {
-            savings = 124500;
-            operationalROI = savings - cost;
-        }
-    } catch(e) { 
-        savings = 124500;
-        operationalROI = savings - cost;
-    }
-
-    // 2. Fetch Workflow Logs to calculate dynamic real data (Team Specific)
+    // 1. Operational ROI (Based on actual volume)
     let totalLogs = 0;
     let errors = 0;
     try {
@@ -52,14 +34,19 @@ export default async function ReportsPage() {
         errors = parseInt(counts[0]?.errs || '0');
     } catch(e) { console.error(e); }
 
+    // Logic for ROI: $10 saved per successful log (average human cost offset)
+    const savings = totalLogs * 10;
+    const cost = totalLogs * 0.5; // system cost
+    const operationalROI = savings - cost;
+
     // Real formulas based on DB data
-    const hoursReclaimed = totalLogs > 0 ? Math.round((totalLogs * 0.5) / 10) : 48; // Assuming 0.5h per automation task, normalized
-    const healthScore = totalLogs > 0 ? (100 - ((errors / totalLogs) * 100)).toFixed(1) : 99.8;
-    const errorsPrevented = totalLogs > 0 ? Math.floor(totalLogs * 0.12) : 18; // Synthetic realistic inference from logs
-    const loopLatency = 14; 
+    const hoursReclaimed = totalLogs > 0 ? Math.min(Math.round((totalLogs * 0.2)), 99) : 0; 
+    const healthScore = totalLogs > 0 ? (100 - ((errors / totalLogs) * 100)).toFixed(1) : 100;
+    const errorsPrevented = totalLogs > 0 ? Math.floor(totalLogs * 0.05) : 0; 
+    const loopLatency = totalLogs > 0 ? 14 : 0; 
 
     // Fetch throughput logic
-    let throughputData: number[] = [10, 20, 30, 40, 50]; // safe fallback
+    let throughputData: number[] = [0, 0, 0, 0, 0]; 
     try {
         const throughputQuery = await db.query(`
             SELECT DATE("createdAt") as day, COUNT(*) as count 
@@ -72,8 +59,7 @@ export default async function ReportsPage() {
         if (throughputQuery.length > 0) {
             throughputData = throughputQuery.map((row: any) => parseInt(row.count));
         } else {
-            // Still fallback to array if totally empty just to not crash math
-            throughputData = [5, 8, 12, 10, 15, 20, 25, 22, 30, 35, 40];
+            throughputData = [0, 0, 0, 0, 0, 0, 0];
         }
     } catch(e) {}
 
@@ -93,27 +79,21 @@ export default async function ReportsPage() {
             const maxCount = Math.max(...deptQuery.map((r: any) => parseInt(r.count)));
             departmentData = deptQuery.map((row: any) => ({
                 name: row.sector || 'System',
-                value: maxCount > 0 ? Math.round((parseInt(row.count) / maxCount) * 100) : 50
+                value: maxCount > 0 ? Math.round((parseInt(row.count) / maxCount) * 100) : 0
             }));
         } else {
             departmentData = [
-                { name: "Law", value: 92 },
-                { name: "Finance", value: 78 },
-                { name: "HR", value: 65 },
+                { name: "Unassigned", value: 0 }
             ];
         }
     } catch(e) {
-        departmentData = [
-            { name: "Law", value: 92 },
-            { name: "Finance", value: 78 },
-            { name: "HR", value: 65 },
-        ];
+        departmentData = [{ name: "Error", value: 0 }];
     }
     
     // CPU/Mem usage dynamic sizing (pseudo-real based on throughput load)
-    const recentLoad = throughputData[throughputData.length - 1] || 10;
-    const cpuUsage = Math.min(Math.round(20 + recentLoad * 2), 99);
-    const memUsage = Math.min(Math.round(40 + (recentLoad * 1.5)), 99);
+    const recentLoad = throughputData[throughputData.length - 1] || 0;
+    const cpuUsage = totalLogs > 0 ? Math.min(Math.round(5 + recentLoad * 2), 99) : 0;
+    const memUsage = totalLogs > 0 ? Math.min(Math.round(10 + (recentLoad * 1.5)), 99) : 0;
 
     return (
         <ReportsClient 

@@ -191,24 +191,7 @@ export default function DashboardLayout({
                     </div>
                 </nav>
 
-                <div className={styles.usageSection}>
-                    <div className={styles.usageCard}>
-                        <div className={styles.usagePlanTop}>
-                            <span className={styles.planBadge}>Institutional</span>
-                            <div className={styles.tierDots}>
-                                <div className={styles.tierDot} />
-                                <div className={styles.tierDot} />
-                            </div>
-                        </div>
-                        <div style={{ marginBottom: '16px' }}>
-                            <div className={styles.statLabel}>Monthly Throughput</div>
-                            <div className={styles.statValue}>1,240 / 5,000 OPS</div>
-                        </div>
-                        <div className={styles.barContainer}>
-                            <div className={styles.barFill} style={{ width: '25%' }} />
-                        </div>
-                    </div>
-                </div>
+
             </aside>
 
             <main className={styles.mainContent}>
