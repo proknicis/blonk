@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import styles from "./AiChat.module.css";
-import { MessageSquare, Shield, Zap, Send, X, Terminal, User, AlertCircle, LifeBuoy, ArrowRight } from "lucide-react";
+import { MessageSquare, Shield, Zap, Send, X, Terminal, User, AlertCircle, LifeBuoy, ArrowRight, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 type Message = {
