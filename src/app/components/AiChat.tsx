@@ -240,31 +240,42 @@ export default function AiChat() {
     const renderMessageContent = (msg: Message) => {
         let text = msg.content.replace(/\[ESCALATE\]/g, "");
         
-        // Regex to find [Label|Path] OR [GUIDE|Label|Selector|Path]
-        const guideRegex = /\[GUIDE\|(.*?)\|(.*?)\|(.*?)\]/g;
-        const buttonRegex = /\[(.*?)\|(.*?)\]/g;
+        // Regex to find ANY [Label|...] or [GUIDE|...] button
+        const buttonRegex = /\[([^\]]+)\]/g;
         
         const parts: React.ReactNode[] = [];
         let lastIndex = 0;
-        
-        // Search for all matches in order
         const allMatches: any[] = [];
         
         let match;
-        while ((match = guideRegex.exec(text)) !== null) {
-            allMatches.push({ type: 'guide', label: match[1], selector: match[2], path: match[3], index: match.index, length: match[0].length });
-        }
-        
-        guideRegex.lastIndex = 0; // reset
-        
         while ((match = buttonRegex.exec(text)) !== null) {
-            // Only add if not part of a guide match
-            if (!text.substring(match.index, match.index + match[0].length).startsWith('[GUIDE|')) {
-                allMatches.push({ type: 'nav', label: match[1], path: match[2], index: match.index, length: match[0].length });
+            const raw = match[1];
+            const pipeParts = raw.split('|');
+            
+            if (pipeParts.length >= 2) {
+                // Determine if it's a guide (GUIDE can be 1st or 2nd part for robustness)
+                const isGuide = pipeParts[0] === 'GUIDE' || pipeParts[1] === 'GUIDE';
+                
+                if (isGuide && pipeParts.length >= 4) {
+                    // Standard: [GUIDE|Label|Selector|Path]
+                    // Legacy/Mistake: [Label|GUIDE|Selector|Path]
+                    const label = pipeParts[0] === 'GUIDE' ? pipeParts[1] : pipeParts[0];
+                    const selector = pipeParts[2];
+                    const path = pipeParts[3];
+                    
+                    allMatches.push({ 
+                        type: 'guide', label, selector, path, 
+                        index: match.index, length: match[0].length 
+                    });
+                } else {
+                    // Standard Nav: [Label|Path]
+                    allMatches.push({ 
+                        type: 'nav', label: pipeParts[0], path: pipeParts[1], 
+                        index: match.index, length: match[0].length 
+                    });
+                }
             }
         }
-
-        allMatches.sort((a, b) => a.index - b.index);
 
         allMatches.forEach((m, idx) => {
             // Push text before the match
@@ -282,7 +293,7 @@ export default function AiChat() {
                             // Give Next.js a moment to render
                             setTimeout(() => {
                                 window.dispatchEvent(new CustomEvent('PULSE_ELEMENT', { detail: { selector: m.selector } }));
-                            }, 500);
+                            }, 800); // slightly longer wait for VPS latency
                             setIsOpen(false);
                         }}
                     >

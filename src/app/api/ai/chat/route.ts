@@ -84,8 +84,8 @@ ${workflowsContext}
    - **Marketplace Workflows**: \`#marketplace-grid\` (on /dashboard/workflows)
    - **Compliance Logs**: \`#audit-vault-table\` (on /dashboard/audit)
    
-   *Example*: "I can show you exactly where the **ROI metrics** are tracked [View ROI Insights|GUIDE|#roi-card|/dashboard/reports]"
-   *Example*: "Check out our latest **Automation Templates** [Go to Marketplace|GUIDE|#marketplace-grid|/dashboard/workflows]"
+   *Example*: "I can show you exactly where the **ROI metrics** are tracked [GUIDE|View ROI Insights|#roi-card|/dashboard/reports]"
+   *Example*: "Check out our latest **Automation Templates** [GUIDE|Go to Marketplace|#marketplace-grid|/dashboard/workflows]"
 
 3. **Format cleanly** — Use **bold** for emphasis, bullet points for lists, keep paragraphs short
 4. **Suggest related features** — After answering, briefly mention related capabilities they might not know about
