@@ -30,7 +30,25 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { id, role, tier, status, totalSpend } = body;
+        const { id, role, tier, status, totalSpend, action, subject, title, message } = body;
+
+        if (action === 'SEND_EMAIL') {
+            if (!id || !subject || !title || !message) return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+            
+            try {
+                const target = await db.query('SELECT email FROM "User" WHERE id = $1', [id]) as any[];
+                if (target.length === 0) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+                const { sendCustomEmail } = await import("@/lib/mail");
+                await sendCustomEmail(target[0].email, subject, title, message);
+                
+                await logAudit(id, 'admin_mail', 'Admin sent system communication', { subject });
+                return NextResponse.json({ success: true });
+            } catch (err) {
+                console.error("Admin mail failure:", err);
+                return NextResponse.json({ error: "Email dispatch failure" }, { status: 500 });
+            }
+        }
 
         if (id) {
             // Update user business fields

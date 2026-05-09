@@ -71,6 +71,14 @@ export default function AdminUsersPage() {
     const [isInviting, setIsInviting] = useState(false);
     const [inviteForm, setInviteForm] = useState({ email: "", role: "Operator", workflows: "" });
 
+    // Email Modal State
+    const [selectedUser, setSelectedUser] = useState<any>(null);
+    const [showEmailModal, setShowEmailModal] = useState(false);
+    const [emailSubject, setEmailSubject] = useState("");
+    const [emailTitle, setEmailTitle] = useState("");
+    const [emailMessage, setEmailMessage] = useState("");
+    const [emailLoading, setEmailLoading] = useState(false);
+
     const fetchUsers = async () => {
         setIsLoading(true);
         try {
@@ -107,6 +115,37 @@ export default function AdminUsersPage() {
             await fetchUsers();
         } catch (error: any) { 
             alert(`Fleet Decommissioning Failure: ${error.message}`);
+        }
+    };
+
+    const handleSendEmail = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!selectedUser || !emailSubject || !emailTitle || !emailMessage) return;
+        
+        setEmailLoading(true);
+        try {
+            const res = await fetch('/api/admin/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'SEND_EMAIL',
+                    id: selectedUser.id,
+                    subject: emailSubject,
+                    title: emailTitle,
+                    message: emailMessage
+                })
+            });
+            if (res.ok) {
+                setShowEmailModal(false);
+                setEmailSubject("");
+                setEmailTitle("");
+                setEmailMessage("");
+                alert("Communication dispatched successfully.");
+            }
+        } catch (err) {
+            console.error("Email send failure", err);
+        } finally {
+            setEmailLoading(false);
         }
     };
 
@@ -254,6 +293,16 @@ export default function AdminUsersPage() {
                                         </td>
                                         <td style={{ textAlign: 'right' }}>
                                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                <button 
+                                                    className={adminStyles.actionIconBtn} 
+                                                    onClick={() => {
+                                                        setSelectedUser(u);
+                                                        setShowEmailModal(true);
+                                                    }}
+                                                    title="Send Email"
+                                                >
+                                                    <Mail size={18} />
+                                                </button>
                                                 <button className={adminStyles.actionIconBtn} onClick={() => router.push('/admin/users/' + u.id)}><ChevronRight size={18} /></button>
                                                 <button className={adminStyles.actionIconBtn} style={{ color: 'var(--destructive)' }} onClick={() => deleteUser(u.id)}><Trash2 size={18} /></button>
                                             </div>
@@ -306,6 +355,71 @@ export default function AdminUsersPage() {
                                 >
                                     {updatingId === "inviting" ? "Sending..." : "Send Invite"}
                                 </button>
+                            </div>
+                        </div>
+                    </div>
+                </ModalPortal>
+            )}
+            {showEmailModal && (
+                <ModalPortal>
+                    <div className={adminStyles.modalOverlay} onClick={() => setShowEmailModal(false)}>
+                        <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '600px', borderRadius: '32px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                            <div className={adminStyles.modalHeader} style={{ padding: '40px', background: 'var(--foreground)', color: 'var(--background)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
+                                    <div style={{ padding: '4px 10px', background: 'var(--accent)', color: 'var(--background)', borderRadius: '6px', fontSize: '0.6rem', fontWeight: 950, letterSpacing: '0.15em', textTransform: 'uppercase' }}>Secure Dispatch</div>
+                                </div>
+                                <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 950, letterSpacing: '-0.02em' }}>Platform Communication</h3>
+                                <p style={{ margin: '8px 0 0', opacity: 0.6, fontWeight: 700 }}>Dispatching institutional email to {selectedUser?.name}.</p>
+                            </div>
+                            <div className={adminStyles.modalBody} style={{ padding: '40px' }}>
+                                <form onSubmit={handleSendEmail} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                                    <div>
+                                        <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '8px', textTransform: 'uppercase' }}>Subject Line</label>
+                                        <input 
+                                            type="text" 
+                                            required 
+                                            className={adminStyles.mainInput} 
+                                            style={{ width: '100%', height: '52px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0 16px' }} 
+                                            value={emailSubject} 
+                                            onChange={e => setEmailSubject(e.target.value)} 
+                                            placeholder="System Maintenance / Billing Update" 
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '8px', textTransform: 'uppercase' }}>Internal Heading</label>
+                                        <input 
+                                            type="text" 
+                                            required 
+                                            className={adminStyles.mainInput} 
+                                            style={{ width: '100%', height: '52px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0 16px' }} 
+                                            value={emailTitle} 
+                                            onChange={e => setEmailTitle(e.target.value)} 
+                                            placeholder="Important: Action Required" 
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '8px', textTransform: 'uppercase' }}>Message Content</label>
+                                        <textarea 
+                                            required 
+                                            className={adminStyles.mainInput} 
+                                            style={{ width: '100%', minHeight: '160px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', lineHeight: '1.6' }} 
+                                            value={emailMessage} 
+                                            onChange={e => setEmailMessage(e.target.value)} 
+                                            placeholder="Write your institutional communication..." 
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                                        <button type="button" className={adminStyles.refreshBtn} onClick={() => setShowEmailModal(false)} style={{ flex: 1 }}>Cancel</button>
+                                        <button 
+                                            type="submit" 
+                                            className={adminStyles.primaryBtn} 
+                                            disabled={emailLoading}
+                                            style={{ flex: 2, background: 'var(--foreground)', color: 'var(--background)', borderRadius: '12px' }}
+                                        >
+                                            {emailLoading ? "Dispatching..." : "Send Communication"}
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>

@@ -83,25 +83,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Insufficient Directive Authority" }, { status: 403 });
     }
 
-    // SEND CUSTOM EMAIL TO MEMBER
-    if (action === 'SEND_EMAIL') {
-        const { memberId, subject, title, message } = body;
-        if (!memberId || !subject || !title || !message) return NextResponse.json({ error: "All fields are required" }, { status: 400 });
-
-        try {
-            const target = await db.query('SELECT email FROM "User" WHERE id = $1 AND "teamId" = $2', [memberId, teamId]) as any[];
-            if (target.length === 0) return NextResponse.json({ error: "Member not found" }, { status: 404 });
-
-            const { sendCustomEmail } = await import("@/lib/mail");
-            await sendCustomEmail(target[0].email, subject, title, message);
-
-            return NextResponse.json({ success: true });
-        } catch (error) {
-            console.error("Email dispatch failure", error);
-            return NextResponse.json({ error: "Failed to dispatch email" }, { status: 500 });
-        }
-    }
-
+    // REGULAR MEMBER PROVISIONING
     try {
         const { email, password, role, name } = body;
         if (!email) return NextResponse.json({ error: "Identity email required" }, { status: 400 });
