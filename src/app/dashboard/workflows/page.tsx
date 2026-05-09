@@ -524,7 +524,7 @@ export default function WorkflowsPage() {
                                     </div>
                                 )}
 
-                                <div style={{ display: grid, gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                                     <div style={{ padding: '24px', background: 'var(--muted)', borderRadius: '20px', border: '1px solid var(--border)' }}>
                                         <label className={styles.fieldLabel}>Projected Savings</label>
                                         <div style={{ fontSize: '1.5rem', fontWeight: 950, color: 'var(--accent)' }}>{previewTemplate.blueprint.impact.time}</div>
