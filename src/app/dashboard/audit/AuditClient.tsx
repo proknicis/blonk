@@ -94,7 +94,7 @@ export default function AuditClient({ initialLogs, total, failures, today }: { i
                 </div>
 
                 {/* Table */}
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse" }} id="audit-vault-table">
                     <thead>
                         <tr style={{ borderBottom: "1px solid var(--border)" }}>
                             {["Event ID", "Timestamp", "Process", "Context", "Action", "Outcome", "Intelligence"].map(h => (

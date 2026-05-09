@@ -233,7 +233,7 @@ export default function WorkflowsPage() {
                     ))}
                 </div>
             ) : (
-                <div className={styles.workflowGrid}>
+                <div className={styles.workflowGrid} id="marketplace-grid">
                     {filteredTemplates.map(wf => (
                         <div key={wf.id} className={styles.workflowCard}>
                             {wf.featured === 1 && <div className={styles.cardFeatured}>Featured</div>}

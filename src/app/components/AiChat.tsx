@@ -240,36 +240,72 @@ export default function AiChat() {
     const renderMessageContent = (msg: Message) => {
         let text = msg.content.replace(/\[ESCALATE\]/g, "");
         
-        // Regex to find [Label|Path]
+        // Regex to find [Label|Path] OR [GUIDE|Label|Selector|Path]
+        const guideRegex = /\[GUIDE\|(.*?)\|(.*?)\|(.*?)\]/g;
         const buttonRegex = /\[(.*?)\|(.*?)\]/g;
-        const parts = [];
+        
+        const parts: React.ReactNode[] = [];
         let lastIndex = 0;
+        
+        // Search for all matches in order
+        const allMatches: any[] = [];
+        
         let match;
-
+        while ((match = guideRegex.exec(text)) !== null) {
+            allMatches.push({ type: 'guide', label: match[1], selector: match[2], path: match[3], index: match.index, length: match[0].length });
+        }
+        
+        guideRegex.lastIndex = 0; // reset
+        
         while ((match = buttonRegex.exec(text)) !== null) {
+            // Only add if not part of a guide match
+            if (!text.substring(match.index, match.index + match[0].length).startsWith('[GUIDE|')) {
+                allMatches.push({ type: 'nav', label: match[1], path: match[2], index: match.index, length: match[0].length });
+            }
+        }
+
+        allMatches.sort((a, b) => a.index - b.index);
+
+        allMatches.forEach((m, idx) => {
             // Push text before the match
-            if (match.index > lastIndex) {
-                parts.push(<span key={`text-${lastIndex}`} dangerouslySetInnerHTML={{ __html: formatText(text.substring(lastIndex, match.index)) }} />);
+            if (m.index > lastIndex) {
+                parts.push(<span key={`text-${lastIndex}`} dangerouslySetInnerHTML={{ __html: formatText(text.substring(lastIndex, m.index)) }} />);
             }
 
-            const label = match[1];
-            const path = match[2];
+            if (m.type === 'guide') {
+                parts.push(
+                    <button 
+                        key={`guide-${m.index}`} 
+                        className={styles.navButton}
+                        onClick={() => {
+                            router.push(m.path);
+                            // Give Next.js a moment to render
+                            setTimeout(() => {
+                                window.dispatchEvent(new CustomEvent('PULSE_ELEMENT', { detail: { selector: m.selector } }));
+                            }, 500);
+                            setIsOpen(false);
+                        }}
+                    >
+                        <Sparkles size={14} style={{ marginRight: 6 }} /> {m.label}
+                    </button>
+                );
+            } else {
+                parts.push(
+                    <button 
+                        key={`btn-${m.index}`} 
+                        className={styles.navButton}
+                        onClick={() => {
+                            router.push(m.path);
+                            setIsOpen(false);
+                        }}
+                    >
+                        {m.label} <ArrowRight size={14} />
+                    </button>
+                );
+            }
 
-            parts.push(
-                <button 
-                    key={`btn-${match.index}`} 
-                    className={styles.navButton}
-                    onClick={() => {
-                        router.push(path);
-                        setIsOpen(false);
-                    }}
-                >
-                    {label} <ArrowRight size={14} />
-                </button>
-            );
-
-            lastIndex = buttonRegex.lastIndex;
-        }
+            lastIndex = m.index + m.length;
+        });
 
         // Push remaining text
         if (lastIndex < text.length) {

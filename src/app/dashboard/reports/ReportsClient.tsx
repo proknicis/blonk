@@ -44,7 +44,7 @@ export default function ReportsClient({ metrics, chartData, throughputData, depa
 
             {/* Top Row KPIs */}
             <div className={styles.kpiGrid}>
-                <div className={styles.kpiCard}>
+                <div className={styles.kpiCard} id="roi-card">
                     <div className={styles.kpiIconWrapper}><Activity className={styles.kpiIcon} /></div>
                     <div className={styles.kpiValue}>${metrics.operationalROI.toLocaleString()}</div>
                     <div className={styles.kpiLabel}>Operational ROI</div>
@@ -62,7 +62,7 @@ export default function ReportsClient({ metrics, chartData, throughputData, depa
                     <div className={styles.kpiLabel}>Average Loop Latency</div>
                     <div className={styles.kpiSub}>Fleet execution speed</div>
                 </div>
-                <div className={styles.kpiCard}>
+                <div className={styles.kpiCard} id="health-card">
                     <div className={styles.kpiIconWrapper}><ShieldCheck className={styles.kpiIcon} /></div>
                     <div className={styles.kpiValue}>{metrics.healthScore}%</div>
                     <div className={styles.kpiLabel}>System Health Score</div>
@@ -71,7 +71,7 @@ export default function ReportsClient({ metrics, chartData, throughputData, depa
             </div>
 
             {/* Middle Section: Fleet Throughput Line Chart */}
-            <div className={styles.chartCardLarge}>
+            <div className={styles.chartCardLarge} id="throughput-chart">
                 <div className={styles.chartHeader}>
                     <div className={styles.chartTitleGroup}>
                         <TrendingUp size={20} className={styles.accentIcon} />

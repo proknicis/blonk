@@ -38,8 +38,24 @@ export default function DashboardLayout({
     const notifsAnchorRef = useRef<HTMLDivElement>(null);
     const userMenuAnchorRef = useRef<HTMLDivElement>(null);
 
-    const unreadCount = notifications.length;
+    useEffect(() => {
+        const handlePulse = (e: any) => {
+            const { selector } = e.detail;
+            const el = document.querySelector(selector);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.classList.add('pulse-interactive');
+                setTimeout(() => {
+                    el.classList.remove('pulse-interactive');
+                }, 5000);
+            }
+        };
 
+        window.addEventListener('PULSE_ELEMENT' as any, handlePulse);
+        return () => window.removeEventListener('PULSE_ELEMENT' as any, handlePulse);
+    }, []);
+
+    const unreadCount = useMemo(() => notifications.length, [notifications]);
     const hasTeam = !!(session?.user as any)?.teamId;
     const isOwner = (session?.user as any)?.role === 'OWNER';
     const isTeamPage = pathname === '/dashboard/team';
