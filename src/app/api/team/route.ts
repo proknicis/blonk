@@ -77,12 +77,23 @@ export async function POST(req: Request) {
         }
     }
 
-    // REGULAR MEMBER PROVISIONING
-    const teamId = (session.user as any).teamId;
-    const userRole = (session.user as any).role;
+    // SEND CUSTOM EMAIL TO MEMBER
+    if (action === 'SEND_EMAIL') {
+        const { memberId, subject, title, message } = body;
+        if (!memberId || !subject || !title || !message) return NextResponse.json({ error: "All fields are required" }, { status: 400 });
 
-    if (userRole !== 'OWNER' && userRole !== 'ADMIN') {
-        return NextResponse.json({ error: "Insufficient Directive Authority" }, { status: 403 });
+        try {
+            const target = await db.query('SELECT email FROM "User" WHERE id = $1 AND "teamId" = $2', [memberId, teamId]) as any[];
+            if (target.length === 0) return NextResponse.json({ error: "Member not found" }, { status: 404 });
+
+            const { sendCustomEmail } = await import("@/lib/mail");
+            await sendCustomEmail(target[0].email, subject, title, message);
+
+            return NextResponse.json({ success: true });
+        } catch (error) {
+            console.error("Email dispatch failure", error);
+            return NextResponse.json({ error: "Failed to dispatch email" }, { status: 500 });
+        }
     }
 
     try {
@@ -103,6 +114,13 @@ export async function POST(req: Request) {
             'INSERT INTO "User" (id, name, email, password, role, "teamId", "firmName", "onboardingStatus") VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
             [uuidv4(), name.trim(), emailRef, hashedPw, role || 'MEMBER', teamId, inheritedFirm, 'COMPLETED']
         );
+
+        // Send Welcome Email
+        try {
+            const { sendWelcomeEmail } = await import("@/lib/mail");
+            await sendWelcomeEmail(emailRef, name);
+        } catch (e) { console.error("Welcome email failed", e); }
+
         return NextResponse.json({ success: true });
     } catch (error) {
         return NextResponse.json({ error: "Personnel provisioning failure" }, { status: 500 });

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./team.module.css";
 import ModalPortal from "@/app/components/ModalPortal";
 import { Skeleton } from "@/app/components/Skeleton";
-import { User, Shield, Briefcase, Clock, Search, Filter, X, Check, Trash2, UserPlus, Zap, Settings } from "lucide-react";
+import { User, Shield, Briefcase, Clock, Search, Filter, X, Check, Trash2, UserPlus, Zap, Settings, Mail, Send } from "lucide-react";
 
 export default function TeamPage() {
     const [members, setMembers] = useState<any[]>([]);
@@ -28,6 +28,13 @@ export default function TeamPage() {
     const [inviteRole, setInviteRole] = useState("VIEWER");
     const [inviteLoading, setInviteLoading] = useState(false);
     const [inviteError, setInviteError] = useState("");
+    
+    // Email Modal State
+    const [showEmailModal, setShowEmailModal] = useState(false);
+    const [emailSubject, setEmailSubject] = useState("");
+    const [emailTitle, setEmailTitle] = useState("");
+    const [emailMessage, setEmailMessage] = useState("");
+    const [emailLoading, setEmailLoading] = useState(false);
 
     const [noTeam, setNoTeam] = useState(false);
     const [creationLoading, setCreationLoading] = useState(false);
@@ -188,6 +195,36 @@ export default function TeamPage() {
             }
         } catch (err) {
             console.error("Member update failure", err);
+        }
+    };
+
+    const handleSendEmail = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!selectedMember || !emailSubject || !emailTitle || !emailMessage) return;
+        
+        setEmailLoading(true);
+        try {
+            const res = await fetch('/api/team', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'SEND_EMAIL',
+                    memberId: selectedMember.id,
+                    subject: emailSubject,
+                    title: emailTitle,
+                    message: emailMessage
+                })
+            });
+            if (res.ok) {
+                setShowEmailModal(false);
+                setEmailSubject("");
+                setEmailTitle("");
+                setEmailMessage("");
+            }
+        } catch (err) {
+            console.error("Email send failure", err);
+        } finally {
+            setEmailLoading(false);
         }
     };
 
@@ -428,20 +465,35 @@ export default function TeamPage() {
                                                 </span>
                                             </div>
                                         </td>
-                                        <td style={{ textAlign: 'right' }}>
-                                            {(currentUserRole === 'OWNER' || currentUserRole === 'ADMIN') && !isOwner && (
-                                                <button 
-                                                    className={styles.actionBtn} 
-                                                    onClick={() => {
-                                                        setSelectedMember(member);
-                                                        setShowDecommissionModal(true);
-                                                    }}
-                                                    title="Remove Member"
-                                                    style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#F9FAFB', border: '1px solid #F3F4F6', color: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                                >
-                                                    <Trash2 size={18} />
-                                                </button>
-                                            )}
+                                         <td style={{ textAlign: 'right' }}>
+                                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                {(currentUserRole === 'OWNER' || currentUserRole === 'ADMIN') && (
+                                                    <button 
+                                                        className={styles.actionBtn} 
+                                                        onClick={() => {
+                                                            setSelectedMember(member);
+                                                            setShowEmailModal(true);
+                                                        }}
+                                                        title="Email Member"
+                                                        style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#F9FAFB', border: '1px solid #F3F4F6', color: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                                    >
+                                                        <Mail size={18} />
+                                                    </button>
+                                                )}
+                                                {(currentUserRole === 'OWNER' || currentUserRole === 'ADMIN') && !isOwner && (
+                                                    <button 
+                                                        className={styles.actionBtn} 
+                                                        onClick={() => {
+                                                            setSelectedMember(member);
+                                                            setShowDecommissionModal(true);
+                                                        }}
+                                                        title="Remove Member"
+                                                        style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#F9FAFB', border: '1px solid #F3F4F6', color: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                )}
+                                            </div>
                                         </td>
                                     </tr>
                                 );
@@ -548,6 +600,56 @@ export default function TeamPage() {
                                         Save Assignments
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </ModalPortal>
+            )}
+
+            {/* Email Modal */}
+            {showEmailModal && (
+                <ModalPortal>
+                    <div className={styles.modalOverlay} onClick={() => setShowEmailModal(false)}>
+                        <div className={styles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+                            <div className={styles.modalHeader}>
+                                <div>
+                                    <h2 style={{ fontSize: '1.75rem', fontWeight: 950, color: '#111827', textTransform: 'uppercase', letterSpacing: '-0.02em' }}>Dispatch Communication</h2>
+                                    <p style={{ margin: '8px 0 0 0', color: '#6B7280', fontWeight: 700 }}>Send a secure institutional email to {selectedMember?.name}.</p>
+                                </div>
+                                <div style={{ color: 'var(--accent)', width: '56px', height: '56px', background: 'rgba(52, 209, 134, 0.1)', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Mail size={28} />
+                                </div>
+                            </div>
+
+                            <div className={styles.modalBody}>
+                                <form onSubmit={handleSendEmail}>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.formLabel}>Email Subject</label>
+                                        <input type="text" required className={styles.formInput} value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="e.g. Operational Clearance Update" />
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.formLabel}>Heading Title (Inside Email)</label>
+                                        <input type="text" required className={styles.formInput} value={emailTitle} onChange={e => setEmailTitle(e.target.value)} placeholder="e.g. Identity Re-Verification Required" />
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.formLabel}>Message Body</label>
+                                        <textarea 
+                                            required 
+                                            className={styles.formInput} 
+                                            style={{ minHeight: '160px', padding: '16px', lineHeight: '1.5' }} 
+                                            value={emailMessage} 
+                                            onChange={e => setEmailMessage(e.target.value)} 
+                                            placeholder="Write your institutional message here..." 
+                                        />
+                                    </div>
+
+                                    <div className={styles.modalActions}>
+                                        <button type="button" className={styles.btnCancel} onClick={() => setShowEmailModal(false)}>Cancel</button>
+                                        <button type="submit" className={styles.btnSubmit} disabled={emailLoading} style={{ background: '#0F172A' }}>
+                                            {emailLoading ? 'Dispatching...' : 'Dispatch Email'}
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
