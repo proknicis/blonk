@@ -95,7 +95,7 @@ export async function GET() {
                 AND "workflowId" = ANY($2)
                 AND "createdAt" > NOW() - INTERVAL '24 hours'
                 ORDER BY "createdAt" DESC
-                LIMIT 30
+                LIMIT 6
             `, [teamId, workflowIds]) as any[];
 
             formattedFeed = feedLogs.map(log => {
