@@ -95,18 +95,21 @@ export async function POST(request: Request) {
                             headers: { 'X-N8N-API-KEY': apiKey, 'Content-Type': 'application/json' },
                                     body: JSON.stringify({
                                         name: `Marketplace-Gmail-${teamId}-${Date.now()}`,
-                                        type: 'gmailOAuth2Api', 
+                                        type: 'googleOAuth2Api', 
                                         isResolvable: false,
                                         data: {
+                                            serverUrl: "",
                                             clientId: process.env.N8N_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID,
                                             clientSecret: process.env.N8N_GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET,
-                                            authUrl: "https://accounts.google.com/o/oauth2/v2/auth",
-                                            accessTokenUrl: "https://oauth2.googleapis.com/token",
-                                            accessToken: inputs.authData?.access_token,
-                                            refreshToken: inputs.authData?.refresh_token,
-                                            expiry: inputs.authData?.expiry_date,
-                                            scope: inputs.authData?.scope,
-                                            tokenType: inputs.authData?.token_type
+                                            scope: inputs.authData?.scope || "https://www.googleapis.com/auth/gmail.send",
+                                            sendAdditionalBodyProperties: false,
+                                            additionalBodyProperties: {},
+                                            oauthTokenData: {
+                                                access_token: inputs.authData?.access_token,
+                                                refresh_token: inputs.authData?.refresh_token,
+                                                token_type: inputs.authData?.token_type || "Bearer",
+                                                expiry_date: inputs.authData?.expiry_date || (Date.now() + 3600000)
+                                            }
                                         }
                                     })
                         });
