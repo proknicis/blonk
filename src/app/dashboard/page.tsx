@@ -233,7 +233,7 @@ export default function DashboardPage() {
                         <WorkflowList workflows={data.topWorkflows} />
                     </div>
 
-                    <div className={styles.liveFeed}>
+                    <div className={styles.liveFeed} id="intelligence-feed">
                         <div className={styles.cardHeader}>
                             <h3 className={styles.cardTitle}>Intelligence Feed</h3>
                         </div>
