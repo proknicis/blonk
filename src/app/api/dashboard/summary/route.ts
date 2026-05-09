@@ -16,8 +16,19 @@ export async function GET() {
     console.log("[DASHBOARD_SUMMARY_API] Extracted teamId:", teamId);
 
     if (!teamId) {
-        console.log("[DASHBOARD_SUMMARY_API] Missing teamId. Rejecting request with 400.");
-        return NextResponse.json({ error: "No team context" }, { status: 400 });
+        console.log("[DASHBOARD_SUMMARY_API] Missing teamId. Returning empty state.");
+        return NextResponse.json({
+            totalWorkflows: 0,
+            activeAgents: 0,
+            totalTasks: 0,
+            autonomousYield: 0,
+            timeSavedHours: 0,
+            failedRuns: 0,
+            efficiencyRate: 100,
+            chartData: [],
+            topWorkflows: [],
+            intelligenceFeed: []
+        });
     }
 
     try {
