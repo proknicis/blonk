@@ -6,7 +6,7 @@ import { Search, Download, Filter, ChevronDown, Sparkles } from "lucide-react";
 // Wait, I will just use inline styles if that is what it was doing, or adjust.
 // The original `page.tsx` was just using `import styles from "../dashboard.module.css";`.
 
-export default function AuditClient({ initialLogs, total, failures }: { initialLogs: any[]; total: number; failures: number }) {
+export default function AuditClient({ initialLogs, total, failures, today }: { initialLogs: any[]; total: number; failures: number, today: number }) {
     const [search, setSearch] = useState("");
     const [filter, setFilter] = useState("All Processes");
 
@@ -55,7 +55,7 @@ export default function AuditClient({ initialLogs, total, failures }: { initialL
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 16 }}>
                 {[
                     { label: "Total Events (Recorded)", value: total.toLocaleString() },
-                    { label: "Today", value: initialLogs.length.toString() }, // Simplified representation for today
+                    { label: "Today", value: today.toLocaleString() },
                     { label: "Failures", value: failures.toString(), accent: true },
                     { label: "Retention", value: "365 days" },
                 ].map((s, i) => (

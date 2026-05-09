@@ -27,13 +27,22 @@ async function seedData() {
             );
         }
 
-        // 2. Generate 50+ logs over the last 7 days
-        for (let i = 0; i < 60; i++) {
+        // 2. Generate 60+ logs
+        for (let i = 0; i < 70; i++) {
             const w = workflows[Math.floor(Math.random() * workflows.length)];
             const date = new Date();
-            date.setDate(date.getDate() - Math.floor(Math.random() * 7));
+            
+            // Half of logs should be from TODAY
+            if (i < 35) {
+                // Today: Random hours from 0 to current hour
+                date.setHours(Math.floor(Math.random() * new Date().getHours()));
+            } else {
+                // Past 7 days
+                date.setDate(date.getDate() - Math.floor(Math.random() * 7));
+            }
             
             const status = Math.random() > 0.05 ? 'success' : 'error';
+            const actionType = status === 'success' ? 'Synchronized institutional datasets' : 'Node timeout during recursive sweep';
             
             await pool.query(
                 'INSERT INTO "WorkflowLog" (id, "workflowId", "workflowName", status, "teamId", "createdAt", result) VALUES ($1, $2, $3, $4, $5, $6, $7)',
@@ -44,7 +53,10 @@ async function seedData() {
                     status, 
                     teamId, 
                     date, 
-                    JSON.stringify({ activity: { action: 'Automated Pulse' }, metrics: { duration: 1200 } })
+                    JSON.stringify({ 
+                        activity: { action: actionType }, 
+                        metrics: { duration: 800 + Math.random() * 1000 } 
+                    })
                 ]
             );
         }

@@ -21,6 +21,7 @@ export default async function AuditVaultPage() {
     let logs: Array<{ id: string; ts: string; process: string; user: string; action: string; outcome: string }> = [];
     let totalLogs = 0;
     let failures = 0;
+    let todayCount = 0;
 
     try {
         // Fetch raw workflow logs pinned to team
@@ -36,7 +37,8 @@ export default async function AuditVaultPage() {
         const counts = await db.query(`
             SELECT 
                 COUNT(*) as total,
-                SUM(CASE WHEN status = 'error' THEN 1 ELSE 0 END) as errs
+                SUM(CASE WHEN status = 'error' THEN 1 ELSE 0 END) as errs,
+                SUM(CASE WHEN "createdAt" >= CURRENT_DATE THEN 1 ELSE 0 END) as today
             FROM "WorkflowLog"
             WHERE "teamId" = $1
         `, [teamId]) as any[];
@@ -44,6 +46,7 @@ export default async function AuditVaultPage() {
         if (counts.length > 0) {
             totalLogs = parseInt(counts[0].total || '0');
             failures = parseInt(counts[0].errs || '0');
+            todayCount = parseInt(counts[0].today || '0');
         }
 
         // Map to structured display format
@@ -55,27 +58,29 @@ export default async function AuditVaultPage() {
             const pad = (n: number) => n.toString().padStart(2, '0');
             const tsStr = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 
-            // Determine safe action message from jsonb result
+            // Handle result parsing (it might be a string or object)
+            let resObj: any = {};
+            try {
+                resObj = typeof r.result === 'string' ? JSON.parse(r.result) : (r.result || {});
+            } catch(e) { resObj = {}; }
+
+            // Determine safe action message from result
             let actionText = "Executed automated procedure";
-            if (r.result && typeof r.result === 'object') {
-                if (r.result.action) {
-                    actionText = r.result.action;
-                } else if (r.result.message) {
-                    actionText = r.result.message;
-                } else {
-                    actionText = JSON.stringify(r.result).substring(0, 100);
-                }
+            if (resObj.activity?.action) {
+                actionText = resObj.activity.action;
+            } else if (resObj.message) {
+                actionText = resObj.message;
             } else if (r.status === 'success') {
                 actionText = `Completed ${r.workflowName || 'system'} loop successfully.`;
             } else {
-                actionText = `Failed executing ${r.workflowName || 'system'} loop.`;
+                actionText = `Operational failure in ${r.workflowName || 'system'} execution.`;
             }
 
             return {
                 id: shortId,
                 ts: tsStr,
                 process: r.workflowName || "System Process",
-                user: "System Context", // In an advanced setup, could JOIN User
+                user: "System Context",
                 action: actionText,
                 outcome: (r.status === 'error' || r.status === 'failed') ? "Failed" : "Success",
             };
@@ -84,5 +89,5 @@ export default async function AuditVaultPage() {
         console.error("Error fetching audit logs from DB:", e);
     }
 
-    return <AuditClient initialLogs={logs} total={totalLogs} failures={failures} />;
+    return <AuditClient initialLogs={logs} total={totalLogs} failures={failures} today={todayCount} />;
 }
