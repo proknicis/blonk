@@ -78,6 +78,11 @@ export async function POST(req: Request) {
         }
     }
 
+    // REQUIRE ADMIN AUTHORITY FOR ALL SUBSEQUENT ACTIONS
+    if (userRole !== 'OWNER' && userRole !== 'ADMIN') {
+        return NextResponse.json({ error: "Insufficient Directive Authority" }, { status: 403 });
+    }
+
     // SEND CUSTOM EMAIL TO MEMBER
     if (action === 'SEND_EMAIL') {
         const { memberId, subject, title, message } = body;
