@@ -5,13 +5,38 @@ import { authOptions } from "@/lib/auth";
 
 export async function GET() {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session?.user?.email) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        const dbUrl = process.env.DATABASE_URL ? 'DEFINED' : 'UNDEFINED';
+        const authSecret = process.env.NEXTAUTH_SECRET ? 'DEFINED' : 'UNDEFINED';
+        
+        let session;
+        try {
+            session = await getServerSession(authOptions);
+        } catch (sessionError: any) {
+            return NextResponse.json({ 
+                error: 'Session Fetch Failure', 
+                details: sessionError.message,
+                env: { dbUrl, authSecret }
+            }, { status: 500 });
         }
-        const email = session.user.email.toLowerCase();
 
-        const rows = await db.query('SELECT id, name, email, role, "firmName", industry, plan, tier, "onboardingStatus", "lastSeen", "lastActivity" FROM "User" WHERE email = $1', [email]);
+        if (!session?.user?.email) {
+            return NextResponse.json({ error: 'Unauthorized', env: { dbUrl, authSecret } }, { status: 401 });
+        }
+
+        const email = session.user.email.toLowerCase();
+        
+        let rows;
+        try {
+            rows = await db.query('SELECT id, name, email, role, "firmName", industry, plan, tier, "onboardingStatus", "lastSeen", "lastActivity" FROM "User" WHERE email = $1', [email]);
+        } catch (dbError: any) {
+            return NextResponse.json({ 
+                error: 'Database Query Failure', 
+                details: dbError.message,
+                env: { dbUrl, authSecret },
+                email: email
+            }, { status: 500 });
+        }
+
         return NextResponse.json(rows[0] || {});
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
