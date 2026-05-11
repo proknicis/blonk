@@ -233,28 +233,28 @@ export default function DashboardPage() {
                             <h3 className={styles.cardTitle}>Top Workflows</h3>
                             <Link href="/dashboard/workflows" className={styles.viewAllLink}>View all workflows &rsaquo;</Link>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             {data.topWorkflows.map(w => (
-                                <div key={w.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', background: '#F8FAFC', borderRadius: '16px', border: '1px solid #F1F5F9' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                        <div style={{ 
-                                            width: '40px', height: '40px', borderRadius: '10px', 
-                                            background: w.status === 'Active' ? '#F0FAF5' : '#F1F5F9',
-                                            color: w.status === 'Active' ? '#34D186' : '#64748B',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', fontWeight: 950
-                                        }}>
+                                <div key={w.id} className={styles.workflowOverviewRow}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                                        <div className={styles.workflowIconBox}>
                                             {w.name.charAt(0)}
+                                            <div className={styles.activePulseIndicator} />
                                         </div>
                                         <div>
-                                            <div style={{ fontSize: '0.9rem', fontWeight: 950 }}>{w.name}</div>
-                                            <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 700 }}>{w.totalRuns} runs today</div>
+                                            <div className={styles.workflowRowTitle}>{w.name}</div>
+                                            <div className={styles.workflowRowSubtitle}>
+                                                <Zap size={10} /> {w.totalRuns} runs today
+                                            </div>
                                         </div>
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-                                        <Sparkline data={w.miniChart} color={w.successRate > 95 ? "#34D186" : "#EAB308"} />
-                                        <div style={{ textAlign: 'right', minWidth: '60px' }}>
-                                            <div style={{ fontSize: '0.9rem', fontWeight: 950 }}>{w.successRate}%</div>
-                                            <div style={{ fontSize: '0.6rem', color: '#64748B', fontWeight: 800, textTransform: 'uppercase' }}>Success</div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
+                                        <div className={styles.sparklineWrapper}>
+                                            <Sparkline data={w.miniChart} color={w.successRate > 90 ? "#10B981" : "#F59E0B"} />
+                                        </div>
+                                        <div className={styles.successMetric}>
+                                            <div className={styles.successValue}>{w.successRate}%</div>
+                                            <div className={styles.successLabel}>SUCCESS</div>
                                         </div>
                                     </div>
                                 </div>
