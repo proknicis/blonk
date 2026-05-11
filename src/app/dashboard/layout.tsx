@@ -195,12 +195,12 @@ export default function DashboardLayout({
                             </li>
                             <li>
                                 <Link href="/dashboard/reports" className={`${styles.navLink} ${pathname === '/dashboard/reports' ? styles.navLinkActive : ''}`}>
-                                    <FileText size={20} /> Reports
+                                    <Activity size={20} /> Reports
                                 </Link>
                             </li>
                             <li>
                                 <Link href="/dashboard/sovereignty" className={`${styles.navLink} ${pathname === '/dashboard/sovereignty' ? styles.navLinkActive : ''}`} onClick={() => setShowMobileMenu(false)}>
-                                    <Settings size={20} /> Security & Controls
+                                    <ShieldCheck size={20} /> Security & Controls
                                 </Link>
                             </li>
                         </ul>

@@ -1,143 +1,239 @@
-"use client";
-
 import React, { useState } from "react";
-import { Search, Download, Filter, ChevronDown, Sparkles } from "lucide-react";
-// We don't have local css, the previous page.tsx used styles from "../dashboard.module.css".
-// Wait, I will just use inline styles if that is what it was doing, or adjust.
-// The original `page.tsx` was just using `import styles from "../dashboard.module.css";`.
+import styles from "./audit.module.css";
+import { 
+    Search, Calendar, ChevronDown, Filter, Download, 
+    MoreHorizontal, X, Zap, ShieldCheck, AlertCircle, 
+    Clock, MousePointer2, CheckCircle, ArrowUpRight
+} from "lucide-react";
 
 export default function AuditClient({ initialLogs, total, failures, today }: { initialLogs: any[]; total: number; failures: number, today: number }) {
     const [search, setSearch] = useState("");
-    const [filter, setFilter] = useState("All Processes");
+    const [selectedRun, setSelectedRun] = useState<any>(null);
+    const [selectedWorkflow, setSelectedWorkflow] = useState("All Workflows");
+    
+    const workflows = ["All Workflows", ...Array.from(new Set(initialLogs.map(l => l.process)))];
 
-    // Extract unique process types from real data
-    const uniqueProcesses = Array.from(new Set(initialLogs.map(l => l.process))).filter(Boolean);
-    const processTypes = ["All Processes", ...uniqueProcesses];
+    const filteredLogs = initialLogs.filter(log => {
+        const matchesSearch = log.action.toLowerCase().includes(search.toLowerCase()) || 
+                             log.id.toLowerCase().includes(search.toLowerCase());
+        const matchesWorkflow = selectedWorkflow === "All Workflows" || log.process === selectedWorkflow;
+        return matchesSearch && matchesWorkflow;
+    });
 
-    const visible = initialLogs.filter(l =>
-        (filter === "All Processes" || l.process === filter) &&
-        (search === "" || String(l.action).toLowerCase().includes(search.toLowerCase()) || String(l.user).toLowerCase().includes(search.toLowerCase()) || String(l.id).toLowerCase().includes(search.toLowerCase()))
-    );
-
-    const analyzeLog = (log: any) => {
-        const prompt = `Analyze this audit entry: Event ID ${log.id}, Process ${log.process}, Result ${log.outcome}. Action taken: "${log.action}". What are the implications or recommended next steps?`;
-        window.dispatchEvent(new CustomEvent('OPEN_AI_CHAT', { detail: { prompt } }));
-    };
+    const stats = [
+        { label: "Total Events", value: total.toLocaleString(), trend: "+18%", trendUp: true, icon: <Zap size={20} />, color: "#3B82F6" },
+        { label: "Successful", value: (total - failures).toLocaleString(), trend: "87.5%", trendUp: true, icon: <CheckCircle size={20} />, color: "#10B981" },
+        { label: "Failed", value: failures.toLocaleString(), trend: "10.3%", trendUp: false, icon: <AlertCircle size={20} />, color: "#EF4444" },
+        { label: "Manual Actions", value: "28", trend: "2.2%", trendUp: true, icon: <MousePointer2 size={20} />, color: "#F59E0B" },
+        { label: "Avg. Response Time", value: "2.48s", trend: "-12%", trendUp: true, icon: <Clock size={20} />, color: "#8B5CF6" },
+    ];
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
-            {/* Header */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
-                <div>
-                    <div style={{ fontSize: "0.7rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.18em", color: "var(--accent)", marginBottom: 6 }}>
-                        Immutable Record
-                    </div>
-                    <h2 style={{ fontSize: "1.5rem", fontWeight: 950, letterSpacing: "-0.03em", margin: 0 }}>Audit Vault</h2>
-                    <p style={{ fontSize: "0.88rem", color: "var(--muted-foreground)", marginTop: 6 }}>
-                        Every action taken on your behalf — timestamped, immutable, and ready for compliance review.
-                    </p>
-                </div>
-                <div style={{ display: "flex", gap: 10 }}>
-                    <button
-                        style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", color: "var(--foreground)" }}
-                    >
-                        <Download size={15} /> Export CSV
-                    </button>
-                    <button
-                        style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", color: "var(--foreground)" }}
-                    >
-                        <Download size={15} /> Export PDF
-                    </button>
+        <div className={styles.auditContainer}>
+            {/* SEARCH & FILTERS */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className={styles.searchBox}>
+                    <Search size={18} color="#94A3B8" />
+                    <input 
+                        type="text" 
+                        placeholder="Search by action, run ID, workflow, user..." 
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
                 </div>
             </div>
 
-            {/* Stats */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 16 }}>
-                {[
-                    { label: "Total Events (Recorded)", value: total.toLocaleString() },
-                    { label: "Today", value: today.toLocaleString() },
-                    { label: "Failures", value: failures.toString(), accent: true },
-                    { label: "Retention", value: "365 days" },
-                ].map((s, i) => (
-                    <div key={i} style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 20, padding: "24px 28px" }}>
-                        <div style={{ fontSize: "1.9rem", fontWeight: 950, letterSpacing: "-0.05em", color: s.accent ? "#ef4444" : "var(--foreground)", marginBottom: 4 }}>{s.value}</div>
-                        <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{s.label}</div>
+            <div className={styles.filterBar}>
+                <div className={styles.filterGroup}>
+                    <div className={styles.dateRange}>
+                        <Calendar size={16} />
+                        May 10, 2025 - May 17, 2025
+                    </div>
+                    <select className={styles.filterSelect} value={selectedWorkflow} onChange={e => setSelectedWorkflow(e.target.value)}>
+                        {workflows.map(w => <option key={w}>{w}</option>)}
+                    </select>
+                    <select className={styles.filterSelect}><option>All Actions</option></select>
+                    <select className={styles.filterSelect}><option>All Users</option></select>
+                    <select className={styles.filterSelect}><option>All Outcomes</option></select>
+                    <button className={styles.btnMoreFilters}><Filter size={14} /> More Filters</button>
+                </div>
+                <div className={styles.exportGroup}>
+                    <button className={styles.btnExport}><Download size={14} /> Export CSV</button>
+                    <button className={styles.btnExport}><Download size={14} /> Export PDF</button>
+                </div>
+            </div>
+
+            {/* STATS */}
+            <div className={styles.statsGrid}>
+                {stats.map((s, i) => (
+                    <div key={i} className={styles.statCard}>
+                        <div className={styles.statHeader}>
+                            <div className={styles.statIcon} style={{ background: `${s.color}15`, color: s.color }}>
+                                {s.icon}
+                            </div>
+                            <span className={styles.statLabel}>{s.label}</span>
+                        </div>
+                        <div className={styles.statValue}>{s.value}</div>
+                        <div className={`${styles.statTrend} ${s.trendUp ? styles.trendUp : styles.trendDown}`}>
+                            {s.trendUp ? "↑" : "↓"} {s.trend} vs previous 7 days
+                        </div>
                     </div>
                 ))}
             </div>
 
-            {/* Filters + Table */}
-            <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 24, overflow: "hidden" }}>
-                {/* Toolbar */}
-                <div style={{ padding: "16px 24px", borderBottom: "1px solid var(--border)", display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
-                    <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
-                        <Search size={15} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--muted-foreground)" }} />
-                        <input
-                            type="text"
-                            placeholder="Search logs by action, ID, or context..."
-                            value={search}
-                            onChange={e => setSearch(e.target.value)}
-                            style={{ width: "100%", paddingLeft: 36, paddingRight: 12, height: 38, background: "var(--muted)", border: "1px solid var(--border)", borderRadius: 10, fontSize: "0.85rem", fontWeight: 600, color: "var(--foreground)", outline: "none", boxSizing: "border-box" }}
-                        />
-                    </div>
-                    <div style={{ position: "relative" }}>
-                        <Filter size={14} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--muted-foreground)", pointerEvents: "none" }} />
-                        <select
-                            value={filter}
-                            onChange={e => setFilter(e.target.value)}
-                            style={{ appearance: "none", paddingLeft: 32, paddingRight: 32, height: 38, background: "var(--muted)", border: "1px solid var(--border)", borderRadius: 10, fontSize: "0.85rem", fontWeight: 700, color: "var(--foreground)", cursor: "pointer", outline: "none" }}
-                        >
-                            {processTypes.map((p, idx) => <option key={idx}>{p}</option>)}
-                        </select>
-                        <ChevronDown size={13} style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "var(--muted-foreground)" }} />
+            {/* TABLE AREA */}
+            <div className={styles.tableWrapper}>
+                <div className={styles.mainTable}>
+                    <table className={styles.dataTable}>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Event</th>
+                                <th>Workflow</th>
+                                <th>User</th>
+                                <th>Action</th>
+                                <th>Outcome</th>
+                                <th>Run ID / Details</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredLogs.map((log) => (
+                                <tr 
+                                    key={log.id} 
+                                    className={selectedRun?.id === log.id ? styles.rowActive : ""}
+                                    onClick={() => setSelectedRun(log)}
+                                    style={{ cursor: 'pointer' }}
+                                >
+                                    <td style={{ whiteSpace: 'nowrap' }}>{log.ts}</td>
+                                    <td>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                            <div style={{ color: log.outcome === 'Success' ? '#10B981' : '#EF4444' }}>
+                                                {log.outcome === 'Success' ? <Zap size={14} /> : <AlertCircle size={14} />}
+                                            </div>
+                                            <div>
+                                                <div style={{ fontWeight: 950 }}>Workflow Run</div>
+                                                <div style={{ fontSize: '0.7rem', color: '#64748B' }}>Workflow executed</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{log.process}</td>
+                                    <td>
+                                        <div className={styles.userCell}>
+                                            <div className={styles.avatar}>MK</div>
+                                            <div>
+                                                <div>Markus Kaknens</div>
+                                                <div style={{ fontSize: '0.7rem', color: '#64748B' }}>Owner</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{log.action}</td>
+                                    <td>
+                                        <span className={`${styles.outcomeTag} ${log.outcome === 'Success' ? styles.success : styles.failed}`}>
+                                            {log.outcome}
+                                        </span>
+                                    </td>
+                                    <td style={{ fontFamily: 'monospace', color: '#64748B' }}>{log.id.toLowerCase()}</td>
+                                    <td><MoreHorizontal size={16} color="#94A3B8" /></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    
+                    <div className={styles.pagination}>
+                        <div className={styles.pageInfo}>Showing 1 to 10 of {total.toLocaleString()} results</div>
+                        <div className={styles.pageControls}>
+                            <button className={`${styles.pageBtn} ${styles.pageBtnActive}`}>1</button>
+                            <button className={styles.pageBtn}>2</button>
+                            <button className={styles.pageBtn}>3</button>
+                            <span style={{ color: '#94A3B8' }}>...</span>
+                            <button className={styles.pageBtn}>125</button>
+                        </div>
                     </div>
                 </div>
 
-                {/* Table */}
-                <table style={{ width: "100%", borderCollapse: "collapse" }} id="audit-vault-table">
-                    <thead>
-                        <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                            {["Event ID", "Timestamp", "Process", "Context", "Action", "Outcome", "Intelligence"].map(h => (
-                                <th key={h} style={{ padding: "12px 20px", textAlign: h === "Intelligence" ? "center" : "left", fontSize: "0.65rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.14em", color: "var(--muted-foreground)" }}>{h}</th>
+                {selectedRun && (
+                    <div className={styles.sidePanel}>
+                        <div className={styles.panelHeader}>
+                            <h3 className={styles.panelTitle}>Run Details</h3>
+                            <button className={styles.btnClose} onClick={() => setSelectedRun(null)}>
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className={styles.runOverview}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                <div style={{ width: 40, height: 40, background: '#EF4444', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 950 }}>
+                                    DS
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ fontWeight: 950 }}>Daily Sync</div>
+                                    <div style={{ fontSize: '0.75rem', color: '#64748B' }}>{selectedRun.id.toLowerCase()}</div>
+                                </div>
+                                <span className={`${styles.outcomeTag} ${selectedRun.outcome === 'Success' ? styles.success : styles.failed}`}>
+                                    {selectedRun.outcome}
+                                </span>
+                            </div>
+
+                            <div className={styles.overviewItem}>
+                                <span className={styles.overviewLabel}>Status</span>
+                                <span className={styles.overviewValue}>{selectedRun.outcome}</span>
+                            </div>
+                            <div className={styles.overviewItem}>
+                                <span className={styles.overviewLabel}>Started</span>
+                                <span className={styles.overviewValue}>{selectedRun.ts}</span>
+                            </div>
+                            <div className={styles.overviewItem}>
+                                <span className={styles.overviewLabel}>Duration</span>
+                                <span className={styles.overviewValue}>17.3s</span>
+                            </div>
+                            <div className={styles.overviewItem}>
+                                <span className={styles.overviewLabel}>Triggered By</span>
+                                <span className={styles.overviewValue}>Manual (Markus Kaknens)</span>
+                            </div>
+                        </div>
+
+                        <button className={styles.btnExport} style={{ width: '100%', justifyContent: 'center' }}>
+                            View Full Run Details <ArrowUpRight size={14} />
+                        </button>
+
+                        <div className={styles.helpSection}>
+                            <h4 className={styles.helpTitle}>Need help with this run?</h4>
+                            <p className={styles.helpText}>Something went wrong or have a question about this workflow run?</p>
+                            <div className={styles.helpActions}>
+                                <button className={styles.btnHelp} style={{ background: '#0F172A', color: 'white', border: 'none' }}>Report an issue</button>
+                                <button className={styles.btnHelp}>Ask a Question</button>
+                            </div>
+                        </div>
+
+                        <div className={styles.recentSteps}>
+                            <h4 className={styles.helpTitle}>Recent Steps</h4>
+                            {[
+                                { name: 'Manual Trigger', status: 'Started', time: '10:24:16 PM', success: true },
+                                { name: 'Get Records (Airtable)', status: 'Success', time: '10:24:19 PM', success: true },
+                                { name: 'Create Message (Slack)', status: 'Success', time: '10:24:21 PM', success: true },
+                                { name: 'Update Record (Airtable)', status: 'Success', time: '10:24:24 PM', success: true },
+                                { name: 'Google Sheets', status: 'Failed', time: '10:24:35 PM', success: false },
+                            ].map((step, i) => (
+                                <div key={i} className={styles.stepItem}>
+                                    <div className={styles.stepCircle} style={{ background: step.success ? '#10B981' : '#EF4444' }}>
+                                        <CheckCircle size={14} color="white" />
+                                    </div>
+                                    <div className={styles.stepContent}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <span className={styles.stepName}>{step.name}</span>
+                                            <span className={styles.stepTime}>{step.time}</span>
+                                        </div>
+                                        <div className={styles.stepStatus} style={{ color: step.success ? '#10B981' : '#EF4444' }}>{step.status}</div>
+                                    </div>
+                                </div>
                             ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {visible.map((log, i) => (
-                            <tr key={log.id} style={{ borderBottom: i < visible.length - 1 ? "1px solid var(--border)" : "none", transition: "background 0.15s" }}>
-                                <td style={{ padding: "14px 20px", fontSize: "0.78rem", fontWeight: 800, color: "var(--muted-foreground)", fontFamily: "monospace" }}>{log.id}</td>
-                                <td style={{ padding: "14px 20px", fontSize: "0.82rem", fontWeight: 600, color: "var(--muted-foreground)", whiteSpace: "nowrap" }}>{log.ts}</td>
-                                <td style={{ padding: "14px 20px" }}>
-                                    <span style={{ fontSize: "0.72rem", fontWeight: 800, color: "var(--accent)", background: "rgba(52,209,134,0.08)", padding: "3px 10px", borderRadius: 100, whiteSpace: "nowrap" }}>{log.process}</span>
-                                </td>
-                                <td style={{ padding: "14px 20px", fontSize: "0.85rem", fontWeight: 700, color: "var(--foreground)" }}>{log.user}</td>
-                                <td style={{ padding: "14px 20px", fontSize: "0.85rem", color: "var(--foreground)", maxWidth: 340 }}>{log.action}</td>
-                                <td style={{ padding: "14px 20px" }}>
-                                    <span style={{
-                                        fontSize: "0.7rem", fontWeight: 900, padding: "3px 10px", borderRadius: 100,
-                                        color: log.outcome === "Success" ? "var(--accent)" : "#ef4444",
-                                        background: log.outcome === "Success" ? "rgba(52,209,134,0.08)" : "rgba(239,68,68,0.08)"
-                                    }}>
-                                        {log.outcome}
-                                    </span>
-                                </td>
-                                <td style={{ padding: "14px 20px", textAlign: "center" }}>
-                                    <button 
-                                        onClick={() => analyzeLog(log)}
-                                        style={{ background: "none", border: "none", color: "var(--accent)", cursor: "pointer", transition: "transform 0.2s" }}
-                                        title="Analyze with AI"
-                                        onMouseEnter={e => e.currentTarget.style.transform = "scale(1.2)"}
-                                        onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
-                                    >
-                                        <Sparkles size={18} />
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-                {visible.length === 0 && (
-                    <div style={{ padding: 48, textAlign: "center", color: "var(--muted-foreground)", fontSize: "0.9rem" }}>No database records match the current filter.</div>
+                        </div>
+
+                        <button className={styles.btnExport} style={{ width: '100%', justifyContent: 'center' }}>
+                            View All Steps
+                        </button>
+                    </div>
                 )}
             </div>
         </div>
