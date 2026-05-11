@@ -43,19 +43,14 @@ export default async function AuditVaultPage() {
         // Pull logs for THIS team only — scoped to teamId
         const rows = await db.query(`
             SELECT
-                wl.id,
-                wl."workflowName",
-                wl.status,
-                wl.result,
-                wl."createdAt",
-                wl."userId",
-                u.name  AS "userName",
-                u.email AS "userEmail",
-                u.role  AS "userRole"
-            FROM "WorkflowLog" wl
-            LEFT JOIN "User" u ON u.id = wl."userId"
-            WHERE wl."teamId" = $1
-            ORDER BY wl."createdAt" DESC
+                id,
+                "workflowName",
+                status,
+                result,
+                "createdAt"
+            FROM "WorkflowLog"
+            WHERE "teamId" = $1
+            ORDER BY "createdAt" DESC
             LIMIT 200
         `, [teamId]) as any[];
 
