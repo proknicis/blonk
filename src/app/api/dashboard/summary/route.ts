@@ -151,28 +151,76 @@ export async function GET() {
             totalLogCount = parseInt(totalLogs[0]?.count || "0");
         }
 
-        // 5. Fetch Total Runs (All time logs for these workflows)
-        let totalRunsCount = 0;
-        if (hasWorkflows) {
-            const runsRes = await db.query(`
-                SELECT COUNT(*) as count 
-                FROM "WorkflowLog" 
-                WHERE "teamId" = $1 
-                AND "workflowId" = ANY($2)
-            `, [teamId, workflowIds]) as any[];
-            totalRunsCount = parseInt(runsRes[0]?.count || "0");
-        }
+        // 5. Fetch Trends (Today vs Yesterday)
+        const trendData = await db.query(`
+            SELECT 
+                DATE_TRUNC('day', "createdAt") as day,
+                COUNT(*) as total,
+                COUNT(*) FILTER (WHERE status = 'error' OR status = 'failed') as failed
+            FROM "WorkflowLog"
+            WHERE "teamId" = $1
+            AND "createdAt" > NOW() - INTERVAL '48 hours'
+            GROUP BY day
+            ORDER BY day DESC
+        `, [teamId]) as any[];
+
+        const runsToday = parseInt(trendData[0]?.total || "0");
+        const runsYesterday = parseInt(trendData[1]?.total || "0");
+        const issuesToday = parseInt(trendData[0]?.failed || "0");
+        const issuesYesterday = parseInt(trendData[1]?.failed || "0");
+
+        const runsTrend = runsYesterday > 0 ? Math.round(((runsToday - runsYesterday) / runsYesterday) * 100) : 0;
+        const issuesTrend = issuesYesterday > 0 ? Math.round(((issuesToday - issuesYesterday) / issuesYesterday) * 100) : 0;
+
+        // 6. Fetch Top Workflows with Success Rates
+        const enrichedWorkflows = await db.query(`
+            SELECT 
+                w.id, w.name, w.status,
+                COUNT(l.id) as total_runs,
+                COUNT(l.id) FILTER (WHERE l.status != 'error' AND l.status != 'failed') as success_runs
+            FROM "Workflow" w
+            LEFT JOIN "WorkflowLog" l ON w.id = l."workflowId"
+            WHERE w."teamId" = $1
+            GROUP BY w.id, w.name, w.status
+            ORDER BY total_runs DESC
+            LIMIT 5
+        `, [teamId]) as any[];
+
+        const topWorkflows = await Promise.all(enrichedWorkflows.map(async (w: any) => {
+            // Fetch mini-chart data (last 7 days of runs)
+            const miniChart = await db.query(`
+                SELECT COUNT(*) as count
+                FROM "WorkflowLog"
+                WHERE "workflowId" = $1
+                AND "createdAt" > NOW() - INTERVAL '7 days'
+                GROUP BY DATE_TRUNC('day', "createdAt")
+                ORDER BY DATE_TRUNC('day', "createdAt") ASC
+            `, [w.id]) as any[];
+
+            return {
+                ...w,
+                totalRuns: parseInt(w.total_runs),
+                successRate: w.total_runs > 0 ? Math.round((parseInt(w.success_runs) / parseInt(w.total_runs)) * 100) : 100,
+                miniChart: miniChart.map((c: any) => parseInt(c.count))
+            };
+        }));
+
+        // 7. Total Runs (All time)
+        const totalRunsRes = await db.query('SELECT SUM("tasksCount") as total FROM "Workflow" WHERE "teamId" = $1', [teamId]) as any[];
+        const totalRunsCount = parseInt(totalRunsRes[0]?.total || "0");
 
         return NextResponse.json({
             totalWorkflows: workflowRows.length,
             activeAgents: activeUnits,
-            totalTasks: totalRunsCount, // Now showing real runs
-            autonomousYield: totalTasksDone, // Keep yield separate if needed
-            timeSavedHours: Math.round(totalTasksDone * 0.1), // Estimated
-            failedRuns: failedRunsCount,
+            totalTasks: totalRunsCount, 
+            runsToday,
+            runsTrend,
+            timeSavedHours: Math.round(totalTasksDone * 0.1), 
+            issuesToday,
+            issuesTrend,
             efficiencyRate: totalRunsCount > 0 ? Math.round(((totalRunsCount - failedRunsCount) / totalRunsCount) * 100) : 100,
             chartData: Object.values(fleetPaths),
-            topWorkflows: workflowRows.slice(0, 5),
+            topWorkflows,
             intelligenceFeed: formattedFeed
         });
     } catch (error: any) {

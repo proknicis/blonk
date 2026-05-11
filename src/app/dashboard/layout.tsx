@@ -243,7 +243,7 @@ export default function DashboardLayout({
                             
                             {pathname === '/dashboard' && (
                                  <Link href="/dashboard/workflows?create=true" className={styles.createWorkflowBtn}>
-                                    <Zap size={16} /> Generate Loop
+                                     <Zap size={16} /> Request Workflow
                                  </Link>
                             )}
 

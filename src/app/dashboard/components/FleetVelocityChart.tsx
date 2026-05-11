@@ -162,27 +162,37 @@ export default function FleetVelocityChart({ initialData }: { initialData: Chart
                         />
                     ))}
 
-                    {chartLines.map((line, idx) => (
-                        <g key={idx}>
-                            {/* AREA FILL */}
-                            <path 
-                                d={getCurvePath(line.data, maxValue, true)} 
-                                fill={idx === 0 ? "url(#areaGradient)" : "url(#areaGradient2)"} 
-                                style={{ transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }}
-                            />
-                            {/* MAIN LINE WITH GLOW */}
-                            <path 
-                                d={getCurvePath(line.data, maxValue, false)} 
-                                fill="none" 
-                                stroke={idx === 0 ? "#34D186" : "#0EA5E9"} 
-                                strokeWidth="4.5" 
-                                strokeLinecap="round" 
-                                strokeLinejoin="round" 
-                                filter={idx === 0 ? "url(#glow)" : ""}
-                                style={{ transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }}
-                            />
-                        </g>
-                    ))}
+                    {chartLines.map((line, idx) => {
+                        const colors = ['#2563EB', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444'];
+                        const color = colors[idx % colors.length];
+                        const areaId = `areaGradient-${idx}`;
+                        return (
+                            <g key={idx}>
+                                <defs>
+                                    <linearGradient id={areaId} x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stopColor={color} stopOpacity="0.1" />
+                                        <stop offset="100%" stopColor={color} stopOpacity="0" />
+                                    </linearGradient>
+                                </defs>
+                                {/* AREA FILL */}
+                                <path 
+                                    d={getCurvePath(line.data, maxValue, true)} 
+                                    fill={`url(#${areaId})`} 
+                                    style={{ transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }}
+                                />
+                                {/* MAIN LINE */}
+                                <path 
+                                    d={getCurvePath(line.data, maxValue, false)} 
+                                    fill="none" 
+                                    stroke={color} 
+                                    strokeWidth="2.5" 
+                                    strokeLinecap="round" 
+                                    strokeLinejoin="round" 
+                                    style={{ transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }}
+                                />
+                            </g>
+                        );
+                    })}
 
                     {/* INTERACTION OVERLAY */}
                     {chartLines[0]?.data.map((_, i) => {

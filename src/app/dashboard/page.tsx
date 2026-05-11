@@ -3,28 +3,44 @@
 import styles from "./page.module.css";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Activity, Zap, CheckCircle, AlertCircle, Plus, FileText, Link2, ArrowUpRight, ShieldCheck, ShieldAlert } from "lucide-react";
+import { 
+    Activity, Zap, CheckCircle, AlertCircle, Plus, 
+    FileText, Link2, ArrowUpRight, ShieldCheck, ShieldAlert,
+    TrendingUp, TrendingDown, Clock, Search, ExternalLink,
+    Terminal, Database, Globe
+} from "lucide-react";
 import FleetVelocityChart from "./components/FleetVelocityChart";
-import WorkflowList from "./components/WorkflowList";
+import Sparkline from "./components/Sparkline";
 import { Skeleton, SkeletonRectangle, SkeletonCircle } from "../components/Skeleton";
 
 interface DashboardData {
     totalWorkflows: number;
     activeAgents: number;
     totalTasks: number;
+    runsToday: number;
+    runsTrend: number;
     timeSavedHours: number;
-    failedRuns: number;
+    issuesToday: number;
+    issuesTrend: number;
     efficiencyRate: number;
     chartData: Array<{
         name: string;
         data: number[];
     }>;
-    topWorkflows: Array<any>;
+    topWorkflows: Array<{
+        id: string;
+        name: string;
+        status: string;
+        totalRuns: number;
+        successRate: number;
+        miniChart: number[];
+    }>;
     intelligenceFeed: Array<{
         title: string;
         meta: string;
         type: string;
         time: string;
+        rich?: any;
     }>;
 }
 
@@ -40,8 +56,7 @@ export default function DashboardPage() {
                 const result = await res.json();
                 if (result && !result.error) {
                     setData(result);
-                    // Initialize with actual tasks if webhook isn't ready
-                    setGlobalStats(prev => ({ ...prev, total_tasks: result.totalTasks * 14 + 184000 }));
+                    setGlobalStats(prev => ({ ...prev, total_tasks: result.totalTasks }));
                 }
             } catch (error) {
                 console.error("Dashboard synchronization failure", error);
@@ -52,14 +67,12 @@ export default function DashboardPage() {
 
         const fetchPulse = async () => {
             try {
-                // Successfully bridging through the Sovereign API to bypass CORS blocks
                 const res = await fetch('/api/n8n/stats');
                 if (res.ok) {
                     const stats = await res.json();
                     setGlobalStats({ total_tasks: stats.total_tasks, status: 'online' });
                 }
             } catch (e) {
-                // If n8n is offline/not ready, we maintain a simulated "Institutional Pulse"
                 setGlobalStats(prev => ({ 
                     status: 'online', 
                     total_tasks: prev.total_tasks + Math.floor(Math.random() * 3) 
@@ -70,7 +83,6 @@ export default function DashboardPage() {
         fetchDashboard();
         fetchPulse();
 
-        // Institutional Sync: Run every 5 seconds
         const dashboardTimer = setInterval(fetchDashboard, 5000);
         const pulseTimer = setInterval(fetchPulse, 5000);
 
@@ -83,26 +95,13 @@ export default function DashboardPage() {
     if (isLoading) {
         return (
             <div className={styles.dashboard}>
-                {/* Skeleton Integrity Banner */}
-                <div className={styles.integrityBanner} style={{ borderStyle: 'none', background: 'transparent', padding: 0 }}>
-                    <Skeleton height="100px" borderRadius="24px" />
-                </div>
-
-                {/* Skeleton Metrics Matrix */}
+                <Skeleton height="80px" borderRadius="24px" />
                 <div className={styles.metricsMatrix}>
                     {[1, 2, 3, 4].map(id => (
-                        <SkeletonRectangle key={id} height="200px" borderRadius="32px" />
+                        <SkeletonRectangle key={id} height="160px" borderRadius="24px" />
                     ))}
                 </div>
-
-                {/* Skeleton Chart */}
-                <Skeleton height="500px" borderRadius="36px" />
-
-                {/* Skeleton Bottom Grid */}
-                <div className={styles.commandGrid}>
-                   <Skeleton height="400px" borderRadius="36px" />
-                   <Skeleton height="400px" borderRadius="36px" />
-                </div>
+                <Skeleton height="400px" borderRadius="24px" />
             </div>
         );
     }
@@ -114,87 +113,104 @@ export default function DashboardPage() {
     return (
         <div className={styles.dashboard}>
             
-            {/* SOVEREIGN INTEGRITY PANEL */}
-            <div className={styles.integrityBanner}>
-                <div className={styles.integrityInfo}>
-                    <div className={globalStats.status === 'online' ? styles.statusIndicatorHealthy : styles.statusIndicatorCritical}>
-                        <div className={styles.pulseEffect} />
+            {/* INTEGRITY STATUS BAR */}
+            <div className={styles.integrityRow}>
+                <div className={styles.integrityCard}>
+                    <div className={`${styles.integrityIcon}`} style={{ background: '#F0FAF5', color: '#34D186' }}>
+                        <Globe size={20} />
                     </div>
-                    <div>
-                        <h2 className={styles.integrityTitle}>System Status: {globalStats.status === 'online' ? 'Operational' : 'Syncing'}</h2>
-                        <p className={styles.integritySubtitle}>Institutional network is stable. All automated nodes reporting nominal latency. <br/> <span style={{ color: '#10B981', fontWeight: 800 }}>Your workflows are running normally</span></p>
+                    <div className={styles.integrityLabel}>
+                        <span className={styles.integrityStatus}>System Operational</span>
+                        <span className={styles.integritySub}>All systems running smoothly</span>
                     </div>
                 </div>
-                <div className={styles.integrityMetricsContainer}>
-                    <div className={styles.integrityMetrics}>
-                        <span className={styles.metricLabel}>Total Runs</span>
-                        <span className={styles.metricValue} style={{ color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                             {globalStats.total_tasks.toLocaleString()}
-                             <Activity size={14} className={styles.heartbeat} />
-                        </span>
+
+                <div className={styles.integrityCard}>
+                    <div className={`${styles.integrityIcon}`} style={{ background: '#F0F9FF', color: '#0EA5E9' }}>
+                        <Link2 size={20} />
                     </div>
-                    <div className={styles.integrityMetrics}>
-                        <span className={styles.metricLabel}>Connection Status</span>
-                        <span className={styles.metricValue}>CONNECTED</span>
+                    <div className={styles.integrityLabel}>
+                        <span className={styles.integrityStatus}>Connected</span>
+                        <span className={styles.integritySub}>All systems linked</span>
                     </div>
-                    <div className={styles.integrityMetrics}>
-                        <span className={styles.metricLabel}>Handshake Status</span>
-                        <span className={styles.metricValue}>AUTHORIZED</span>
+                </div>
+
+                <div className={styles.integrityCard}>
+                    <div className={`${styles.integrityIcon}`} style={{ background: '#FDFCF0', color: '#EAB308' }}>
+                        <ShieldCheck size={20} />
+                    </div>
+                    <div className={styles.integrityLabel}>
+                        <span className={styles.integrityStatus}>Authorized</span>
+                        <span className={styles.integritySub}>Handshake verified</span>
+                    </div>
+                </div>
+
+                <div className={styles.totalRuns}>
+                    <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', marginBottom: '4px' }}>Total Runs</div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 950, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {globalStats.total_tasks.toLocaleString()}
+                        <TrendingUp size={18} color="#34D186" />
                     </div>
                 </div>
             </div>
 
-            {/* METRICS CORE */}
+            {/* METRICS GRID */}
             <div className={styles.metricsMatrix}>
                 <div className={styles.metricCard}>
                     <div className={styles.metricHeader}>
-                        <span className={styles.label}>Total Runs</span>
-                        <Zap size={14} className={styles.accentIcon} />
+                        <span className={styles.label}>Runs Today</span>
+                        <TrendingUp size={14} className={styles.accentIcon} />
                     </div>
-                    <div className={styles.value}>{data.totalTasks.toLocaleString()}</div>
-                    <div className={styles.trend}>Tasks completed by automation</div>
+                    <div className={styles.value}>{data.runsToday.toLocaleString()}</div>
+                    <div className={`${styles.trendContainer} ${data.runsTrend >= 0 ? styles.trendUp : styles.trendDown}`}>
+                        {data.runsTrend >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                        {Math.abs(data.runsTrend)}% vs yesterday
+                    </div>
                 </div>
 
                 <div className={styles.metricCard}>
                     <div className={styles.metricHeader}>
                         <span className={styles.label}>Hours Saved</span>
-                        <span className={styles.neutralBadge}>Real-time</span>
+                        <div style={{ fontSize: '0.6rem', fontWeight: 950, padding: '2px 6px', background: '#F0FAF5', color: '#34D186', borderRadius: '4px' }}>REAL-TIME</div>
                     </div>
                     <div className={styles.value}>{data.timeSavedHours}h</div>
-                    <div className={styles.trend}>Estimated hours saved</div>
+                    <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 700 }}>Estimated automation yield</div>
                 </div>
 
                 <div className={styles.metricCard}>
                     <div className={styles.metricHeader}>
                         <span className={styles.label}>Active Workflows</span>
-                        <div className={styles.activeDot} />
+                        <Activity size={14} color="#34D186" />
                     </div>
                     <div className={styles.value}>{data.activeAgents} / {data.totalWorkflows}</div>
-                    <div className={styles.trend}>Workflows currently active</div>
+                    <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 700 }}>All workflows reporting active</div>
                 </div>
 
                 <div className={styles.metricCard}>
                     <div className={styles.metricHeader}>
-                        <span className={styles.label}>Failed Runs</span>
-                        {data.failedRuns === 0 ? <ShieldCheck size={14} color="var(--accent)"/> : <ShieldAlert size={14} color="var(--destructive)"/>}
+                        <span className={styles.label}>Issues Today</span>
+                        <AlertCircle size={14} color={data.issuesToday > 0 ? "#EF4444" : "#64748B"} />
                     </div>
-                    <div className={data.failedRuns > 0 ? styles.valueCritical : styles.value}>
-                        {data.failedRuns}
+                    <div className={styles.value}>{data.issuesToday}</div>
+                    <div className={`${styles.trendContainer} ${data.issuesTrend <= 0 ? styles.trendUp : styles.trendDown}`}>
+                        {data.issuesTrend <= 0 ? <TrendingDown size={14} /> : <TrendingUp size={14} />}
+                        {Math.abs(data.issuesTrend)}% vs yesterday
                     </div>
-                    <div className={styles.trend}>Failures in last 24h</div>
                 </div>
             </div>
 
-            {/* ANALYTICS PROJECTION */}
+            {/* ACTIVITY VISUALIZATION */}
             <div className={styles.projectionSection}>
                 <div className={styles.sectionHeader}>
                     <div>
-                        <h3 className={styles.sectionTitle} style={{ fontSize: '0.8rem', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>Workflow Activity</h3>
-                        <h2 style={{ fontSize: '1.25rem', fontWeight: 950, margin: 0, textTransform: 'uppercase', letterSpacing: '-0.02em' }}>Workflow Runs</h2>
-                        <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#6B7280', fontWeight: 700 }}>Workflow activity across your active automations</p>
+                        <h3 className={styles.sectionTitle}>Workflow Activity</h3>
+                        <span className={styles.sectionSubtitle}>Runs across active workflows</span>
                     </div>
-                    <div className={styles.projectionLegend}>
-                        <div className={styles.legendItem}><span /> Real Runs (24h Window)</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', fontWeight: 800, color: '#64748B' }}>
+                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#34D186' }} />
+                            Real Runs (24h Window)
+                        </div>
                     </div>
                 </div>
                 <div className={styles.chartWrapper}>
@@ -204,74 +220,79 @@ export default function DashboardPage() {
 
             {isEmpty ? (
                 <div className={styles.onboardingState}>
-                   <div className={styles.onboardingIllustration}>
-                       <Plus size={32} />
-                   </div>
+                   <div className={styles.onboardingIllustration}><Plus size={32} /></div>
                    <h2 className={styles.onboardingTitle}>Initialize your autonomous firm</h2>
-                   <p className={styles.onboardingSubtitle}>Your dashboard is empty because no workflows have been provisioned yet. Start by creating a custom automation loop.</p>
-                   <div className={styles.onboardingActions}>
-                       <Link href="/dashboard/workflows?create=true" className={styles.btnInstitutional}>
-                           Generate Workflow
-                       </Link>
-                       <Link href="/dashboard/workflows" className={styles.btnOutline}>
-                           Select Template
-                       </Link>
-                   </div>
+                   <p className={styles.onboardingSubtitle}>Your dashboard is empty because no workflows have been provisioned yet.</p>
+                   <Link href="/dashboard/workflows?create=true" className={styles.btnInstitutional}>Generate Workflow</Link>
                 </div>
             ) : (
                 <div className={styles.commandGrid}>
+                    {/* TOP WORKFLOWS */}
                     <div className={styles.activeWorkflows}>
                         <div className={styles.cardHeader}>
-                            <div>
-                                <h4 style={{ fontSize: '0.7rem', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 4px 0' }}>Operational Loops</h4>
-                                <h3 className={styles.cardTitle}>Your Workflows</h3>
-                            </div>
-                            <Link href="/dashboard/workflows" className={styles.viewAllLink}>
-                                Marketplace <ArrowUpRight size={14} />
-                            </Link>
+                            <h3 className={styles.cardTitle}>Top Workflows</h3>
+                            <Link href="/dashboard/workflows" className={styles.viewAllLink}>View all workflows &rsaquo;</Link>
                         </div>
-                        <WorkflowList workflows={data.topWorkflows} />
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {data.topWorkflows.map(w => (
+                                <div key={w.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', background: '#F8FAFC', borderRadius: '16px', border: '1px solid #F1F5F9' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                        <div style={{ 
+                                            width: '40px', height: '40px', borderRadius: '10px', 
+                                            background: w.status === 'Active' ? '#F0FAF5' : '#F1F5F9',
+                                            color: w.status === 'Active' ? '#34D186' : '#64748B',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', fontWeight: 950
+                                        }}>
+                                            {w.name.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <div style={{ fontSize: '0.9rem', fontWeight: 950 }}>{w.name}</div>
+                                            <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 700 }}>{w.totalRuns} runs today</div>
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+                                        <Sparkline data={w.miniChart} color={w.successRate > 95 ? "#34D186" : "#EAB308"} />
+                                        <div style={{ textAlign: 'right', minWidth: '60px' }}>
+                                            <div style={{ fontSize: '0.9rem', fontWeight: 950 }}>{w.successRate}%</div>
+                                            <div style={{ fontSize: '0.6rem', color: '#64748B', fontWeight: 800, textTransform: 'uppercase' }}>Success</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
-                    <div className={styles.liveFeed} id="intelligence-feed">
+                    {/* NEEDS ATTENTION / FEED */}
+                    <div className={styles.liveFeed}>
                         <div className={styles.cardHeader}>
-                            <h3 className={styles.cardTitle}>Intelligence Feed</h3>
+                            <h3 className={styles.cardTitle}>Needs Attention</h3>
+                            <Link href="/dashboard/audit" className={styles.viewAllLink}>View all issues &rsaquo;</Link>
                         </div>
                         <div className={styles.feedWrapper}>
-                            {data.intelligenceFeed && data.intelligenceFeed.length > 0 ? (
-                                data.intelligenceFeed.map((item: any, idx) => (
+                            {data.intelligenceFeed.length > 0 ? (
+                                data.intelligenceFeed.map((item, idx) => (
                                     <div key={idx} className={styles.feedItem}>
-                                        <div className={item.type === 'error' ? styles.feedDotError : styles.feedDotSuccess} />
+                                        <div style={{ 
+                                            width: '32px', height: '32px', borderRadius: '50%', 
+                                            background: item.type === 'error' ? '#FEF2F2' : (item.type === 'info' ? '#F0F9FF' : '#F0FAF5'),
+                                            color: item.type === 'error' ? '#EF4444' : (item.type === 'info' ? '#0EA5E9' : '#34D186'),
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                                        }}>
+                                            {item.type === 'error' ? <ShieldAlert size={16} /> : (item.type === 'info' ? <Info size={16} /> : <ShieldCheck size={16} />)}
+                                        </div>
                                         <div className={styles.feedContent}>
                                             <div className={styles.feedHeaderRow}>
                                                 <div className={styles.feedTitle}>{item.title}</div>
                                                 <div className={styles.feedTime}>{item.time}</div>
                                             </div>
                                             <div className={styles.feedMeta}>{item.meta}</div>
-                                            
-                                            {/* RICH TELEMETRY RENDERING */}
-                                            {item.rich && item.rich.metrics && (
-                                                <div className={styles.richTelemetry}>
-                                                    <div className={styles.telemetryBadge}>
-                                                        <Zap size={10} /> {item.rich.metrics.execution_speed || '0.5s'}
-                                                    </div>
-                                                    <div className={styles.telemetryBadge}>
-                                                        <FileText size={10} /> {item.rich.metrics.data_points_processed || 0} pts
-                                                    </div>
-                                                    {item.rich.activity?.destination && (
-                                                        <div className={styles.telemetryDest}>
-                                                            <Link2 size={10} /> {item.rich.activity.destination}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
                                         </div>
                                     </div>
                                 ))
                             ) : (
                                 <div className={styles.emptyFeed}>
-                                    <Activity size={32} />
-                                    <p>No recent operational activity detected</p>
+                                    <ShieldCheck size={32} />
+                                    <p>No operational issues detected</p>
                                 </div>
                             )}
                         </div>
