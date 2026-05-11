@@ -7,7 +7,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import AiChat from "../components/AiChat";
 import CommandPalette from "../components/CommandPalette";
-import { Search, Bell, Menu, User, Settings, LogOut, FileText, LayoutGrid, Zap, Users, Monitor, ExternalLink, Activity, ShieldCheck } from "lucide-react";
+import { Search, Bell, Menu, User, Settings, LogOut, FileText, LayoutGrid, Zap, Users, Monitor, ExternalLink, Activity, ShieldCheck, Link2 } from "lucide-react";
 
 type NotificationItem = {
     id?: string | number;
@@ -162,6 +162,11 @@ export default function DashboardLayout({
                             <li>
                                 <Link href="/dashboard/office" className={`${styles.navLink} ${pathname === '/dashboard/office' ? styles.navLinkActive : ''}`}>
                                     <Monitor size={20} /> My Workflows
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/dashboard/connections" className={`${styles.navLink} ${pathname === '/dashboard/connections' ? styles.navLinkActive : ''}`}>
+                                    <Link2 size={20} /> Connections
                                 </Link>
                             </li>
                         </ul>

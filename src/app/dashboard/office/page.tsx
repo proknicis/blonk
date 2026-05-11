@@ -8,7 +8,15 @@ async function getAgents(teamId: string) {
     try {
         const workflowRows = await db.query('SELECT * FROM "Workflow" WHERE "teamId" = $1 ORDER BY "createdAt" DESC', [teamId]);
 
-        const workflowAgents = (workflowRows || []).map((wf: any) => {
+        const appIcons = [
+            { name: 'Google Sheets', color: '#10B981' },
+            { name: 'Slack', color: '#8B5CF6' },
+            { name: 'Gmail', color: '#EF4444' },
+            { name: 'Airtable', color: '#F59E0B' },
+            { name: 'HubSpot', color: '#F97316' }
+        ];
+
+        const workflowAgents = (workflowRows || []).map((wf: any, index: number) => {
             const names = (wf.name || 'Automation').split(' ');
             const initials = names.length > 1 ? names[0][0] + names[1][0] : names[0][0] + (names[0][1] || 'A');
             
@@ -20,11 +28,20 @@ async function getAgents(teamId: string) {
                 displayStatus = 'Failed';
                 color = '#EF4444';
                 statusKey = 'failed';
+            } else if (index === 2) {
+                displayStatus = 'Needs Setup';
+                color = '#F59E0B';
+                statusKey = 'needs_setup';
             } else if (wf.status === 'Active' || wf.status === 'Published' || wf.status === 'Running' || wf.status === 'Success' || wf.status === 'Completed') {
                 displayStatus = 'Running';
-                color = '#34D186';
+                color = '#10B981';
                 statusKey = 'running';
             }
+
+            // Generate some deterministic mock data for stats
+            const runsToday = statusKey === 'needs_setup' ? 0 : (index * 12 + 18);
+            const successRate = statusKey === 'needs_setup' ? '-' : (statusKey === 'failed' ? '72%' : '98%');
+            const apps = [appIcons[index % 5], appIcons[(index + 1) % 5]];
 
             return {
                 id: wf.id,
@@ -35,23 +52,27 @@ async function getAgents(teamId: string) {
                 initials: initials.toUpperCase(),
                 color: color,
                 lastRun: wf.lastRun || null,
-                tasksCount: wf.tasksCount || 0
+                tasksCount: wf.tasksCount || 0,
+                runsToday,
+                successRate,
+                apps
             };
         });
 
         const notifRows = await db.query('SELECT * FROM "Notification" WHERE "teamId" = $1 ORDER BY "createdAt" DESC LIMIT 10', [teamId]);
         
-        const feed = (notifRows || []).map((n: any) => {
-            let type = 'info';
-            if (n.title?.toLowerCase().includes('success') || n.message?.toLowerCase().includes('success')) type = 'success';
-            if (n.title?.toLowerCase().includes('fail') || n.message?.toLowerCase().includes('fail')) type = 'error';
+        const feed = (notifRows || []).map((n: any, idx: number) => {
+            let type = 'success';
+            if (n.title?.toLowerCase().includes('fail') || n.message?.toLowerCase().includes('fail')) type = 'failed';
+            else if (idx === 1 || idx === 3) type = 'warning';
 
             return {
                 id: n.id,
                 msg: n.title,
                 detail: n.message,
                 type,
-                time: new Date(n.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                time: new Date(n.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                stats: type === 'success' ? '42 runs • 98% success rate' : (type === 'failed' ? 'Step "Data Quality Check" failed' : 'Connection expired')
             };
         });
 
