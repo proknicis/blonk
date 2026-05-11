@@ -7,7 +7,7 @@ import {
     Activity, Zap, CheckCircle, AlertCircle, Plus, 
     FileText, Link2, ArrowUpRight, ShieldCheck, ShieldAlert,
     TrendingUp, TrendingDown, Clock, Search, ExternalLink,
-    Terminal, Database, Globe
+    Terminal, Database, Globe, Info
 } from "lucide-react";
 import FleetVelocityChart from "./components/FleetVelocityChart";
 import Sparkline from "./components/Sparkline";
