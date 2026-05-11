@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { CheckCircle2, AlertTriangle, XCircle, MinusCircle, LayoutGrid, Search, ChevronLeft, ChevronRight, ArrowRight, ShieldCheck, Info } from "lucide-react";
+import { CheckCircle2, AlertTriangle, XCircle, MinusCircle, LayoutGrid, Search, ChevronLeft, ChevronRight, ArrowRight, ShieldCheck, Info, MoreHorizontal } from "lucide-react";
 
 interface Connection {
     id: string;
