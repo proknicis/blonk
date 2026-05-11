@@ -20,6 +20,43 @@ export default function WorkflowsPage() {
     const [step, setStep] = useState<'configure' | 'result'>('configure');
     const [isDeploying, setIsDeploying] = useState(false);
 
+    // Custom workflow request modal
+    const [showCustomModal, setShowCustomModal] = useState(false);
+    const [customForm, setCustomForm] = useState({ name: '', description: '', urgency: 'normal' });
+    const [customStep, setCustomStep] = useState<'form' | 'success'>('form');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleCustomRequest = async () => {
+        if (!customForm.name.trim() || !customForm.description.trim()) return;
+        setIsSubmitting(true);
+        try {
+            const res = await fetch('/api/support', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    subject: `Custom Workflow Request: ${customForm.name}`,
+                    message: `**Workflow Name:** ${customForm.name}\n\n**Description / Requirements:**\n${customForm.description}\n\n**Urgency:** ${customForm.urgency}`,
+                })
+            });
+            if (res.ok) {
+                setCustomStep('success');
+            } else {
+                const err = await res.json();
+                showToast(err.error || 'Submission failed. Please try again.', 'error');
+            }
+        } catch {
+            showToast('Network error. Please try again.', 'error');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const openCustomModal = () => {
+        setCustomForm({ name: '', description: '', urgency: 'normal' });
+        setCustomStep('form');
+        setShowCustomModal(true);
+    };
+
     const categories = ["All", "Accounting", "Law", "HR", "IT", "General"];
 
     useEffect(() => {
@@ -226,7 +263,7 @@ export default function WorkflowsPage() {
                 <div className={styles.customLeft}>
                     <h2>Can't find what you need?</h2>
                     <p>Request a custom workflow tailored to your unique business processes.</p>
-                    <button className={styles.btnRequest}>
+                    <button className={styles.btnRequest} onClick={openCustomModal}>
                         Request Custom Workflow <ArrowUpRight size={18} />
                     </button>
                     <div className={styles.responseNote}>
@@ -268,7 +305,7 @@ export default function WorkflowsPage() {
                 </div>
             </div>
 
-            {/* MODALS */}
+            {/* INSTALL MODAL */}
             {configureTemplate && (
                 <ModalPortal>
                     <div className={styles.modalOverlay} onClick={() => setConfigureTemplate(null)}>
@@ -284,7 +321,7 @@ export default function WorkflowsPage() {
                                         {configureTemplate.parsedReqs.map((req: any, idx: number) => (
                                             <div key={idx} className={styles.formGroup}>
                                                 <label className={styles.fieldLabel}>{req.name.replace(/_/g, ' ')}</label>
-                                                <input 
+                                                <input
                                                     className={styles.fieldInput}
                                                     type="text"
                                                     placeholder={req.example || `Specify ${req.name}...`}
@@ -305,6 +342,95 @@ export default function WorkflowsPage() {
                                     <h2 className={styles.onboardingTitle}>Workflow Installed</h2>
                                     <p className={styles.onboardingSubtitle}>Orchestration has been initiated successfully.</p>
                                     <button className={styles.btnInstall} style={{ width: '100%' }} onClick={() => setConfigureTemplate(null)}>Return to Marketplace</button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </ModalPortal>
+            )}
+
+            {/* CUSTOM WORKFLOW REQUEST MODAL */}
+            {showCustomModal && (
+                <ModalPortal>
+                    <div className={styles.modalOverlay} onClick={() => setShowCustomModal(false)}>
+                        <div className={styles.modalContent} onClick={e => e.stopPropagation()} style={{ maxWidth: 520 }}>
+                            <button className={styles.closeButton} onClick={() => setShowCustomModal(false)}>
+                                <X size={20} />
+                            </button>
+
+                            {customStep === 'form' ? (
+                                <>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24 }}>
+                                        <div style={{ width: 52, height: 52, background: '#0F172A', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            <Zap size={26} color="white" />
+                                        </div>
+                                        <div>
+                                            <h2 className={styles.onboardingTitle} style={{ margin: 0 }}>Request Custom Workflow</h2>
+                                            <p className={styles.onboardingSubtitle} style={{ margin: 0 }}>Tell us what you need — we'll build it for you.</p>
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.configFieldset}>
+                                        <div className={styles.formGroup}>
+                                            <label className={styles.fieldLabel}>Workflow Name *</label>
+                                            <input
+                                                className={styles.fieldInput}
+                                                type="text"
+                                                placeholder="e.g. Monthly Invoice Reconciliation"
+                                                value={customForm.name}
+                                                onChange={e => setCustomForm(f => ({ ...f, name: e.target.value }))}
+                                            />
+                                        </div>
+                                        <div className={styles.formGroup}>
+                                            <label className={styles.fieldLabel}>Describe what you want to automate *</label>
+                                            <textarea
+                                                className={styles.fieldInput}
+                                                rows={5}
+                                                placeholder="Describe the process step by step. Include which apps, tools or data sources are involved..."
+                                                value={customForm.description}
+                                                onChange={e => setCustomForm(f => ({ ...f, description: e.target.value }))}
+                                                style={{ resize: 'vertical', lineHeight: 1.6 }}
+                                            />
+                                        </div>
+                                        <div className={styles.formGroup}>
+                                            <label className={styles.fieldLabel}>Urgency</label>
+                                            <select
+                                                className={styles.fieldInput}
+                                                value={customForm.urgency}
+                                                onChange={e => setCustomForm(f => ({ ...f, urgency: e.target.value }))}
+                                            >
+                                                <option value="low">Low — within 2 weeks</option>
+                                                <option value="normal">Normal — within 1 week</option>
+                                                <option value="high">High — within 2 days</option>
+                                                <option value="urgent">Urgent — ASAP</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        className={styles.btnInstall}
+                                        style={{ width: '100%', height: '52px', marginTop: 8, opacity: (!customForm.name.trim() || !customForm.description.trim() || isSubmitting) ? 0.6 : 1 }}
+                                        disabled={!customForm.name.trim() || !customForm.description.trim() || isSubmitting}
+                                        onClick={handleCustomRequest}
+                                    >
+                                        {isSubmitting ? 'Submitting...' : 'Submit Request'}
+                                    </button>
+                                    <div className={styles.responseNote} style={{ marginTop: 16, justifyContent: 'center' }}>
+                                        <CheckCircle size={15} /> Our team responds within 24 hours.
+                                    </div>
+                                </>
+                            ) : (
+                                <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                                    <div style={{ width: '68px', height: '68px', background: '#10B981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+                                        <CheckCircle size={34} color="white" />
+                                    </div>
+                                    <h2 className={styles.onboardingTitle}>Request Submitted!</h2>
+                                    <p className={styles.onboardingSubtitle} style={{ maxWidth: 340, margin: '0 auto 32px' }}>
+                                        Your custom workflow request for <strong>"{customForm.name}"</strong> has been received. Our team will contact you within 24 hours.
+                                    </p>
+                                    <button className={styles.btnInstall} style={{ width: '100%' }} onClick={() => setShowCustomModal(false)}>
+                                        Back to Marketplace
+                                    </button>
                                 </div>
                             )}
                         </div>
