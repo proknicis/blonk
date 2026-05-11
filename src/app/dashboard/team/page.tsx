@@ -267,7 +267,7 @@ export default function TeamPage() {
                     <h1>Team Command</h1>
                     <p>Manage people, roles, and access. Control who can view, run, and edit workflows.</p>
                 </div>
-                <button className={styles.btnSubmit} style={{ width: 'auto', padding: '0 24px', display: 'flex', alignItems: 'center', gap: '10px' }} onClick={() => setShowInviteModal(true)}>
+                <button className={styles.btnHeader} onClick={() => setShowInviteModal(true)}>
                     <UserPlus size={18} /> Provision Member
                 </button>
             </div>
@@ -522,7 +522,7 @@ export default function TeamPage() {
                 <ModalPortal>
                     <div className={styles.modalOverlay} onClick={() => setShowInviteModal(false)}>
                         <div className={styles.modal} onClick={e => e.stopPropagation()}>
-                            <h2 className={styles.onboardingTitle} style={{ fontSize: '1.5rem', textAlign: 'left' }}>Provision Member</h2>
+                            <h2 className={styles.modalTitle}>Provision Member</h2>
                             <form onSubmit={handleInvite}>
                                 {inviteError && <div className={styles.errorMessage}>{inviteError}</div>}
                                 <div className={styles.formGroup}>
@@ -560,7 +560,7 @@ export default function TeamPage() {
                 <ModalPortal>
                     <div className={styles.modalOverlay} onClick={() => setShowRoleEditModal(false)}>
                         <div className={styles.modal} style={{ maxWidth: '440px' }} onClick={e => e.stopPropagation()}>
-                             <h2 className={styles.onboardingTitle} style={{ fontSize: '1.5rem', textAlign: 'left', marginBottom: '8px' }}>Update Role</h2>
+                             <h2 className={styles.modalTitle} style={{ marginBottom: '8px' }}>Update Role</h2>
                              <p style={{ color: '#64748B', fontWeight: 700, marginBottom: '24px' }}>Adjust permissions for {selectedMember?.name}</p>
                              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                 {['ADMIN', 'EDITOR', 'VIEWER', 'PAUSED'].map(role => (
@@ -596,7 +596,7 @@ export default function TeamPage() {
                              <div style={{ width: '64px', height: '64px', background: '#FEF2F2', color: '#EF4444', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
                                 <Trash2 size={32} />
                              </div>
-                             <h2 className={styles.onboardingTitle} style={{ fontSize: '1.5rem' }}>Decommission Member?</h2>
+                             <h2 className={styles.modalTitle} style={{ textAlign: 'center' }}>Decommission Member?</h2>
                              <p style={{ color: '#64748B', fontWeight: 700, lineHeight: 1.6, marginBottom: '32px' }}>
                                 Are you certain you wish to decommission **{selectedMember?.name}**? This action will immediately terminate all sovereign access keys.
                              </p>
