@@ -411,11 +411,11 @@ export default function TeamPage() {
                                             </td>
                                             <td>
                                                 <div className={styles.accessIcons}>
-                                                    <Play size={14} title="Can run workflows" />
-                                                    <Link2 size={14} title="Can link systems" />
-                                                    <Settings size={14} title="Can edit settings" />
+                                                    <span title="Can run workflows"><Play size={14} /></span>
+                                                    <span title="Can link systems"><Link2 size={14} /></span>
+                                                    <span title="Can edit settings"><Settings size={14} /></span>
                                                     <div style={{ color: member.role === 'PAUSED' ? '#EF4444' : '#E2E8F0' }}>
-                                                        {member.role === 'PAUSED' ? <Trash2 size={14} /> : <Shield size={14} />}
+                                                        {member.role === 'PAUSED' ? <span title="Account Paused"><Trash2 size={14} /></span> : <span title="Security Verified"><Shield size={14} /></span>}
                                                     </div>
                                                 </div>
                                             </td>
