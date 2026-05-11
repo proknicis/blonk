@@ -10,7 +10,11 @@
     gap: 40px;
     animation: dashboardFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     color: var(--foreground);
-    background-color: transparent;
+    background-image: 
+        linear-gradient(rgba(226, 232, 240, 0.3) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(226, 232, 240, 0.3) 1px, transparent 1px);
+    background-size: 40px 40px;
+    padding: 20px;
 }
 
 @keyframes dashboardFadeIn {
@@ -51,6 +55,25 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.playIconBox {
+    width: 20px;
+    height: 20px;
+    background: #10B981;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.playTriangle {
+    width: 0;
+    height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 7px solid #FFFFFF;
+    margin-left: 2px;
 }
 
 .integrityLabel {

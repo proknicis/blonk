@@ -28,134 +28,219 @@
     letter-spacing: -0.04em;
     color: var(--foreground);
     margin: 0 0 8px 0;
+    font-size: 2.2rem;
+    font-weight: 950;
+    margin-bottom: 8px;
+    color: #0F172A;
 }
 
 .headerLeft p {
-    font-size: 1.05rem;
-    color: var(--muted-foreground);
+    color: #64748B;
     font-weight: 600;
-    margin: 0;
-}
-
-.btnPrimary {
-    background: var(--primary);
-    color: var(--primary-foreground);
-    padding: 14px 28px;
-    border-radius: 16px;
     font-size: 0.95rem;
-    font-weight: 950;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.btnPrimary:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-    filter: brightness(1.1);
-}
-
+/* METRICS */
 .statsGrid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 24px;
 }
 
 .statCard {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 32px;
-    padding: 32px;
+    background: #FFFFFF;
+    border: 1px solid #F1F5F9;
+    border-radius: 20px;
+    padding: 24px;
     display: flex;
-    flex-direction: column;
-    gap: 12px;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: var(--shadow-sm);
+    align-items: center;
+    gap: 20px;
 }
 
-.statCard:hover {
-    border-color: var(--accent);
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-md);
+.statIconBox {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.statInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.statValue {
+    font-size: 1.5rem;
+    font-weight: 950;
+    color: #0F172A;
 }
 
 .statLabel {
     font-size: 0.75rem;
+    color: #64748B;
+    font-weight: 800;
     text-transform: uppercase;
-    font-weight: 950;
-    letter-spacing: 0.15em;
-    color: var(--muted-foreground);
-    opacity: 0.7;
+    letter-spacing: 0.05em;
 }
 
-.statValue {
-    font-size: 2.5rem;
-    font-weight: 950;
-    color: var(--foreground);
-    letter-spacing: -0.04em;
-}
-
-.controls {
-    display: flex;
-    gap: 16px;
-    justify-content: space-between;
-    background: var(--card);
-    padding: 16px;
+/* OWNER CARD */
+.ownerCard {
+    background: #FFFFFF;
+    border: 1px solid #F1F5F9;
     border-radius: 24px;
-    border: 1px solid var(--border);
+    padding: 24px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ownerInfo {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.ownerAvatar {
+    width: 56px;
+    height: 56px;
+    background: #0F172A;
+    color: #FFFFFF;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 950;
+}
+
+.ownerDetails {
+    display: flex;
+    flex-direction: column;
+}
+
+.ownerName {
+    font-size: 1.1rem;
+    font-weight: 950;
+    color: #0F172A;
+}
+
+.ownerEmail {
+    font-size: 0.85rem;
+    color: #64748B;
+    font-weight: 700;
+}
+
+.ownerBadge {
+    background: #F0FAF5;
+    color: #10B981;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 950;
+    text-transform: uppercase;
+}
+
+.accessPanel {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.accessLabel {
+    font-size: 0.65rem;
+    color: #94A3B8;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.accessChips {
+    display: flex;
+    gap: 8px;
+}
+
+.accessChip {
+    background: #F8FAFC;
+    border: 1px solid #F1F5F9;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #475569;
+}
+
+/* MAIN LAYOUT GRID */
+.mainLayout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 32px;
+}
+
+/* FILTERS */
+.filtersBar {
+    display: flex;
+    gap: 12px;
     margin-bottom: 24px;
 }
 
 .searchBox {
+    flex: 1;
+    background: #FFFFFF;
+    border: 1px solid #F1F5F9;
+    border-radius: 14px;
     display: flex;
     align-items: center;
+    padding: 0 16px;
     gap: 12px;
-    flex: 1;
-    background: var(--background);
-    padding: 0 20px;
-    border-radius: 16px;
-    border: 1px solid var(--border);
-    min-height: 56px;
-    transition: all 0.2s;
-}
-
-.searchBox:focus-within {
-    border-color: var(--accent);
 }
 
 .searchBox input {
     border: none;
-    background: none;
-    outline: none;
-    font-size: 0.95rem;
-    font-weight: 600;
+    background: transparent;
     width: 100%;
-    color: var(--foreground);
+    height: 48px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0F172A;
+}
+
+.searchBox input::placeholder {
+    color: #94A3B8;
 }
 
 .filterSelect {
-    background: var(--background);
-    border: 1px solid var(--border);
-    color: var(--foreground);
+    background: #FFFFFF;
+    border: 1px solid #F1F5F9;
+    border-radius: 14px;
+    padding: 0 16px;
+    font-size: 0.85rem;
     font-weight: 800;
-    padding: 0 20px;
-    border-radius: 16px;
-    outline: none;
-    min-height: 56px;
-    min-width: 180px;
+    color: #475569;
     cursor: pointer;
+    min-width: 140px;
 }
 
-/* TABLE STYLES */
-.tableWrapper {
-    background: var(--card);
-    border-radius: 36px;
-    border: 1px solid var(--border);
+.clearFilters {
+    background: transparent;
+    border: none;
+    color: #64748B;
+    font-size: 0.85rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+}
+
+/* TABLE */
+.tableContainer {
+    background: #FFFFFF;
+    border: 1px solid #F1F5F9;
+    border-radius: 24px;
     overflow: hidden;
-    box-shadow: var(--shadow-sm);
 }
 
 .teamTable {
@@ -165,119 +250,251 @@
 
 .teamTable th {
     text-align: left;
-    padding: 24px 32px;
-    font-size: 0.75rem;
+    padding: 20px 24px;
+    font-size: 0.7rem;
     font-weight: 950;
+    color: #94A3B8;
     text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: var(--muted-foreground);
-    background: var(--background);
-    border-bottom: 1px solid var(--border);
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #F8FAFC;
 }
 
-.teamTable td {
-    padding: 24px 32px;
-    border-bottom: 1px solid var(--border);
-    vertical-align: middle;
+.memberRow {
+    border-bottom: 1px solid #F8FAFC;
+    transition: all 0.2s ease;
 }
 
-.teamRow:hover {
-    background: var(--muted);
+.memberRow:hover {
+    background: #F8FAFC;
 }
 
-.userCell {
+.memberRow td {
+    padding: 20px 24px;
+}
+
+.memberCell {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
 }
 
-.avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 16px;
+.memberAvatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 0.9rem;
     font-weight: 950;
-    font-size: 1.15rem;
-    position: relative;
-    box-shadow: var(--shadow-sm);
 }
 
-.statusDot {
-    position: absolute;
-    bottom: -3px;
-    right: -3px;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    border: 3px solid var(--card);
-}
-
-.statusActive { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
-.statusOffline { background: var(--border); }
-
-.userName {
+.memberName {
+    font-size: 0.9rem;
     font-weight: 950;
-    font-size: 1.05rem;
-    color: var(--foreground);
-    letter-spacing: -0.02em;
+    color: #0F172A;
     display: block;
 }
 
-.userEmail {
-    font-size: 0.85rem;
-    color: var(--muted-foreground);
+.memberEmail {
+    font-size: 0.75rem;
+    color: #64748B;
     font-weight: 700;
 }
 
-.roleBadge {
-    padding: 6px 14px;
-    border-radius: 8px;
+.rolePill {
     font-size: 0.65rem;
     font-weight: 950;
+    padding: 6px 12px;
+    border-radius: 8px;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    border: 1px solid var(--border);
-}
-
-.workflowPill {
-    background: var(--muted);
-    color: var(--muted-foreground);
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 0.7rem;
-    font-weight: 800;
-    margin-right: 6px;
-    margin-bottom: 4px;
     display: inline-block;
 }
 
-.activityInfo {
-    display: flex;
-    flex-direction: column;
+.assignedCount {
+    font-size: 0.9rem;
+    font-weight: 950;
+    color: #0F172A;
 }
 
-.activityText {
-    font-size: 0.9rem;
-    color: var(--foreground);
+.accessIcons {
+    display: flex;
+    gap: 12px;
+    color: #10B981;
+}
+
+.lastActiveText {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #475569;
+}
+
+.statusPill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.7rem;
+    font-weight: 950;
+    text-transform: uppercase;
+}
+
+.statusDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.actionBtn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #F8FAFC;
+    border: 1px solid #F1F5F9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748B;
+    cursor: pointer;
+}
+
+/* SIDEBAR */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.sidebarCard {
+    background: #FFFFFF;
+    border: 1px solid #F1F5F9;
+    border-radius: 24px;
+    padding: 24px;
+}
+
+.sidebarTitle {
+    font-size: 0.95rem;
+    font-weight: 950;
+    color: #0F172A;
+    margin-bottom: 4px;
+}
+
+.sidebarSubtitle {
+    font-size: 0.8rem;
+    color: #64748B;
+    font-weight: 700;
+    margin-bottom: 24px;
+    display: block;
+}
+
+.permissionList {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.permissionItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.roleIconBox {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.roleTitle {
+    font-size: 0.85rem;
+    font-weight: 950;
+    color: #1E293B;
+    margin-bottom: 2px;
+    display: block;
+}
+
+.roleDesc {
+    font-size: 0.75rem;
+    color: #64748B;
     font-weight: 700;
 }
 
-.activityTime {
-    font-size: 0.75rem;
-    font-weight: 900;
-    color: var(--muted-foreground);
-    text-transform: uppercase;
-    opacity: 0.6;
+.activityList {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }
 
-/* MODAL SYSTEM */
+.activityItem {
+    display: flex;
+    gap: 16px;
+}
+
+.activityIconBox {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.activityContent {
+    flex: 1;
+}
+
+.activityUser {
+    font-size: 0.85rem;
+    font-weight: 950;
+    color: #1E293B;
+    margin-right: 6px;
+}
+
+.activityAction {
+    font-size: 0.8rem;
+    color: #64748B;
+    font-weight: 700;
+}
+
+.activityTarget {
+    font-size: 0.8rem;
+    color: #2563EB;
+    font-weight: 700;
+    display: block;
+    margin-top: 2px;
+}
+
+.activityTime {
+    font-size: 0.7rem;
+    color: #94A3B8;
+    font-weight: 700;
+    margin-top: 8px;
+    display: block;
+}
+
+.sidebarFooter {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #F8FAFC;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footerLink {
+    font-size: 0.8rem;
+    font-weight: 950;
+    color: #0F172A;
+    text-decoration: none;
+}
+
+/* MODALS (Minimal adjustments to existing) */
 .modalOverlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(8px);

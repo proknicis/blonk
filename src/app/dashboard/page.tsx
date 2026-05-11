@@ -117,7 +117,7 @@ export default function DashboardPage() {
             <div className={styles.integrityRow}>
                 <div className={styles.integrityCard}>
                     <div className={`${styles.integrityIcon}`} style={{ background: '#F0FAF5', color: '#34D186' }}>
-                        <Globe size={20} />
+                        <div className={styles.playIconBox}><div className={styles.playTriangle} /></div>
                     </div>
                     <div className={styles.integrityLabel}>
                         <span className={styles.integrityStatus}>System Operational</span>
@@ -127,7 +127,7 @@ export default function DashboardPage() {
 
                 <div className={styles.integrityCard}>
                     <div className={`${styles.integrityIcon}`} style={{ background: '#F0F9FF', color: '#0EA5E9' }}>
-                        <Link2 size={20} />
+                        <Link2 size={18} />
                     </div>
                     <div className={styles.integrityLabel}>
                         <span className={styles.integrityStatus}>Connected</span>
@@ -136,8 +136,8 @@ export default function DashboardPage() {
                 </div>
 
                 <div className={styles.integrityCard}>
-                    <div className={`${styles.integrityIcon}`} style={{ background: '#FDFCF0', color: '#EAB308' }}>
-                        <ShieldCheck size={20} />
+                    <div className={`${styles.integrityIcon}`} style={{ background: '#F0FAF5', color: '#34D186' }}>
+                        <ShieldCheck size={18} />
                     </div>
                     <div className={styles.integrityLabel}>
                         <span className={styles.integrityStatus}>Authorized</span>
@@ -149,7 +149,7 @@ export default function DashboardPage() {
                     <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', marginBottom: '4px' }}>Total Runs</div>
                     <div style={{ fontSize: '1.4rem', fontWeight: 950, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
                         {globalStats.total_tasks.toLocaleString()}
-                        <TrendingUp size={18} color="#34D186" />
+                        <ArrowUpRight size={18} color="#34D186" />
                     </div>
                 </div>
             </div>
@@ -159,11 +159,11 @@ export default function DashboardPage() {
                 <div className={styles.metricCard}>
                     <div className={styles.metricHeader}>
                         <span className={styles.label}>Runs Today</span>
-                        <TrendingUp size={14} className={styles.accentIcon} />
+                        <TrendingUp size={14} color="#10B981" />
                     </div>
                     <div className={styles.value}>{data.runsToday.toLocaleString()}</div>
-                    <div className={`${styles.trendContainer} ${data.runsTrend >= 0 ? styles.trendUp : styles.trendDown}`}>
-                        {data.runsTrend >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                    <div className={`${styles.trendContainer} ${styles.trendUp}`}>
+                        <TrendingUp size={14} />
                         {Math.abs(data.runsTrend)}% vs yesterday
                     </div>
                 </div>
@@ -174,26 +174,26 @@ export default function DashboardPage() {
                         <div style={{ fontSize: '0.6rem', fontWeight: 950, padding: '2px 6px', background: '#F0FAF5', color: '#34D186', borderRadius: '4px' }}>REAL-TIME</div>
                     </div>
                     <div className={styles.value}>{data.timeSavedHours}h</div>
-                    <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 700 }}>Estimated automation yield</div>
+                    <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 700 }}>Real-time</div>
                 </div>
 
                 <div className={styles.metricCard}>
                     <div className={styles.metricHeader}>
                         <span className={styles.label}>Active Workflows</span>
-                        <Activity size={14} color="#34D186" />
+                        <Activity size={14} color="#10B981" />
                     </div>
                     <div className={styles.value}>{data.activeAgents} / {data.totalWorkflows}</div>
-                    <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 700 }}>All workflows reporting active</div>
+                    <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 700 }}>All workflows active</div>
                 </div>
 
                 <div className={styles.metricCard}>
                     <div className={styles.metricHeader}>
                         <span className={styles.label}>Issues Today</span>
-                        <AlertCircle size={14} color={data.issuesToday > 0 ? "#EF4444" : "#64748B"} />
+                        <Clock size={14} color="#EF4444" />
                     </div>
                     <div className={styles.value}>{data.issuesToday}</div>
-                    <div className={`${styles.trendContainer} ${data.issuesTrend <= 0 ? styles.trendUp : styles.trendDown}`}>
-                        {data.issuesTrend <= 0 ? <TrendingDown size={14} /> : <TrendingUp size={14} />}
+                    <div className={`${styles.trendContainer} ${styles.trendUp}`}>
+                        <TrendingDown size={14} color="#10B981" />
                         {Math.abs(data.issuesTrend)}% vs yesterday
                     </div>
                 </div>
@@ -206,10 +206,15 @@ export default function DashboardPage() {
                         <h3 className={styles.sectionTitle}>Workflow Activity</h3>
                         <span className={styles.sectionSubtitle}>Runs across active workflows</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', fontWeight: 800, color: '#64748B' }}>
                             <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#34D186' }} />
                             Real Runs (24h Window)
+                        </div>
+                        <div style={{ display: 'flex', background: '#F1F5F9', padding: '4px', borderRadius: '10px' }}>
+                            {['24H', '7D', '30D'].map(r => (
+                                <button key={r} style={{ padding: '6px 12px', border: 'none', background: r === '24H' ? '#111' : 'transparent', color: r === '24H' ? '#FFF' : '#64748B', fontSize: '0.65rem', fontWeight: 950, borderRadius: '8px', cursor: 'pointer' }}>{r}</button>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -234,35 +239,37 @@ export default function DashboardPage() {
                             <Link href="/dashboard/workflows" className={styles.viewAllLink}>View all workflows &rsaquo;</Link>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            {data.topWorkflows.map(w => (
-                                <div key={w.id} className={styles.workflowOverviewRow}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                                        <div className={styles.workflowIconBox}>
-                                            {w.name.charAt(0)}
-                                            <div className={styles.activePulseIndicator} />
+                            {data.topWorkflows.map((w, idx) => {
+                                const colors = ['#10B981', '#2563EB', '#8B5CF6'];
+                                return (
+                                    <div key={w.id} className={styles.workflowOverviewRow}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                                            <div className={styles.workflowIconBox} style={{ background: colors[idx % 3], color: '#FFF', border: 'none' }}>
+                                                {w.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                                            </div>
+                                            <div>
+                                                <div className={styles.workflowRowTitle}>{w.name}</div>
+                                                <div className={styles.workflowRowSubtitle}>
+                                                    {w.totalRuns} runs today
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <div className={styles.workflowRowTitle}>{w.name}</div>
-                                            <div className={styles.workflowRowSubtitle}>
-                                                <Zap size={10} /> {w.totalRuns} runs today
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
+                                            <div className={styles.sparklineWrapper}>
+                                                <Sparkline data={w.miniChart} color="#10B981" />
+                                            </div>
+                                            <div className={styles.successMetric}>
+                                                <div className={styles.successValue}>{w.successRate}%</div>
+                                                <div className={styles.successLabel}>Success rate</div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
-                                        <div className={styles.sparklineWrapper}>
-                                            <Sparkline data={w.miniChart} color={w.successRate > 90 ? "#10B981" : "#F59E0B"} />
-                                        </div>
-                                        <div className={styles.successMetric}>
-                                            <div className={styles.successValue}>{w.successRate}%</div>
-                                            <div className={styles.successLabel}>SUCCESS</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
 
-                    {/* NEEDS ATTENTION / FEED */}
+                    {/* NEEDS ATTENTION */}
                     <div className={styles.liveFeed}>
                         <div className={styles.cardHeader}>
                             <h3 className={styles.cardTitle}>Needs Attention</h3>
@@ -273,12 +280,12 @@ export default function DashboardPage() {
                                 data.intelligenceFeed.map((item, idx) => (
                                     <div key={idx} className={styles.feedItem}>
                                         <div style={{ 
-                                            width: '32px', height: '32px', borderRadius: '50%', 
-                                            background: item.type === 'error' ? '#FEF2F2' : (item.type === 'info' ? '#F0F9FF' : '#F0FAF5'),
-                                            color: item.type === 'error' ? '#EF4444' : (item.type === 'info' ? '#0EA5E9' : '#34D186'),
+                                            width: '36px', height: '36px', borderRadius: '50%', 
+                                            background: item.type === 'error' ? '#EF4444' : (item.type === 'info' ? '#F59E0B' : '#10B981'),
+                                            color: '#FFF',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
                                         }}>
-                                            {item.type === 'error' ? <ShieldAlert size={16} /> : (item.type === 'info' ? <Info size={16} /> : <ShieldCheck size={16} />)}
+                                            {item.type === 'error' ? <AlertCircle size={18} /> : (item.type === 'info' ? <AlertCircle size={18} /> : <CheckCircle size={18} />)}
                                         </div>
                                         <div className={styles.feedContent}>
                                             <div className={styles.feedHeaderRow}>
