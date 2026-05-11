@@ -36,6 +36,7 @@ export default function TeamPage() {
     const [inviteLoading, setInviteLoading] = useState(false);
     const [inviteError, setInviteError] = useState("");
 
+    const [activity, setActivity] = useState<any[]>([]);
     const [noTeam, setNoTeam] = useState(false);
     const [creationLoading, setCreationLoading] = useState(false);
     const [creationFirm, setCreationFirm] = useState("");
@@ -101,12 +102,15 @@ export default function TeamPage() {
                 setNoTeam(false);
                 const enriched = data.members.map((m: any) => ({
                     ...m,
-                    status: isOnline(m.lastSeen) ? 'Active' : (m.invitePending ? 'Invited' : (m.paused ? 'Paused' : 'Offline')),
+                    status: isOnline(m.lastSeen) ? 'Active' : (m.lastSeen ? 'Offline' : 'Invited'),
                     lastActivity: m.lastActivity || 'System idle',
                     lastSeenFormatted: formatTimeAgo(m.lastSeen)
                 }));
                 enriched.sort((a: any, b: any) => a.role === 'OWNER' ? -1 : b.role === 'OWNER' ? 1 : 0);
                 setMembers(enriched);
+            }
+            if (data.activity) {
+                setActivity(data.activity);
             }
         } catch (error) {
             console.error("Team fetch failure", error);
@@ -253,6 +257,8 @@ export default function TeamPage() {
         );
     }
 
+    const pendingInvites = members.filter(m => m.status === 'Invited').length;
+
     return (
         <div className={styles.teamContainer}>
             {/* HEADER */}
@@ -292,7 +298,7 @@ export default function TeamPage() {
                 <div className={styles.statCard}>
                     <div className={styles.statIconBox} style={{ background: '#F5F3FF', color: '#8B5CF6' }}><Shield size={24} /></div>
                     <div className={styles.statInfo}>
-                        <span className={styles.statValue}>1</span>
+                        <span className={styles.statValue}>{pendingInvites}</span>
                         <span className={styles.statLabel}>Pending Invites</span>
                     </div>
                 </div>
@@ -383,16 +389,31 @@ export default function TeamPage() {
                                                 </div>
                                             </td>
                                             <td>
-                                                <div className={styles.rolePill} style={{ background: `${color}15`, color: color }}>
+                                                <div 
+                                                    className={styles.rolePill} 
+                                                    style={{ background: `${color}15`, color: color, cursor: 'pointer' }}
+                                                    onClick={() => {
+                                                        setSelectedMember(member);
+                                                        setShowRoleEditModal(true);
+                                                    }}
+                                                >
                                                     {member.role}
                                                 </div>
                                             </td>
-                                            <td><span className={styles.assignedCount}>{member.workflows?.length || 0}</span></td>
+                                            <td style={{ cursor: 'pointer' }} onClick={() => {
+                                                setSelectedMember(member);
+                                                setShowWorkflowModal(true);
+                                            }}>
+                                                <div className={styles.assignedCountWrapper}>
+                                                    <span className={styles.assignedCount}>{member.workflows?.length || 0}</span>
+                                                    <ChevronRight size={12} color="#94A3B8" />
+                                                </div>
+                                            </td>
                                             <td>
                                                 <div className={styles.accessIcons}>
-                                                    <Play size={14} />
-                                                    <Link2 size={14} />
-                                                    <Settings size={14} />
+                                                    <Play size={14} title="Can run workflows" />
+                                                    <Link2 size={14} title="Can link systems" />
+                                                    <Settings size={14} title="Can edit settings" />
                                                     <div style={{ color: member.role === 'PAUSED' ? '#EF4444' : '#E2E8F0' }}>
                                                         {member.role === 'PAUSED' ? <Trash2 size={14} /> : <Shield size={14} />}
                                                     </div>
@@ -457,26 +478,39 @@ export default function TeamPage() {
                         <h3 className={styles.sidebarTitle}>Team Activity</h3>
                         <span className={styles.sidebarSubtitle}>Recent team actions</span>
                         <div className={styles.activityList}>
-                            {[
-                                { user: 'Team Reporter', action: 'Ran workflow', target: 'Daily Sync', time: '2h ago', color: '#10B981', icon: Play },
-                                { user: 'Invoice Notifier', action: 'Edited workflow', target: 'Invoice Flow', time: '5h ago', color: '#8B5CF6', icon: Settings },
-                                { user: 'Lead Intake', action: 'Viewed workflow', target: 'Lead Capture', time: '1d ago', color: '#3B82F6', icon: Globe },
-                                { user: 'Backup Checker', action: 'Joined the team', target: '', time: '2d ago', color: '#10B981', icon: UserPlus }
-                            ].map((a, i) => (
-                                <div key={i} className={styles.activityItem}>
-                                    <div className={styles.activityIconBox} style={{ background: `${a.color}15`, color: a.color }}>
-                                        <a.icon size={14} />
+                            {activity.length > 0 ? activity.map((a, i) => {
+                                const eventColors: any = {
+                                    'login': '#10B981',
+                                    'workflow_start': '#3B82F6',
+                                    'role_change': '#8B5CF6',
+                                    'admin_change': '#F97316'
+                                };
+                                const Icon = a.eventType === 'workflow_start' ? Play : (a.eventType === 'login' ? User : Settings);
+                                const color = eventColors[a.eventType] || '#64748B';
+                                
+                                return (
+                                    <div key={i} className={styles.activityItem}>
+                                        <div className={styles.activityIconBox} style={{ background: `${color}15`, color: color }}>
+                                            <Icon size={14} />
+                                        </div>
+                                        <div className={styles.activityContent}>
+                                            <span className={styles.activityAction}>
+                                                <span className={styles.activityUser}>{a.userName}</span> 
+                                                {a.eventType.replace('_', ' ')}
+                                            </span>
+                                            {a.metadata?.target && <span className={styles.activityTarget}>{a.metadata.target}</span>}
+                                            <span className={styles.activityTime}>{formatTimeAgo(a.createdAt)}</span>
+                                        </div>
                                     </div>
-                                    <div className={styles.activityContent}>
-                                        <span className={styles.activityAction}><span className={styles.activityUser}>{a.user}</span> {a.action}</span>
-                                        {a.target && <span className={styles.activityTarget}>{a.target}</span>}
-                                        <span className={styles.activityTime}>{a.time}</span>
-                                    </div>
+                                );
+                            }) : (
+                                <div style={{ textAlign: 'center', padding: '20px', color: '#94A3B8', fontSize: '0.85rem', fontWeight: 700 }}>
+                                    No recent activity
                                 </div>
-                            ))}
+                            )}
                         </div>
                         <div className={styles.sidebarFooter}>
-                            <Link href="#" className={styles.footerLink}>View all activity</Link>
+                            <Link href="/dashboard/audit" className={styles.footerLink}>View all activity</Link>
                             <ChevronRight size={14} color="#0F172A" />
                         </div>
                     </div>

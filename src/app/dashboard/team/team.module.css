@@ -311,6 +311,22 @@
     display: inline-block;
 }
 
+.assignedCountWrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: #F8FAFC;
+    border-radius: 10px;
+    width: fit-content;
+    transition: all 0.2s ease;
+}
+
+.assignedCountWrapper:hover {
+    background: #F1F5F9;
+    transform: translateX(2px);
+}
+
 .assignedCount {
     font-size: 0.9rem;
     font-weight: 950;
@@ -490,6 +506,12 @@
     font-weight: 950;
     color: #0F172A;
     text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.footerLink:hover {
+    color: #2563EB;
+    transform: translateX(2px);
 }
 
 /* MODALS (Minimal adjustments to existing) */

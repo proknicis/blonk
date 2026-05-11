@@ -7,40 +7,30 @@ import bcrypt from "bcryptjs";
 
 export async function GET() {
     try {
-        const dbUrl = process.env.DATABASE_URL ? 'DEFINED' : 'UNDEFINED';
-        
-        let session;
-        try {
-            session = await getServerSession(authOptions);
-        } catch (sessionError: any) {
-            return NextResponse.json({ 
-                error: 'Session Fetch Failure', 
-                details: sessionError.message,
-                env: { dbUrl }
-            }, { status: 500 });
-        }
-
-        if (!session?.user) return NextResponse.json({ error: "Unauthorized", env: { dbUrl } }, { status: 401 });
+        const session = await getServerSession(authOptions);
+        if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
         const teamId = (session.user as any).teamId;
-        if (!teamId) return NextResponse.json({ success: true, members: [] });
+        if (!teamId) return NextResponse.json({ success: true, members: [], activity: [] });
 
-        let members;
-        try {
-            members = await db.query(
-                'SELECT id, name, email, role, "lastSeen", "lastActivity" FROM "User" WHERE "teamId" = $1 ORDER BY role DESC',
-                [teamId]
-            );
-        } catch (dbError: any) {
-            return NextResponse.json({ 
-                error: 'Database Query Failure', 
-                details: dbError.message,
-                env: { dbUrl },
-                teamId: teamId
-            }, { status: 500 });
-        }
+        // 1. Fetch Members with Workflows
+        const members = await db.query(
+            'SELECT id, name, email, role, "lastSeen", "lastActivity", workflows FROM "User" WHERE "teamId" = $1 ORDER BY role DESC',
+            [teamId]
+        );
 
-        return NextResponse.json({ members });
+        // 2. Fetch Recent Activity for Team Members
+        const activity = await db.query(
+            `SELECT e.id, e."eventType", e.metadata, e."createdAt", u.name as "userName" 
+             FROM "Event" e 
+             JOIN "User" u ON e."userId" = u.id 
+             WHERE u."teamId" = $1 
+             ORDER BY e."createdAt" DESC 
+             LIMIT 10`,
+            [teamId]
+        );
+
+        return NextResponse.json({ members, activity });
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
