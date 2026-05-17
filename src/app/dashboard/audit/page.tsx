@@ -18,7 +18,7 @@ export default async function AuditPage() {
     const teamId = (session.user as any).teamId;
     if (!teamId) redirect("/setup");
 
-    let auditLogs = [];
+    let auditLogs: any[] = [];
     try {
         const rows = await db.query(`
             SELECT id, "workflowName", "workflowId", status, "createdAt" 

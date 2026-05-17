@@ -18,7 +18,7 @@ export default async function OperatorsPage() {
     const teamId = (session.user as any).teamId;
     if (!teamId) redirect("/setup");
 
-    let operators = [];
+    let operators: any[] = [];
     try {
         const users = await db.query(`SELECT id, name, email, role, "lastSeen" FROM "User" WHERE "teamId" = $1`, [teamId]) as any[];
         

@@ -7,7 +7,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import AiChat from "../components/AiChat";
 import CommandPalette from "../components/CommandPalette";
-import { Search, Bell, Menu, Settings, LogOut, FileText, Globe, Layers, Activity, Users, ShieldAlert, Mail, Lock, Puzzle } from "lucide-react";
+import { Search, Bell, Menu, Settings, LogOut, FileText, Globe, Layers, Activity, Users, ShieldAlert, Mail, Lock, Puzzle, Zap } from "lucide-react";
 
 type NotificationItem = {
     id?: string | number;
