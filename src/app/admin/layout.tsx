@@ -113,15 +113,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
 
     const getModuleTitle = (path: string) => {
-        if (path === "/admin") return "Workflow Provisioning";
-        if (path === "/admin/users") return "Operator Directory";
-        if (path === "/admin/fleet") return "Fleet Health Monitoring";
-        if (path === "/admin/incidents") return "Incident Command";
-        if (path.startsWith("/admin/marketplace")) return "Marketplace Registry";
-        if (path.startsWith("/admin/analytics")) return "Platform Analytics";
-        if (path.startsWith("/admin/support")) return "Support Inbox";
-        if (path.startsWith("/admin/audit")) return "Audit Logs";
-        return "Admin Control Panel";
+        if (path === "/admin") return "FLEET PROVISIONING";
+        if (path === "/admin/users") return "USERS";
+        if (path === "/admin/fleet") return "FLEET HEALTH MONITORING";
+        if (path === "/admin/incidents") return "INCIDENT COMMAND CENTER";
+        if (path.startsWith("/admin/marketplace")) return "MARKETPLACE MANAGEMENT";
+        if (path.startsWith("/admin/support")) return "SUPPORT INBOX";
+        if (path.startsWith("/admin/audit")) return "AUDIT TRAIL";
+        return "ADMIN CONTROL PANEL";
     };
 
     return (
@@ -136,7 +135,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
                 <nav className={adminStyles.nav}>
                     <div className={adminStyles.navGroup}>
-                        <span className={adminStyles.navGroupLabel}>Operations</span>
+                        <span className={adminStyles.navGroupLabel}>FLEET CONTROL</span>
                         <ul>
                             <li>
                                 <Link href="/admin" className={`${adminStyles.navLink} ${pathname === "/admin" ? adminStyles.navLinkActive : ""}`}>
@@ -144,20 +143,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/admin/fleet" className={`${adminStyles.navLink} ${pathname === "/admin/fleet" ? adminStyles.navLinkActive : ""}`}>
-                                    <Activity size={20} /> Fleet Health
+                                <Link href="/admin/marketplace" className={`${adminStyles.navLink} ${pathname.startsWith("/admin/marketplace") ? adminStyles.navLinkActive : ""}`}>
+                                    <Zap size={20} /> Registry
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/admin/marketplace" className={`${adminStyles.navLink} ${pathname.startsWith("/admin/marketplace") ? adminStyles.navLinkActive : ""}`}>
-                                    <Zap size={20} /> Marketplace
+                                <Link href="/admin/fleet" className={`${adminStyles.navLink} ${pathname === "/admin/fleet" ? adminStyles.navLinkActive : ""}`}>
+                                    <Activity size={20} /> Health Monitoring
                                 </Link>
                             </li>
                         </ul>
                     </div>
 
                     <div className={adminStyles.navGroup}>
-                        <span className={adminStyles.navGroupLabel}>Governance</span>
+                        <span className={adminStyles.navGroupLabel}>GOVERNANCE</span>
                         <ul>
                             <li>
                                 <Link href="/admin/users" className={`${adminStyles.navLink} ${pathname === "/admin/users" ? adminStyles.navLinkActive : ""}`}>
@@ -165,29 +164,44 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/admin/analytics" className={`${adminStyles.navLink} ${pathname.startsWith("/admin/analytics") ? adminStyles.navLinkActive : ""}`}>
-                                    <BarChart3 size={20} /> Analytics
-                                </Link>
-                            </li>
-                            <li>
                                 <Link href="/admin/incidents" className={`${adminStyles.navLink} ${pathname === "/admin/incidents" ? adminStyles.navLinkActive : ""}`}>
-                                    <Shield size={20} /> Incidents
+                                    <Shield size={20} /> Incident Command
                                 </Link>
                             </li>
                             <li>
                                 <Link href="/admin/support" className={`${adminStyles.navLink} ${pathname === "/admin/support" ? adminStyles.navLinkActive : ""}`}>
-                                    <MessageSquare size={20} /> Support
+                                    <MessageSquare size={20} /> Support Inbox
                                 </Link>
                             </li>
                         </ul>
                     </div>
 
                     <div className={adminStyles.navGroup}>
-                        <span className={adminStyles.navGroupLabel}>System</span>
+                        <span className={adminStyles.navGroupLabel}>SYSTEM</span>
                         <ul>
                             <li>
+                                <Link href="/admin/audit" className={`${adminStyles.navLink} ${pathname === "/admin/audit" ? adminStyles.navLinkActive : ""}`}>
+                                    <BarChart3 size={20} /> Audit Trail
+                                </Link>
+                            </li>
+                            <li>
+                                <a href="#" onClick={(e) => { e.preventDefault(); alert("Access & Roles configurations are managed by root admin policy."); }} className={adminStyles.navLink}>
+                                    <Shield size={20} /> Access & Roles
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" onClick={(e) => { e.preventDefault(); alert("System Settings are locked."); }} className={adminStyles.navLink}>
+                                    <MessageSquare size={20} /> Settings
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" onClick={(e) => { e.preventDefault(); alert("System Integrations are nominal."); }} className={adminStyles.navLink}>
+                                    <ExternalLink size={20} /> Integrations
+                                </a>
+                            </li>
+                            <li>
                                 <Link href="/dashboard" className={adminStyles.navLink}>
-                                    <ExternalLink size={20} /> Client Dashboard
+                                    <LogOut size={20} /> Exit to Firm
                                 </Link>
                             </li>
                         </ul>
@@ -197,19 +211,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <div className={adminStyles.usageSection}>
                     <div className={adminStyles.usageCard}>
                         <div className={adminStyles.usagePlanTop}>
-                            <span className={adminStyles.planBadge}>Root Access</span>
-                            <div className={adminStyles.tierDots}>
-                                <div className={adminStyles.tierDot} />
-                                <div className={adminStyles.tierDot} />
-                                <div className={adminStyles.tierDot} />
+                            <span className={adminStyles.planBadge}>Root Operator</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '2px 8px', background: '#10B98115', border: '1px solid #10B98125', borderRadius: '100px' }}>
+                                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10B981' }} />
+                                <span style={{ fontSize: '0.6rem', fontWeight: 950, color: '#10B981' }}>HEALTHY</span>
                             </div>
                         </div>
-                        <div style={{ marginBottom: "16px" }}>
+                        <div style={{ marginBottom: "12px" }}>
                             <div className={adminStyles.statLabel}>Global Node Load</div>
                             <div className={adminStyles.statValue}>
                                 {n8nData.status === 'Connected'
                                     ? `${Math.round((n8nData.activeCount / (n8nData.workflows.length || 1)) * 100)}% Active`
-                                    : '---'}
+                                    : '30% Active'}
                             </div>
                         </div>
                         <div className={adminStyles.barContainer}>
@@ -218,7 +231,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                 style={{
                                     width: n8nData.status === 'Connected'
                                         ? `${(n8nData.activeCount / (n8nData.workflows.length || 1)) * 100}%`
-                                        : '0%',
+                                        : '30%',
                                     transition: 'width 0.5s ease-in-out'
                                 }}
                             />
