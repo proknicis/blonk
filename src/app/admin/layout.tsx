@@ -34,6 +34,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             return;
         }
 
+        if (isAuthChecked) return; // Prevent redundant checks and race condition redirect issues during page transitions
+
         (async () => {
             try {
                 const res = await fetch("/api/admin/session");
@@ -49,13 +51,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         email: data.user.email || "admin@blonk.ai",
                     });
                 }
+                setIsAuthChecked(true);
             } catch {
+                // If it's a genuine network failure or redirection
                 router.replace("/admin/login");
-                return;
             }
-            setIsAuthChecked(true);
         })();
-    }, [pathname, router]);
+    }, [pathname, router, isAuthChecked]);
 
     const handleLogout = async () => {
         await fetch("/api/admin/logout", { method: "GET" });

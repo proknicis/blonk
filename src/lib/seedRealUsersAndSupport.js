@@ -1,5 +1,6 @@
 const { Client } = require('pg');
 const { v4: uuidv4 } = require('uuid');
+const bcrypt = require('bcryptjs');
 
 async function seed() {
     const client = new Client({ connectionString: 'postgresql://myuser:mypassword@127.0.0.1:5432/mydb' });
@@ -33,6 +34,9 @@ async function seed() {
             )
         `);
 
+        // Generate password hash
+        const hashedPw = await bcrypt.hash('blonkadmin2026', 10);
+
         // Generate UUIDs
         const usrOwnerId = uuidv4();
         const usrMarkusId = uuidv4();
@@ -59,8 +63,8 @@ async function seed() {
                 id: usrOwnerId,
                 name: 'Platform Owner',
                 email: 'platform.owner@blonk.com',
-                plan: 'Super Admin',
-                role: 'Super Admin',
+                plan: 'SuperAdmin',
+                role: 'SuperAdmin',
                 firmName: 'BLONK Internal',
                 industry: 'Internal Team',
                 status: 'ACTIVE',
@@ -151,8 +155,8 @@ async function seed() {
         for (const u of usersData) {
             await client.query(`
                 INSERT INTO "User" (id, name, email, plan, role, "firmName", industry, status, "lastActive", tier, "totalSpend", password)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'no_password_needed_token_auth')
-            `, [u.id, u.name, u.email, u.plan, u.role, u.firmName, u.industry, u.status, u.lastActive, u.tier, u.totalSpend]);
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            `, [u.id, u.name, u.email, u.plan, u.role, u.firmName, u.industry, u.status, u.lastActive, u.tier, u.totalSpend, hashedPw]);
         }
         console.log("Seeded 7 master users successfully.");
 
