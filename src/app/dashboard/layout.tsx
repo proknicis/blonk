@@ -7,7 +7,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import AiChat from "../components/AiChat";
 import CommandPalette from "../components/CommandPalette";
-import { Search, Bell, Menu, User, Settings, LogOut, FileText, LayoutGrid, Zap, Users, Monitor, ExternalLink, Activity, ShieldCheck, Link2 } from "lucide-react";
+import { Search, Bell, Menu, Settings, LogOut, FileText, Globe, Layers, Activity, Users, ShieldAlert, Mail, Lock, Puzzle } from "lucide-react";
 
 type NotificationItem = {
     id?: string | number;
@@ -119,15 +119,16 @@ export default function DashboardLayout({
     };
 
     const getModuleTitle = (path: string) => {
-        if (path === '/dashboard') return 'Fleet Overview';
-        if (path === '/dashboard/office') return 'My Workflows';
-        if (path === '/dashboard/team') return 'Strategic Personnel';
-        if (path === '/dashboard/workflows') return 'Marketplace';
-        if (path === '/dashboard/audit') return 'Audit Logs';
-        if (path === '/dashboard/reports') return 'Intelligence Reports';
-        if (path === '/dashboard/sovereignty') return 'Security & Controls';
-        if (path === '/dashboard/settings') return 'System Control';
-        if (path === '/dashboard/help') return 'Support Hub';
+        if (path === '/dashboard') return 'Fleet Provisioning';
+        if (path === '/dashboard/registry') return 'Marketplace Management';
+        if (path === '/dashboard/health') return 'Fleet Health Monitoring';
+        if (path === '/dashboard/operators') return 'Users';
+        if (path === '/dashboard/incidents') return 'Incident Command';
+        if (path === '/dashboard/support') return 'Support Inbox';
+        if (path === '/dashboard/audit') return 'Audit Trail';
+        if (path === '/dashboard/access') return 'Access & Roles';
+        if (path === '/dashboard/settings') return 'Settings';
+        if (path === '/dashboard/integrations') return 'Integrations';
         return 'Command Console';
     };
 
@@ -150,63 +151,78 @@ export default function DashboardLayout({
                 </div>
 
                 <nav className={styles.sidebarNav}>
-                    {/* OPERATIONS */}
+                    {/* FLEET CONTROL */}
                     <div className={styles.navGroup}>
-                        <span className={styles.navGroupLabel}>Operations</span>
+                        <span className={styles.navGroupLabel}>Fleet Control</span>
                         <ul>
                             <li>
                                 <Link href="/dashboard" className={`${styles.navLink} ${pathname === '/dashboard' ? styles.navLinkActive : ''}`}>
-                                    <LayoutGrid size={20} /> Overview
+                                    <Globe size={20} /> Provisioning
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/office" className={`${styles.navLink} ${pathname === '/dashboard/office' ? styles.navLinkActive : ''}`}>
-                                    <Monitor size={20} /> My Workflows
+                                <Link href="/dashboard/registry" className={`${styles.navLink} ${pathname === '/dashboard/registry' ? styles.navLinkActive : ''}`}>
+                                    <Layers size={20} /> Registry
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/connections" className={`${styles.navLink} ${pathname === '/dashboard/connections' ? styles.navLinkActive : ''}`}>
-                                    <Link2 size={20} /> Connections
+                                <Link href="/dashboard/health" className={`${styles.navLink} ${pathname === '/dashboard/health' ? styles.navLinkActive : ''}`}>
+                                    <Activity size={20} /> Health Monitoring
                                 </Link>
                             </li>
                         </ul>
                     </div>
 
-                    {/* RESOURCES */}
+                    {/* GOVERNANCE */}
                     <div className={styles.navGroup}>
-                        <span className={styles.navGroupLabel}>Resources</span>
+                        <span className={styles.navGroupLabel}>Governance</span>
                         <ul>
                             <li>
-                                <Link href="/dashboard/team" className={`${styles.navLink} ${pathname === '/dashboard/team' ? styles.navLinkActive : ''}`}>
-                                    <Users size={20} /> Team
+                                <Link href="/dashboard/operators" className={`${styles.navLink} ${pathname === '/dashboard/operators' ? styles.navLinkActive : ''}`}>
+                                    <Users size={20} /> Operators
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/workflows" className={`${styles.navLink} ${pathname === '/dashboard/workflows' ? styles.navLinkActive : ''}`}>
-                                    <ExternalLink size={20} /> Marketplace
+                                <Link href="/dashboard/incidents" className={`${styles.navLink} ${pathname === '/dashboard/incidents' ? styles.navLinkActive : ''}`}>
+                                    <ShieldAlert size={20} /> Incident Command
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/dashboard/support" className={`${styles.navLink} ${pathname === '/dashboard/support' ? styles.navLinkActive : ''}`}>
+                                    <Mail size={20} /> Support Inbox
                                 </Link>
                             </li>
                         </ul>
                     </div>
 
-                    {/* COMPLIANCE */}
+                    {/* SYSTEM */}
                     <div className={styles.navGroup}>
-                        <span className={styles.navGroupLabel}>Compliance</span>
+                        <span className={styles.navGroupLabel}>System</span>
                         <ul>
                             <li>
                                 <Link href="/dashboard/audit" className={`${styles.navLink} ${pathname === '/dashboard/audit' ? styles.navLinkActive : ''}`}>
-                                    <FileText size={20} /> Audit Logs
+                                    <FileText size={20} /> Audit Trail
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/reports" className={`${styles.navLink} ${pathname === '/dashboard/reports' ? styles.navLinkActive : ''}`}>
-                                    <Activity size={20} /> Reports
+                                <Link href="/dashboard/access" className={`${styles.navLink} ${pathname === '/dashboard/access' ? styles.navLinkActive : ''}`}>
+                                    <Lock size={20} /> Access & Roles
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/sovereignty" className={`${styles.navLink} ${pathname === '/dashboard/sovereignty' ? styles.navLinkActive : ''}`} onClick={() => setShowMobileMenu(false)}>
-                                    <ShieldCheck size={20} /> Security & Controls
+                                <Link href="/dashboard/settings" className={`${styles.navLink} ${pathname === '/dashboard/settings' ? styles.navLinkActive : ''}`} onClick={() => setShowMobileMenu(false)}>
+                                    <Settings size={20} /> Settings
                                 </Link>
+                            </li>
+                            <li>
+                                <Link href="/dashboard/integrations" className={`${styles.navLink} ${pathname === '/dashboard/integrations' ? styles.navLinkActive : ''}`}>
+                                    <Puzzle size={20} /> Integrations
+                                </Link>
+                            </li>
+                            <li>
+                                <button className={`${styles.navLink} ${styles.exitBtn}`} onClick={() => signOut({ callbackUrl: '/' })}>
+                                    <LogOut size={20} /> Exit to Firm
+                                </button>
                             </li>
                         </ul>
                     </div>

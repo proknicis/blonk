@@ -1,311 +1,506 @@
 "use client";
 
 import styles from "./page.module.css";
-import React, { useEffect, useState } from "react";
-import Link from "next/link";
+import React from "react";
 import { 
-    Activity, Zap, CheckCircle, AlertCircle, Plus, 
-    FileText, Link2, ArrowUpRight, ShieldCheck, ShieldAlert,
+    Globe, Server, CheckCircle, AlertCircle, Plus, 
+    FileText, Link2, ShieldCheck, PieChart, Activity,
     TrendingUp, TrendingDown, Clock, Search, ExternalLink,
-    Terminal, Database, Globe, Info
+    Terminal, Database, Play, Pause, Settings, Menu, Settings2, Lock
 } from "lucide-react";
-import FleetVelocityChart from "./components/FleetVelocityChart";
-import Sparkline from "./components/Sparkline";
-import { Skeleton, SkeletonRectangle, SkeletonCircle } from "../components/Skeleton";
+import Link from "next/link";
 
-interface DashboardData {
-    totalWorkflows: number;
-    activeAgents: number;
-    totalTasks: number;
-    runsToday: number;
-    runsTrend: number;
-    timeSavedHours: number;
-    issuesToday: number;
-    issuesTrend: number;
-    efficiencyRate: number;
-    chartData: Array<{
-        name: string;
-        data: number[];
-    }>;
-    topWorkflows: Array<{
-        id: string;
-        name: string;
-        status: string;
-        totalRuns: number;
-        successRate: number;
-        miniChart: number[];
-    }>;
-    intelligenceFeed: Array<{
-        title: string;
-        meta: string;
-        type: string;
-        time: string;
-        rich?: any;
-    }>;
-}
-
-export default function DashboardPage() {
-    const [data, setData] = useState<DashboardData | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [globalStats, setGlobalStats] = useState({ total_tasks: 0, status: 'online' });
-
-    useEffect(() => {
-        const fetchDashboard = async () => {
-            try {
-                const res = await fetch('/api/dashboard/summary');
-                const result = await res.json();
-                if (result && !result.error) {
-                    setData(result);
-                    setGlobalStats(prev => ({ ...prev, total_tasks: result.totalTasks }));
-                }
-            } catch (error) {
-                console.error("Dashboard synchronization failure", error);
-            } finally {
-                setTimeout(() => setIsLoading(false), 800);
-            }
-        };
-
-        const fetchPulse = async () => {
-            try {
-                const res = await fetch('/api/n8n/stats');
-                if (res.ok) {
-                    const stats = await res.json();
-                    setGlobalStats({ total_tasks: stats.total_tasks, status: 'online' });
-                }
-            } catch (e) {
-                setGlobalStats(prev => ({ 
-                    status: 'online', 
-                    total_tasks: prev.total_tasks + Math.floor(Math.random() * 3) 
-                }));
-            }
-        };
-
-        fetchDashboard();
-        fetchPulse();
-
-        const dashboardTimer = setInterval(fetchDashboard, 5000);
-        const pulseTimer = setInterval(fetchPulse, 5000);
-
-        return () => {
-            clearInterval(dashboardTimer);
-            clearInterval(pulseTimer);
-        };
-    }, []);
-
-    if (isLoading) {
-        return (
-            <div className={styles.dashboard}>
-                <Skeleton height="80px" borderRadius="24px" />
-                <div className={styles.metricsMatrix}>
-                    {[1, 2, 3, 4].map(id => (
-                        <SkeletonRectangle key={id} height="160px" borderRadius="24px" />
-                    ))}
-                </div>
-                <Skeleton height="400px" borderRadius="24px" />
-            </div>
-        );
-    }
-
-    if (!data) return null;
-
-    const isEmpty = data.totalWorkflows === 0;
-
+export default function FleetProvisioning() {
     return (
         <div className={styles.dashboard}>
-            
-            {/* INTEGRITY STATUS BAR */}
-            <div className={styles.integrityRow}>
-                <div className={styles.integrityCard}>
-                    <div className={`${styles.integrityIcon}`} style={{ background: '#F0FAF5', color: '#34D186' }}>
-                        <div className={styles.playIconBox}><div className={styles.playTriangle} /></div>
+            {/* HERO BANNER */}
+            <div className={styles.heroBanner}>
+                <div className={styles.heroContent}>
+                    <div className={styles.heroBadge}>
+                        <Globe size={14} /> ORCHESTRATION HUB
                     </div>
-                    <div className={styles.integrityLabel}>
-                        <span className={styles.integrityStatus}>System Operational</span>
-                        <span className={styles.integritySub}>All systems running smoothly</span>
-                    </div>
+                    <h1 className={styles.heroTitle}>
+                        SOVEREIGN OPERATIONS
+                    </h1>
+                    <p className={styles.heroSubtitle}>Real-time telemetry and granular fleet orchestration across 6 clusters.</p>
                 </div>
+                <button className={styles.provisionBtn}>+ Provision New Cluster</button>
+            </div>
 
-                <div className={styles.integrityCard}>
-                    <div className={`${styles.integrityIcon}`} style={{ background: '#F0F9FF', color: '#0EA5E9' }}>
-                        <Link2 size={18} />
+            {/* METRICS ROW */}
+            <div className={styles.metricsRow}>
+                <div className={styles.metricCard}>
+                    <div className={styles.metricHeader}>
+                        <span className={styles.metricLabel}>ACTIVE NODES</span>
+                        <Server size={18} color="#10B981" />
                     </div>
-                    <div className={styles.integrityLabel}>
-                        <span className={styles.integrityStatus}>Connected</span>
-                        <span className={styles.integritySub}>All systems linked</span>
-                    </div>
+                    <div className={styles.metricValue}>2</div>
+                    <div className={styles.metricSub}>Online & connected</div>
                 </div>
-
-                <div className={styles.integrityCard}>
-                    <div className={`${styles.integrityIcon}`} style={{ background: '#F0FAF5', color: '#34D186' }}>
-                        <ShieldCheck size={18} />
+                <div className={styles.metricCard}>
+                    <div className={styles.metricHeader}>
+                        <span className={styles.metricLabel}>SYSTEM HEALTH</span>
+                        <ShieldCheck size={18} color="#F59E0B" />
                     </div>
-                    <div className={styles.integrityLabel}>
-                        <span className={styles.integrityStatus}>Authorized</span>
-                        <span className={styles.integritySub}>Handshake verified</span>
-                    </div>
+                    <div className={styles.metricValue}>50%</div>
+                    <div className={`${styles.metricSub} ${styles.warningText}`}>Needs attention</div>
                 </div>
-
-                <div className={styles.totalRuns}>
-                    <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', marginBottom: '4px' }}>Total Runs</div>
-                    <div style={{ fontSize: '1.4rem', fontWeight: 950, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {globalStats.total_tasks.toLocaleString()}
-                        <ArrowUpRight size={18} color="#34D186" />
+                <div className={styles.metricCard}>
+                    <div className={styles.metricHeader}>
+                        <span className={styles.metricLabel}>RESOURCE LOAD</span>
+                        <Activity size={18} color="#10B981" />
                     </div>
+                    <div className={styles.metricValue}>24.2%</div>
+                    <div className={styles.metricSub}>Average utilization</div>
+                </div>
+                <div className={styles.metricCard}>
+                    <div className={styles.metricHeader}>
+                        <span className={styles.metricLabel}>OP VELOCITY (24H)</span>
+                    </div>
+                    <div className={styles.metricValue}>350</div>
+                    <div className={styles.metricSub}>Operations executed</div>
+                </div>
+                <div className={styles.metricCard}>
+                    <div className={styles.metricHeader}>
+                        <span className={styles.metricLabel}>DATA THROUGHPUT (24H)</span>
+                    </div>
+                    <div className={styles.metricValue}>1.2 TB</div>
+                    <div className={`${styles.metricSub} ${styles.successText}`}><TrendingUp size={12}/> 12% vs yesterday</div>
+                </div>
+                <div className={styles.metricCard}>
+                    <div className={styles.metricHeader}>
+                        <span className={styles.metricLabel}>ERROR RATE (24H)</span>
+                    </div>
+                    <div className={styles.metricValue}>0.8%</div>
+                    <div className={`${styles.metricSub} ${styles.successText}`}><TrendingDown size={12}/> 8% vs yesterday</div>
                 </div>
             </div>
 
-            {/* METRICS GRID */}
-            <div className={styles.metricsMatrix}>
-                <div className={styles.metricCard}>
-                    <div className={styles.metricHeader}>
-                        <span className={styles.label}>Runs Today</span>
-                        <TrendingUp size={14} color="#10B981" />
-                    </div>
-                    <div className={styles.value}>{data.runsToday.toLocaleString()}</div>
-                    <div className={`${styles.trendContainer} ${styles.trendUp}`}>
-                        <TrendingUp size={14} />
-                        {Math.abs(data.runsTrend)}% vs yesterday
-                    </div>
-                </div>
-
-                <div className={styles.metricCard}>
-                    <div className={styles.metricHeader}>
-                        <span className={styles.label}>Hours Saved</span>
-                        <div style={{ fontSize: '0.6rem', fontWeight: 950, padding: '2px 6px', background: '#F0FAF5', color: '#34D186', borderRadius: '4px' }}>REAL-TIME</div>
-                    </div>
-                    <div className={styles.value}>{data.timeSavedHours}h</div>
-                    <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 700 }}>Real-time</div>
-                </div>
-
-                <div className={styles.metricCard}>
-                    <div className={styles.metricHeader}>
-                        <span className={styles.label}>Active Workflows</span>
-                        <Activity size={14} color="#10B981" />
-                    </div>
-                    <div className={styles.value}>{data.activeAgents} / {data.totalWorkflows}</div>
-                    <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 700 }}>All workflows active</div>
-                </div>
-
-                <div className={styles.metricCard}>
-                    <div className={styles.metricHeader}>
-                        <span className={styles.label}>Issues Today</span>
-                        <Clock size={14} color="#EF4444" />
-                    </div>
-                    <div className={styles.value}>{data.issuesToday}</div>
-                    <div className={`${styles.trendContainer} ${styles.trendUp}`}>
-                        <TrendingDown size={14} color="#10B981" />
-                        {Math.abs(data.issuesTrend)}% vs yesterday
-                    </div>
-                </div>
-            </div>
-
-            {/* ACTIVITY VISUALIZATION */}
-            <div className={styles.projectionSection}>
-                <div className={styles.sectionHeader}>
-                    <div>
-                        <h3 className={styles.sectionTitle}>Workflow Activity</h3>
-                        <span className={styles.sectionSubtitle}>Runs across active workflows</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', fontWeight: 800, color: '#64748B' }}>
-                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#34D186' }} />
-                            Real Runs (24h Window)
+            {/* MAIN CONTENT AREA */}
+            <div className={styles.mainLayout}>
+                <div className={styles.contentLeft}>
+                    {/* OPERATIONS LEDGER */}
+                    <div className={styles.ledgerSection}>
+                        <div className={styles.sectionHeader}>
+                            <div className={styles.sectionTitleRow}>
+                                <Activity size={20} color="#10B981" />
+                                <div>
+                                    <h3>OPERATIONS LEDGER</h3>
+                                    <p>Real-time streaming from provisioned institutional nodes.</p>
+                                </div>
+                            </div>
+                            <div className={styles.sectionControls}>
+                                <div className={styles.tabs}>
+                                    <button className={`${styles.tab} ${styles.activeTab}`}>All</button>
+                                    <button className={styles.tab}>Ready</button>
+                                    <button className={styles.tab}>Syncing</button>
+                                    <button className={styles.tab}>Errors</button>
+                                    <button className={styles.tab}>Provisioned</button>
+                                </div>
+                                <select className={styles.clusterSelect}>
+                                    <option>All Clusters</option>
+                                </select>
+                                <div className={styles.searchBox}>
+                                    <Search size={14} />
+                                    <input type="text" placeholder="Search the fleet..." />
+                                </div>
+                            </div>
                         </div>
-                        <div style={{ display: 'flex', background: '#F1F5F9', padding: '4px', borderRadius: '10px' }}>
-                            {['24H', '7D', '30D'].map(r => (
-                                <button key={r} style={{ padding: '6px 12px', border: 'none', background: r === '24H' ? '#111' : 'transparent', color: r === '24H' ? '#FFF' : '#64748B', fontSize: '0.65rem', fontWeight: 950, borderRadius: '8px', cursor: 'pointer' }}>{r}</button>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-                <div className={styles.chartWrapper}>
-                    <FleetVelocityChart initialData={data.chartData} />
-                </div>
-            </div>
-
-            {isEmpty ? (
-                <div className={styles.onboardingState}>
-                   <div className={styles.onboardingIllustration}><Plus size={32} /></div>
-                   <h2 className={styles.onboardingTitle}>Initialize your autonomous firm</h2>
-                   <p className={styles.onboardingSubtitle}>Your dashboard is empty because no workflows have been provisioned yet.</p>
-                   <Link href="/dashboard/workflows?create=true" className={styles.btnInstitutional}>Generate Workflow</Link>
-                </div>
-            ) : (
-                <div className={styles.commandGrid}>
-                    {/* TOP WORKFLOWS */}
-                    <div className={styles.activeWorkflows}>
-                        <div className={styles.cardHeader}>
-                            <h3 className={styles.cardTitle}>Top Workflows</h3>
-                            <Link href="/dashboard/workflows" className={styles.viewAllLink}>View all workflows &rsaquo;</Link>
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            {data.topWorkflows.map((w, idx) => {
-                                const colors = ['#10B981', '#2563EB', '#8B5CF6'];
-                                return (
-                                    <div key={w.id} className={styles.workflowOverviewRow}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                                            <div className={styles.workflowIconBox} style={{ background: colors[idx % 3], color: '#FFF', border: 'none' }}>
-                                                {w.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
-                                            </div>
-                                            <div>
-                                                <div className={styles.workflowRowTitle}>{w.name}</div>
-                                                <div className={styles.workflowRowSubtitle}>
-                                                    {w.totalRuns} runs today
+                        <div className={styles.tableWrapper}>
+                            <table className={styles.ledgerTable}>
+                                <thead>
+                                    <tr>
+                                        <th>NODE IDENTITY</th>
+                                        <th>CLUSTER HUB</th>
+                                        <th>STATUS</th>
+                                        <th>YIELD (OPS/HR)</th>
+                                        <th>TELEMETRY</th>
+                                        <th>UPTIME</th>
+                                        <th>LAST SEEN</th>
+                                        <th>COMMANDS</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div className={styles.nodeIdentity}>
+                                                <div className={styles.nodeAvatar}>3</div>
+                                                <div>
+                                                    <div className={styles.nodeEmail}>markunded@gmail.com</div>
+                                                    <div className={styles.nodeId}><Lock size={10} /> 8374d57c-cc48</div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
-                                            <div className={styles.sparklineWrapper}>
-                                                <Sparkline data={w.miniChart} color="#10B981" />
+                                        </td>
+                                        <td>
+                                            <div className={styles.clusterHub}>
+                                                <Server size={14} color="#10B981" />
+                                                <div>
+                                                    <div className={styles.clusterNum}>1</div>
+                                                    <div className={styles.clusterUrl}>ndn.masedoniana.lv</div>
+                                                </div>
                                             </div>
-                                            <div className={styles.successMetric}>
-                                                <div className={styles.successValue}>{w.successRate}%</div>
-                                                <div className={styles.successLabel}>Success rate</div>
+                                        </td>
+                                        <td><span className={`${styles.statusBadge} ${styles.statusError}`}>ERROR</span></td>
+                                        <td className={styles.yieldCol}><TrendingUp size={14} color="#F59E0B"/> 135</td>
+                                        <td><div className={styles.telemetryBars}><div className={styles.barRed}/><div className={styles.barGray}/><div className={styles.barGray}/></div></td>
+                                        <td className={styles.uptime}>0h 2m</td>
+                                        <td className={styles.lastSeen}><div className={styles.dotGreen}/> 2 mins ago</td>
+                                        <td><button className={styles.iconBtn}><Settings size={16}/></button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div className={styles.nodeIdentity}>
+                                                <div className={styles.nodeAvatar}>3</div>
+                                                <div>
+                                                    <div className={styles.nodeEmail}>markunded@gmail.com</div>
+                                                    <div className={styles.nodeId}><Lock size={10} /> 27c2e5ae-ffea</div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                );
-                            })}
+                                        </td>
+                                        <td>
+                                            <div className={styles.clusterHub}>
+                                                <Server size={14} color="#10B981" />
+                                                <div>
+                                                    <div className={styles.clusterNum}>1</div>
+                                                    <div className={styles.clusterUrl}>ndn.masedoniana.lv</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span className={`${styles.statusBadge} ${styles.statusError}`}>ERROR</span></td>
+                                        <td className={styles.yieldCol}><TrendingUp size={14} color="#F59E0B"/> 207</td>
+                                        <td><div className={styles.telemetryBars}><div className={styles.barRed}/><div className={styles.barGray}/><div className={styles.barGray}/></div></td>
+                                        <td className={styles.uptime}>0h 5m</td>
+                                        <td className={styles.lastSeen}><div className={styles.dotGreen}/> 5 mins ago</td>
+                                        <td><button className={styles.iconBtn}><Settings size={16}/></button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div className={styles.nodeIdentity}>
+                                                <div className={styles.nodeAvatar}>2</div>
+                                                <div>
+                                                    <div className={styles.nodeEmail}>prokinicis@gmail.com</div>
+                                                    <div className={styles.nodeId}><Lock size={10} /> a300bb48-152f</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className={styles.clusterHub}>
+                                                <Server size={14} color="#10B981" />
+                                                <div>
+                                                    <div className={styles.clusterNum}>1</div>
+                                                    <div className={styles.clusterUrl}>ndn.masedoniana.lv</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span className={`${styles.statusBadge} ${styles.statusError}`}>ERROR</span></td>
+                                        <td className={styles.yieldCol}><TrendingDown size={14} color="#F59E0B"/> 8</td>
+                                        <td><div className={styles.telemetryBars}><div className={styles.barRed}/><div className={styles.barGray}/><div className={styles.barGray}/></div></td>
+                                        <td className={styles.uptime}>0h 1m</td>
+                                        <td className={styles.lastSeen}><div className={styles.dotGreen}/> 1 min ago</td>
+                                        <td><button className={styles.iconBtn}><Settings size={16}/></button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div className={styles.nodeIdentity}>
+                                                <div className={styles.nodeAvatar}>2</div>
+                                                <div>
+                                                    <div className={styles.nodeEmail}>prokinicis@gmail.com</div>
+                                                    <div className={styles.nodeId}><Lock size={10} /> ad41a0bd-d0f8</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className={styles.clusterHub}>
+                                                <Server size={14} color="#10B981" />
+                                                <div>
+                                                    <div className={styles.clusterNum}>1</div>
+                                                    <div className={styles.clusterUrl}>ndn.masedoniana.lv</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span className={`${styles.statusBadge} ${styles.statusProvisioned}`}>PROVISIONED</span></td>
+                                        <td className={styles.yieldCol}><TrendingUp size={14} color="#10B981"/> 0</td>
+                                        <td><div className={styles.telemetryBars}><div className={styles.barGreen}/><div className={styles.barGreen}/><div className={styles.barGray}/></div></td>
+                                        <td className={styles.uptime}>1h 12m</td>
+                                        <td className={styles.lastSeen}><div className={styles.dotGreen}/> Just now</td>
+                                        <td><button className={styles.iconBtn}><Settings size={16}/></button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div className={styles.nodeIdentity}>
+                                                <div className={styles.nodeAvatar}>1</div>
+                                                <div>
+                                                    <div className={styles.nodeEmail}>ovrhps@gmail.com</div>
+                                                    <div className={styles.nodeId}><Lock size={10} /> 198daad1-f1d</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className={styles.clusterHub}>
+                                                <Server size={14} color="#10B981" />
+                                                <div>
+                                                    <div className={styles.clusterNum}>1</div>
+                                                    <div className={styles.clusterUrl}>ndn.masedoniana.lv</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span className={`${styles.statusBadge} ${styles.statusReady}`}>READY</span></td>
+                                        <td className={styles.yieldCol}><TrendingUp size={14} color="#10B981"/> 0</td>
+                                        <td><div className={styles.telemetryBars}><div className={styles.barGreen}/><div className={styles.barGreen}/><div className={styles.barGray}/></div></td>
+                                        <td className={styles.uptime}>2h 33m</td>
+                                        <td className={styles.lastSeen}><div className={styles.dotGreen}/> Just now</td>
+                                        <td><button className={styles.iconBtn}><Settings size={16}/></button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div className={styles.nodeIdentity}>
+                                                <div className={styles.nodeAvatar}>3</div>
+                                                <div>
+                                                    <div className={styles.nodeEmail}>markunded@gmail.com</div>
+                                                    <div className={styles.nodeId}><Lock size={10} /> ede140a6-774</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className={styles.clusterHub}>
+                                                <Server size={14} color="#10B981" />
+                                                <div>
+                                                    <div className={styles.clusterNum}>1</div>
+                                                    <div className={styles.clusterUrl}>ndn.masedoniana.lv</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span className={`${styles.statusBadge} ${styles.statusReady}`}>READY</span></td>
+                                        <td className={styles.yieldCol}><TrendingUp size={14} color="#10B981"/> 0</td>
+                                        <td><div className={styles.telemetryBars}><div className={styles.barGreen}/><div className={styles.barGreen}/><div className={styles.barGray}/></div></td>
+                                        <td className={styles.uptime}>45m</td>
+                                        <td className={styles.lastSeen}><div className={styles.dotGreen}/> 3 mins ago</td>
+                                        <td><button className={styles.iconBtn}><Settings size={16}/></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div className={styles.paginationRow}>
+                                <span className={styles.showingText}>Showing 1 to 6 of 6 nodes</span>
+                                <div className={styles.perPage}>
+                                    <select><option>10 per page</option></select>
+                                </div>
+                                <div className={styles.pagination}>
+                                    <button>&lt;</button>
+                                    <button className={styles.activePage}>1</button>
+                                    <button>&gt;</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    {/* NEEDS ATTENTION */}
-                    <div className={styles.liveFeed}>
-                        <div className={styles.cardHeader}>
-                            <h3 className={styles.cardTitle}>Needs Attention</h3>
-                            <Link href="/dashboard/audit" className={styles.viewAllLink}>View all issues &rsaquo;</Link>
-                        </div>
-                        <div className={styles.feedWrapper}>
-                            {data.intelligenceFeed.length > 0 ? (
-                                data.intelligenceFeed.map((item, idx) => (
-                                    <div key={idx} className={styles.feedItem}>
-                                        <div style={{ 
-                                            width: '36px', height: '36px', borderRadius: '50%', 
-                                            background: item.type === 'error' ? '#EF4444' : (item.type === 'info' ? '#F59E0B' : '#10B981'),
-                                            color: '#FFF',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
-                                        }}>
-                                            {item.type === 'error' ? <AlertCircle size={18} /> : (item.type === 'info' ? <AlertCircle size={18} /> : <CheckCircle size={18} />)}
-                                        </div>
-                                        <div className={styles.feedContent}>
-                                            <div className={styles.feedHeaderRow}>
-                                                <div className={styles.feedTitle}>{item.title}</div>
-                                                <div className={styles.feedTime}>{item.time}</div>
-                                            </div>
-                                            <div className={styles.feedMeta}>{item.meta}</div>
-                                        </div>
-                                    </div>
-                                ))
-                            ) : (
-                                <div className={styles.emptyFeed}>
-                                    <ShieldCheck size={32} />
-                                    <p>No operational issues detected</p>
+                    <div className={styles.bottomWidgets}>
+                        {/* CLUSTER DISTRIBUTION */}
+                        <div className={styles.widgetCard}>
+                            <h4 className={styles.widgetTitle}>CLUSTER DISTRIBUTION</h4>
+                            <div className={styles.distContent}>
+                                <div className={styles.pieChartPlaceholder}>
+                                    <div className={styles.pieSegment} style={{background: '#10B981'}}></div>
+                                    <div className={styles.pieInner}></div>
                                 </div>
-                            )}
+                                <div className={styles.distLegend}>
+                                    <div className={styles.legendItem}>
+                                        <div className={styles.dotGreen}/>
+                                        <span>1 Healthy</span>
+                                        <span className={styles.legendVal}>83.3% (5)</span>
+                                    </div>
+                                    <div className={styles.legendItem}>
+                                        <div className={styles.dotRed}/>
+                                        <span>1 Error</span>
+                                        <span className={styles.legendVal}>50.0% (3)</span>
+                                    </div>
+                                    <div className={styles.legendItem}>
+                                        <div className={styles.dotGray}/>
+                                        <span>0 Syncing</span>
+                                        <span className={styles.legendVal}>0% (0)</span>
+                                    </div>
+                                    <div className={styles.legendItem}>
+                                        <div className={styles.dotGray}/>
+                                        <span>0 Offline</span>
+                                        <span className={styles.legendVal}>0% (0)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* RESOURCE UTILIZATION */}
+                        <div className={styles.widgetCard}>
+                            <h4 className={styles.widgetTitle}>RESOURCE UTILIZATION (AVG)</h4>
+                            <div className={styles.utilList}>
+                                <div className={styles.utilRow}>
+                                    <span>CPU</span>
+                                    <div className={styles.utilBarWrapper}><div className={styles.utilBar} style={{width:'24.2%', background:'#10B981'}}></div></div>
+                                    <span>24.2%</span>
+                                </div>
+                                <div className={styles.utilRow}>
+                                    <span>Memory</span>
+                                    <div className={styles.utilBarWrapper}><div className={styles.utilBar} style={{width:'50.0%', background:'#F59E0B'}}></div></div>
+                                    <span>50.0%</span>
+                                </div>
+                                <div className={styles.utilRow}>
+                                    <span>Disk</span>
+                                    <div className={styles.utilBarWrapper}><div className={styles.utilBar} style={{width:'18.7%', background:'#10B981'}}></div></div>
+                                    <span>18.7%</span>
+                                </div>
+                                <div className={styles.utilRow}>
+                                    <span>Network</span>
+                                    <div className={styles.utilBarWrapper}><div className={styles.utilBar} style={{width:'32.1%', background:'#10B981'}}></div></div>
+                                    <span>32.1%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* TOP CLUSTERS */}
+                        <div className={styles.widgetCard}>
+                            <h4 className={styles.widgetTitle}>TOP CLUSTERS BY LOAD</h4>
+                            <div className={styles.utilList}>
+                                <div className={styles.utilRow}>
+                                    <span className={styles.clusterRank}>1</span>
+                                    <span className={styles.clusterName}>GLOBAL_ALPHA</span>
+                                    <div className={styles.utilBarWrapper}><div className={styles.utilBar} style={{width:'24.2%', background:'#10B981'}}></div></div>
+                                    <span>24.2%</span>
+                                </div>
+                                <div className={styles.utilRow}>
+                                    <span className={styles.clusterRank}>2</span>
+                                    <span className={styles.clusterName}>EU_WEST_1</span>
+                                    <div className={styles.utilBarWrapper}><div className={styles.utilBar} style={{width:'18.7%', background:'#10B981'}}></div></div>
+                                    <span>18.7%</span>
+                                </div>
+                                <div className={styles.utilRow}>
+                                    <span className={styles.clusterRank}>3</span>
+                                    <span className={styles.clusterName}>US_EAST_1</span>
+                                    <div className={styles.utilBarWrapper}><div className={styles.utilBar} style={{width:'12.3%', background:'#10B981'}}></div></div>
+                                    <span>12.3%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* RECENT ALERTS */}
+                        <div className={styles.widgetCard}>
+                            <h4 className={styles.widgetTitle}>RECENT ALERTS</h4>
+                            <div className={styles.alertsList}>
+                                <div className={styles.alertItem}>
+                                    <div className={styles.dotRed}/>
+                                    <div className={styles.alertText}>High error rate on node markunded@gmail.com</div>
+                                    <div className={styles.alertTime}>2m ago</div>
+                                </div>
+                                <div className={styles.alertItem}>
+                                    <div className={styles.dotOrange}/>
+                                    <div className={styles.alertText}>Node sync delayed on EU_WEST_1</div>
+                                    <div className={styles.alertTime}>15m ago</div>
+                                </div>
+                                <div className={styles.alertItem}>
+                                    <div className={styles.dotRed}/>
+                                    <div className={styles.alertText}>CPU usage threshold exceeded on GLOBAL_ALPHA</div>
+                                    <div className={styles.alertTime}>32m ago</div>
+                                </div>
+                            </div>
+                            <div className={styles.viewAllBtn}>View all alerts &rsaquo;</div>
                         </div>
                     </div>
                 </div>
-            )}
+
+                <div className={styles.contentRight}>
+                    <div className={styles.rightCard}>
+                        <h4 className={styles.rightCardTitle}>PROVISION QUICK ACTIONS</h4>
+                        <div className={styles.quickActionList}>
+                            <button className={styles.quickActionBtn}>
+                                <div className={styles.quickActionIcon}><Globe size={16}/></div>
+                                <div className={styles.quickActionText}>
+                                    <strong>Provision New Node</strong>
+                                    <span>Add a new node to cluster</span>
+                                </div>
+                            </button>
+                            <button className={styles.quickActionBtn}>
+                                <div className={styles.quickActionIcon}><Settings size={16}/></div>
+                                <div className={styles.quickActionText}>
+                                    <strong>Import Node Config</strong>
+                                    <span>Bulk import node configurations</span>
+                                </div>
+                            </button>
+                            <button className={styles.quickActionBtn}>
+                                <div className={styles.quickActionIcon}><Activity size={16}/></div>
+                                <div className={styles.quickActionText}>
+                                    <strong>Sync All Nodes</strong>
+                                    <span>Trigger sync across all nodes</span>
+                                </div>
+                            </button>
+                            <button className={styles.quickActionBtn}>
+                                <div className={styles.quickActionIcon}><ShieldCheck size={16}/></div>
+                                <div className={styles.quickActionText}>
+                                    <strong>Run Diagnostics</strong>
+                                    <span>Check system & node health</span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className={styles.rightCard}>
+                        <h4 className={styles.rightCardTitle}>FLEET SHORTCUTS</h4>
+                        <div className={styles.quickActionList}>
+                            <Link href="/dashboard/registry" className={styles.quickActionBtn}>
+                                <div className={styles.quickActionIcon}><Lock size={16}/></div>
+                                <div className={styles.quickActionText}>
+                                    <strong>Node Registry</strong>
+                                    <span>View all registered nodes</span>
+                                </div>
+                            </Link>
+                            <Link href="/dashboard/health" className={styles.quickActionBtn}>
+                                <div className={styles.quickActionIcon}><Activity size={16}/></div>
+                                <div className={styles.quickActionText}>
+                                    <strong>Health Monitoring</strong>
+                                    <span>Real-time system health</span>
+                                </div>
+                            </Link>
+                            <Link href="/dashboard/audit" className={styles.quickActionBtn}>
+                                <div className={styles.quickActionIcon}><FileText size={16}/></div>
+                                <div className={styles.quickActionText}>
+                                    <strong>Audit Trail</strong>
+                                    <span>View system activity logs</span>
+                                </div>
+                            </Link>
+                            <Link href="/dashboard/incidents" className={styles.quickActionBtn}>
+                                <div className={styles.quickActionIcon}><AlertCircle size={16}/></div>
+                                <div className={styles.quickActionText}>
+                                    <strong>Incident Command</strong>
+                                    <span>Manage incidents & response</span>
+                                </div>
+                            </Link>
+                        </div>
+                    </div>
+
+                    <div className={styles.rightCard}>
+                        <h4 className={styles.rightCardTitle}>SYSTEM INFO</h4>
+                        <div className={styles.sysInfoList}>
+                            <div className={styles.sysInfoRow}>
+                                <span>Cluster</span>
+                                <strong><div className={styles.dotGreen}/> GLOBAL_ALPHA</strong>
+                            </div>
+                            <div className={styles.sysInfoRow}>
+                                <span>Version</span>
+                                <strong>v2.4.1</strong>
+                            </div>
+                            <div className={styles.sysInfoRow}>
+                                <span>Environment</span>
+                                <strong>Production</strong>
+                            </div>
+                            <div className={styles.sysInfoRow}>
+                                <span>Region</span>
+                                <strong>Frankfurt, EU</strong>
+                            </div>
+                            <div className={styles.sysInfoRow}>
+                                <span>Uptime</span>
+                                <strong>7d 14h 22m</strong>
+                            </div>
+                        </div>
+                        <div className={styles.viewDetailsBtn}>View system details &rsaquo;</div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
