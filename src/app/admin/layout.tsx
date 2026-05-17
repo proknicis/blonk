@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useState, useRef, useEffect } from "react";
-import { Users, Zap, Shield, Search, Bell, LogOut, ExternalLink, MessageSquare } from "lucide-react";
+import { Users, Zap, Shield, Search, Bell, LogOut, ExternalLink, MessageSquare, BarChart3, Activity, LayoutGrid } from "lucide-react";
 import adminStyles from "./admin.module.css";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -113,13 +113,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
 
     const getModuleTitle = (path: string) => {
-        if (path === "/admin") return "Fleet Provisioning";
-        if (path === "/admin/users") return "Users";
+        if (path === "/admin") return "Workflow Provisioning";
+        if (path === "/admin/users") return "Operator Directory";
         if (path === "/admin/fleet") return "Fleet Health Monitoring";
-        if (path === "/admin/incidents") return "Incident Command Center";
-        if (path.startsWith("/admin/marketplace")) return "Marketplace Management";
+        if (path === "/admin/incidents") return "Incident Command";
+        if (path.startsWith("/admin/marketplace")) return "Marketplace Registry";
+        if (path.startsWith("/admin/analytics")) return "Platform Analytics";
         if (path.startsWith("/admin/support")) return "Support Inbox";
-        return "Operations Control Panel";
+        if (path.startsWith("/admin/audit")) return "Audit Logs";
+        return "Admin Control Panel";
     };
 
     return (
@@ -134,21 +136,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
                 <nav className={adminStyles.nav}>
                     <div className={adminStyles.navGroup}>
-                        <span className={adminStyles.navGroupLabel}>Fleet Control</span>
+                        <span className={adminStyles.navGroupLabel}>Operations</span>
                         <ul>
                             <li>
                                 <Link href="/admin" className={`${adminStyles.navLink} ${pathname === "/admin" ? adminStyles.navLinkActive : ""}`}>
-                                    <Shield size={20} /> Provisioning
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/admin/marketplace" className={`${adminStyles.navLink} ${pathname.startsWith("/admin/marketplace") ? adminStyles.navLinkActive : ""}`}>
-                                    <Zap size={20} /> Registry
+                                    <LayoutGrid size={20} /> Provisioning
                                 </Link>
                             </li>
                             <li>
                                 <Link href="/admin/fleet" className={`${adminStyles.navLink} ${pathname === "/admin/fleet" ? adminStyles.navLinkActive : ""}`}>
-                                    <Shield size={20} /> Health Monitoring
+                                    <Activity size={20} /> Fleet Health
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/admin/marketplace" className={`${adminStyles.navLink} ${pathname.startsWith("/admin/marketplace") ? adminStyles.navLinkActive : ""}`}>
+                                    <Zap size={20} /> Marketplace
                                 </Link>
                             </li>
                         </ul>
@@ -163,13 +165,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                 </Link>
                             </li>
                             <li>
+                                <Link href="/admin/analytics" className={`${adminStyles.navLink} ${pathname.startsWith("/admin/analytics") ? adminStyles.navLinkActive : ""}`}>
+                                    <BarChart3 size={20} /> Analytics
+                                </Link>
+                            </li>
+                            <li>
                                 <Link href="/admin/incidents" className={`${adminStyles.navLink} ${pathname === "/admin/incidents" ? adminStyles.navLinkActive : ""}`}>
-                                    <Shield size={20} /> Incident Command
+                                    <Shield size={20} /> Incidents
                                 </Link>
                             </li>
                             <li>
                                 <Link href="/admin/support" className={`${adminStyles.navLink} ${pathname === "/admin/support" ? adminStyles.navLinkActive : ""}`}>
-                                    <MessageSquare size={20} /> Support Inbox
+                                    <MessageSquare size={20} /> Support
                                 </Link>
                             </li>
                         </ul>
@@ -180,7 +187,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         <ul>
                             <li>
                                 <Link href="/dashboard" className={adminStyles.navLink}>
-                                    <ExternalLink size={20} /> Exit to Firm
+                                    <ExternalLink size={20} /> Client Dashboard
                                 </Link>
                             </li>
                         </ul>
@@ -222,13 +229,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
             <main className={adminStyles.mainContent}>
                 <header className={adminStyles.adminHeader}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
                         <h2 style={{ fontSize: "1.25rem", fontWeight: 950, color: "var(--foreground)", letterSpacing: "-0.02em", margin: 0 }}>
                             {getModuleTitle(pathname)}
                         </h2>
-                        <div className={adminStyles.hubMetrics}>
-                            <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--accent)", boxShadow: "0 0 10px var(--accent)" }} />
-                            <span className={adminStyles.hubLabel}>NODE CLUSTER: GLOBAL_ALPHA</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 12px", background: "rgba(52,209,134,0.08)", borderRadius: "100px", border: "1px solid rgba(52,209,134,0.15)" }}>
+                            <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--accent)", boxShadow: "0 0 8px var(--accent)" }} />
+                            <span style={{ fontSize: "0.65rem", fontWeight: 950, color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.12em" }}>System Nominal</span>
                         </div>
                     </div>
 

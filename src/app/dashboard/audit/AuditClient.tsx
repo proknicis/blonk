@@ -7,18 +7,60 @@ import {
 } from "lucide-react";
 import styles from "./audit.module.css";
 
-interface AuditLog {
-    id: string;
-    timestamp: string;
-    category: string;
-    actor: string;
-    action: string;
-    target: string;
-    status: string;
-    ipAddress: string;
-}
+const auditLogs = [
+    {
+        id: "EVT-8992",
+        timestamp: "2026-05-17 14:22:01",
+        category: "Provisioning",
+        actor: "Jane Doe",
+        action: "Deploy Node",
+        target: "cache-layer-02",
+        status: "Success",
+        ipAddress: "192.168.1.42"
+    },
+    {
+        id: "EVT-8991",
+        timestamp: "2026-05-17 14:15:33",
+        category: "Security",
+        actor: "System",
+        action: "Key Rotation",
+        target: "db-credentials-prod",
+        status: "Success",
+        ipAddress: "Internal"
+    },
+    {
+        id: "EVT-8990",
+        timestamp: "2026-05-17 14:10:05",
+        category: "Access",
+        actor: "Alex Smith",
+        action: "Login Attempt",
+        target: "Admin Dashboard",
+        status: "Failed",
+        ipAddress: "203.0.113.15"
+    },
+    {
+        id: "EVT-8989",
+        timestamp: "2026-05-17 13:45:12",
+        category: "Configuration",
+        actor: "Jane Doe",
+        action: "Update Route",
+        target: "api-gateway",
+        status: "Success",
+        ipAddress: "192.168.1.42"
+    },
+    {
+        id: "EVT-8988",
+        timestamp: "2026-05-17 13:30:00",
+        category: "Provisioning",
+        actor: "Auto-Scaler",
+        action: "Scale Up",
+        target: "worker-pool-alpha",
+        status: "Success",
+        ipAddress: "Internal"
+    }
+];
 
-export default function AuditClient({ initialLogs }: { initialLogs: AuditLog[] }) {
+export default function AuditPage() {
     const [search, setSearch] = useState("");
 
     return (
@@ -103,7 +145,7 @@ export default function AuditClient({ initialLogs }: { initialLogs: AuditLog[] }
                         </tr>
                     </thead>
                     <tbody>
-                        {initialLogs.map((log) => {
+                        {auditLogs.map((log) => {
                             let CatIcon = Box;
                             if (log.category === "Security") CatIcon = Shield;
                             if (log.category === "Access") CatIcon = Key;

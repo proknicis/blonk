@@ -239,23 +239,23 @@ export default function AdminControlPage() {
             {/* OPERATIONS MASTER PANEL */}
             <div className={adminStyles.integrityPanel} style={{ background: 'var(--foreground)', border: 'none', padding: '40px 48px', borderRadius: '32px' }}>
                 <div className={adminStyles.integrityHub}>
-                    <div style={{ width: '64px', height: '64px', background: 'var(--background)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Globe size={32} color="var(--foreground)" className={adminStyles.spinning} />
+                    <div style={{ width: '64px', height: '64px', background: 'rgba(255,255,255,0.08)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)' }}>
+                        <Globe size={28} color="#FFFFFF" className={adminStyles.spinning} />
                     </div>
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                            <div style={{ padding: '4px 10px', background: workflows.some(w => w.status === 'Error') ? '#EF4444' : '#10B981', color: 'var(--background)', borderRadius: '6px', fontSize: '0.6rem', fontWeight: 950, letterSpacing: '0.15em' }}>
-                                {workflows.some(w => w.status === 'Error') ? 'ATTENTION REQUIRED' : 'FLEET NOMINAL'}
+                            <div style={{ padding: '4px 10px', background: workflows.some(w => w.status === 'Error') ? '#EF4444' : '#10B981', color: '#FFFFFF', borderRadius: '6px', fontSize: '0.6rem', fontWeight: 950, letterSpacing: '0.15em' }}>
+                                {workflows.some(w => w.status === 'Error') ? '⚠ ATTENTION REQUIRED' : '● ALL SYSTEMS NOMINAL'}
                             </div>
-                            <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)' }}>ORCHESTRATION HUB</span>
+                            <span style={{ fontSize: '0.65rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.35)' }}>ADMIN CONTROL PANEL</span>
                         </div>
-                        <h2 style={{ color: 'var(--background)', fontSize: '2.25rem', fontWeight: 950, letterSpacing: '-0.04em', margin: 0 }}>Sovereign Operations</h2>
-                        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '1rem', fontWeight: 750, margin: '8px 0 0' }}>Real-time telemetry and granular fleet orchestration across {workflows.length} clusters.</p>
+                        <h2 style={{ color: '#FFFFFF', fontSize: '2rem', fontWeight: 950, letterSpacing: '-0.04em', margin: 0 }}>Workflow Provisioning</h2>
+                        <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.95rem', fontWeight: 700, margin: '8px 0 0' }}>Managing {workflows.length} active client workflows across the production cluster.</p>
                     </div>
                 </div>
                 <div className={adminStyles.hubMetrics}>
-                    <button className={adminStyles.primaryBtn} onClick={() => setIsProvisioning(true)} style={{ background: 'var(--background)', color: 'var(--foreground)', border: 'none', height: '48px', padding: '0 24px' }}>
-                        <Plus size={18} style={{ marginRight: '8px' }} /> Provision New Cluster
+                    <button className={adminStyles.primaryBtn} onClick={() => setIsProvisioning(true)} style={{ background: '#FFFFFF', color: '#0F172A', border: 'none', height: '48px', padding: '0 24px', borderRadius: '14px', fontWeight: 950, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Plus size={16} /> New Workflow
                     </button>
                 </div>
             </div>
@@ -263,17 +263,18 @@ export default function AdminControlPage() {
             {/* METRICS ROW */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
                 {[
-                    { label: "Active Nodes", value: workflows.filter(w => w.status === 'Active' || w.status === 'Ready').length, icon: <Server size={20} color="var(--accent)" /> },
-                    { label: "System Health", value: workflows.length === 0 ? "100%" : `${Math.round(((workflows.length - workflows.filter(w => w.status === 'Error').length) / workflows.length) * 100)}%`, icon: <ShieldCheck size={20} color="#10B981" /> },
-                    { label: "Resource Load", value: "24.2%", icon: <Cpu size={20} color="var(--accent)" /> },
-                    { label: "Op Velocity", value: workflows.reduce((acc, w) => acc + (w.tasksCount || 0), 0), icon: <Zap size={20} color="#F59E0B" /> }
+                    { label: "Active Workflows", value: workflows.filter(w => w.status === 'Active' || w.status === 'Ready').length, sub: 'ready or running', icon: <Server size={18} color="var(--accent)" /> },
+                    { label: "System Health", value: workflows.length === 0 ? "100%" : `${Math.round(((workflows.length - workflows.filter(w => w.status === 'Error').length) / workflows.length) * 100)}%`, sub: 'no errors detected', icon: <ShieldCheck size={18} color="#10B981" /> },
+                    { label: "Total Task Runs", value: workflows.reduce((acc, w) => acc + (w.tasksCount || 0), 0).toLocaleString(), sub: 'all time', icon: <Zap size={18} color="#F59E0B" /> },
+                    { label: "Error Rate", value: workflows.length === 0 ? '0' : workflows.filter(w => w.status === 'Error').length, sub: 'workflows with errors', icon: <Cpu size={18} color={workflows.filter(w => w.status === 'Error').length > 0 ? '#EF4444' : 'var(--muted-foreground)'} /> }
                 ].map((m, i) => (
-                    <div key={i} style={{ background: 'var(--background)', padding: '32px', borderRadius: '24px', border: '1px solid var(--border)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-                            <span style={{ fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{m.label}</span>
-                            {m.icon}
+                    <div key={i} style={{ background: 'var(--card)', padding: '28px 32px', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)', transition: 'all 0.3s cubic-bezier(0.16,1,0.3,1)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <span style={{ fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>{m.label}</span>
+                            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{m.icon}</div>
                         </div>
-                        <div style={{ fontSize: '1.75rem', fontWeight: 950 }}>{isLoadingWorkflows ? '...' : m.value}</div>
+                        <div style={{ fontSize: '2rem', fontWeight: 950, letterSpacing: '-0.04em', marginBottom: '6px' }}>{isLoadingWorkflows ? '—' : m.value}</div>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)' }}>{m.sub}</div>
                     </div>
                 ))}
             </div>
@@ -282,8 +283,8 @@ export default function AdminControlPage() {
             <div className={adminStyles.registryCard} style={{ borderRadius: '32px', border: '1px solid var(--border)' }}>
                 <div className={adminStyles.registryHeader} style={{ padding: '32px 40px' }}>
                     <div>
-                        <h3 className={adminStyles.registryTitle}>Operations Ledger</h3>
-                        <p className={adminStyles.registrySubtitle}>Real-time streaming from provisioned institutional nodes.</p>
+                        <h3 className={adminStyles.registryTitle}>Client Workflows</h3>
+                        <p className={adminStyles.registrySubtitle}>All provisioned client workflow nodes — live status and configuration.</p>
                     </div>
                     <div style={{ display: 'flex', gap: '16px' }}>
                         <div className={adminStyles.filterBar}>
@@ -293,7 +294,7 @@ export default function AdminControlPage() {
                         </div>
                         <div className={adminStyles.searchContainer}>
                             <Search className={adminStyles.searchIcon} size={18} />
-                            <input type="text" placeholder="Search the fleet..." className={adminStyles.searchField} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+                            <input type="text" placeholder="Search by client or workflow..." className={adminStyles.searchField} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
                         </div>
                     </div>
                 </div>
@@ -302,76 +303,79 @@ export default function AdminControlPage() {
                     <table className={adminStyles.registryTable}>
                         <thead>
                             <tr>
-                                <th className={adminStyles.registryTH}>NODE IDENTITY</th>
-                                <th className={adminStyles.registryTH}>CLUSTER HUB</th>
-                                <th className={adminStyles.registryTH}>YIELD</th>
-                                <th className={adminStyles.registryTH}>TELEMETRY</th>
-                                <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>COMMANDS</th>
+                                <th className={adminStyles.registryTH}>CLIENT</th>
+                                <th className={adminStyles.registryTH}>SERVER NODE</th>
+                                <th className={adminStyles.registryTH}>TASK RUNS</th>
+                                <th className={adminStyles.registryTH}>STATUS</th>
+                                <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>ACTIONS</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoadingWorkflows ? (
                                 [1, 2, 3].map(i => <tr key={i}><td colSpan={5} style={{ padding: '20px 0' }}><Skeleton width="100%" height="64px" borderRadius="16px" /></td></tr>)
-                            ) : filteredWorkflows.map(wf => (
-                                <tr key={wf.id} className={adminStyles.registryRow} style={{ height: '84px' }}>
+                            ) : filteredWorkflows.length === 0 ? (
+                                <tr><td colSpan={5} style={{ textAlign: 'center', padding: '64px', color: 'var(--muted-foreground)', fontWeight: 950, fontSize: '0.9rem' }}>No workflows match your search or filter.</td></tr>
+                            ) : filteredWorkflows.map(wf => {
+                                const statusColor: Record<string, string> = { 'Active': '#10B981', 'Ready': '#3B82F6', 'Error': '#EF4444', 'Syncing': '#F59E0B' };
+                                const statusBg: Record<string, string> = { 'Active': '#10B98112', 'Ready': '#3B82F612', 'Error': '#EF444412', 'Syncing': '#F59E0B12' };
+                                const color = statusColor[wf.status] || '#64748B';
+                                const bg = statusBg[wf.status] || '#64748B12';
+                                return (
+                                <tr key={wf.id} className={adminStyles.registryRow} style={{ height: '80px' }}>
                                     <td>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                            <div style={{ width: '48px', height: '48px', background: 'var(--muted)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', fontWeight: 950, color: 'var(--accent)', border: '1px solid var(--border)' }}>
-                                                {wf.workflowCount || 0}
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                            <div style={{ width: '44px', height: '44px', background: 'var(--muted)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.95rem', fontWeight: 950, color: 'var(--foreground)', border: '1px solid var(--border)', flexShrink: 0 }}>
+                                                {(wf.userEmail || 'A').charAt(0).toUpperCase()}
                                             </div>
                                             <div>
-                                                <div style={{ fontSize: '1rem', fontWeight: 950 }}>{wf.userEmail || 'Anonymous'}</div>
-                                                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--muted-foreground)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                    <Lock size={12} /> {wf.id.substring(0, 12)}
-                                                </div>
+                                                <div style={{ fontSize: '0.95rem', fontWeight: 950 }}>{wf.userEmail || 'Anonymous'}</div>
+                                                <div style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted-foreground)', fontFamily: 'monospace', marginTop: '2px' }}>{wf.id.substring(0, 14)}</div>
                                             </div>
                                         </div>
-                                    </td>
-                                    <td>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                            <Server size={14} color="var(--accent)" />
-                                            <span style={{ fontSize: '0.9rem', fontWeight: 950 }}>{wf.serverName || 'Pending Hub'}</span>
-                                        </div>
-                                        <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>{wf.serverUrl?.replace(/^https?:\/\//, '') || 'ALLOCATING...'}</div>
                                     </td>
                                     <td>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <Zap size={16} color="#F59E0B" />
-                                            <span style={{ fontSize: '1.1rem', fontWeight: 950 }}>{wf.tasksCount || 0}</span>
+                                            <Server size={14} color="var(--muted-foreground)" />
+                                            <span style={{ fontSize: '0.9rem', fontWeight: 800 }}>{wf.serverName || '—'}</span>
                                         </div>
+                                        <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 700, marginTop: '2px' }}>{wf.serverUrl?.replace(/^https?:\/\//, '').split('/')[0] || 'Not assigned'}</div>
                                     </td>
                                     <td>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                            <div style={{ flex: 1, height: '6px', background: 'var(--muted)', borderRadius: '10px', overflow: 'hidden', minWidth: '100px' }}>
-                                                <div style={{ height: '100%', width: `${wf.progress}%`, background: wf.status === 'Error' ? '#EF4444' : 'var(--accent)', transition: 'all 1s ease' }} />
-                                            </div>
-                                            <span style={{ fontSize: '0.75rem', fontWeight: 950, color: 'var(--foreground)' }}>{wf.progress}%</span>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <span style={{ fontSize: '1.25rem', fontWeight: 950, letterSpacing: '-0.02em' }}>{(wf.tasksCount || 0).toLocaleString()}</span>
                                         </div>
-                                        <div style={{ fontSize: '0.65rem', fontWeight: 950, color: wf.status === 'Error' ? '#EF4444' : 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '4px' }}>
-                                            {wf.status === 'Active' ? 'LIVE PULSE' : wf.status}
+                                        <div style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '2px' }}>total runs</div>
+                                    </td>
+                                    <td>
+                                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '6px 14px', borderRadius: '100px', background: bg, border: `1px solid ${color}25` }}>
+                                            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: color, boxShadow: wf.status === 'Active' ? `0 0 8px ${color}` : 'none' }} />
+                                            <span style={{ fontSize: '0.7rem', fontWeight: 950, color, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{wf.status}</span>
                                         </div>
                                     </td>
                                     <td style={{ textAlign: 'right' }}>
                                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                                             <button 
                                                 className={adminStyles.actionIconBtn} 
+                                                title="Configure"
                                                 onClick={(e) => { 
                                                     e.stopPropagation();
                                                     handleOpenCalibration(wf); 
                                                 }}
                                             >
-                                                <Settings size={18} />
+                                                <Settings size={17} />
                                             </button>
                                             <button 
-                                                className={adminStyles.actionIconBtn} 
+                                                className={adminStyles.actionIconBtn}
+                                                title="More actions"
                                                 onClick={(e) => toggleMenu(e, wf.id)}
                                             >
-                                                <MoreHorizontal size={18} />
+                                                <MoreHorizontal size={17} />
                                             </button>
                                         </div>
                                     </td>
                                 </tr>
-                            ))}
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>
@@ -570,42 +574,37 @@ export default function AdminControlPage() {
             {isProvisioning && (
                 <ModalPortal>
                     <div className={adminStyles.modalOverlay} onClick={() => setIsProvisioning(false)}>
-                        <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '640px' }}>
-                            <div className={adminStyles.modalHeader} style={{ background: 'var(--foreground)', color: 'var(--background)', padding: '48px' }}>
+                        <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '580px' }}>
+                            <div className={adminStyles.modalHeader} style={{ background: 'var(--foreground)', color: '#FFFFFF', padding: '40px 48px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                     <div>
-                                        <h3 style={{ fontSize: '2.25rem', fontWeight: 950, margin: 0, letterSpacing: '-0.05em' }}>Provision Node Cluster</h3>
-                                        <p style={{ opacity: 0.6, margin: '12px 0 0', fontWeight: 750 }}>Initialize a new sovereign compute instance.</p>
+                                        <div style={{ fontSize: '0.65rem', fontWeight: 950, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: '12px' }}>NEW WORKFLOW</div>
+                                        <h3 style={{ fontSize: '1.75rem', fontWeight: 950, margin: 0, letterSpacing: '-0.03em', color: '#FFFFFF' }}>Provision Client Workflow</h3>
+                                        <p style={{ opacity: 0.5, margin: '10px 0 0', fontWeight: 700, fontSize: '0.9rem' }}>Create a new workflow cluster for a client account.</p>
                                     </div>
-                                    <button onClick={() => setIsProvisioning(false)} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '12px', borderRadius: '12px', cursor: 'pointer' }}><X size={24} /></button>
+                                    <button onClick={() => setIsProvisioning(false)} style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: 'white', padding: '10px', borderRadius: '10px', cursor: 'pointer', display: 'flex' }}><X size={20} /></button>
                                 </div>
                             </div>
-                            <div className={adminStyles.modalBody} style={{ padding: '48px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                                <div style={{ background: '#FAFAFA', padding: '32px', borderRadius: '24px', border: '1px solid var(--border)' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                                        <Globe size={20} color="var(--accent)" />
-                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.1em' }}>IDENTITY ANCHOR</span>
+                            <div className={adminStyles.modalBody} style={{ padding: '40px 48px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                    <div>
+                                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Organization / Client Name</label>
+                                        <input className={adminStyles.searchField} style={{ paddingLeft: '20px', width: '100%', background: 'var(--muted)' }} placeholder="e.g. Acme Corp" value={provisionData.clientName} onChange={e => setProvisionData({...provisionData, clientName: e.target.value})} />
                                     </div>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                                        <div>
-                                            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '12px', textTransform: 'uppercase' }}>Client Identity</label>
-                                            <input className={adminStyles.searchField} style={{ paddingLeft: '24px' }} placeholder="Organization Name" value={provisionData.clientName} onChange={e => setProvisionData({...provisionData, clientName: e.target.value})} />
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '12px', textTransform: 'uppercase' }}>Email Anchor</label>
-                                            <input className={adminStyles.searchField} style={{ paddingLeft: '24px' }} placeholder="admin@org.com" value={provisionData.email} onChange={e => setProvisionData({...provisionData, email: e.target.value})} />
-                                        </div>
+                                    <div>
+                                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Admin Email Address</label>
+                                        <input className={adminStyles.searchField} style={{ paddingLeft: '20px', width: '100%', background: 'var(--muted)' }} placeholder="admin@client.com" type="email" value={provisionData.email} onChange={e => setProvisionData({...provisionData, email: e.target.value})} />
                                     </div>
                                 </div>
-                                <div style={{ display: 'flex', gap: '16px', padding: '20px', background: 'rgba(16, 185, 129, 0.05)', borderRadius: '16px', border: '1px solid rgba(16, 185, 129, 0.1)' }}>
-                                    <ShieldCheck size={20} color="#10B981" />
-                                    <p style={{ fontSize: '0.85rem', color: '#065F46', margin: 0, fontWeight: 750 }}>This will generate an immutable root tenant and provision a dedicated sovereign node on the default cluster.</p>
+                                <div style={{ display: 'flex', gap: '14px', padding: '18px 20px', background: 'rgba(16, 185, 129, 0.06)', borderRadius: '14px', border: '1px solid rgba(16, 185, 129, 0.12)' }}>
+                                    <ShieldCheck size={18} color="#10B981" style={{ flexShrink: 0, marginTop: '1px' }} />
+                                    <p style={{ fontSize: '0.82rem', color: '#065F46', margin: 0, fontWeight: 700, lineHeight: 1.5 }}>A new tenant account will be created and a dedicated workflow node provisioned on the default server cluster.</p>
                                 </div>
                             </div>
-                            <div className={adminStyles.modalFooter} style={{ padding: '32px 48px', background: '#FAFAFA' }}>
-                                <button className={adminStyles.refreshBtn} onClick={() => setIsProvisioning(false)} style={{ border: 'none', width: 'auto', padding: '0 24px' }}>Cancel Operation</button>
-                                <button className={adminStyles.primaryBtn} onClick={provisionClient} disabled={isProvisioningLoading || !provisionData.clientName || !provisionData.email}>
-                                    {isProvisioningLoading ? 'HANDSHAKING...' : 'INITIALIZE CLUSTER'}
+                            <div className={adminStyles.modalFooter} style={{ padding: '28px 48px', background: 'var(--muted)' }}>
+                                <button className={adminStyles.refreshBtn} onClick={() => setIsProvisioning(false)} style={{ border: 'none', width: 'auto', padding: '0 20px', height: '44px', borderRadius: '12px' }}>Cancel</button>
+                                <button className={adminStyles.primaryBtn} onClick={provisionClient} disabled={isProvisioningLoading || !provisionData.clientName || !provisionData.email} style={{ height: '44px', borderRadius: '12px', padding: '0 28px' }}>
+                                    {isProvisioningLoading ? 'Creating...' : 'Create Workflow'}
                                 </button>
                             </div>
                         </div>
@@ -620,26 +619,26 @@ export default function AdminControlPage() {
                         position: 'fixed',
                         top: menuPosition.top,
                         right: menuPosition.right,
-                        background: 'white',
-                        borderRadius: '16px',
-                        boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+                        background: 'var(--card)',
+                        borderRadius: '18px',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)',
                         border: '1px solid var(--border)',
-                        padding: '12px',
+                        padding: '8px',
                         zIndex: 10000,
-                        width: '240px',
-                        animation: 'fadeIn 0.2s ease'
+                        width: '220px',
+                        animation: 'slideUpFade 0.2s cubic-bezier(0.16,1,0.3,1)'
                     }}
                 >
-                    <div style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)', padding: '12px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Node Operations</div>
-                    <button className={adminStyles.navLink} style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer' }} onClick={() => { updateWorkflowStatus(activeMenuId, 'Ready'); setActiveMenuId(null); }}>
-                        <RefreshCcw size={16} /> Mark as Ready
+                    <div style={{ fontSize: '0.6rem', fontWeight: 950, color: 'var(--muted-foreground)', padding: '8px 14px 6px', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Workflow Actions</div>
+                    <button className={adminStyles.navLink} style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer', padding: '12px 16px', gap: '12px', borderRadius: '12px', fontSize: '0.9rem' }} onClick={() => { updateWorkflowStatus(activeMenuId, 'Ready'); setActiveMenuId(null); }}>
+                        <RefreshCcw size={15} /> Mark as Ready
                     </button>
-                    <button className={adminStyles.navLink} style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer' }} onClick={() => { updateWorkflowStatus(activeMenuId, 'Active'); setActiveMenuId(null); }}>
-                        <Zap size={16} /> Force Active
+                    <button className={adminStyles.navLink} style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer', padding: '12px 16px', gap: '12px', borderRadius: '12px', fontSize: '0.9rem' }} onClick={() => { updateWorkflowStatus(activeMenuId, 'Active'); setActiveMenuId(null); }}>
+                        <Zap size={15} /> Set Active
                     </button>
-                    <div style={{ height: '1px', background: 'var(--border)', margin: '8px 12px' }} />
-                    <button className={adminStyles.navLink} style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer', color: '#EF4444' }} onClick={() => { deleteWorkflow(activeMenuId); setActiveMenuId(null); }}>
-                        <Trash2 size={16} /> Decommission Node
+                    <div style={{ height: '1px', background: 'var(--border)', margin: '6px 8px' }} />
+                    <button className={adminStyles.navLink} style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer', padding: '12px 16px', gap: '12px', borderRadius: '12px', fontSize: '0.9rem', color: '#EF4444' }} onClick={() => { deleteWorkflow(activeMenuId); setActiveMenuId(null); }}>
+                        <Trash2 size={15} /> Delete Workflow
                     </button>
                 </div>
             )}

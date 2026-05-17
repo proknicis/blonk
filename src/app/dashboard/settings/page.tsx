@@ -192,9 +192,9 @@ function SettingsContent() {
                             <h2>Configuration & Guardrails</h2>
                             <p className={styles.planDescription}>Manage your administrative vault and autonomous operating parameters.</p>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-                            <Shield size={16} color="#10B981" />
-                            <span style={{ fontSize: '0.75rem', fontWeight: 950, color: '#0F172A', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Vault Encrypted</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', background: 'var(--muted)', borderRadius: '14px', border: '1px solid var(--border)' }}>
+                            <Shield size={16} color="var(--accent)" />
+                            <span style={{ fontSize: '0.8rem', fontWeight: 950, color: 'var(--foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Vault Encrypted</span>
                         </div>
                     </div>
 
@@ -357,9 +357,9 @@ function SettingsContent() {
                                 <div className={styles.planPricing}><span className={styles.planAmount}>$833</span><span className={styles.planPeriod}>/mo</span></div>
                                 <p className={styles.planDescription}>The definitive operating layer for autonomous personnel management.</p>
                                 <ul className={styles.featureList}>
-                                    <li className={styles.featureItem}><Check size={18} color="#3B82F6" /> Unlimited Audit Loops</li>
-                                    <li className={styles.featureItem}><Check size={18} color="#3B82F6" /> Sovereign Data Backbone</li>
-                                    <li className={styles.featureItem}><Check size={18} color="#3B82F6" /> SOC-2 Compliance Core</li>
+                                    <li className={styles.featureItem}><Check size={18} color="var(--accent)" /> Unlimited Audit Loops</li>
+                                    <li className={styles.featureItem}><Check size={18} color="var(--accent)" /> Sovereign Data Backbone</li>
+                                    <li className={styles.featureItem}><Check size={18} color="var(--accent)" /> SOC-2 Compliance Core</li>
                                 </ul>
                                 <button className={`${styles.btnPrimary} ${styles.btnInstitutional}`} onClick={() => handlePlanSwitch('Institutional')} disabled={currentPlan === 'Institutional'}>
                                     {currentPlan === 'Institutional' ? "Active Directive" : "Commit to Institutional"}
@@ -371,9 +371,9 @@ function SettingsContent() {
                                 <div className={styles.planPricing}><span className={styles.planAmount}>Contact</span></div>
                                 <p className={styles.planDescription}>Custom infrastructure scaling for global legal and accounting entities.</p>
                                 <ul className={styles.featureList}>
-                                    <li className={styles.featureItem}><Check size={18} color="#10B981" /> Private Subsystem Mirroring</li>
-                                    <li className={styles.featureItem}><Check size={18} color="#10B981" /> 24/7 Loop Reliability Engineers</li>
-                                    <li className={styles.featureItem}><Check size={18} color="#10B981" /> Custom Regulatory Adapters</li>
+                                    <li className={styles.featureItem}><Check size={18} color="var(--accent)" /> Private Subsystem Mirroring</li>
+                                    <li className={styles.featureItem}><Check size={18} color="var(--accent)" /> 24/7 Loop Reliability Engineers</li>
+                                    <li className={styles.featureItem}><Check size={18} color="var(--accent)" /> Custom Regulatory Adapters</li>
                                 </ul>
                                 <button className={`${styles.btnPrimary} ${styles.btnInfrastructure}`} onClick={() => window.open('mailto:architecture@blonk.ai')}>Inquire for Infrastructure</button>
                             </div>
@@ -397,7 +397,7 @@ function SettingsContent() {
                                     <tr key={inv.id}>
                                         <td>{inv.invoiceNumber}</td>
                                         <td>{new Date(inv.date).toLocaleDateString()}</td>
-                                        <td style={{ fontWeight: 950, color: '#0F172A' }}>{inv.amount}</td>
+                                        <td style={{ fontWeight: 950, color: 'var(--foreground)' }}>{inv.amount}</td>
                                         <td><span className={styles.statusPaid}>COMMITTED</span></td>
                                         <td style={{ textAlign: 'right' }}><button className={styles.downloadBtn}><Download size={18} /></button></td>
                                     </tr>

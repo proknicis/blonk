@@ -1,10 +1,15 @@
+/* 
+  BLONK | SETTINGS VAULT
+  Institutional Configuration Interface
+  Uses Global Design System Variables
+*/
+
 .container {
     width: 100%;
     animation: settingsFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
     flex-direction: column;
     gap: 48px;
-    padding-bottom: 60px;
 }
 
 @keyframes settingsFadeIn {
@@ -15,8 +20,8 @@
 /* NAVIGATION TABS */
 .tabs {
     display: flex;
-    gap: 32px;
-    border-bottom: 1px solid #E2E8F0;
+    gap: 40px;
+    border-bottom: 1px solid var(--border);
     padding-bottom: 4px;
 }
 
@@ -24,19 +29,19 @@
     background: none;
     border: none;
     padding: 12px 4px;
-    font-size: 0.95rem;
+    font-size: 1rem;
     font-weight: 950;
-    color: #64748B;
+    color: var(--muted-foreground);
     cursor: pointer;
     position: relative;
     transition: all 0.25s ease;
     letter-spacing: -0.02em;
 }
 
-.tab:hover { color: #0F172A; }
+.tab:hover { color: var(--foreground); }
 
 .activeTab {
-    color: #0F172A;
+    color: var(--foreground);
 }
 
 .activeTab::after {
@@ -46,26 +51,26 @@
     left: 0;
     width: 100%;
     height: 3px;
-    background: #0F172A;
+    background: var(--accent);
     border-radius: 100px;
 }
 
 /* CONFIGURATION SECTIONS */
 .section {
-    background: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    border-radius: 20px;
-    padding: 40px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 36px;
+    padding: 48px;
     display: flex;
     flex-direction: column;
-    gap: 32px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    gap: 40px;
+    box-shadow: var(--shadow-sm);
 }
 
 .section h2 {
     font-size: 1.5rem;
     font-weight: 950;
-    color: #0F172A;
+    color: var(--foreground);
     margin: 0;
     letter-spacing: -0.04em;
 }
@@ -80,28 +85,28 @@
 .field label {
     font-size: 0.75rem;
     font-weight: 950;
-    color: #94A3B8;
+    color: var(--muted-foreground);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.15em;
+    opacity: 0.7;
 }
 
 .input {
     width: 100%;
-    background: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    border-radius: 12px;
-    padding: 14px 20px;
-    font-size: 0.95rem;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 24px;
+    font-size: 1rem;
     font-weight: 700;
-    color: #0F172A;
-    transition: all 0.2s ease;
+    color: var(--foreground);
+    transition: all 0.25s ease;
     outline: none;
-    box-sizing: border-box;
 }
 
 .input:focus {
-    border-color: #CBD5E1;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
 }
 
 /* INTERACTION TOGGLES */
@@ -109,31 +114,31 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
-    background: #F8FAFC;
-    border-radius: 16px;
-    border: 1px solid #F1F5F9;
+    padding: 24px;
+    background: var(--background);
+    border-radius: 20px;
+    border: 1px solid var(--border);
 }
 
 .toggleInfo strong {
     display: block;
-    font-size: 0.95rem;
-    font-weight: 900;
-    color: #0F172A;
+    font-size: 1rem;
+    font-weight: 950;
+    color: var(--foreground);
     margin-bottom: 4px;
 }
 
 .toggleInfo p {
     margin: 0;
-    font-size: 0.8rem;
-    color: #64748B;
-    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--muted-foreground);
+    font-weight: 700;
 }
 
 /* SWITCH COMPONENT */
 .switch {
-    width: 48px;
-    height: 26px;
+    width: 52px;
+    height: 28px;
     position: relative;
     display: inline-block;
 }
@@ -143,7 +148,7 @@
 .slider {
     position: absolute;
     inset: 0;
-    background: #E2E8F0;
+    background: var(--border);
     border-radius: 100px;
     cursor: pointer;
     transition: 0.3s;
@@ -152,8 +157,8 @@
 .slider:before {
     position: absolute;
     content: "";
-    height: 18px;
-    width: 18px;
+    height: 20px;
+    width: 20px;
     left: 4px;
     bottom: 4px;
     background: white;
@@ -161,42 +166,42 @@
     transition: 0.3s;
 }
 
-input:checked + .slider { background: #10B981; }
-input:checked + .slider:before { transform: translateX(22px); }
+input:checked + .slider { background: var(--accent); }
+input:checked + .slider:before { transform: translateX(24px); }
 
 /* INFRASTRUCTURE CARDS */
 .planGrid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
+    gap: 32px;
 }
 
 .institutionCard, .infrastructureCard {
-    background: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    border-radius: 20px;
-    padding: 32px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 36px;
+    padding: 48px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    gap: 32px;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
 }
 
 .institutionCard:hover, .infrastructureCard:hover {
-    border-color: #CBD5E1;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
 }
 
 .planLabel {
     font-size: 0.7rem;
     font-weight: 950;
-    color: #3B82F6;
+    color: var(--accent);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    background: #EFF6FF;
-    padding: 6px 14px;
+    letter-spacing: 0.2em;
+    background: var(--accent-muted);
+    padding: 6px 16px;
     border-radius: 100px;
     display: inline-block;
 }
@@ -206,88 +211,71 @@ input:checked + .slider:before { transform: translateX(22px); }
     align-self: flex-start;
     font-size: 0.7rem;
     font-weight: 950;
-    background: #0F172A;
-    color: #FFFFFF;
-    padding: 6px 14px;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    padding: 6px 16px;
     border-radius: 100px;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.15em;
 }
 
 .planAmount {
-    font-size: 3rem;
+    font-size: 3.5rem;
     font-weight: 950;
-    letter-spacing: -0.05em;
-    color: #0F172A;
+    letter-spacing: -0.06em;
+    color: var(--foreground);
 }
 
 .planPeriod {
-    font-size: 1rem;
-    font-weight: 800;
-    color: #64748B;
+    font-size: 1.1rem;
+    font-weight: 950;
+    color: var(--muted-foreground);
+    opacity: 0.6;
 }
 
 .planDescription {
     margin: 0;
-    font-size: 1rem;
-    color: #64748B;
-    line-height: 1.5;
-    font-weight: 600;
-}
-
-.featureList {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    font-size: 1.1rem;
+    color: var(--muted-foreground);
+    line-height: 1.6;
+    font-weight: 700;
 }
 
 .featureItem {
     display: flex;
     align-items: center;
-    gap: 12px;
-    font-size: 0.9rem;
+    gap: 16px;
+    font-size: 1rem;
     font-weight: 800;
-    color: #0F172A;
+    color: var(--foreground);
 }
 
 /* BUTTONS */
 .btnPrimary {
-    background: #0F172A;
-    color: #FFFFFF;
-    padding: 14px 24px;
-    border-radius: 12px;
-    font-size: 0.9rem;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    padding: 18px 32px;
+    border-radius: 18px;
+    font-size: 1rem;
     font-weight: 950;
     cursor: pointer;
     border: none;
     transition: all 0.2s ease;
-    width: fit-content;
 }
 
 .btnPrimary:hover:not(:disabled) {
-    background: #1E293B;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
 .btnInstitutional {
-    background: #EFF6FF;
-    color: #3B82F6;
-    width: 100%;
-}
-
-.btnInstitutional:hover:not(:disabled) {
-    background: #DBEAFE;
-    box-shadow: none;
+    background: var(--accent-muted);
+    color: var(--accent);
 }
 
 .btnInfrastructure {
-    background: #0F172A;
-    color: #FFFFFF;
-    width: 100%;
+    background: var(--primary);
+    color: var(--primary-foreground);
 }
 
 /* TABLES */
@@ -297,50 +285,76 @@ input:checked + .slider:before { transform: translateX(22px); }
 }
 
 .billTable th {
-    padding: 16px 20px;
+    padding: 16px 24px;
     text-align: left;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 950;
-    color: #94A3B8;
+    color: var(--muted-foreground);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    background: #F8FAFC;
-    border-bottom: 1px solid #E2E8F0;
+    letter-spacing: 0.15em;
+    opacity: 0.6;
 }
 
 .billTable td {
-    padding: 16px 20px;
-    border-bottom: 1px solid #F1F5F9;
-    font-size: 0.9rem;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    font-size: 1rem;
     font-weight: 700;
-    color: #0F172A;
+    color: var(--foreground);
 }
 
 .statusPaid {
-    background: #ECFDF5;
-    color: #10B981;
-    padding: 4px 10px;
+    background: var(--accent-muted);
+    color: var(--accent);
+    padding: 6px 12px;
     border-radius: 8px;
     font-size: 0.7rem;
     font-weight: 950;
 }
 
 .downloadBtn {
-    background: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+    background: var(--background);
+    border: 1px solid var(--border);
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #94A3B8;
+    color: var(--foreground);
     cursor: pointer;
     transition: all 0.2s;
-    float: right;
 }
 
 .downloadBtn:hover {
-    background: #F8FAFC;
-    color: #0F172A;
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+@media (max-width: 1200px) {
+    .planGrid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 850px) {
+    .container { gap: 32px; }
+    .tabs { 
+        gap: 20px; 
+        overflow-x: auto; 
+        -webkit-overflow-scrolling: touch; 
+        padding-bottom: 8px;
+    }
+    .tab { white-space: nowrap; font-size: 0.9rem; }
+    
+    .section { padding: 32px 24px; border-radius: 24px; gap: 32px; }
+    .section h2 { font-size: 1.25rem; }
+    
+    .institutionCard, .infrastructureCard { padding: 32px 24px; border-radius: 24px; }
+    .planAmount { font-size: 2.5rem; }
+    
+    .billTable { display: block; overflow-x: auto; }
+}
+
+@media (max-width: 500px) {
+    .toggleField { flex-direction: column; align-items: flex-start; gap: 20px; }
+    .btnPrimary { width: 100%; }
 }
