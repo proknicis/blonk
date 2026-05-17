@@ -528,7 +528,7 @@ export default function SupportInboxPage() {
                                                                             <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>245 KB • PNG Image</div>
                                                                         </div>
                                                                     </div>
-                                                                    <button style={{ width: '32px', height: '32px', border: '1px solid var(--border)', background: '#FFFFFF', borderRadius: '8px', display: 'flex', alignItems: 'center', justify: 'center', color: 'var(--foreground)', cursor: 'pointer' }}>
+                                                                    <button style={{ width: '32px', height: '32px', border: '1px solid var(--border)', background: '#FFFFFF', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--foreground)', cursor: 'pointer' }}>
                                                                         <Download size={14} />
                                                                     </button>
                                                                 </div>
