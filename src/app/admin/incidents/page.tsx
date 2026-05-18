@@ -12,11 +12,12 @@ export default async function IncidentCommandPage() {
         SELECT 
             wl.id, 
             t."firmName", 
-            wl."workflowName", 
+            COALESCE(w.name, wl."workflowName") as "workflowName", 
             COALESCE(wl.result::jsonb->>'error', 'Unknown Operational Fault') as "errorMessage", 
             wl."createdAt",
             wl.status,
             n.url as "serverUrl",
+            n.name as "serverName",
             w."n8nWorkflowId"
         FROM "WorkflowLog" wl
         LEFT JOIN "Team" t ON wl."teamId" = t.id
@@ -31,16 +32,19 @@ export default async function IncidentCommandPage() {
         const created = new Date(log.createdAt);
         const diffMs = new Date().getTime() - created.getTime();
         const diffMins = Math.floor(diffMs / 60000);
-        const timeStr = diffMins < 1 ? 'Just now' : diffMins < 60 ? `${diffMins}m ago` : `${Math.floor(diffMins / 60)}h ago`;
+        
+        const dateStr = created.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
         return {
             id: log.id.substring(0, 8),
             firm: log.firmName || 'System Archive',
             description: log.errorMessage || `Unknown failure in ${log.workflowName}`,
             severity: 'High' as 'High' | 'Medium' | 'Low',
-            timestamp: timeStr,
+            timestamp: dateStr,
             status: 'Active' as 'Active' | 'Investigating' | 'Resolved',
-            debugUrl: log.serverUrl && log.n8nWorkflowId ? `${log.serverUrl.replace(/\/+$/, '')}/workflow/${log.n8nWorkflowId}` : log.serverUrl
+            debugUrl: log.serverUrl && log.n8nWorkflowId ? `${log.serverUrl.replace(/\/+$/, '')}/workflow/${log.n8nWorkflowId}` : log.serverUrl,
+            workflowName: log.workflowName || 'Orphaned Execution',
+            serverName: log.serverName || 'Unknown Node'
         };
     });
 

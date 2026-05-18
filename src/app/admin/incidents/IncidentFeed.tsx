@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { ShieldAlert, Terminal, MessageSquare, ExternalLink, Search, BellRing, Clock, RefreshCw } from "lucide-react";
+import { ShieldAlert, Terminal, MessageSquare, ExternalLink, Search, BellRing, Clock, RefreshCw, Server, Zap } from "lucide-react";
 import adminStyles from "../admin.module.css";
 
 interface Incident {
@@ -12,6 +12,8 @@ interface Incident {
     timestamp: string;
     status: 'Active' | 'Investigating' | 'Resolved';
     debugUrl?: string;
+    workflowName: string;
+    serverName: string;
 }
 
 export default function IncidentFeed({ initialIncidents }: { initialIncidents: Incident[] }) {
@@ -101,23 +103,34 @@ export default function IncidentFeed({ initialIncidents }: { initialIncidents: I
                                         <ShieldAlert size={24} style={{ color: getSeverityStyle(inc.severity).color }} />
                                     </div>
                                     <div>
-                                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
                                             <span style={{ fontSize: "0.85rem", fontWeight: 950 }}>{inc.firm}</span>
                                             <span style={{ 
                                                 fontSize: "0.6rem", 
                                                 fontWeight: 950, 
-                                                padding: "4px 10px", 
+                                                padding: "3px 8px", 
                                                 borderRadius: "100px", 
                                                 ...getSeverityStyle(inc.severity), 
                                                 textTransform: 'uppercase', 
                                                 letterSpacing: '0.05em' 
-                                            }}>{inc.severity}</span>
+                                            }}>{inc.severity} SEVERITY</span>
                                         </div>
-                                        <div style={{ fontSize: "0.95rem", color: "var(--foreground)", fontWeight: 800, maxWidth: '480px', letterSpacing: '-0.01em' }}>{inc.description}</div>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: "0.7rem", color: "var(--muted-foreground)", fontWeight: 700, marginTop: "8px" }}>
-                                            <code style={{ background: 'var(--muted)', padding: '2px 8px', borderRadius: '4px' }}>LOG_{inc.id}</code> 
-                                            <Clock size={12} />
-                                            <span>{inc.timestamp}</span>
+                                        <div style={{ fontSize: "0.95rem", color: "var(--foreground)", fontWeight: 800, maxWidth: '500px', letterSpacing: '-0.01em', marginBottom: "10px" }}>{inc.description}</div>
+                                        
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: "0.75rem", color: "var(--muted-foreground)", fontWeight: 750, flexWrap: 'wrap' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--muted)', padding: '2px 8px', borderRadius: '6px' }}>
+                                                <Zap size={12} color="#10B981" />
+                                                <span>{inc.workflowName}</span>
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--muted)', padding: '2px 8px', borderRadius: '6px' }}>
+                                                <Server size={12} color="#3B82F6" />
+                                                <span>{inc.serverName}</span>
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--muted)', padding: '2px 8px', borderRadius: '6px' }}>
+                                                <Clock size={12} />
+                                                <span>{inc.timestamp}</span>
+                                            </div>
+                                            <code style={{ background: 'var(--card)', border: '1px solid var(--border)', padding: '2px 8px', borderRadius: '6px', fontSize: '0.65rem' }}>LOG_{inc.id}</code> 
                                         </div>
                                     </div>
                                 </div>
