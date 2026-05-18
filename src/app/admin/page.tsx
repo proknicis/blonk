@@ -118,16 +118,16 @@ export default function FleetProvisioningPage() {
 
             if (res.ok) {
                 setIsProvisioning(false);
-                alert(`Sovereign Node Cluster for ${provisionData.name} successfully registered.`);
+                (window as any).showToast(`Sovereign Node Cluster for ${provisionData.name} successfully registered.`, "success");
                 setProvisionData({ name: "", url: "", apiKey: "", maxWorkflows: 100 });
                 fetchNodes(true);
             } else {
                 const err = await res.json();
-                alert(`Provisioning failed: ${err.error || 'Server error'}`);
+                (window as any).showToast(`Provisioning failed: ${err.error || 'Server error'}`, "error");
             }
         } catch (error) { 
             console.error(error); 
-            alert("Network error provisioning sovereign node.");
+            (window as any).showToast("Network error provisioning sovereign node.", "error");
         } finally { 
             setIsProvisioningLoading(false); 
         }
@@ -138,13 +138,14 @@ export default function FleetProvisioningPage() {
         try {
             const res = await fetch(`/api/admin/nodes/${id}`, { method: 'DELETE' });
             if (res.ok) {
-                alert(`Successfully decommissioned node "${name}".`);
+                (window as any).showToast(`Successfully decommissioned node "${name}".`, "success");
                 fetchNodes(true);
             } else {
-                alert("Failed to decommission node.");
+                (window as any).showToast("Failed to decommission node.", "error");
             }
         } catch (error) { 
             console.error(error); 
+            (window as any).showToast("Error decommissioning node.", "error");
         }
     };
 
@@ -381,7 +382,7 @@ export default function FleetProvisioningPage() {
                                                 <td style={{ padding: '16px', borderTopRightRadius: '16px', borderBottomRightRadius: '16px', textAlign: 'right' }}>
                                                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                                                         <button 
-                                                            onClick={() => alert(`Node endpoint config:\nURL: ${node.url}\nWorkflows: ${node.workflow_count}/${node.max_workflows}`)}
+                                                            onClick={() => (window as any).showToast(`Node endpoint config: URL is ${node.url}, active workflows: ${node.workflow_count}/${node.max_workflows}`, "info")}
                                                             style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#FFFFFF', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748B' }}
                                                             title="Configure Node"
                                                         >
@@ -415,7 +416,7 @@ export default function FleetProvisioningPage() {
                             {[
                                 { label: 'Provision New Node', desc: 'Add a new sovereign node to cluster', icon: <Plus size={16} />, action: () => setIsProvisioning(true) },
                                 { label: 'Sync Registry Nodes', desc: 'Trigger database and telemetry probe', icon: <RefreshCcw size={16} />, action: () => fetchNodes(true) },
-                                { label: 'Run Fleet Diagnostics', desc: 'Check n8n endpoints connection status', icon: <Activity size={16} />, action: () => { fetchNodes(true); alert("Sovereign fleet telemetry updated!"); } }
+                                { label: 'Run Fleet Diagnostics', desc: 'Check n8n endpoints connection status', icon: <Activity size={16} />, action: () => { fetchNodes(true); (window as any).showToast("Sovereign fleet telemetry updated!", "success"); } }
                             ].map((item, i) => (
                                 <button 
                                     key={i} 

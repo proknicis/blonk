@@ -50,8 +50,10 @@ export function NodeActions({ nodeId, nodeUrl, nodeName, nodeIndex }: NodeAction
         setLoading(true);
         setTimeout(() => {
             setLoading(false);
-            alert(`${nodeName} service is rebooting. It will be back online in ~60 seconds.`);
-            window.location.reload();
+            (window as any).showToast(`${nodeName} service is rebooting. It will be back online in ~60 seconds.`, "success");
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
         }, 2000);
     };
 

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useState, useRef, useEffect } from "react";
-import { Users, Zap, Shield, Search, Bell, LogOut, ExternalLink, MessageSquare, BarChart3, Activity, LayoutGrid } from "lucide-react";
+import { Users, Zap, Shield, Search, Bell, LogOut, ExternalLink, MessageSquare, BarChart3, Activity, LayoutGrid, CheckCircle, AlertCircle, AlertTriangle, Info, X } from "lucide-react";
 import adminStyles from "./admin.module.css";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -20,6 +20,34 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     });
     const userMenuAnchorRef = useRef<HTMLDivElement>(null);
     const notifsAnchorRef = useRef<HTMLDivElement>(null);
+
+    // Toast manager state
+    const [toasts, setToasts] = useState<{ id: string; message: string; type: 'success' | 'error' | 'info' | 'warning' }[]>([]);
+
+    useEffect(() => {
+        const handleShowToast = (e: Event) => {
+            const customEvent = e as CustomEvent<{ message: string; type: 'success' | 'error' | 'info' | 'warning' }>;
+            const { message, type } = customEvent.detail;
+            const id = Math.random().toString(36).slice(2, 9);
+            
+            setToasts(prev => [...prev, { id, message, type }]);
+
+            setTimeout(() => {
+                setToasts(prev => prev.filter(t => t.id !== id));
+            }, 4500);
+        };
+
+        window.addEventListener('show-toast', handleShowToast);
+        
+        // Define global helper for easy inline page invocation
+        (window as any).showToast = (message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
+            window.dispatchEvent(new CustomEvent('show-toast', { detail: { message, type } }));
+        };
+
+        return () => {
+            window.removeEventListener('show-toast', handleShowToast);
+        };
+    }, []);
 
     const [user, setUser] = useState({
         name: "Admin Operator",
@@ -187,17 +215,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                 </Link>
                             </li>
                             <li>
-                                <a href="#" onClick={(e) => { e.preventDefault(); alert("Access & Roles configurations are managed by root admin policy."); }} className={adminStyles.navLink}>
+                                <a href="#" onClick={(e) => { e.preventDefault(); (window as any).showToast("Access & Roles configurations are managed by root admin policy.", "warning"); }} className={adminStyles.navLink}>
                                     <Shield size={20} /> Access & Roles
                                 </a>
                             </li>
                             <li>
-                                <a href="#" onClick={(e) => { e.preventDefault(); alert("System Settings are locked."); }} className={adminStyles.navLink}>
+                                <a href="#" onClick={(e) => { e.preventDefault(); (window as any).showToast("System Settings are locked by governance keys.", "error"); }} className={adminStyles.navLink}>
                                     <MessageSquare size={20} /> Settings
                                 </a>
                             </li>
                             <li>
-                                <a href="#" onClick={(e) => { e.preventDefault(); alert("System Integrations are nominal."); }} className={adminStyles.navLink}>
+                                <a href="#" onClick={(e) => { e.preventDefault(); (window as any).showToast("System Integrations are nominal and running on manadavana.lv server.", "success"); }} className={adminStyles.navLink}>
                                     <ExternalLink size={20} /> Integrations
                                 </a>
                             </li>
@@ -316,6 +344,84 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     {children}
                 </div>
             </main>
+
+            {/* Premium In-App Stacked Toast Notification Center */}
+            <div style={{
+                position: 'fixed',
+                bottom: '24px',
+                right: '24px',
+                zIndex: 99999,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+                pointerEvents: 'none'
+            }}>
+                {toasts.map(toast => {
+                    let icon = <Info size={18} />;
+                    let border = '1px solid #E2E8F0';
+                    let bg = 'rgba(255, 255, 255, 0.9)';
+                    let text = '#0F172A';
+                    let accentColor = '#64748B';
+
+                    if (toast.type === 'success') {
+                        icon = <CheckCircle size={18} color="#10B981" />;
+                        border = '1px solid rgba(16, 185, 129, 0.2)';
+                        bg = 'rgba(255, 255, 255, 0.95)';
+                        accentColor = '#10B981';
+                    } else if (toast.type === 'error') {
+                        icon = <AlertCircle size={18} color="#EF4444" />;
+                        border = '1px solid rgba(239, 68, 68, 0.2)';
+                        bg = 'rgba(255, 255, 255, 0.95)';
+                        accentColor = '#EF4444';
+                    } else if (toast.type === 'warning') {
+                        icon = <AlertTriangle size={18} color="#F59E0B" />;
+                        border = '1px solid rgba(245, 158, 11, 0.2)';
+                        bg = 'rgba(255, 255, 255, 0.95)';
+                        accentColor = '#F59E0B';
+                    }
+
+                    return (
+                        <div 
+                            key={toast.id}
+                            style={{
+                                pointerEvents: 'auto',
+                                minWidth: '340px',
+                                maxWidth: '420px',
+                                background: bg,
+                                backdropFilter: 'blur(12px)',
+                                border: border,
+                                borderLeft: `4px solid ${accentColor}`,
+                                borderRadius: '16px',
+                                padding: '16px 20px',
+                                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '14px',
+                                animation: 'slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                            }}
+                        >
+                            <style>{`
+                                @keyframes slideIn {
+                                    from { transform: translateX(100%) translateY(0); opacity: 0; }
+                                    to { transform: translateX(0) translateY(0); opacity: 1; }
+                                }
+                            `}</style>
+                            <div style={{ flexShrink: 0 }}>{icon}</div>
+                            <div style={{ fontSize: '0.85rem', fontWeight: 800, color: text, lineHeight: 1.4, flexGrow: 1 }}>
+                                {toast.message}
+                            </div>
+                            <button 
+                                onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))}
+                                style={{ background: 'none', border: 'none', padding: 0, color: '#94A3B8', cursor: 'pointer', display: 'flex', transition: 'color 0.2s' }}
+                                onMouseEnter={(e) => e.currentTarget.style.color = '#475569'}
+                                onMouseLeave={(e) => e.currentTarget.style.color = '#94A3B8'}
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
+                    );
+                })}
+            </div>
         </div>
     );
 }

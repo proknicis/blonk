@@ -299,14 +299,14 @@ export default function FleetHealthMonitoringPage() {
                                                 <td style={{ padding: '16px', borderTopRightRadius: '16px', borderBottomRightRadius: '16px', textAlign: 'right' }}>
                                                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                                                         <button 
-                                                            onClick={() => alert(`Diagnostics terminal session initialized for ${node.name}`)}
+                                                            onClick={() => (window as any).showToast(`Diagnostics terminal session initialized for ${node.name}`, "info")}
                                                             style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#FFFFFF', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748B' }}
                                                             title="Terminal"
                                                         >
                                                             <Terminal size={16} />
                                                         </button>
                                                         <button 
-                                                            onClick={() => alert(`Instance Configuration:\nEndpoint: ${node.url}\nActive workflows: ${node.workflow_count}`)}
+                                                            onClick={() => (window as any).showToast(`Instance Configuration: Endpoint: ${node.url}, workflows: ${node.workflow_count}`, "info")}
                                                             style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#FFFFFF', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748B' }}
                                                             title="Settings"
                                                         >

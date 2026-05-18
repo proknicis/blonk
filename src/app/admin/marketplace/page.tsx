@@ -211,7 +211,7 @@ export default function MarketplaceManagementPage() {
                 </div>
                 <div style={{ display: 'flex', gap: '16px' }}>
                     <button 
-                        onClick={() => alert("Bulk import initiated.")}
+                        onClick={() => (window as any).showToast("Bulk import initiated dynamically.", "success")}
                         style={{ background: 'rgba(255,255,255,0.08)', color: '#FFFFFF', height: '56px', padding: '0 24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', fontWeight: 950, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '8px' }}
                     >
                         <Download size={18} /> Import Workflow

@@ -72,7 +72,7 @@ export default function UserDirectoryPage() {
         try {
             // Mocking invite success for UI progression
             await new Promise(r => setTimeout(r, 800));
-            alert(`Sovereign invitation link generated and sent to: ${inviteData.email}`);
+            (window as any).showToast(`Sovereign invitation link generated and sent to: ${inviteData.email}`, "success");
             setIsInviting(false);
             setInviteData({ name: "", email: "", role: "Operator", tier: "Starter" });
             fetchUsers();
@@ -102,8 +102,9 @@ export default function UserDirectoryPage() {
             if (res.ok) {
                 setEditingUser(null);
                 fetchUsers();
+                (window as any).showToast("Changes successfully committed to PostgreSQL database.", "success");
             } else {
-                alert("Failed to save changes to PostgreSQL.");
+                (window as any).showToast("Failed to save changes to PostgreSQL.", "error");
             }
         } catch (err) {
             console.error("Failed to update user", err);
@@ -128,11 +129,11 @@ export default function UserDirectoryPage() {
             });
 
             if (res.ok) {
-                alert(`Broadcast successfully dispatched to ${mailingUser.email}`);
+                (window as any).showToast(`Broadcast successfully dispatched to ${mailingUser.email}`, "success");
                 setMailingUser(null);
                 setMailForm({ subject: "", title: "", message: "" });
             } else {
-                alert("Email dispatch pipeline failed.");
+                (window as any).showToast("Email dispatch pipeline failed.", "error");
             }
         } catch (err) {
             console.error("Failed to send mail", err);
@@ -143,7 +144,7 @@ export default function UserDirectoryPage() {
 
     const handleDeleteUser = async (id: string, name: string) => {
         if (name === "Platform Owner") {
-            alert("Root SuperAdmin identity cannot be expunged from the system.");
+            (window as any).showToast("Root SuperAdmin identity cannot be expunged from the system.", "warning");
             return;
         }
         if (!confirm(`Are you absolutely sure you want to permanently revoke credentials for ${name}? This action is irreversible.`)) {
@@ -156,11 +157,13 @@ export default function UserDirectoryPage() {
             });
             if (res.ok) {
                 fetchUsers();
+                (window as any).showToast(`Successfully revoked credentials for ${name}`, "success");
             } else {
-                alert("Failed to delete user from PostgreSQL.");
+                (window as any).showToast("Failed to delete user from PostgreSQL.", "error");
             }
         } catch (err) {
             console.error("Failed to delete user", err);
+            (window as any).showToast("Error removing user.", "error");
         }
     };
 
