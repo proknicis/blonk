@@ -108,11 +108,14 @@ export async function GET(request: Request) {
         const { searchParams } = new URL(request.url);
         const forceProbe = searchParams.get('probe') === 'true';
         
-        // Fetch base node data with workflow counts from the Sovereign Ledger
+        // Fetch base node data with workflow counts and corresponding tenant mapping from the Sovereign Ledger
         const nodes = await db.query(`
             SELECT n.*, 
+                   t.name as tenant_name,
+                   t."firmName" as tenant_firm_name,
                    (SELECT COUNT(*) FROM "Workflow" w WHERE w."serverId" = n.id) as workflow_count
             FROM "ClusterNode" n
+            LEFT JOIN "Team" t ON n."teamId" = t.id
             ORDER BY n."createdAt" DESC
         `) as any[];
         
@@ -169,15 +172,15 @@ export async function GET(request: Request) {
 
 export async function POST(req: Request) {
     try {
-        const { name, url, api_key, max_workflows } = await req.json();
+        const { name, url, api_key, max_workflows, teamId } = await req.json();
         
         if (!name || !url || !api_key) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
         const res = await db.execute(
-            'INSERT INTO "ClusterNode" (name, url, api_key, status, max_workflows) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-            [name, url, api_key, 'Pending', max_workflows || 100]
+            'INSERT INTO "ClusterNode" (name, url, api_key, status, max_workflows, "teamId") VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+            [name, url, api_key, 'Pending', max_workflows || 100, teamId || null]
         );
 
         return NextResponse.json(res.rows[0]);

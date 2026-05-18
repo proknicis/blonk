@@ -98,7 +98,7 @@ function DonutChart({ success, failed, manual, total }: { success: number; faile
                     strokeDasharray={`${CIRC * manual / safeTotal} ${CIRC}`}
                     strokeDashoffset={-(mOff)} transform={`rotate(-90 ${CX} ${CY})`} />
             )}
-            <text x={CX} y={CY - 6}  textAnchor="middle" fontSize="14" fontWeight="900" fill="#0F172A">{total.toLocaleString()}</text>
+            <text x={CX} y={CY - 6}  textAnchor="middle" fontSize="14" fontWeight="900" fill="#0F172A">{(total ?? 0).toLocaleString()}</text>
             <text x={CX} y={CY + 10} textAnchor="middle" fontSize="8"  fontWeight="700" fill="#94A3B8">Total Runs</text>
         </svg>
     );
@@ -188,17 +188,17 @@ export default function ReportsClient({
     // KPI cards
     const kpis = [
         {
-            label: "Total Runs", value: totalRuns.toLocaleString(),
+            label: "Total Runs", value: (totalRuns ?? 0).toLocaleString(),
             sub: `↑ 18% vs Apr 26 – May 3`, up: true,
             icon: <BarChart3 size={22} />, color: "#3B82F6",
         },
         {
-            label: "Successful Runs", value: successRuns.toLocaleString(),
+            label: "Successful Runs", value: (successRuns ?? 0).toLocaleString(),
             sub: `${successRate}% success rate`, up: true,
             icon: <CheckCircle size={22} />, color: "#10B981",
         },
         {
-            label: "Failed Runs", value: failedRuns.toLocaleString(),
+            label: "Failed Runs", value: (failedRuns ?? 0).toLocaleString(),
             sub: `${failureRate}% failure rate`, up: false,
             icon: <AlertCircle size={22} />, color: "#EF4444",
         },
@@ -313,7 +313,7 @@ export default function ReportsClient({
                                         <div key={item.label} className={styles.legendRow}>
                                             <span className={styles.legendDot} style={{ background: item.color }} />
                                             <span className={styles.legendLabel}>{item.label}</span>
-                                            <span className={styles.legendValue}>{item.value.toLocaleString()}</span>
+                                            <span className={styles.legendValue}>{(item.value ?? 0).toLocaleString()}</span>
                                             <span className={styles.legendPct}>{item.pct}</span>
                                         </div>
                                     ))}
@@ -325,7 +325,7 @@ export default function ReportsClient({
                         <div className={styles.card} style={{ flex: 1 }}>
                             <div className={styles.cardHeader}>
                                 <div className={styles.cardTitle}><AlertTriangle size={18} color="#EF4444" /> Error Insights</div>
-                                <span className={styles.totalErrors}>Total Errors: {failedRuns.toLocaleString()}</span>
+                                <span className={styles.totalErrors}>Total Errors: {(failedRuns ?? 0).toLocaleString()}</span>
                             </div>
                             <div style={{ padding: '0 24px 20px' }}>
                                 <div className={styles.errorSubTitle}>Most Common Errors</div>
@@ -335,7 +335,7 @@ export default function ReportsClient({
                                     <div key={i} className={styles.errorRow}>
                                         <AlertCircle size={14} color="#EF4444" style={{ flexShrink: 0 }} />
                                         <span className={styles.errorLabel}>{e.label}</span>
-                                        <span className={styles.errorCount}>{e.count.toLocaleString()}</span>
+                                        <span className={styles.errorCount}>{(e.count ?? 0).toLocaleString()}</span>
                                         <span className={styles.errorPct}>{e.pct}</span>
                                     </div>
                                 ))}
@@ -376,7 +376,7 @@ export default function ReportsClient({
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className={styles.wfNum}>{wf.runs.toLocaleString()}</td>
+                                                <td className={styles.wfNum}>{(wf.runs ?? 0).toLocaleString()}</td>
                                                 <td>
                                                     <span className={styles.successBadge}>{wf.successRate}%</span>
                                                 </td>
@@ -413,7 +413,7 @@ export default function ReportsClient({
                                                 {d.successRate}%
                                             </div>
                                             <div className={styles.deptSub}>Success Rate</div>
-                                            <div className={styles.deptRuns}>{d.runs.toLocaleString()} runs</div>
+                                            <div className={styles.deptRuns}>{(d.runs ?? 0).toLocaleString()} runs</div>
                                         </div>
                                     );
                                 })}

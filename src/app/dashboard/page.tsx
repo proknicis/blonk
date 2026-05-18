@@ -148,7 +148,7 @@ export default function DashboardPage() {
                 <div className={styles.totalRuns}>
                     <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', marginBottom: '4px' }}>Total Runs</div>
                     <div style={{ fontSize: '1.4rem', fontWeight: 950, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {globalStats.total_tasks.toLocaleString()}
+                        {(globalStats?.total_tasks ?? 0).toLocaleString()}
                         <ArrowUpRight size={18} color="#34D186" />
                     </div>
                 </div>
@@ -161,10 +161,10 @@ export default function DashboardPage() {
                         <span className={styles.label}>Runs Today</span>
                         <TrendingUp size={14} color="#10B981" />
                     </div>
-                    <div className={styles.value}>{data.runsToday.toLocaleString()}</div>
+                    <div className={styles.value}>{(data?.runsToday ?? 0).toLocaleString()}</div>
                     <div className={`${styles.trendContainer} ${styles.trendUp}`}>
                         <TrendingUp size={14} />
-                        {Math.abs(data.runsTrend)}% vs yesterday
+                        {Math.abs(data?.runsTrend ?? 0)}% vs yesterday
                     </div>
                 </div>
 
@@ -173,7 +173,7 @@ export default function DashboardPage() {
                         <span className={styles.label}>Hours Saved</span>
                         <div style={{ fontSize: '0.6rem', fontWeight: 950, padding: '2px 6px', background: '#F0FAF5', color: '#34D186', borderRadius: '4px' }}>REAL-TIME</div>
                     </div>
-                    <div className={styles.value}>{data.timeSavedHours}h</div>
+                    <div className={styles.value}>{(data?.timeSavedHours ?? 0)}h</div>
                     <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 700 }}>Real-time</div>
                 </div>
 
@@ -182,7 +182,7 @@ export default function DashboardPage() {
                         <span className={styles.label}>Active Workflows</span>
                         <Activity size={14} color="#10B981" />
                     </div>
-                    <div className={styles.value}>{data.activeAgents} / {data.totalWorkflows}</div>
+                    <div className={styles.value}>{(data?.activeAgents ?? 0)} / {(data?.totalWorkflows ?? 0)}</div>
                     <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 700 }}>All workflows active</div>
                 </div>
 
@@ -191,10 +191,10 @@ export default function DashboardPage() {
                         <span className={styles.label}>Issues Today</span>
                         <Clock size={14} color="#EF4444" />
                     </div>
-                    <div className={styles.value}>{data.issuesToday}</div>
+                    <div className={styles.value}>{(data?.issuesToday ?? 0)}</div>
                     <div className={`${styles.trendContainer} ${styles.trendUp}`}>
                         <TrendingDown size={14} color="#10B981" />
-                        {Math.abs(data.issuesTrend)}% vs yesterday
+                        {Math.abs(data?.issuesTrend ?? 0)}% vs yesterday
                     </div>
                 </div>
             </div>
@@ -228,7 +228,7 @@ export default function DashboardPage() {
                    <div className={styles.onboardingIllustration}><Plus size={32} /></div>
                    <h2 className={styles.onboardingTitle}>Initialize your autonomous firm</h2>
                    <p className={styles.onboardingSubtitle}>Your dashboard is empty because no workflows have been provisioned yet.</p>
-                   <Link href="/dashboard/workflows?create=true" className={styles.btnInstitutional}>Generate Workflow</Link>
+                   <Link href="/dashboard/registry?create=true" className={styles.btnInstitutional}>Generate Workflow</Link>
                 </div>
             ) : (
                 <div className={styles.commandGrid}>
@@ -236,7 +236,7 @@ export default function DashboardPage() {
                     <div className={styles.activeWorkflows}>
                         <div className={styles.cardHeader}>
                             <h3 className={styles.cardTitle}>Top Workflows</h3>
-                            <Link href="/dashboard/workflows" className={styles.viewAllLink}>View all workflows &rsaquo;</Link>
+                            <Link href="/dashboard/registry" className={styles.viewAllLink}>View all workflows &rsaquo;</Link>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             {data.topWorkflows.map((w, idx) => {

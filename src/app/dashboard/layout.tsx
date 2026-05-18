@@ -120,14 +120,15 @@ export default function DashboardLayout({
 
     const getModuleTitle = (path: string) => {
         if (path === '/dashboard') return 'Fleet Overview';
-        if (path === '/dashboard/office') return 'My Workflows';
-        if (path === '/dashboard/team') return 'Strategic Personnel';
-        if (path === '/dashboard/workflows') return 'Marketplace';
+        if (path === '/dashboard/incidents') return 'My Workflows';
+        if (path === '/dashboard/operators') return 'Strategic Personnel';
+        if (path === '/dashboard/registry') return 'Marketplace';
         if (path === '/dashboard/audit') return 'Audit Logs';
-        if (path === '/dashboard/reports') return 'Intelligence Reports';
-        if (path === '/dashboard/sovereignty') return 'Security & Controls';
+        if (path === '/dashboard/health') return 'Intelligence Reports';
+        if (path === '/dashboard/access') return 'Security & Controls';
         if (path === '/dashboard/settings') return 'System Control';
         if (path === '/dashboard/help') return 'Support Hub';
+        if (path === '/dashboard/integrations') return 'Connections';
         return 'Command Console';
     };
 
@@ -160,12 +161,12 @@ export default function DashboardLayout({
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/office" className={`${styles.navLink} ${pathname === '/dashboard/office' ? styles.navLinkActive : ''}`}>
+                                <Link href="/dashboard/incidents" className={`${styles.navLink} ${pathname === '/dashboard/incidents' ? styles.navLinkActive : ''}`}>
                                     <Monitor size={20} /> My Workflows
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/connections" className={`${styles.navLink} ${pathname === '/dashboard/connections' ? styles.navLinkActive : ''}`}>
+                                <Link href="/dashboard/integrations" className={`${styles.navLink} ${pathname === '/dashboard/integrations' ? styles.navLinkActive : ''}`}>
                                     <Link2 size={20} /> Connections
                                 </Link>
                             </li>
@@ -177,12 +178,12 @@ export default function DashboardLayout({
                         <span className={styles.navGroupLabel}>Resources</span>
                         <ul>
                             <li>
-                                <Link href="/dashboard/team" className={`${styles.navLink} ${pathname === '/dashboard/team' ? styles.navLinkActive : ''}`}>
+                                <Link href="/dashboard/operators" className={`${styles.navLink} ${pathname === '/dashboard/operators' ? styles.navLinkActive : ''}`}>
                                     <Users size={20} /> Team
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/workflows" className={`${styles.navLink} ${pathname === '/dashboard/workflows' ? styles.navLinkActive : ''}`}>
+                                <Link href="/dashboard/registry" className={`${styles.navLink} ${pathname === '/dashboard/registry' ? styles.navLinkActive : ''}`}>
                                     <ExternalLink size={20} /> Marketplace
                                 </Link>
                             </li>
@@ -199,12 +200,12 @@ export default function DashboardLayout({
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/reports" className={`${styles.navLink} ${pathname === '/dashboard/reports' ? styles.navLinkActive : ''}`}>
+                                <Link href="/dashboard/health" className={`${styles.navLink} ${pathname === '/dashboard/health' ? styles.navLinkActive : ''}`}>
                                     <Activity size={20} /> Reports
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/sovereignty" className={`${styles.navLink} ${pathname === '/dashboard/sovereignty' ? styles.navLinkActive : ''}`} onClick={() => setShowMobileMenu(false)}>
+                                <Link href="/dashboard/access" className={`${styles.navLink} ${pathname === '/dashboard/access' ? styles.navLinkActive : ''}`} onClick={() => setShowMobileMenu(false)}>
                                     <ShieldCheck size={20} /> Security & Controls
                                 </Link>
                             </li>

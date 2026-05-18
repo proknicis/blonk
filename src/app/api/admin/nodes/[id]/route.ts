@@ -21,7 +21,7 @@ export async function PATCH(
     try {
         const { id } = await params;
         const body = await req.json();
-        const { name, url, api_key, status, max_workflows } = body;
+        const { name, url, api_key, status, max_workflows, teamId } = body;
 
         await db.execute(
             `UPDATE "ClusterNode" 
@@ -29,9 +29,10 @@ export async function PATCH(
                  url = COALESCE($2, url), 
                  api_key = COALESCE($3, api_key), 
                  status = COALESCE($4, status),
-                 max_workflows = COALESCE($5, max_workflows)
-             WHERE id = $6`,
-            [name, url, api_key, status, max_workflows, id]
+                 max_workflows = COALESCE($5, max_workflows),
+                 "teamId" = $6
+             WHERE id = $7`,
+            [name, url, api_key, status, max_workflows, teamId === undefined ? undefined : (teamId || null), id]
         );
 
         return NextResponse.json({ success: true });

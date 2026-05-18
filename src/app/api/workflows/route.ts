@@ -40,36 +40,47 @@ export async function POST(request: Request) {
         const workflowId = uuidv4();
         const notificationId = uuidv4();
 
-        // 1. FIND AVAILABLE SERVER (Fail-safe logic)
-        let allNodes = await db.query('SELECT * FROM "ClusterNode" WHERE status ILIKE \'Active\'') as any[];
-        
-        // If no 'Active' nodes found, fallback to ANY node as a last resort
-        if (allNodes.length === 0) {
-            console.warn("[Orchestrator] No 'Active' nodes found. Falling back to all registry nodes.");
-            allNodes = await db.query('SELECT * FROM "ClusterNode"') as any[];
+        // 1. STRICT TENANT ISOLATION: 1 SERVER = 1 CUSTOMER (TEAM)
+        // Check if this team already has an active dedicated server assigned
+        let [assignedNode] = await db.query('SELECT * FROM "ClusterNode" WHERE "teamId" = $1 AND status ILIKE \'Active\'', [teamId]) as any[];
+
+        if (!assignedNode) {
+            // Fallback: If no Active assigned node, check for any assigned node regardless of status
+            const [anyAssignedNode] = await db.query('SELECT * FROM "ClusterNode" WHERE "teamId" = $1', [teamId]) as any[];
+            if (anyAssignedNode) {
+                assignedNode = anyAssignedNode;
+            }
         }
 
-        const allWorkflows = await db.query('SELECT "serverId" FROM "Workflow"') as any[];
-
-        // Calculate load in-memory for maximum reliability
-        const nodeLoadMap: Record<string, number> = {};
-        allWorkflows.forEach(w => {
-            if (w.serverId) nodeLoadMap[w.serverId] = (nodeLoadMap[w.serverId] || 0) + 1;
-        });
-
-        const nodesWithLoad = allNodes.map(n => ({
-            ...n,
-            assigned_count: nodeLoadMap[n.id] || 0
-        })).sort((a, b) => a.assigned_count - b.assigned_count);
-
-        // Pick the node with most space, fallback to 100 capacity if not set
-        const availableNode = nodesWithLoad.find(n => n.assigned_count < (n.max_workflows || 100)) || nodesWithLoad[0];
+        let availableNode = assignedNode;
 
         if (!availableNode) {
-            console.error("[Orchestrator] CRITICAL FAILURE: Node registry is empty.");
+            // No node is currently assigned to this team. Let's find an unassigned Active node
+            const unassignedNodes = await db.query('SELECT * FROM "ClusterNode" WHERE "teamId" IS NULL AND status ILIKE \'Active\' ORDER BY "createdAt" ASC') as any[];
+            
+            if (unassignedNodes.length > 0) {
+                // Dynamically bind the oldest unassigned Active node to this team
+                const targetNode = unassignedNodes[0];
+                await db.execute('UPDATE "ClusterNode" SET "teamId" = $1 WHERE id = $2', [teamId, targetNode.id]);
+                availableNode = { ...targetNode, teamId };
+                console.log(`[Tenant Isolation] Dynamic Allocation: Dedicated Server "${targetNode.name}" (${targetNode.id}) dynamically bound to customer team ${teamId}.`);
+            } else {
+                // Check if there is any unassigned node at all (e.g. Pending/Degraded)
+                const anyUnassigned = await db.query('SELECT * FROM "ClusterNode" WHERE "teamId" IS NULL ORDER BY "createdAt" ASC') as any[];
+                if (anyUnassigned.length > 0) {
+                    const targetNode = anyUnassigned[0];
+                    await db.execute('UPDATE "ClusterNode" SET "teamId" = $1 WHERE id = $2', [teamId, targetNode.id]);
+                    availableNode = { ...targetNode, teamId };
+                    console.log(`[Tenant Isolation] Dynamic Allocation (Fallback): Non-Active Server "${targetNode.name}" (${targetNode.id}) bound to customer team ${teamId}.`);
+                }
+            }
+        }
+
+        if (!availableNode) {
+            console.error(`[Tenant Isolation] CRITICAL CONFIGURATION FAULT: No unassigned dedicated sovereign servers found for team ${teamId}.`);
             return NextResponse.json({ 
-                error: 'Infrastructure Missing', 
-                details: 'No sovereign nodes found in the registry. Please add at least one node in Fleet Control.'
+                error: 'Security & Isolation Lock', 
+                details: 'To comply with our strict Security & Isolation standards, every customer requires a dedicated, single-tenant sovereign server. Currently, all active clusters are occupied. Please contact your Blonk Platform Owner to provision a dedicated sovereign server for your firm.'
             }, { status: 503 });
         }
 
