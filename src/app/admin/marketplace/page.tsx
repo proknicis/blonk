@@ -57,19 +57,14 @@ export default function MarketplaceManagementPage() {
             if (res.ok) {
                 const data = await res.json();
                 
-                // Enhance templates with stable deterministic metadata derived from their ID for integrity
-                const enhanced = data.map((t: any) => {
-                    const hashVal = parseInt(t.id.slice(0, 8), 16) || 12345;
-                    const installs = t.installs || ((hashVal % 180) + 24);
-                    const errorRate = t.errorRate || ((hashVal % 6) === 0 ? "0.45" : "0.00");
-                    return {
-                        ...t,
-                        installs,
-                        errorRate
-                    };
-                });
-                
-                setTemplates(enhanced);
+                const realData = data.map((t: any) => ({
+                    ...t,
+                    installs: t.purchases || 0,
+                    errorRate: t.errorRate || "0.00",
+                    price: parseFloat(t.price || t.productInfo?.price || "0"),
+                    revenue: parseFloat(t.revenue || "0")
+                }));
+                setTemplates(realData);
             }
         } catch (e) {
             console.error("Failed to fetch templates:", e);
@@ -125,56 +120,37 @@ export default function MarketplaceManagementPage() {
 
     // Compute metrics completely dynamically based on real templates
     const totalWorkflows = templates.length;
-    
     const totalInstalls = templates.reduce((sum, t) => sum + (t.installs || 0), 0);
-    
-    const totalSalesAllTime = templates.reduce((sum, t) => {
-        const price = parseFloat(t.productInfo?.price || "0");
-        return sum + (price * (t.installs || 0));
-    }, 0);
+    const totalSalesAllTime = templates.reduce((sum, t) => sum + (t.revenue || (t.price * (t.installs || 0))), 0);
 
-    const thisMonthSales = Math.round(totalSalesAllTime * 0.18); // Stable realistic growth fraction of actual revenue
-    const activeCustomers = Math.max(1, Math.round(totalInstalls * 0.16));
+    const thisMonthSales = 0; // Requires actual time-series event data
+    const activeCustomers = totalInstalls; // Approximated by real installs
     
     const avgErrorRate = totalWorkflows > 0 
         ? (templates.reduce((sum, t) => sum + parseFloat(t.errorRate || "0"), 0) / totalWorkflows).toFixed(2)
         : "0.00";
 
     const topSellingList = [...templates]
+        .filter(t => t.installs > 0 || t.revenue > 0)
         .sort((a, b) => (b.installs || 0) - (a.installs || 0))
         .slice(0, 5)
-        .map((t, idx) => {
-            const price = parseFloat(t.productInfo?.price || "0");
-            const installs = t.installs || 0;
-            const revenue = price * installs;
-            const growth = ((parseInt(t.id.slice(9, 12), 16) % 180) / 10 - 5).toFixed(1);
-            return {
-                rank: idx + 1,
-                name: t.name,
-                installs,
-                revenue,
-                growth: parseFloat(growth)
-            };
-        });
+        .map((t, idx) => ({
+            rank: idx + 1,
+            name: t.name,
+            installs: t.installs,
+            revenue: t.revenue || (t.price * t.installs),
+            growth: 0
+        }));
 
     const errorList = templates
         .filter(t => parseFloat(t.errorRate) > 0)
         .map(t => ({
             name: t.name,
-            errors: Math.round((t.installs || 10) * parseFloat(t.errorRate) * 0.2),
+            errors: Math.round((t.installs || 1) * parseFloat(t.errorRate)),
             rate: parseFloat(t.errorRate)
         }));
 
-    const activityList = templates.slice(0, 4).map((t, idx) => {
-        const times = ["5 mins ago", "38 mins ago", "2 hours ago", "1 day ago"];
-        return {
-            type: idx === 1 ? "install" : "publish",
-            message: idx === 1 
-                ? `Riga Hub client installed '${t.name}'`
-                : `Protocol '${t.name}' updated to v${t.productInfo?.version || "1.0.0"}`,
-            time: times[idx] || "1 day ago"
-        };
-    });
+    const activityList: any[] = []; // Real activity would come from Event table
 
     return (
         <div style={{ animation: "fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1)", display: 'flex', flexDirection: 'column', gap: '32px' }}>
@@ -228,13 +204,13 @@ export default function MarketplaceManagementPage() {
             {/* SEVEN DYNAMIC METRICS CARDS */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '20px' }}>
                 {[
-                    { label: 'TOTAL WORKFLOWS', value: totalWorkflows, detail: 'Published templates', growth: null },
+                    { label: 'TOTAL WORKFLOWS', value: totalWorkflows, detail: 'Published templates', growth: null as string | null },
                     { label: 'TOTAL SALES (ALL TIME)', value: `€${totalSalesAllTime.toLocaleString()}`, detail: 'Aggregate revenue', growth: null },
-                    { label: 'THIS MONTH SALES', value: `€${thisMonthSales.toLocaleString()}`, detail: 'Current month estimate', growth: `+18.6%` },
+                    { label: 'THIS MONTH SALES', value: `€${thisMonthSales.toLocaleString()}`, detail: 'Current month estimate', growth: null },
                     { label: 'TOTAL INSTALLS', value: totalInstalls.toLocaleString(), detail: 'Across all tenants', growth: null },
                     { label: 'ACTIVE CUSTOMERS', value: activeCustomers, detail: 'Unique institutional clients', growth: null },
-                    { label: 'CONVERSION RATE', value: `28.7%`, detail: 'Visitor to install', growth: `+6.3%` },
-                    { label: 'ERROR RATE (30D)', value: `${avgErrorRate}%`, detail: 'Target <1.5%', growth: `-0.21%`, good: true }
+                    { label: 'CONVERSION RATE', value: `0.00%`, detail: 'Visitor to install', growth: null },
+                    { label: 'ERROR RATE (30D)', value: `${avgErrorRate}%`, detail: 'Target <1.5%', growth: null, good: true }
                 ].map((m, i) => (
                     <div key={i} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '24px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '140px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
                         <div>
@@ -287,23 +263,27 @@ export default function MarketplaceManagementPage() {
                             <line x1="0" y1="190" x2="500" y2="190" stroke="#E2E8F0" strokeWidth="1.5" />
                             {/* Area under the line */}
                             <path 
-                                d="M 0 190 Q 70 170 100 130 T 200 110 T 300 80 T 400 60 T 500 30 L 500 190 Z" 
+                                d={totalSalesAllTime > 0 ? "M 0 190 Q 70 170 100 130 T 200 110 T 300 80 T 400 60 T 500 30 L 500 190 Z" : "M 0 190 L 500 190 Z"}
                                 fill="url(#chartGradient)" 
                             />
                             {/* The Line */}
                             <path 
-                                d="M 0 190 Q 70 170 100 130 T 200 110 T 300 80 T 400 60 T 500 30" 
+                                d={totalSalesAllTime > 0 ? "M 0 190 Q 70 170 100 130 T 200 110 T 300 80 T 400 60 T 500 30" : "M 0 190 L 500 190"}
                                 fill="none" 
                                 stroke="#10B981" 
                                 strokeWidth="3" 
                                 strokeLinecap="round"
                             />
-                            {/* Interactive Data Dots */}
-                            <circle cx="100" cy="130" r="5" fill="#10B981" stroke="#FFFFFF" strokeWidth="2" style={{ cursor: 'pointer' }} />
-                            <circle cx="200" cy="110" r="5" fill="#10B981" stroke="#FFFFFF" strokeWidth="2" style={{ cursor: 'pointer' }} />
-                            <circle cx="300" cy="80" r="5" fill="#10B981" stroke="#FFFFFF" strokeWidth="2" style={{ cursor: 'pointer' }} />
-                            <circle cx="400" cy="60" r="5" fill="#10B981" stroke="#FFFFFF" strokeWidth="2" style={{ cursor: 'pointer' }} />
-                            <circle cx="500" cy="30" r="5" fill="#10B981" stroke="#FFFFFF" strokeWidth="2" style={{ cursor: 'pointer' }} />
+                            {/* Interactive Data Dots (Only if there is revenue) */}
+                            {totalSalesAllTime > 0 && (
+                                <>
+                                    <circle cx="100" cy="130" r="5" fill="#10B981" stroke="#FFFFFF" strokeWidth="2" style={{ cursor: 'pointer' }} />
+                                    <circle cx="200" cy="110" r="5" fill="#10B981" stroke="#FFFFFF" strokeWidth="2" style={{ cursor: 'pointer' }} />
+                                    <circle cx="300" cy="80" r="5" fill="#10B981" stroke="#FFFFFF" strokeWidth="2" style={{ cursor: 'pointer' }} />
+                                    <circle cx="400" cy="60" r="5" fill="#10B981" stroke="#FFFFFF" strokeWidth="2" style={{ cursor: 'pointer' }} />
+                                    <circle cx="500" cy="30" r="5" fill="#10B981" stroke="#FFFFFF" strokeWidth="2" style={{ cursor: 'pointer' }} />
+                                </>
+                            )}
                         </svg>
                     </div>
                     {/* X Axis Labels */}
@@ -322,19 +302,20 @@ export default function MarketplaceManagementPage() {
                         <h3 style={{ fontSize: '1.1rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>SALES BY CATEGORY</h3>
                         <p style={{ fontSize: '0.85rem', color: '#64748B', margin: '4px 0 0', fontWeight: 700 }}>Segmented by operational sector</p>
                     </div>
-                    {/* SVG Pie Chart */}
+                    {/* SVG Pie Chart - Empty if zero revenue */}
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '140px', margin: '24px 0', position: 'relative' }}>
                         <svg width="140" height="140" viewBox="0 0 42 42" style={{ transform: 'rotate(-90deg)' }}>
-                            {/* Segment 1: Operations (40%) -> stroke-dasharray="40 60" */}
-                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#10B981" strokeWidth="6" strokeDasharray="40 60" strokeDashoffset="0" />
-                            {/* Segment 2: Marketing (25%) -> stroke-dasharray="25 75" */}
-                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#3B82F6" strokeWidth="6" strokeDasharray="25 75" strokeDashoffset="-40" />
-                            {/* Segment 3: Finance (17%) -> stroke-dasharray="17 83" */}
-                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#8B5CF6" strokeWidth="6" strokeDasharray="17 83" strokeDashoffset="-65" />
-                            {/* Segment 4: HR (11%) -> stroke-dasharray="11 89" */}
-                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#F59E0B" strokeWidth="6" strokeDasharray="11 89" strokeDashoffset="-82" />
-                            {/* Segment 5: IT & Infra (7%) -> stroke-dasharray="7 93" */}
-                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#EC4899" strokeWidth="6" strokeDasharray="7 93" strokeDashoffset="-93" />
+                            {totalSalesAllTime > 0 ? (
+                                <>
+                                    <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#10B981" strokeWidth="6" strokeDasharray="40 60" strokeDashoffset="0" />
+                                    <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#3B82F6" strokeWidth="6" strokeDasharray="25 75" strokeDashoffset="-40" />
+                                    <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#8B5CF6" strokeWidth="6" strokeDasharray="17 83" strokeDashoffset="-65" />
+                                    <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#F59E0B" strokeWidth="6" strokeDasharray="11 89" strokeDashoffset="-82" />
+                                    <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#EC4899" strokeWidth="6" strokeDasharray="7 93" strokeDashoffset="-93" />
+                                </>
+                            ) : (
+                                <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#E2E8F0" strokeWidth="6" />
+                            )}
                         </svg>
                         <div style={{ position: 'absolute', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
                             <span style={{ fontSize: '0.65rem', fontWeight: 950, color: '#64748B' }}>TOTAL</span>
@@ -373,9 +354,11 @@ export default function MarketplaceManagementPage() {
                                     </div>
                                     <div style={{ textAlign: 'right' }}>
                                         <div style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0F172A' }}>€{w.revenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                                        <span style={{ fontSize: '0.7rem', fontWeight: 950, color: w.growth > 0 ? '#10B981' : '#EF4444', display: 'flex', alignItems: 'center', gap: '2px', justifyContent: 'flex-end' }}>
-                                            {w.growth > 0 ? '+' : ''}{w.growth}%
-                                        </span>
+                                        {w.growth > 0 && (
+                                            <span style={{ fontSize: '0.7rem', fontWeight: 950, color: '#10B981', display: 'flex', alignItems: 'center', gap: '2px', justifyContent: 'flex-end' }}>
+                                                +{w.growth}%
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                             ))
