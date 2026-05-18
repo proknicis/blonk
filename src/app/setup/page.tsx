@@ -29,7 +29,8 @@ function SetupContent() {
         teamSize: "",
         region: "",
         selectedLoop: "",
-        invites: ["", "", ""]
+        practiceArea: "",
+        accountingSoftware: ""
     });
 
     const tasks = [
@@ -78,13 +79,27 @@ function SetupContent() {
         { id: "onboard", name: "Client Onboarding System", desc: "Extracts intake data and generates NDAs.", icon: <IconOnboard /> }
     ];
 
-    const handleNext = () => {
+    const handleNext = async () => {
         if (step === 2) {
+            if (formData.industry === 'Law' || formData.industry === 'Accounting') {
+                setStep(3);
+            } else {
+                setIsProvisioning(true);
+            }
+        } else if (step === 3) {
             setIsProvisioning(true);
         } else if (step === 4) {
-            setStep(5);
-        } else if (step === 5) {
-            router.push("/dashboard");
+            try {
+                await fetch('/api/setup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                window.location.href = "/dashboard";
+            } catch (err) {
+                console.error("Setup save failed", err);
+                window.location.href = "/dashboard";
+            }
         }
     };
 
@@ -124,9 +139,9 @@ function SetupContent() {
                 <div className={styles.formContainer}>
                     {!isProvisioning && (
                         <div className={styles.stepWrapper}>
-                            <span className={styles.stepLabel}>Initialization Step 0{step === 2 ? 1 : step === 4 ? 2 : 3} / 03</span>
+                            <span className={styles.stepLabel}>Initialization Step 0{step === 2 ? 1 : step === 3 ? 2 : 3} / 03</span>
                             <div className={styles.stepIndicator}>
-                                {[2, 4, 5].map(s => <div key={s} className={`${styles.dot} ${step >= s ? styles.dotActive : ''}`} />)}
+                                {[2, 3, 4].map(s => <div key={s} className={`${styles.dot} ${step >= s ? styles.dotActive : ''}`} />)}
                             </div>
                         </div>
                     )}
@@ -174,6 +189,45 @@ function SetupContent() {
                                 </div>
 
                                 <button onClick={handleNext} className={styles.submitBtn} disabled={!formData.industry || !formData.teamSize || !formData.region}>
+                                    {formData.industry === 'Law' || formData.industry === 'Accounting' ? 'Continue Setup' : 'Provision Infrastructure'}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {step === 3 && !isProvisioning && (
+                        <div className={styles.header}>
+                            <h1 className={styles.title}>Refine Parameters.</h1>
+                            <p className={styles.subtitle}>Help us tailor the sovereign fleet to your specific operational needs.</p>
+                            
+                            <div className={styles.form} style={{ marginTop: '40px' }}>
+                                {formData.industry === 'Law' && (
+                                    <div className={styles.inputWrapper}>
+                                        <label className={styles.inputLabel}>Primary Practice Area</label>
+                                        <div className={styles.industryGrid}>
+                                            {['Corporate', 'Family', 'Real Estate', 'Litigation'].map(area => (
+                                                <div key={area} className={`${styles.industryCard} ${formData.practiceArea === area ? styles.industryCardActive : ''}`} onClick={() => setFormData({ ...formData, practiceArea: area })}>
+                                                    <div className={styles.industryLabel}>{area} Law</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                {formData.industry === 'Accounting' && (
+                                    <div className={styles.inputWrapper}>
+                                        <label className={styles.inputLabel}>Primary Software Environment</label>
+                                        <div className={styles.industryGrid}>
+                                            {['QuickBooks', 'Xero', 'Sage', 'NetSuite'].map(sw => (
+                                                <div key={sw} className={`${styles.industryCard} ${formData.accountingSoftware === sw ? styles.industryCardActive : ''}`} onClick={() => setFormData({ ...formData, accountingSoftware: sw })}>
+                                                    <div className={styles.industryLabel}>{sw}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <button onClick={handleNext} className={styles.submitBtn} disabled={(formData.industry === 'Law' && !formData.practiceArea) || (formData.industry === 'Accounting' && !formData.accountingSoftware)}>
                                     Provision Infrastructure
                                 </button>
                             </div>
@@ -209,7 +263,7 @@ function SetupContent() {
 
                                 <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
                                     <button onClick={handleNext} className={styles.submitBtn} style={{ flex: 1 }} disabled={!formData.selectedLoop}>
-                                        Initialize Selected
+                                        Initialize & Enter Dashboard
                                     </button>
                                     <button onClick={handleNext} style={{ flex: 1, background: 'transparent', border: '1px solid #E2E8F0', padding: '16px', borderRadius: '16px', fontWeight: 800, color: '#64748B', cursor: 'pointer' }}>
                                         Skip for now
@@ -219,41 +273,9 @@ function SetupContent() {
                         </div>
                     )}
 
-                    {step === 5 && (
-                        <div className={styles.header}>
-                            <h1 className={styles.title}>Strategic Personnel.</h1>
-                            <p className={styles.subtitle}>Invite your strategic partners to the firm's command space.</p>
-                            
-                            <div className={styles.form} style={{ marginTop: '40px' }}>
-                                {[0, 1, 2].map(index => (
-                                    <div key={index} className={styles.inputWrapper}>
-                                        <input
-                                            type="email"
-                                            className={styles.input}
-                                            placeholder={`Partner ${index + 1} Email`}
-                                            value={formData.invites[index]}
-                                            onChange={e => {
-                                                const newInvites = [...formData.invites];
-                                                newInvites[index] = e.target.value;
-                                                setFormData({ ...formData, invites: newInvites });
-                                            }}
-                                        />
-                                    </div>
-                                ))}
-
-                                <button onClick={handleNext} className={styles.submitBtn} style={{ marginTop: '16px' }}>
-                                    Dispatch Invites & Enter Dashboard
-                                </button>
-                                <button onClick={handleNext} style={{ width: '100%', background: 'transparent', border: 'none', padding: '16px', fontWeight: 800, color: '#64748B', cursor: 'pointer', marginTop: '8px' }}>
-                                    Continue alone
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {step > 2 && step <= 5 && !isProvisioning && (
+                    {step > 2 && step <= 4 && !isProvisioning && (
                         <div style={{ marginTop: '48px', display: 'flex', justifyContent: 'center' }}>
-                            <button className={styles.backBtn} onClick={() => setStep(step === 5 ? 4 : 2)}>
+                            <button className={styles.backBtn} onClick={() => setStep(step - 1)}>
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                                 Protocol Reversion
                             </button>
