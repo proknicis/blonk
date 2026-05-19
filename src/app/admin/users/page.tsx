@@ -4,9 +4,11 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { 
     Plus, Search, Trash2, Edit3, Shield, Mail, Lock, Check, X, 
-    ArrowUp, Download, Eye, ExternalLink, RefreshCw, Send, AlertTriangle
+    ArrowUp, Download, Eye, ExternalLink, RefreshCw, Send, AlertTriangle,
+    Activity, EyeOff
 } from "lucide-react";
 import adminStyles from "../admin.module.css";
+import ModalPortal from "@/app/components/ModalPortal";
 
 interface DbUser {
     id: string;
@@ -40,6 +42,14 @@ export default function UserDirectoryPage() {
     
     const [editingUser, setEditingUser] = useState<DbUser | null>(null);
     const [editForm, setEditForm] = useState({ role: "", tier: "", status: "", totalSpend: "" });
+    
+    // Advanced profile/activity state
+    const [viewingProfile, setViewingProfile] = useState<DbUser | null>(null);
+    const [userActivity, setUserActivity] = useState<any[]>([]);
+    const [isLoadingActivity, setIsLoadingActivity] = useState(false);
+    const [showPasswordReset, setShowPasswordReset] = useState(false);
+    const [newPassword, setNewPassword] = useState("");
+    const [isResettingPassword, setIsResettingPassword] = useState(false);
 
     const [mailingUser, setMailingUser] = useState<DbUser | null>(null);
     const [mailForm, setMailForm] = useState({ subject: "", title: "", message: "" });
@@ -165,6 +175,69 @@ export default function UserDirectoryPage() {
             console.error("Failed to delete user", err);
             (window as any).showToast("Error removing user.", "error");
         }
+    };
+
+    // ADVANCED USER ACTIONS
+    const fetchUserActivity = async (userId: string) => {
+        setIsLoadingActivity(true);
+        try {
+            const res = await fetch(`/api/admin/users?id=${userId}&activity=true`);
+            if (res.ok) {
+                const data = await res.json();
+                setUserActivity(data);
+            }
+        } catch (err) {
+            console.error("Failed to fetch activity ledger", err);
+        } finally {
+            setIsLoadingActivity(false);
+        }
+    };
+
+    const openUserProfile = (user: DbUser) => {
+        setViewingProfile(user);
+        fetchUserActivity(user.id);
+    };
+
+    const handleResetPassword = async () => {
+        if (!viewingProfile || !newPassword) return;
+        setIsResettingPassword(true);
+        try {
+            const res = await fetch("/api/admin/users", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    action: "RESET_PASSWORD",
+                    id: viewingProfile.id,
+                    newPassword
+                })
+            });
+
+            if (res.ok) {
+                (window as any).showToast("Sovereign credentials updated successfully.", "success");
+                setShowPasswordReset(false);
+                setNewPassword("");
+            } else {
+                (window as any).showToast("Failed to update security credentials.", "error");
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsResettingPassword(false);
+        }
+    };
+
+    const generateSecurePassword = () => {
+        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+        let password = "";
+        for (let i = 0; i < 16; i++) {
+            password += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        setNewPassword(password);
+    };
+
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
+        (window as any).showToast("Copied to clipboard", "success");
     };
 
     // Dynamic stats computation from live database rows
@@ -329,13 +402,15 @@ export default function UserDirectoryPage() {
                                         <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9', textAlign: 'left' }}>Role</th>
                                         <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9', textAlign: 'left' }}>Workspace / Plan</th>
                                         <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9', textAlign: 'left' }}>Status</th>
-                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9', textAlign: 'left' }}>MFA</th>
+                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9', textAlign: 'left' }}>Activity</th>
                                         <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9', textAlign: 'right' }}>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {filteredUsers.map(user => {
                                         const chip = getStatusChipStyle(user.status);
+                                        const lastActive = user.lastActive ? new Date(user.lastActive) : null;
+                                        
                                         return (
                                             <tr key={user.id} style={{ background: '#F8FAFC', borderRadius: '16px' }}>
                                                 
@@ -383,19 +458,23 @@ export default function UserDirectoryPage() {
                                                 </td>
 
                                                 <td style={{ padding: '16px' }}>
-                                                    {user.role !== 'Viewer' ? (
-                                                        <div style={{ width: '20px', height: '20px', background: '#E8FDF0', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10B981' }}>
-                                                            <Check size={12} strokeWidth={3} />
-                                                        </div>
-                                                    ) : (
-                                                        <div style={{ width: '20px', height: '20px', background: '#F1F5F9', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8' }}>
-                                                            <X size={12} strokeWidth={3} />
-                                                        </div>
-                                                    )}
+                                                    <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#64748B' }}>
+                                                        {lastActive ? lastActive.toLocaleDateString() : 'Never'}
+                                                    </div>
+                                                    <div style={{ fontSize: '0.65rem', color: '#94A3B8', fontWeight: 700 }}>
+                                                        {lastActive ? lastActive.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'No pulse'}
+                                                    </div>
                                                 </td>
 
                                                 <td style={{ padding: '16px', borderTopRightRadius: '16px', borderBottomRightRadius: '16px', textAlign: 'right' }}>
                                                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                        <button 
+                                                            onClick={() => openUserProfile(user)}
+                                                            style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#FFFFFF', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#0F172A' }}
+                                                            title="Profile & Activity"
+                                                        >
+                                                            <Eye size={16} />
+                                                        </button>
                                                         <button 
                                                             onClick={() => {
                                                                 setMailingUser(user);
@@ -634,6 +713,178 @@ export default function UserDirectoryPage() {
                         </form>
                     </div>
                 </div>
+            )}
+
+            {/* USER PROFILE & ACTIVITY MODAL */}
+            {viewingProfile && (
+                <ModalPortal>
+                    <div className={adminStyles.modalOverlay} onClick={() => setViewingProfile(null)} style={{ backdropFilter: 'blur(16px)', background: 'rgba(0, 0, 0, 0.4)' }}>
+                        <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '780px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', overflow: 'hidden' }}>
+                            <div style={{ padding: '40px 48px', background: '#0F172A', color: '#FFFFFF', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                                    <div style={{ width: '64px', height: '64px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 950 }}>
+                                        {viewingProfile.name.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div>
+                                        <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 950, letterSpacing: '-0.02em' }}>{viewingProfile.name}</h3>
+                                        <p style={{ margin: '4px 0 0', opacity: 0.5, fontSize: '0.95rem', fontWeight: 700 }}>{viewingProfile.email}</p>
+                                    </div>
+                                </div>
+                                <button onClick={() => setViewingProfile(null)} style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: 'white', padding: '10px', borderRadius: '10px', cursor: 'pointer' }}><X size={20} /></button>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.8fr', minHeight: '540px' }}>
+                                {/* Sidebar: Quick Stats & Security */}
+                                <div style={{ padding: '40px', borderRight: '1px solid #F1F5F9', background: '#F8FAFC' }}>
+                                    <div style={{ marginBottom: '40px' }}>
+                                        <div style={{ fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '20px' }}>Security & Access</div>
+                                        <button 
+                                            onClick={() => setShowPasswordReset(true)}
+                                            style={{ width: '100%', padding: '14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '14px', color: '#0F172A', fontSize: '0.85rem', fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}
+                                        >
+                                            <Lock size={14} /> Reset Credentials
+                                        </button>
+                                    </div>
+
+                                    <div style={{ marginBottom: '40px' }}>
+                                        <div style={{ fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '20px' }}>Account Pulse</div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#64748B' }}>Status</span>
+                                                <span style={{ fontSize: '0.85rem', fontWeight: 950, color: viewingProfile.status === 'ACTIVE' ? '#10B981' : '#EF4444' }}>{viewingProfile.status}</span>
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#64748B' }}>Plan Tier</span>
+                                                <span style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0F172A' }}>{viewingProfile.tier}</span>
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#64748B' }}>Total Value</span>
+                                                <span style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0F172A' }}>${viewingProfile.totalSpend}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ padding: '24px', background: '#0F172A', borderRadius: '20px', color: '#FFFFFF', boxShadow: '0 20px 40px -10px rgba(15, 23, 42, 0.2)' }}>
+                                        <div style={{ fontSize: '0.65rem', fontWeight: 950, opacity: 0.5, textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.05em' }}>Workflows Provisioned</div>
+                                        <div style={{ fontSize: '1.75rem', fontWeight: 950 }}>{viewingProfile.workflowsUsed || 0}</div>
+                                    </div>
+                                </div>
+
+                                {/* Main Content: Activity Ledger */}
+                                <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                                    <div style={{ padding: '28px 40px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FFFFFF' }}>
+                                        <span style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A', letterSpacing: '-0.01em' }}>Activity Ledger</span>
+                                        <div style={{ padding: '5px 12px', background: '#EFF6FF', color: '#3B82F6', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 950, letterSpacing: '0.05em' }}>SYSTEM AUDIT</div>
+                                    </div>
+                                    <div style={{ flex: 1, overflowY: 'auto', padding: '0 40px', background: '#FFFFFF' }}>
+                                        {isLoadingActivity ? (
+                                            <div style={{ padding: '60px', textAlign: 'center' }}><Activity className={adminStyles.spinning} color="#3B82F6" size={32} /></div>
+                                        ) : userActivity.length === 0 ? (
+                                            <div style={{ padding: '80px 0', textAlign: 'center', color: '#94A3B8' }}>
+                                                <div style={{ width: '48px', height: '48px', background: '#F8FAFC', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: '#CBD5E1' }}><EyeOff size={20} /></div>
+                                                <p style={{ fontSize: '0.9rem', fontWeight: 700 }}>No operational logs found for this identity.</p>
+                                            </div>
+                                        ) : (
+                                            userActivity.map((log, i) => {
+                                                const isSecurity = log.action?.includes('password') || log.action?.includes('login') || log.action?.includes('role');
+                                                const isMail = log.action?.includes('mail');
+                                                
+                                                return (
+                                                    <div key={i} style={{ padding: '24px 0', borderBottom: '1px solid #F8FAFC', display: 'flex', gap: '20px' }}>
+                                                        <div style={{ marginTop: '5px' }}>
+                                                            <div style={{ 
+                                                                width: '32px', 
+                                                                height: '32px', 
+                                                                borderRadius: '10px', 
+                                                                background: isSecurity ? '#FFF7ED' : (isMail ? '#EFF6FF' : '#F0FDF4'), 
+                                                                display: 'flex', 
+                                                                alignItems: 'center', 
+                                                                justifyContent: 'center',
+                                                                color: isSecurity ? '#F97316' : (isMail ? '#3B82F6' : '#10B981')
+                                                            }}>
+                                                                {isSecurity ? <Shield size={16} /> : (isMail ? <Mail size={16} /> : <Activity size={16} />)}
+                                                            </div>
+                                                        </div>
+                                                        <div style={{ flex: 1 }}>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+                                                                <div style={{ fontSize: '0.9rem', fontWeight: 900, color: '#0F172A' }}>{log.title}</div>
+                                                                <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#94A3B8' }}>{new Date(log.createdAt).toLocaleDateString()}</div>
+                                                            </div>
+                                                            <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748B', lineHeight: '1.5' }}>{log.description}</div>
+                                                            <div style={{ fontSize: '0.65rem', fontWeight: 950, color: '#CBD5E1', marginTop: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • System Audit</div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ModalPortal>
+            )}
+
+            {/* PASSWORD RESET SUB-MODAL */}
+            {showPasswordReset && viewingProfile && (
+                <ModalPortal>
+                    <div className={adminStyles.modalOverlay} style={{ zIndex: 11000, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)' }}>
+                        <div className={adminStyles.modal} style={{ maxWidth: '440px', padding: '48px', background: '#FFFFFF', borderRadius: '32px', border: '1px solid #E2E8F0', boxShadow: '0 50px 100px -20px rgba(0,0,0,0.3)' }}>
+                            <div style={{ marginBottom: '32px' }}>
+                                <div style={{ width: '56px', height: '56px', background: '#FFF7ED', color: '#F97316', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}><Lock size={24} /></div>
+                                <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 950, letterSpacing: '-0.02em' }}>Update Credentials</h3>
+                                <p style={{ margin: '10px 0 0', color: '#64748B', fontSize: '0.9rem', fontWeight: 700, lineHeight: '1.5' }}>Establish a new secure sovereign password for {viewingProfile.name}.</p>
+                            </div>
+                            
+                            <div style={{ marginBottom: '32px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                                    <label style={{ fontSize: '0.75rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>New Secure Password</label>
+                                    <button 
+                                        onClick={generateSecurePassword}
+                                        style={{ background: 'none', border: 'none', color: '#3B82F6', fontSize: '0.75rem', fontWeight: 950, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                    >
+                                        <RefreshCw size={12} /> Generate
+                                    </button>
+                                </div>
+                                <div style={{ position: 'relative' }}>
+                                    <input 
+                                        type="text"
+                                        style={{ width: '100%', height: '52px', borderRadius: '14px', border: '1px solid #E2E8F0', padding: '0 52px 0 20px', outline: 'none', fontWeight: 750, fontSize: '1rem', background: '#F8FAFC', letterSpacing: newPassword ? '0.1em' : 'normal' }}
+                                        placeholder="••••••••••••"
+                                        value={newPassword}
+                                        onChange={e => setNewPassword(e.target.value)}
+                                    />
+                                    {newPassword && (
+                                        <button 
+                                            onClick={() => copyToClipboard(newPassword)}
+                                            style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: '#FFFFFF', border: '1px solid #E2E8F0', padding: '6px', borderRadius: '8px', cursor: 'pointer', color: '#64748B' }}
+                                        >
+                                            <Download size={14} />
+                                        </button>
+                                    )}
+                                </div>
+                                <div style={{ marginTop: '12px', padding: '12px', background: '#F8FAFC', borderRadius: '10px', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                                    <AlertTriangle size={14} color="#F59E0B" style={{ marginTop: '2px' }} />
+                                    <p style={{ margin: 0, fontSize: '0.75rem', color: '#92400E', fontWeight: 600, lineHeight: '1.4' }}>
+                                        User will be required to re-authenticate with these new credentials immediately.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '14px' }}>
+                                <button onClick={() => { setShowPasswordReset(false); setNewPassword(""); }} style={{ flex: 1, height: '48px', borderRadius: '14px', border: '1px solid #E2E8F0', background: '#FFFFFF', fontWeight: 950, cursor: 'pointer', color: '#475569' }}>Cancel</button>
+                                <button 
+                                    onClick={handleResetPassword}
+                                    disabled={!newPassword || isResettingPassword}
+                                    style={{ flex: 1, height: '48px', borderRadius: '14px', border: 'none', background: '#0F172A', color: '#FFFFFF', fontWeight: 950, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', opacity: (!newPassword || isResettingPassword) ? 0.5 : 1 }}
+                                >
+                                    {isResettingPassword ? <Activity size={16} className={adminStyles.spinning} /> : <Check size={16} />}
+                                    {isResettingPassword ? 'Applying...' : 'Update Password'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </ModalPortal>
             )}
 
             {/* SEND BROADCAST EMAIL MODAL */}

@@ -1,9 +1,50 @@
 import { NextResponse } from 'next/server';
 import { db } from "@/lib/db";
 import { logAudit } from "@/lib/audit";
+import bcrypt from "bcryptjs";
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
+        const { searchParams } = new URL(request.url);
+        const userId = searchParams.get('id');
+        const fetchActivity = searchParams.get('activity') === 'true';
+
+        if (userId && fetchActivity) {
+            const logs = await db.query(`
+                SELECT 
+                    id,
+                    "eventType" as action,
+                    metadata,
+                    "createdAt"
+                FROM "Event" 
+                WHERE "userId" = $1 
+                ORDER BY "createdAt" DESC 
+                LIMIT 50
+            `, [userId]) as any[];
+
+            // Map database events to UI-friendly activity logs
+            const mappedLogs = logs.map(log => {
+                let title = log.action.split('_').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                let description = 'System event recorded';
+                
+                if (log.metadata) {
+                    const meta = typeof log.metadata === 'string' ? JSON.parse(log.metadata) : log.metadata;
+                    if (meta.target) description = meta.target;
+                    else if (meta.newRole) description = `Role updated to ${meta.newRole}`;
+                    else if (meta.newStatus) description = `Status updated to ${meta.newStatus}`;
+                }
+
+                return {
+                    title,
+                    description,
+                    createdAt: log.createdAt,
+                    action: log.action
+                };
+            });
+
+            return NextResponse.json(mappedLogs);
+        }
+
         const rows = await db.query(`
             SELECT 
                 id, 
@@ -30,7 +71,17 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { id, role, tier, status, totalSpend, action, subject, title, message } = body;
+        const { id, role, tier, status, totalSpend, action, subject, title, message, newPassword } = body;
+
+        if (action === 'RESET_PASSWORD') {
+            if (!id || !newPassword) return NextResponse.json({ error: "Missing ID or Password" }, { status: 400 });
+            
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            await db.execute('UPDATE "User" SET password = $1 WHERE id = $2', [hashedPassword, id]);
+            
+            await logAudit(id, 'password_reset', 'Admin reset user password');
+            return NextResponse.json({ success: true });
+        }
 
         if (action === 'SEND_EMAIL') {
             if (!id || !subject || !title || !message) return NextResponse.json({ error: "Missing fields" }, { status: 400 });
