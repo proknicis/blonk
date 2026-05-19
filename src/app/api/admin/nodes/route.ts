@@ -1,6 +1,19 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
+const fetchWithTimeout = async (url: string, options: any = {}, timeoutMs: number = 5000) => {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const response = await fetch(url, { ...options, signal: controller.signal });
+        clearTimeout(id);
+        return response;
+    } catch (error) {
+        clearTimeout(id);
+        throw error;
+    }
+};
+
 async function probeNode(node: any) {
     if (!node || !node.url) return { ...node, status: 'Invalid Config', cpu: 0, ram: 0, queue: 0, uptime: 'N/A' };
     const apiKey = node.api_key || node.apiKey;
@@ -18,11 +31,10 @@ async function probeNode(node: any) {
 
         for (const endpoint of healthEndpoints) {
             try {
-                const res = await fetch(`${baseUrl}${endpoint}`, {
+                const res = await fetchWithTimeout(`${baseUrl}${endpoint}`, {
                     headers: { "X-N8N-API-KEY": apiKey },
-                    cache: 'no-store',
-                    signal: AbortSignal.timeout(5000)
-                });
+                    cache: 'no-store'
+                }, 5000);
                 if (res.ok) {
                     healthRes = res;
                     successEndpoint = endpoint;
@@ -41,11 +53,10 @@ async function probeNode(node: any) {
         let activeExecs = 0;
         let recentCount = 0;
         try {
-            const execRes = await fetch(`${baseUrl}/api/v1/executions?status=running&limit=50`, {
+            const execRes = await fetchWithTimeout(`${baseUrl}/api/v1/executions?status=running&limit=50`, {
                 headers: { "X-N8N-API-KEY": apiKey },
-                cache: 'no-store',
-                signal: AbortSignal.timeout(8000)
-            });
+                cache: 'no-store'
+            }, 8000);
             if (execRes.ok) {
                 const execData = await execRes.json();
                 activeExecs = (execData.data || execData || []).length;
@@ -53,11 +64,10 @@ async function probeNode(node: any) {
         } catch (e) { /* non-critical */ }
 
         try {
-            const recentRes = await fetch(`${baseUrl}/api/v1/executions?limit=100`, {
+            const recentRes = await fetchWithTimeout(`${baseUrl}/api/v1/executions?limit=100`, {
                 headers: { "X-N8N-API-KEY": apiKey },
-                cache: 'no-store',
-                signal: AbortSignal.timeout(8000)
-            });
+                cache: 'no-store'
+            }, 8000);
             if (recentRes.ok) {
                 const recentData = await recentRes.json();
                 recentCount = (recentData.data || recentData || []).length;
