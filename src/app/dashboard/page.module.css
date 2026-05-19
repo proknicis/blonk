@@ -1,7 +1,6 @@
 /* 
   BLONK | SOVEREIGN COMMAND OVERVIEW
   Aesthetic: Modular Institutional UI
-  Uses Global Design System Variables
 */
 
 .dashboard {
@@ -11,8 +10,8 @@
     animation: dashboardFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     color: var(--foreground);
     background-image: 
-        linear-gradient(rgba(226, 232, 240, 0.3) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(226, 232, 240, 0.3) 1px, transparent 1px);
+        linear-gradient(rgba(226, 232, 240, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(226, 232, 240, 0.05) 1px, transparent 1px);
     background-size: 40px 40px;
     padding: 20px;
 }
@@ -51,29 +50,12 @@
 .integrityIcon {
     width: 36px;
     height: 36px;
+    background: var(--accent);
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.playIconBox {
-    width: 20px;
-    height: 20px;
-    background: #10B981;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.playTriangle {
-    width: 0;
-    height: 0;
-    border-top: 5px solid transparent;
-    border-bottom: 5px solid transparent;
-    border-left: 7px solid #FFFFFF;
-    margin-left: 2px;
+    color: #fff;
 }
 
 .integrityLabel {
@@ -89,13 +71,34 @@
 
 .integritySub {
     font-size: 0.7rem;
-    color: var(--muted-foreground);
     font-weight: 700;
+    color: var(--muted-foreground);
 }
 
-.totalRuns {
+.integrityMetricsContainer {
+    display: flex;
+    gap: 24px;
     margin-left: auto;
+}
+
+.metricItem {
     text-align: right;
+}
+
+.metricValue {
+    font-size: 1.4rem;
+    font-weight: 950;
+    color: var(--foreground);
+    line-height: 1;
+}
+
+.metricLabel {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 4px;
 }
 
 /* METRICS GRID */
@@ -136,8 +139,8 @@
 .value {
     font-size: 2.2rem;
     font-weight: 950;
-    letter-spacing: -0.04em;
     color: var(--foreground);
+    letter-spacing: -0.04em;
     margin-bottom: 8px;
 }
 
@@ -180,6 +183,11 @@
     font-weight: 600;
 }
 
+.chartWrapper {
+    width: 100%;
+    min-height: 400px;
+}
+
 /* COMMAND GRID */
 .commandGrid {
     display: grid;
@@ -214,426 +222,16 @@
     text-decoration: none;
 }
 
-.workflowOverviewRow {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 24px;
-    background: #FFFFFF;
-    border: 1px solid #F1F5F9;
-    border-radius: 20px;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.workflowOverviewRow:hover {
-    border-color: var(--accent);
-    box-shadow: 0 12px 24px -8px rgba(16, 185, 129, 0.1);
-    transform: translateX(4px);
-}
-
-.workflowIconBox {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
-    background: #F8FAFC;
-    border: 1px solid #F1F5F9;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-    font-weight: 950;
-    color: #1E293B;
-    position: relative;
-}
-
-.activePulseIndicator {
-    position: absolute;
-    bottom: -2px;
-    right: -2px;
-    width: 12px;
-    height: 12px;
-    background: #10B981;
-    border: 2px solid #FFFFFF;
-    border-radius: 50%;
-}
-
-.workflowRowTitle {
-    font-size: 0.95rem;
-    font-weight: 950;
-    color: #0F172A;
-    margin-bottom: 4px;
-}
-
-.workflowRowSubtitle {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.75rem;
-    color: #64748B;
-    font-weight: 700;
-}
-
-.sparklineWrapper {
-    opacity: 0.8;
-    filter: grayscale(0.2);
-}
-
-.successMetric {
-    text-align: right;
-    min-width: 80px;
-}
-
-.successValue {
-    font-size: 1.1rem;
-    font-weight: 950;
-    color: #0F172A;
-    letter-spacing: -0.02em;
-}
-
-.successLabel {
-    font-size: 0.6rem;
-    font-weight: 800;
-    color: #64748B;
-    letter-spacing: 0.05em;
-    margin-top: 2px;
-}
-
-/* FEED */
 .feedWrapper {
     display: flex;
     flex-direction: column;
     gap: 16px;
 }
 
-.feedItem {
-    display: flex;
-    gap: 16px;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border);
-}
-
-.feedItem:last-child {
-    border-bottom: none;
-}
-
-.feedContent {
-    flex: 1;
-}
-
-.feedHeaderRow {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
-}
-
-.feedTitle {
-    font-size: 0.85rem;
-    font-weight: 950;
-}
-
-.feedTime {
-    font-size: 0.7rem;
-    color: var(--muted-foreground);
-    font-weight: 600;
-}
-
-.feedMeta {
-    font-size: 0.8rem;
-    color: var(--muted-foreground);
-    line-height: 1.5;
-}
-
-.emptyFeed {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px;
-    color: var(--muted-foreground);
-    gap: 12px;
-}
-
-.emptyFeed p {
-    font-size: 0.85rem;
-    font-weight: 700;
-}
-
-.richTelemetry {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.telemetryBadge {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    padding: 3px 8px;
-    background: rgba(0, 0, 0, 0.03);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    font-size: 0.65rem;
-    font-weight: 950;
-    color: var(--muted-foreground);
-}
-
-.telemetryDest {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.7s;
-    font-weight: 800;
-    color: var(--accent);
-    opacity: 0.8;
-}
-
-/* WORKFLOW LIST */
-.workflowItem {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    padding: 24px;
-    margin-bottom: 16px;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    box-shadow: var(--shadow-sm);
-}
-
-.workflowItem:hover {
-    border-color: var(--accent);
-    box-shadow: var(--shadow-md);
-}
-
-.workflowHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.workflowTitle {
-    font-size: 1.25rem;
-    font-weight: 950;
-    letter-spacing: -0.04em;
-    color: var(--foreground);
-}
-
-.workflowBadge {
-    font-size: 0.65rem;
-    font-weight: 950;
-    color: var(--muted-foreground);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-}
-
-.loopIdBtn {
-    background: rgba(0, 0, 0, 0.02);
-    border: 1px solid var(--border);
-    border-radius: 100px;
-    padding: 6px 14px;
-    font-size: 0.65rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 800;
-    color: var(--muted-foreground);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-}
-
-.loopIdBtn:hover {
-    background: var(--secondary);
-    color: var(--foreground);
-}
-
-.statusText {
-    font-size: 0.7rem;
-    font-weight: 950;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-}
-
-.statusSubtext {
-    font-size: 0.6rem;
-    font-weight: 800;
-    color: var(--muted-foreground);
-    opacity: 0.5;
-}
-
-.forceStartBtn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 16px;
-    border-radius: 12px;
-    background: var(--primary);
-    color: var(--primary-foreground);
-    border: none;
-    font-weight: 950;
-    font-size: 0.7rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.forceStartBtn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.forceEndBtn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 16px;
-    border-radius: 12px;
-    background: var(--muted);
-    color: var(--foreground);
-    border: 1px solid var(--border);
-    font-weight: 950;
-    font-size: 0.7rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.forceEndBtn:hover:not(:disabled) {
-    background: var(--destructive);
-    color: var(--destructive-foreground);
-    border-color: var(--destructive);
-    transform: translateY(-2px);
-}
-
-.metricsRow {
-    display: grid; 
-    grid-template-columns: repeat(3, 1fr); 
-    gap: 12px;
-    padding: 16px;
-    background: var(--background);
-    border-radius: 16px;
-    border: 1px solid var(--border);
-}
-
-.metricMiniLabel {
-    font-size: 0.6rem;
-    font-weight: 950;
-    color: var(--muted-foreground);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 4px;
-    opacity: 0.6;
-}
-
-.metricMiniValue {
-    font-size: 0.95rem;
-    font-weight: 950;
-    color: var(--foreground);
-}
-
-.metricMiniUnit {
-    opacity: 0.3;
-}
-
-/* ONBOARDING */
-.onboardingState {
-    background: var(--card);
-    border: 1px dashed var(--border);
-    border-radius: 36px;
-    padding: 100px 40px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.onboardingIllustration {
-    width: 80px;
-    height: 80px;
-    background: var(--accent-muted);
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--accent);
-    margin-bottom: 40px;
-}
-
-.onboardingTitle {
-    font-size: 1.5rem;
-    font-weight: 950;
-    margin: 0 0 16px 0;
-    color: var(--foreground);
-}
-
-.onboardingSubtitle {
-    color: var(--muted-foreground);
-    max-width: 600px;
-    line-height: 1.6;
-    margin: 0 0 40px 0;
-}
-
-.onboardingActions {
-    display: flex;
-    gap: 16px;
-    justify-content: center;
-    align-items: center;
-}
-
-.btnInstitutional {
-    background: var(--primary);
-    color: var(--primary-foreground);
-    padding: 18px 32px;
-    border-radius: 16px;
-    font-size: 1rem;
-    font-weight: 950;
-    text-decoration: none;
-}
-
-.btnOutline {
-    border: 1px solid var(--border);
-    padding: 18px 32px;
-    border-radius: 16px;
-    font-size: 1rem;
-    font-weight: 950;
-    text-decoration: none;
-    color: var(--foreground);
-}
-
-@media (max-width: 1600px) {
+/* RESPONSIVE */
+@media (max-width: 1400px) {
     .metricsMatrix { grid-template-columns: repeat(2, 1fr); }
     .commandGrid { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 1100px) {
-    .integrityBanner {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 32px;
-        padding: 32px;
-    }
-    
-    .integrityInfo {
-        flex: none;
-        width: 100%;
-    }
-
-    .integrityMetricsContainer {
-        width: 100%;
-        justify-content: flex-start;
-        padding-top: 24px;
-        border-top: 1px solid var(--border);
-        flex: none;
-        flex-wrap: wrap;
-        gap: 24px;
-    }
-    
-    .integrityMetrics {
-        padding: 0;
-        border: none;
-        min-width: 120px;
-    }
 }
 
 @media (max-width: 900px) {
@@ -645,10 +243,7 @@
 
 @media (max-width: 600px) {
     .dashboard { gap: 24px; }
-    .integrityInfo { gap: 16px; }
-    .integrityTitle { font-size: 1rem; }
-    .metricCard { padding: 32px 24px; border-radius: 24px; }
-    .activeWorkflows, .liveFeed { padding: 32px 24px; border-radius: 24px; }
-    .integrityMetricsContainer { gap: 16px; }
-    .metricValue { font-size: 1.2rem; }
+    .integrityRow { flex-direction: column; align-items: flex-start; }
+    .integrityCard { border-right: none; padding-right: 0; padding-bottom: 16px; border-bottom: 1px solid var(--border); width: 100%; }
+    .integrityMetricsContainer { margin-left: 0; width: 100%; justify-content: space-between; padding-top: 16px; }
 }

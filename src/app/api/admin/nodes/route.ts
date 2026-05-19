@@ -59,7 +59,8 @@ async function probeNode(node: any) {
             }, 8000);
             if (execRes.ok) {
                 const execData = await execRes.json();
-                activeExecs = (execData.data || execData || []).length;
+                const list = Array.isArray(execData.data) ? execData.data : (Array.isArray(execData) ? execData : []);
+                activeExecs = list.length || 0;
             }
         } catch (e) { /* non-critical */ }
 
@@ -70,18 +71,19 @@ async function probeNode(node: any) {
             }, 8000);
             if (recentRes.ok) {
                 const recentData = await recentRes.json();
-                recentCount = (recentData.data || recentData || []).length;
+                const list = Array.isArray(recentData.data) ? recentData.data : (Array.isArray(recentData) ? recentData : []);
+                recentCount = list.length || 0;
             }
         } catch (e) { /* non-critical */ }
 
         // Estimate resource usage from activity levels
-        const cpuEstimate = Math.min(95, Math.max(5, activeExecs * 15 + recentCount * 0.3 + 8));
-        const ramEstimate = Math.min(90, Math.max(10, recentCount * 0.5 + 15));
+        const cpuEstimate = Math.min(95, Math.max(5, (activeExecs || 0) * 15 + (recentCount || 0) * 0.3 + 8));
+        const ramEstimate = Math.min(90, Math.max(10, (recentCount || 0) * 0.5 + 15));
 
         // Generate actual telemetry history based on activity levels
         const telemetry = Array.from({ length: 12 }, (_, i) => {
-            const base = Math.max(2, recentCount / 8);
-            const peak = i > 7 ? activeExecs * 10 : 0;
+            const base = Math.max(2, (recentCount || 0) / 8);
+            const peak = i > 7 ? (activeExecs || 0) * 10 : 0;
             return Math.round(base + peak + (Math.random() * 8));
         });
 
@@ -147,23 +149,32 @@ export async function GET(request: Request) {
         // If forceProbe is true, we WAIT for it (Institutional requirement for Fleet page)
         if (forceProbe) {
             const probedNodes = await Promise.all(nodes.map(node => 
-                probeNode(node).catch(err => ({ ...node, status: 'Error', cpu: 0, ram: 0, queue: 0, uptime: 'OFFLINE' }))
+                probeNode(node).catch(err => {
+                    console.error(`[Fleet] Failed to probe ${node.name}:`, err);
+                    return { ...node, status: 'Error', cpu: 0, ram: 0, queue: 0, uptime: 'OFFLINE', telemetry: Array(12).fill(0) };
+                })
             ));
             nodeCache = probedNodes;
             lastProbe = now;
-            return NextResponse.json(probedNodes.map(p => ({
-                ...p,
-                workflow_count: nodes.find(n => n.id === p.id)?.workflow_count || 0,
-                max_workflows: p.max_workflows || 100
-            })));
+            return NextResponse.json(probedNodes.map(p => {
+                const baseNode = nodes.find(n => n.id === p.id);
+                return {
+                    ...p,
+                    workflow_count: parseInt(String(baseNode?.workflow_count || 0)),
+                    max_workflows: p.max_workflows || 100
+                };
+            }));
         }
 
         // If cache is stale but not forcing, return DB immediately and trigger background probe
         if (now - lastProbe >= CACHE_TTL) {
             // Trigger background probe (non-blocking)
             Promise.all(nodes.map(node => probeNode(node).catch(() => null))).then(probed => {
-                nodeCache = probed.filter(p => p !== null);
-                lastProbe = Date.now();
+                const validProbes = probed.filter(p => p !== null);
+                if (validProbes.length > 0) {
+                    nodeCache = validProbes;
+                    lastProbe = Date.now();
+                }
             });
         }
 
@@ -171,7 +182,7 @@ export async function GET(request: Request) {
             const cached = nodeCache.find(c => c.id === n.id);
             return { 
                 ...(cached || n), 
-                workflow_count: n.workflow_count,
+                workflow_count: parseInt(String(n.workflow_count || 0)),
                 max_workflows: n.max_workflows || 100
             };
         }));
