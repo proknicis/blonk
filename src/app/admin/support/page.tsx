@@ -228,11 +228,11 @@ export default function SupportInboxPage() {
                     </div>
 
                     {/* Scrollable list */}
-                    <div style={{ flex: 1, overflowY: 'auto', padding: '12px' }} className={styles.ticketItems}>
+                    <div className={styles.ticketItems}>
                         {filteredTickets.length === 0 ? (
-                            <div style={{ padding: '48px 24px', textAlign: 'center', color: 'var(--muted-foreground)' }}>
-                                <Inbox size={32} style={{ marginBottom: '12px', opacity: 0.3 }} />
-                                <div style={{ fontSize: '0.8rem', fontWeight: 800 }}>No matching tickets</div>
+                            <div className={styles.emptyState}>
+                                <Inbox size={32} className={styles.emptyStateIcon} />
+                                <div className={styles.emptyStateText}>No matching tickets</div>
                             </div>
                         ) : (
                             filteredTickets.map(ticket => {
@@ -241,51 +241,37 @@ export default function SupportInboxPage() {
                                     <div
                                         key={ticket.id}
                                         onClick={() => setSelectedTicket(ticket)}
-                                        style={{
-                                            padding: '16px',
-                                            borderRadius: '16px',
-                                            background: selectedTicket?.id === ticket.id ? 'var(--muted)' : 'transparent',
-                                            border: '1px solid',
-                                            borderColor: selectedTicket?.id === ticket.id ? 'var(--border)' : 'transparent',
-                                            cursor: 'pointer',
-                                            marginBottom: '8px',
-                                            transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
-                                        }}
+                                        className={`${styles.ticketItem} ${selectedTicket?.id === ticket.id ? styles.ticketItemActive : ''}`}
                                     >
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                                            <span style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)', fontFamily: 'monospace' }}>
+                                        <div className={styles.ticketItemHeader}>
+                                            <span className={styles.ticketId}>
                                                 {ticket.id.substring(0, 13)}
                                             </span>
-                                            <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>
+                                            <span className={styles.ticketTime}>
                                                 {new Date(ticket.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </span>
                                         </div>
 
-                                        <div style={{ fontWeight: 950, fontSize: '0.85rem', color: 'var(--foreground)', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: ticket.status === 'open' ? 'var(--accent)' : 'transparent' }} />
+                                        <div className={styles.ticketUserName}>
+                                            <div className={`${styles.ticketStatusDot} ${ticket.status === 'open' ? '' : 'hidden'}`} />
                                             {ticket.userName}
                                         </div>
 
-                                        <div style={{ fontSize: '0.8rem', color: 'var(--foreground)', opacity: 0.8, fontWeight: 700, marginBottom: '10px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                        <div className={styles.ticketSubject}>
                                             {ticket.subject}
                                         </div>
 
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <span style={{
-                                                fontSize: '0.6rem',
-                                                fontWeight: 950,
-                                                padding: '2px 8px',
-                                                borderRadius: '6px',
-                                                textTransform: 'uppercase',
-                                                background: pStyle.bg,
-                                                color: pStyle.text,
-                                                border: pStyle.border
-                                            }}>
+                                        <div className={styles.ticketFooter}>
+                                            <span className={`${styles.priorityBadge} ${
+                                                ticket.priority === 'high' ? styles.priorityHigh :
+                                                ticket.priority === 'medium' ? styles.priorityMedium :
+                                                styles.priorityLow
+                                            }`}>
                                                 {ticket.priority}
                                             </span>
                                             
                                             {ticket.messageCount !== undefined && (
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>
+                                                <div className={styles.ticketMessageCount}>
                                                     <MessageSquare size={12} />
                                                     {ticket.messageCount}
                                                 </div>
@@ -298,50 +284,47 @@ export default function SupportInboxPage() {
                     </div>
 
                     {/* Pagination / Footer */}
-                    <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border)', background: 'var(--muted)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', fontWeight: 800, color: 'var(--muted-foreground)' }}>
+                    <div className={styles.ticketsListFooter}>
                         <span>Showing {filteredTickets.length} tickets</span>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                            <button style={{ border: 'none', background: 'none', cursor: 'pointer', fontWeight: 950 }}>&lt;</button>
+                        <div className={styles.pagination}>
+                            <button className={styles.paginationButton}>&lt;</button>
                             <span>1</span>
-                            <button style={{ border: 'none', background: 'none', cursor: 'pointer', fontWeight: 950 }}>&gt;</button>
+                            <button className={styles.paginationButton}>&gt;</button>
                         </div>
                     </div>
                 </div>
 
                 {/* 2. CENTER COLUMN: TICKET DETAIL & TIMELINE CHAT */}
-                <div style={{ background: '#FFFFFF', border: '1px solid var(--border)', borderRadius: '24px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
+                <div className={styles.ticketDetail}>
                     {selectedTicket ? (
                         <>
                             {/* Header */}
-                            <div style={{ padding: '24px', borderBottom: '1px solid var(--border)', background: '#FFFFFF' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                            <div className={styles.ticketDetailHeader}>
+                                <div className={styles.ticketDetailHeaderTop}>
                                     <div>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                                            <span style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)', background: 'var(--muted)', padding: '2px 8px', borderRadius: '6px', fontFamily: 'monospace' }}>
+                                        <div className={styles.ticketDetailMeta}>
+                                            <span className={styles.ticketIdBadge}>
                                                 {selectedTicket.id}
                                             </span>
-                                            <span style={{
-                                                fontSize: '0.65rem',
-                                                fontWeight: 950,
-                                                padding: '2px 8px',
-                                                borderRadius: '6px',
-                                                textTransform: 'uppercase',
-                                                ...getPriorityColor(selectedTicket.priority)
-                                            }}>
+                                            <span className={`${styles.ticketIdBadge} ${
+                                                selectedTicket.priority === 'high' ? styles.priorityHigh :
+                                                selectedTicket.priority === 'medium' ? styles.priorityMedium :
+                                                styles.priorityLow
+                                            }`}>
                                                 {selectedTicket.priority} PRIORITY
                                             </span>
                                         </div>
-                                        <h2 style={{ fontSize: '1.25rem', fontWeight: 950, margin: 0, letterSpacing: '-0.02em', color: 'var(--foreground)' }}>
+                                        <h2 className={styles.ticketDetailTitle}>
                                             {selectedTicket.subject}
                                         </h2>
                                     </div>
 
                                     {/* Action Buttons */}
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <button style={{ width: '36px', height: '36px', borderRadius: '10px', border: '1px solid var(--border)', background: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted-foreground)', cursor: 'pointer' }}>
+                                    <div className={styles.actionButtons}>
+                                        <button className={styles.iconButton}>
                                             <Bookmark size={16} />
                                         </button>
-                                        <button style={{ width: '36px', height: '36px', borderRadius: '10px', border: '1px solid var(--border)', background: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted-foreground)', cursor: 'pointer' }}>
+                                        <button className={styles.iconButton}>
                                             <MoreVertical size={16} />
                                         </button>
                                         
@@ -349,20 +332,7 @@ export default function SupportInboxPage() {
                                         <div style={{ position: 'relative' }}>
                                             <button 
                                                 onClick={() => handleCloseTicket(selectedTicket.id)}
-                                                style={{
-                                                    height: '36px',
-                                                    padding: '0 16px',
-                                                    borderRadius: '10px',
-                                                    border: '1px solid var(--border)',
-                                                    background: selectedTicket.status === 'closed' ? 'var(--muted)' : 'var(--accent)',
-                                                    color: selectedTicket.status === 'closed' ? 'var(--foreground)' : '#FFFFFF',
-                                                    fontSize: '0.8rem',
-                                                    fontWeight: 950,
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '8px',
-                                                    cursor: 'pointer'
-                                                }}
+                                                className={`${styles.statusButton} ${selectedTicket.status === 'closed' ? styles.statusButtonClosed : ''}`}
                                             >
                                                 {selectedTicket.status === 'closed' ? 'CLOSED' : 'NEEDS ACTION'}
                                                 <ChevronDown size={14} />
@@ -372,8 +342,8 @@ export default function SupportInboxPage() {
                                 </div>
 
                                 {/* Meta subheader */}
-                                <div style={{ display: 'flex', gap: '16px', alignItems: 'center', fontSize: '0.78rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>
-                                    <span style={{ color: 'var(--foreground)', fontWeight: 950, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <div className={styles.ticketDetailSubheader}>
+                                    <span className={styles.ticketDetailSubheaderHighlight}>
                                         {selectedTicket.userName} 
                                         <ArrowUpRight size={12} style={{ opacity: 0.6 }} />
                                     </span>
@@ -387,7 +357,7 @@ export default function SupportInboxPage() {
                                 </div>
 
                                 {/* Inner Sub tabs */}
-                                <div style={{ display: 'flex', gap: '20px', borderBottom: '1px solid var(--border)', marginTop: '20px', paddingBottom: '2px' }}>
+                                <div className={styles.subTabs}>
                                     {[
                                         { key: 'conversation', label: 'Conversation' },
                                         { key: 'details', label: 'Details' },
@@ -399,16 +369,7 @@ export default function SupportInboxPage() {
                                         <button
                                             key={subTab.key}
                                             onClick={() => setActiveSubTab(subTab.key as any)}
-                                            style={{
-                                                border: 'none',
-                                                background: 'none',
-                                                padding: '8px 0',
-                                                fontSize: '0.8rem',
-                                                fontWeight: activeSubTab === subTab.key ? 950 : 700,
-                                                color: activeSubTab === subTab.key ? 'var(--foreground)' : 'var(--muted-foreground)',
-                                                borderBottom: activeSubTab === subTab.key ? '2px solid var(--accent)' : '2px solid transparent',
-                                                cursor: 'pointer'
-                                            }}
+                                            className={`${styles.subTab} ${activeSubTab === subTab.key ? styles.subTabActive : ''}`}
                                         >
                                             {subTab.label}
                                         </button>
@@ -417,16 +378,16 @@ export default function SupportInboxPage() {
                             </div>
 
                             {/* Conversation thread timeline */}
-                            <div style={{ flex: 1, overflowY: 'auto', padding: '24px', background: 'var(--background)' }}>
+                            <div className={styles.conversationArea}>
                                 {activeSubTab === 'conversation' ? (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                    <div className={styles.messageThread}>
                                         {messages.map((msg) => {
                                             const isSystem = msg.senderRole === 'system' || msg.senderId === 'system';
                                             const isAdmin = msg.senderRole === 'admin';
                                             
                                             if (isSystem) {
                                                 return (
-                                                    <div key={msg.id} style={{ display: 'flex', gap: '12px', background: 'rgba(239,68,68,0.05)', border: '1px dashed rgba(239,68,68,0.2)', padding: '16px', borderRadius: '16px', color: '#EF4444' }}>
+                                                    <div key={msg.id} className={styles.systemAlert}>
                                                         <AlertTriangle size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
                                                         <div>
                                                             <div style={{ fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>System Alert • Incident Triggered</div>
@@ -437,71 +398,41 @@ export default function SupportInboxPage() {
                                             }
 
                                             return (
-                                                <div key={msg.id} style={{ display: 'flex', gap: '16px', flexDirection: 'row' }}>
+                                                <div key={msg.id} className={styles.message}>
                                                     {/* Avatar */}
-                                                    <div style={{
-                                                        width: '40px',
-                                                        height: '40px',
-                                                        borderRadius: '12px',
-                                                        background: isAdmin ? 'var(--foreground)' : 'var(--muted)',
-                                                        color: isAdmin ? 'var(--background)' : 'var(--foreground)',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        fontWeight: 950,
-                                                        fontSize: '0.85rem',
-                                                        flexShrink: 0
-                                                    }}>
+                                                    <div className={`${styles.messageAvatar} ${isAdmin ? '' : styles.messageAvatarUser}`}>
                                                         {isAdmin ? 'PO' : 'AC'}
                                                     </div>
 
                                                     <div style={{ flex: 1 }}>
                                                         {/* Header info */}
-                                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                                                        <div className={styles.messageHeader}>
                                                             <div>
-                                                                <span style={{ fontWeight: 950, fontSize: '0.85rem', color: 'var(--foreground)' }}>{msg.senderName}</span>
-                                                                <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', marginLeft: '8px', fontWeight: 700 }}>
+                                                                <span className={styles.messageSenderName}>{msg.senderName}</span>
+                                                                <span className={styles.messageSenderRole}>
                                                                     {isAdmin ? 'Blonk Support' : 'Client'}
                                                                 </span>
                                                             </div>
-                                                            <span style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>
+                                                            <span className={styles.messageTime}>
                                                                 {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                             </span>
                                                         </div>
 
                                                         {/* Message bubble */}
-                                                        <div style={{
-                                                            background: '#FFFFFF',
-                                                            border: '1px solid var(--border)',
-                                                            borderRadius: '16px',
-                                                            padding: '16px',
-                                                            fontSize: '0.85rem',
-                                                            lineHeight: 1.5,
-                                                            color: 'var(--foreground)',
-                                                            fontWeight: 700
-                                                        }}>
+                                                        <div className={styles.messageBubble}>
                                                             {msg.content}
 
                                                             {/* Add attachment mockup for first client message */}
                                                             {!isAdmin && msg.content.includes("failing with a 500 error") && (
-                                                                <div style={{ 
-                                                                    marginTop: '16px',
-                                                                    display: 'flex',
-                                                                    alignItems: 'center',
-                                                                    justifyContent: 'space-between',
-                                                                    background: 'var(--muted)',
-                                                                    border: '1px solid var(--border)',
-                                                                    borderRadius: '12px',
-                                                                    padding: '12px 16px'
-                                                                }}>
-                                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                                        <FileText size={24} style={{ color: 'var(--muted-foreground)' }} />
+                                                                <div className={styles.attachment}>
+                                                                    <div className={styles.attachmentInfo}>
+                                                                        <FileText size={24} style={{ color: '#94A3B8' }} />
                                                                         <div>
-                                                                            <div style={{ fontWeight: 950, fontSize: '0.8rem', color: 'var(--foreground)' }}>error-screenshot.png</div>
-                                                                            <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>245 KB • PNG Image</div>
+                                                                            <div className={styles.attachmentName}>error-screenshot.png</div>
+                                                                            <div className={styles.attachmentMeta}>245 KB • PNG Image</div>
                                                                         </div>
                                                                     </div>
-                                                                    <button style={{ width: '32px', height: '32px', border: '1px solid var(--border)', background: '#FFFFFF', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--foreground)', cursor: 'pointer' }}>
+                                                                    <button className={styles.downloadButton}>
                                                                         <Download size={14} />
                                                                     </button>
                                                                 </div>
@@ -514,47 +445,27 @@ export default function SupportInboxPage() {
                                         <div ref={messagesEndRef} />
                                     </div>
                                 ) : (
-                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '48px', color: 'var(--muted-foreground)' }}>
-                                        <FileText size={32} style={{ marginBottom: '12px', opacity: 0.4 }} />
-                                        <span style={{ fontSize: '0.85rem', fontWeight: 800 }}>This tab is synchronized with live fleet environment variables.</span>
+                                    <div className={styles.emptyState}>
+                                        <FileText size={32} className={styles.emptyStateIcon} />
+                                        <span className={styles.emptyStateText}>This tab is synchronized with live fleet environment variables.</span>
                                     </div>
                                 )}
                             </div>
 
                             {/* Reply Textarea Editor */}
-                            <div style={{ padding: '24px', borderTop: '1px solid var(--border)', background: '#FFFFFF' }}>
+                            <div className={styles.messageInputArea}>
                                 {/* Reply type tabs */}
-                                <div style={{ display: 'flex', gap: '16px', marginBottom: '12px' }}>
+                                <div className={styles.messageInputTabs}>
                                     <button 
                                         onClick={() => setEditorTab('public')}
-                                        style={{
-                                            border: 'none',
-                                            background: 'none',
-                                            fontSize: '0.8rem',
-                                            fontWeight: editorTab === 'public' ? 950 : 700,
-                                            color: editorTab === 'public' ? 'var(--accent)' : 'var(--muted-foreground)',
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '6px'
-                                        }}
+                                        className={`${styles.messageInputTab} ${editorTab === 'public' ? styles.messageInputTabActive : ''}`}
                                     >
                                         <MessageSquare size={14} />
                                         Public Reply
                                     </button>
                                     <button 
                                         onClick={() => setEditorTab('note')}
-                                        style={{
-                                            border: 'none',
-                                            background: 'none',
-                                            fontSize: '0.8rem',
-                                            fontWeight: editorTab === 'note' ? 950 : 700,
-                                            color: editorTab === 'note' ? '#F59E0B' : 'var(--muted-foreground)',
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '6px'
-                                        }}
+                                        className={`${styles.messageInputTab} ${editorTab === 'note' ? styles.messageInputTabActive : ''}`}
                                     >
                                         <AlertCircle size={14} />
                                         Internal Note
@@ -562,29 +473,26 @@ export default function SupportInboxPage() {
                                 </div>
 
                                 {/* Text input area */}
-                                <div style={{ border: '1px solid var(--border)', borderRadius: '16px', padding: '12px', background: editorTab === 'note' ? '#FFFBEB' : 'var(--muted)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                <div style={{ 
+                                    border: '1px solid #E2E8F0', 
+                                    borderRadius: '16px', 
+                                    padding: '12px', 
+                                    background: editorTab === 'note' ? '#FFFBEB' : '#F8FAFC', 
+                                    display: 'flex', 
+                                    flexDirection: 'column', 
+                                    gap: '12px' 
+                                }}>
                                     <textarea
                                         placeholder={editorTab === 'note' ? "Internal notes are only visible to operators..." : "Type your reply to the client..."}
                                         value={input}
                                         onChange={(e) => setInput(e.target.value)}
                                         disabled={isSending || selectedTicket.status === 'closed'}
-                                        style={{
-                                            width: '100%',
-                                            height: '70px',
-                                            background: 'none',
-                                            border: 'none',
-                                            outline: 'none',
-                                            resize: 'none',
-                                            fontSize: '0.85rem',
-                                            fontFamily: 'inherit',
-                                            fontWeight: 700,
-                                            color: 'var(--foreground)'
-                                        }}
+                                        className={styles.messageInput}
                                     />
 
                                     {/* Formatting toolbar footer */}
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <div style={{ display: 'flex', gap: '8px', color: 'var(--muted-foreground)' }}>
+                                        <div style={{ display: 'flex', gap: '8px', color: '#94A3B8' }}>
                                             <button style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '4px', color: 'inherit' }}><Paperclip size={14} /></button>
                                             <button style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '4px', color: 'inherit' }}><Smile size={14} /></button>
                                             <button style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '4px', color: 'inherit' }}><Bold size={14} /></button>
@@ -596,21 +504,7 @@ export default function SupportInboxPage() {
                                             <button
                                                 onClick={handleSendMessage}
                                                 disabled={isSending || !input.trim() || selectedTicket.status === 'closed'}
-                                                style={{
-                                                    height: '36px',
-                                                    padding: '0 16px',
-                                                    borderRadius: '10px',
-                                                    border: 'none',
-                                                    background: editorTab === 'note' ? '#F59E0B' : 'var(--accent)',
-                                                    color: '#FFFFFF',
-                                                    fontSize: '0.8rem',
-                                                    fontWeight: 950,
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '8px',
-                                                    cursor: 'pointer',
-                                                    opacity: (!input.trim() || isSending) ? 0.6 : 1
-                                                }}
+                                                className={styles.sendMessageButton}
                                             >
                                                 Send Reply
                                             </button>
@@ -620,42 +514,42 @@ export default function SupportInboxPage() {
                             </div>
                         </>
                     ) : (
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--muted-foreground)', padding: '48px' }}>
-                            <MessageSquare size={48} style={{ marginBottom: '16px', opacity: 0.3 }} />
-                            <h3 style={{ fontWeight: 950, color: 'var(--foreground)', marginBottom: '4px' }}>No ticket selected</h3>
-                            <span style={{ fontSize: '0.85rem', fontWeight: 800 }}>Please select a ticket from the left panel to load the thread.</span>
+                        <div className={styles.emptyState}>
+                            <MessageSquare size={48} className={styles.emptyStateIcon} />
+                            <h3 style={{ fontWeight: 950, color: '#0F172A', marginBottom: '4px' }}>No ticket selected</h3>
+                            <span className={styles.emptyStateText}>Please select a ticket from the left panel to load the thread.</span>
                         </div>
                     )}
                 </div>
 
                 {/* 3. RIGHT COLUMN: SOVEREIGN METADATA PANEL */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', overflowY: 'auto' }}>
+                <div className={styles.ticketInfo}>
                     {selectedTicket ? (
                         <>
                             {/* Panel 1: Ticket Info */}
-                            <div style={{ background: '#FFFFFF', border: '1px solid var(--border)', borderRadius: '20px', padding: '20px', boxShadow: 'var(--shadow-sm)' }}>
-                                <h4 style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--muted-foreground)', margin: '0 0 16px 0' }}>Ticket Info</h4>
+                            <div className={styles.infoSection}>
+                                <h4 className={styles.infoSectionTitle}>Ticket Info</h4>
                                 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                     {[
-                                        { label: 'Status', value: selectedTicket.status === 'closed' ? 'Closed' : 'Needs Action', color: selectedTicket.status === 'closed' ? 'var(--muted-foreground)' : 'var(--accent)' },
+                                        { label: 'Status', value: selectedTicket.status === 'closed' ? 'Closed' : 'Needs Action', color: selectedTicket.status === 'closed' ? '#94A3B8' : '#10B981' },
                                         { label: 'Priority', value: selectedTicket.priority, color: selectedTicket.priority === 'High' ? '#EF4444' : '#F59E0B' },
                                         { label: 'Category', value: 'Workflow Error' },
                                         { label: 'Created', value: new Date(selectedTicket.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) },
                                         { label: 'Assigned To', value: 'Markus Kaknens' }
                                     ].map((item, idx) => (
-                                        <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700 }}>
-                                            <span style={{ color: 'var(--muted-foreground)' }}>{item.label}</span>
-                                            <span style={{ color: item.color || 'var(--foreground)', fontWeight: 950 }}>{item.value}</span>
+                                        <div key={idx} className={styles.infoItem}>
+                                            <span className={styles.infoLabel}>{item.label}</span>
+                                            <span className={styles.infoValue} style={{ color: item.color || '#0F172A' }}>{item.value}</span>
                                         </div>
                                     ))}
 
-                                    <div style={{ borderTop: '1px solid var(--border)', marginTop: '8px', paddingTop: '12px' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 950, marginBottom: '6px' }}>
-                                            <span style={{ color: 'var(--muted-foreground)' }}>SLA Guarantee</span>
+                                    <div style={{ borderTop: '1px solid #E2E8F0', marginTop: '8px', paddingTop: '12px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 900, marginBottom: '6px' }}>
+                                            <span style={{ color: '#94A3B8' }}>SLA Guarantee</span>
                                             <span style={{ color: '#10B981' }}>Response in 58m</span>
                                         </div>
-                                        <div style={{ width: '100%', height: '6px', background: 'var(--muted)', borderRadius: '100px', overflow: 'hidden' }}>
+                                        <div style={{ width: '100%', height: '6px', background: '#F1F5F9', borderRadius: '100px', overflow: 'hidden' }}>
                                             <div style={{ width: '75%', height: '100%', background: '#10B981', borderRadius: '100px' }} />
                                         </div>
                                     </div>
@@ -663,8 +557,8 @@ export default function SupportInboxPage() {
                             </div>
 
                             {/* Panel 2: Client & Environment */}
-                            <div style={{ background: '#FFFFFF', border: '1px solid var(--border)', borderRadius: '20px', padding: '20px', boxShadow: 'var(--shadow-sm)' }}>
-                                <h4 style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--muted-foreground)', margin: '0 0 16px 0' }}>Client & Environment</h4>
+                            <div className={styles.infoSection}>
+                                <h4 className={styles.infoSectionTitle}>Client & Environment</h4>
                                 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                     {[
@@ -673,32 +567,32 @@ export default function SupportInboxPage() {
                                         { label: 'Cluster / Node', value: 'NODE-03' },
                                         { label: 'Region', value: 'AWS Europe (Frankfurt)' }
                                     ].map((item, idx) => (
-                                        <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700 }}>
-                                            <span style={{ color: 'var(--muted-foreground)' }}>{item.label}</span>
-                                            <span style={{ color: 'var(--foreground)', fontWeight: 950 }}>{item.value}</span>
+                                        <div key={idx} className={styles.infoItem}>
+                                            <span className={styles.infoLabel}>{item.label}</span>
+                                            <span className={styles.infoValue}>{item.value}</span>
                                         </div>
                                     ))}
                                 </div>
                             </div>
 
                             {/* Panel 3: Quick Actions */}
-                            <div style={{ background: '#FFFFFF', border: '1px solid var(--border)', borderRadius: '20px', padding: '20px', boxShadow: 'var(--shadow-sm)' }}>
-                                <h4 style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--muted-foreground)', margin: '0 0 16px 0' }}>Quick Actions</h4>
+                            <div className={styles.infoSection}>
+                                <h4 className={styles.infoSectionTitle}>Quick Actions</h4>
                                 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                    <button style={{ height: '36px', width: '100%', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 950, color: 'var(--foreground)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                    <button style={{ height: '36px', width: '100%', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 900, color: '#0F172A', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                         <Play size={12} />
                                         Open in Workflow Viewer
                                     </button>
-                                    <button style={{ height: '36px', width: '100%', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 950, color: 'var(--foreground)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                    <button style={{ height: '36px', width: '100%', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 900, color: '#0F172A', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                         <FileText size={12} />
                                         View Run Logs
                                     </button>
-                                    <button style={{ height: '36px', width: '100%', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 950, color: 'var(--foreground)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                    <button style={{ height: '36px', width: '100%', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 900, color: '#0F172A', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                         <Phone size={12} />
                                         Contact Client
                                     </button>
-                                    <button style={{ height: '36px', width: '100%', background: 'none', border: '1px dashed rgba(239,68,68,0.3)', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 950, color: '#EF4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                    <button style={{ height: '36px', width: '100%', background: 'none', border: '1px dashed rgba(239,68,68,0.3)', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 900, color: '#EF4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                         <AlertTriangle size={12} />
                                         Escalate Ticket
                                     </button>
@@ -706,9 +600,9 @@ export default function SupportInboxPage() {
                             </div>
                         </>
                     ) : (
-                        <div style={{ background: '#FFFFFF', border: '1px solid var(--border)', borderRadius: '20px', padding: '24px', textAlign: 'center', color: 'var(--muted-foreground)' }}>
-                            <Clock size={24} style={{ marginBottom: '8px', opacity: 0.3 }} />
-                            <div style={{ fontSize: '0.75rem', fontWeight: 800 }}>No environment logs loaded</div>
+                        <div className={styles.emptyState}>
+                            <Clock size={24} className={styles.emptyStateIcon} />
+                            <div className={styles.emptyStateText}>No environment logs loaded</div>
                         </div>
                     )}
                 </div>
