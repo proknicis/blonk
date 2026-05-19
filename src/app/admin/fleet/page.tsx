@@ -39,6 +39,7 @@ import {
 
 import { Skeleton } from "../../components/Skeleton";
 import ModalPortal from "@/app/components/ModalPortal";
+import { Sparkline } from "./Sparkline";
 import adminStyles from "../admin.module.css";
 
 export default function FleetHealthMonitoringPage() {
