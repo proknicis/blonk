@@ -30,12 +30,19 @@ export async function GET(request: Request) {
         const rows = await db.query(query, params);
         
         // Add computed fields
-        const templates = rows.map((t: any) => ({
-            ...t,
-            price: parseFloat(t.price || 0),
-            purchases: t.purchases || 0,
-            revenue: t.revenue || 0
-        }));
+        const templates = rows.map((t: any) => {
+            // Price can be in either direct price field or productInfo.price
+            const directPrice = parseFloat(t.price || 0);
+            const productInfoPrice = t.productInfo ? parseFloat(t.productInfo.price || 0) : 0;
+            const finalPrice = productInfoPrice > 0 ? productInfoPrice : directPrice;
+            
+            return {
+                ...t,
+                price: finalPrice,
+                purchases: t.purchases || 0,
+                revenue: t.revenue || 0
+            };
+        });
 
         return NextResponse.json(templates || []);
     } catch (error) {

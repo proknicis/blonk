@@ -82,10 +82,13 @@ export default function WorkflowsPage() {
     };
 
     const handleAddClick = (template: any) => {
-        const price = parseFloat(template.price || 0);
+        // Price can be in either direct price field or productInfo.price
+        const directPrice = parseFloat(template.price || 0);
+        const productInfoPrice = template.productInfo ? parseFloat(template.productInfo.price || 0) : 0;
+        const finalPrice = productInfoPrice > 0 ? productInfoPrice : directPrice;
         
         // If template has a price, redirect to marketplace for payment
-        if (price > 0) {
+        if (finalPrice > 0) {
             window.location.href = '/dashboard/marketplace';
             return;
         }
@@ -259,8 +262,13 @@ export default function WorkflowsPage() {
                                         <span className={styles.statLabel}>Installs</span>
                                     </div>
                                     <div className={styles.statItem} style={{ textAlign: 'right' }}>
-                                        <span className={styles.statValue} style={{ color: parseFloat(wf.price || 0) > 0 ? '#10B981' : '#0F172A' }}>
-                                            {parseFloat(wf.price || 0) > 0 ? `€${parseFloat(wf.price).toFixed(2)}` : 'Free'}
+                                        <span className={styles.statValue} style={{ color: (parseFloat(wf.price || 0) > 0 || (wf.productInfo && parseFloat(wf.productInfo.price || 0) > 0)) ? '#10B981' : '#0F172A' }}>
+                                            {(() => {
+                                                const directPrice = parseFloat(wf.price || 0);
+                                                const productInfoPrice = wf.productInfo ? parseFloat(wf.productInfo.price || 0) : 0;
+                                                const finalPrice = productInfoPrice > 0 ? productInfoPrice : directPrice;
+                                                return finalPrice > 0 ? `€${finalPrice.toFixed(2)}` : 'Free';
+                                            })()}
                                         </span>
                                         <span className={styles.statLabel}>Price</span>
                                     </div>
