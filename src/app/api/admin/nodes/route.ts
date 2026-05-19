@@ -121,25 +121,35 @@ export async function GET(request: Request) {
         const { searchParams } = new URL(request.url);
         const forceProbe = searchParams.get('probe') === 'true';
         
+        console.log(`[Fleet API] GET request received. ForceProbe: ${forceProbe}`);
+
         // Fetch base node data with workflow counts and corresponding tenant mapping from the Sovereign Ledger
-        const nodes = await db.query(`
-            SELECT n.*, 
-                   t.name as tenant_name,
-                   t."firmName" as tenant_firm_name,
-                   (SELECT COUNT(*) FROM "Workflow" w WHERE w."serverId" = n.id) as workflow_count
-            FROM "ClusterNode" n
-            LEFT JOIN "Team" t ON n."teamId" = t.id
-            ORDER BY n."createdAt" DESC
-        `) as any[];
+        let nodes: any[] = [];
+        try {
+            nodes = await db.query(`
+                SELECT n.*, 
+                       t.name as tenant_name,
+                       t."firmName" as tenant_firm_name,
+                       (SELECT COUNT(*) FROM "Workflow" w WHERE w."serverId" = n.id) as workflow_count
+                FROM "ClusterNode" n
+                LEFT JOIN "Team" t ON n."teamId" = t.id
+                ORDER BY n."createdAt" DESC
+            `) as any[];
+            console.log(`[Fleet API] Found ${nodes.length} nodes in database.`);
+        } catch (dbError: any) {
+            console.error("[Fleet API] Database query failed:", dbError);
+            throw new Error(`Database query failed: ${dbError.message}`);
+        }
         
         // If we don't need a probe or have a fresh cache, return immediately
         const now = Date.now();
         if (!forceProbe && (now - lastProbe < CACHE_TTL) && nodeCache.length > 0) {
+            console.log("[Fleet API] Returning cached node data.");
             const merged = nodes.map(n => {
                 const cached = nodeCache.find(c => c.id === n.id);
                 return { 
                     ...(cached || n), 
-                    workflow_count: n.workflow_count,
+                    workflow_count: parseInt(String(n.workflow_count || 0)),
                     max_workflows: n.max_workflows || 100 
                 };
             });
@@ -148,14 +158,16 @@ export async function GET(request: Request) {
 
         // If forceProbe is true, we WAIT for it (Institutional requirement for Fleet page)
         if (forceProbe) {
+            console.log(`[Fleet API] Starting force probe for ${nodes.length} nodes...`);
             const probedNodes = await Promise.all(nodes.map(node => 
                 probeNode(node).catch(err => {
-                    console.error(`[Fleet] Failed to probe ${node.name}:`, err);
+                    console.error(`[Fleet API] Failed to probe ${node.name || 'Unknown Node'}:`, err);
                     return { ...node, status: 'Error', cpu: 0, ram: 0, queue: 0, uptime: 'OFFLINE', telemetry: Array(12).fill(0) };
                 })
             ));
             nodeCache = probedNodes;
             lastProbe = now;
+            console.log("[Fleet API] Probe complete. Returning results.");
             return NextResponse.json(probedNodes.map(p => {
                 const baseNode = nodes.find(n => n.id === p.id);
                 return {
@@ -168,16 +180,19 @@ export async function GET(request: Request) {
 
         // If cache is stale but not forcing, return DB immediately and trigger background probe
         if (now - lastProbe >= CACHE_TTL) {
+            console.log("[Fleet API] Cache stale. Triggering background probe.");
             // Trigger background probe (non-blocking)
             Promise.all(nodes.map(node => probeNode(node).catch(() => null))).then(probed => {
                 const validProbes = probed.filter(p => p !== null);
                 if (validProbes.length > 0) {
                     nodeCache = validProbes;
                     lastProbe = Date.now();
+                    console.log(`[Fleet API] Background probe complete. Cached ${validProbes.length} results.`);
                 }
             });
         }
 
+        console.log("[Fleet API] Returning current DB state while probe runs in background.");
         return NextResponse.json(nodes.map(n => {
             const cached = nodeCache.find(c => c.id === n.id);
             return { 
@@ -187,8 +202,12 @@ export async function GET(request: Request) {
             };
         }));
     } catch (error: any) {
-        console.error("[Fleet] Failed to fetch nodes:", error);
-        return NextResponse.json({ error: "Failed to fetch nodes", details: error.message || String(error) }, { status: 500 });
+        console.error("[Fleet API] CRITICAL ERROR:", error);
+        return NextResponse.json({ 
+            error: "Internal Server Error", 
+            details: error.message || String(error),
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        }, { status: 500 });
     }
 }
 
