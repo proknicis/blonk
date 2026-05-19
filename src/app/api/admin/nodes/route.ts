@@ -1,6 +1,21 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
+// Ensure proper database schema for customer-server relationships
+async function ensureSchema() {
+    await db.execute(`
+        ALTER TABLE "ClusterNode" 
+        ADD COLUMN IF NOT EXISTS "customerId" TEXT,
+        ADD COLUMN IF NOT EXISTS "customerName" TEXT,
+        ADD COLUMN IF NOT EXISTS "customerEmail" TEXT,
+        ADD COLUMN IF NOT EXISTS "instanceId" TEXT,
+        ADD COLUMN IF NOT EXISTS "provider" TEXT DEFAULT 'manual',
+        ADD COLUMN IF NOT EXISTS "region" TEXT,
+        ADD COLUMN IF NOT EXISTS "ipAddress" TEXT,
+        ADD COLUMN IF NOT EXISTS "sshKeyId" TEXT
+    `);
+}
+
 const fetchWithTimeout = async (url: string, options: any = {}, timeoutMs: number = 5000) => {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeoutMs);
@@ -118,21 +133,25 @@ const CACHE_TTL = 30000; // 30 seconds
 
 export async function GET(request: Request) {
     try {
+        await ensureSchema();
         const { searchParams } = new URL(request.url);
         const forceProbe = searchParams.get('probe') === 'true';
         
         console.log(`[Fleet API] GET request received. ForceProbe: ${forceProbe}`);
 
-        // Fetch base node data with workflow counts and corresponding tenant mapping from the Sovereign Ledger
+        // Fetch base node data with workflow counts and customer mapping
         let nodes: any[] = [];
         try {
             nodes = await db.query(`
                 SELECT n.*, 
                        t.name as tenant_name,
                        t."firmName" as tenant_firm_name,
+                       u.name as user_name,
+                       u.email as user_email,
                        (SELECT COUNT(*) FROM "Workflow" w WHERE w."serverId" = n.id) as workflow_count
                 FROM "ClusterNode" n
                 LEFT JOIN "Team" t ON n."teamId" = t.id
+                LEFT JOIN "User" u ON n."customerId" = u.id
                 ORDER BY n."createdAt" DESC
             `) as any[];
             console.log(`[Fleet API] Found ${nodes.length} nodes in database.`);
@@ -213,15 +232,31 @@ export async function GET(request: Request) {
 
 export async function POST(req: Request) {
     try {
-        const { name, url, api_key, max_workflows, teamId } = await req.json();
+        await ensureSchema();
+        const { name, url, api_key, max_workflows, teamId, customerId, customerName, customerEmail, provider, region, ipAddress } = await req.json();
         
         if (!name || !url || !api_key) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
+        // Validate 1:1 customer-server relationship
+        if (customerId) {
+            const existingCustomerNode = await db.query(
+                'SELECT * FROM "ClusterNode" WHERE "customerId" = $1',
+                [customerId]
+            ) as any[];
+            
+            if (existingCustomerNode.length > 0) {
+                return NextResponse.json({ 
+                    error: "Customer already has an assigned server",
+                    existingNode: existingCustomerNode[0]
+                }, { status: 400 });
+            }
+        }
+
         const res = await db.execute(
-            'INSERT INTO "ClusterNode" (name, url, api_key, status, max_workflows, "teamId") VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-            [name, url, api_key, 'Pending', max_workflows || 100, teamId || null]
+            'INSERT INTO "ClusterNode" (name, url, api_key, status, max_workflows, "teamId", "customerId", "customerName", "customerEmail", provider, region, "ipAddress") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *',
+            [name, url, api_key, 'Pending', max_workflows || 100, teamId || null, customerId || null, customerName || null, customerEmail || null, provider || 'manual', region || null, ipAddress || null]
         );
 
         return NextResponse.json(res.rows[0]);

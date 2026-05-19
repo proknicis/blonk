@@ -60,6 +60,12 @@ export default function FleetHealthMonitoringPage() {
     const [editData, setEditData] = useState({ name: "", url: "", apiKey: "", maxWorkflows: 100 });
     const [isUpdating, setIsUpdating] = useState(false);
 
+    // PROVISIONING STATE
+    const [showProvisionModal, setShowProvisionModal] = useState(false);
+    const [provisionData, setProvisionData] = useState({ customerId: "", customerName: "", customerEmail: "", instanceType: "", region: "EU-CENTRAL-1" });
+    const [isProvisioning, setIsProvisioning] = useState(false);
+    const [availableCustomers, setAvailableCustomers] = useState<any[]>([]);
+
     const fetchNodes = async (probe = false) => {
         setIsLoading(true);
         try {
@@ -77,7 +83,26 @@ export default function FleetHealthMonitoringPage() {
 
     useEffect(() => {
         fetchNodes(true); // Probe on initial load
+        
+        // Fetch available customers for provisioning
+        fetchAvailableCustomers();
     }, []);
+
+    const fetchAvailableCustomers = async () => {
+        try {
+            const res = await fetch('/api/admin/users');
+            if (res.ok) {
+                const users = await res.json();
+                // Filter users who don't already have a server assigned
+                const unassignedUsers = users.filter((user: any) => {
+                    return !nodes.some(node => node.customerId === user.id);
+                });
+                setAvailableCustomers(unassignedUsers);
+            }
+        } catch (e) {
+            console.error("Failed to fetch customers:", e);
+        }
+    };
 
     // ACTION HANDLERS
     const openTerminal = (node: any) => {
@@ -154,12 +179,40 @@ export default function FleetHealthMonitoringPage() {
             if (res.ok) {
                 (window as any).showToast(`Successfully decommissioned node "${name}".`, "success");
                 fetchNodes(true);
+                fetchAvailableCustomers();
             } else {
                 (window as any).showToast("Failed to decommission node.", "error");
             }
         } catch (error) { 
             console.error(error); 
             (window as any).showToast("Error decommissioning node.", "error");
+        }
+    };
+
+    const handleProvisionServer = async () => {
+        setIsProvisioning(true);
+        try {
+            const res = await fetch('/api/admin/contabo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(provisionData)
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                (window as any).showToast(`Server provisioning initiated for ${provisionData.customerName}`, "success");
+                setShowProvisionModal(false);
+                fetchNodes(true);
+                fetchAvailableCustomers();
+            } else {
+                const err = await res.json();
+                (window as any).showToast(`Provisioning failed: ${err.error}`, "error");
+            }
+        } catch (error) {
+            console.error("Provisioning error:", error);
+            (window as any).showToast("Error provisioning server", "error");
+        } finally {
+            setIsProvisioning(false);
         }
     };
 
@@ -251,13 +304,100 @@ export default function FleetHealthMonitoringPage() {
                         <div style={{ fontSize: '1.5rem', fontWeight: 950, color: '#FFFFFF' }}>{packetLoss}</div>
                     </div>
                     <button 
-                        onClick={() => router.push("/admin")}
+                        onClick={() => setShowProvisionModal(true)}
                         style={{ background: '#10B981', color: '#0F172A', height: '56px', padding: '0 28px', borderRadius: '16px', border: 'none', fontWeight: 950, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 10px 20px rgba(16, 185, 129, 0.2)' }}
                     >
-                        <Plus size={18} /> Provision New Node
+                        <Plus size={18} /> Provision New Server
                     </button>
                 </div>
             </div>
+
+            {/* PROVISIONING MODAL */}
+            {showProvisionModal && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                    <div style={{ background: '#FFFFFF', borderRadius: '24px', padding: '40px', maxWidth: '500px', width: '90%', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                            <h2 style={{ fontSize: '1.25rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>Provision New Server</h2>
+                            <button 
+                                onClick={() => setShowProvisionModal(false)}
+                                style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#F8FAFC', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '8px' }}>Customer</label>
+                                <select 
+                                    value={provisionData.customerId}
+                                    onChange={(e) => {
+                                        const customer = availableCustomers.find(c => c.id === e.target.value);
+                                        setProvisionData({
+                                            ...provisionData,
+                                            customerId: e.target.value,
+                                            customerName: customer?.name || '',
+                                            customerEmail: customer?.email || ''
+                                        });
+                                    }}
+                                    style={{ width: '100%', height: '52px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 20px', fontSize: '0.95rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                >
+                                    <option value="">Select customer...</option>
+                                    {availableCustomers.map(customer => (
+                                        <option key={customer.id} value={customer.id}>{customer.name} ({customer.email})</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '8px' }}>Instance Type</label>
+                                <select 
+                                    value={provisionData.instanceType}
+                                    onChange={(e) => setProvisionData({ ...provisionData, instanceType: e.target.value })}
+                                    style={{ width: '100%', height: '52px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 20px', fontSize: '0.95rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                >
+                                    <option value="">Select instance type...</option>
+                                    <option value="VPS-1">VPS-1 (2 vCPU, 4GB RAM)</option>
+                                    <option value="VPS-2">VPS-2 (4 vCPU, 8GB RAM)</option>
+                                    <option value="VPS-3">VPS-3 (8 vCPU, 16GB RAM)</option>
+                                    <option value="VPS-4">VPS-4 (16 vCPU, 32GB RAM)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '8px' }}>Region</label>
+                                <select 
+                                    value={provisionData.region}
+                                    onChange={(e) => setProvisionData({ ...provisionData, region: e.target.value })}
+                                    style={{ width: '100%', height: '52px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 20px', fontSize: '0.95rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                >
+                                    <option value="EU-CENTRAL-1">Frankfurt, Germany</option>
+                                    <option value="EU-WEST-1">Rotterdam, Netherlands</option>
+                                    <option value="US-EAST-1">New York, USA</option>
+                                    <option value="US-WEST-1">Los Angeles, USA</option>
+                                    <option value="ASIA-EAST-1">Singapore</option>
+                                </select>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                                <button 
+                                    onClick={handleProvisionServer}
+                                    disabled={isProvisioning || !provisionData.customerId || !provisionData.instanceType}
+                                    style={{ flex: 1, height: '52px', background: '#0F172A', color: '#FFFFFF', border: 'none', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: isProvisioning || !provisionData.customerId || !provisionData.instanceType ? 'not-allowed' : 'pointer', opacity: isProvisioning || !provisionData.customerId || !provisionData.instanceType ? 0.6 : 1 }}
+                                >
+                                    {isProvisioning ? 'Provisioning...' : 'Provision Server'}
+                                </button>
+                                <button 
+                                    onClick={() => setShowProvisionModal(false)}
+                                    style={{ flex: 1, height: '52px', background: 'transparent', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: 'pointer' }}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* SIX METRICS CARDS */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '20px' }}>
@@ -331,6 +471,7 @@ export default function FleetHealthMonitoringPage() {
                                 <thead>
                                     <tr>
                                         <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Node ID</th>
+                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Customer</th>
                                         <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Tenant / Name</th>
                                         <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Region</th>
                                         <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Status</th>
@@ -358,6 +499,16 @@ export default function FleetHealthMonitoringPage() {
                                                             <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 800 }}>{node.status === 'Active' ? '1m ago' : 'N/A'}</div>
                                                         </div>
                                                     </div>
+                                                </td>
+                                                <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 950, color: '#0F172A' }}>
+                                                    {node.customerName ? (
+                                                        <div>
+                                                            <div style={{ fontWeight: 950 }}>{node.customerName}</div>
+                                                            <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 700 }}>{node.customerEmail}</div>
+                                                        </div>
+                                                    ) : (
+                                                        <span style={{ color: '#94A3B8', fontWeight: 700, fontStyle: 'italic' }}>Unassigned</span>
+                                                    )}
                                                 </td>
                                                 <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 950, color: '#0F172A' }}>
                                                     {node.name}
