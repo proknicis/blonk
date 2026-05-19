@@ -38,7 +38,7 @@ import {
 } from "lucide-react";
 
 import { Skeleton } from "../../components/Skeleton";
-import { ModalPortal } from "../../components/ModalPortal";
+import ModalPortal from "@/app/components/ModalPortal";
 import adminStyles from "../admin.module.css";
 
 export default function FleetHealthMonitoringPage() {
