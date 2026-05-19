@@ -36,12 +36,12 @@ export default async function IncidentCommandPage() {
         const dateStr = created.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
         return {
-            id: log.id.substring(0, 8),
+            id: log.id,
             firm: log.firmName || 'System Archive',
             description: log.errorMessage || `Unknown failure in ${log.workflowName}`,
             severity: 'High' as 'High' | 'Medium' | 'Low',
             timestamp: dateStr,
-            status: 'Active' as 'Active' | 'Investigating' | 'Resolved',
+            status: log.status === 'resolved' ? 'Resolved' : 'Active',
             debugUrl: log.serverUrl && log.n8nWorkflowId ? `${log.serverUrl.replace(/\/+$/, '')}/workflow/${log.n8nWorkflowId}` : log.serverUrl,
             workflowName: log.workflowName || 'Orphaned Execution',
             serverName: log.serverName || 'Unknown Node'

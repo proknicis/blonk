@@ -40,7 +40,21 @@ async function migrate() {
             ADD COLUMN IF NOT EXISTS "status" VARCHAR(50) DEFAULT 'Active';
         `);
 
-        // 4. Ensure Team table exists (Minimal check)
+        // 4. Ensure WorkflowLog table is hardened
+        console.log('Harden [WorkflowLog] table...');
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS "WorkflowLog" (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                "workflowName" VARCHAR(255),
+                "workflowId" UUID,
+                status VARCHAR(50),
+                result JSONB DEFAULT '{}',
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            ALTER TABLE "WorkflowLog" ADD COLUMN IF NOT EXISTS "teamId" UUID;
+        `);
+
+        // 5. Ensure Team table exists (Minimal check)
         console.log('Verify [Team] table...');
         await client.query(`
             CREATE TABLE IF NOT EXISTS "Team" (

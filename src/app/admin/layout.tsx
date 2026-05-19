@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useState, useRef, useEffect } from "react";
-import { Users, Zap, Shield, Search, Bell, LogOut, ExternalLink, MessageSquare, BarChart3, Activity, LayoutGrid, CheckCircle, AlertCircle, AlertTriangle, Info, X } from "lucide-react";
+import { Users, Zap, Shield, Search, Bell, LogOut, ExternalLink, MessageSquare, BarChart3, Activity, LayoutGrid, CheckCircle, AlertCircle, AlertTriangle, Info, X, Settings } from "lucide-react";
 import adminStyles from "./admin.module.css";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -55,7 +55,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         email: "admin@blonk.ai",
     });
 
-    const isSuperAdmin = user.role === "SuperAdmin";
+    const isSuperAdmin = user.role.toUpperCase() === "SUPERADMIN" || user.role.toUpperCase() === "SUPER ADMIN" || user.role.toUpperCase() === "ROOT";
 
     // Validate admin_token on every admin route (except /admin/login itself)
     useEffect(() => {
@@ -75,9 +75,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 }
                 const data = await res.json();
                 if (data.user) {
+                    const role = data.user.role || "SuperAdmin";
                     setUser({
                         name: data.user.name || "Admin Operator",
-                        role: data.user.role || "SUPER ADMIN",
+                        role: role,
                         email: data.user.email || "admin@blonk.ai",
                     });
                 }
@@ -222,19 +223,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                     </Link>
                                 </li>
                                 <li>
-                                    <a href="#" onClick={(e) => { e.preventDefault(); (window as any).showToast("Access & Roles configurations are managed by root admin policy.", "warning"); }} className={adminStyles.navLink}>
+                                    <Link href="/admin/access" className={`${adminStyles.navLink} ${pathname === "/admin/access" ? adminStyles.navLinkActive : ""}`}>
                                         <Shield size={20} /> Access & Roles
-                                    </a>
+                                    </Link>
                                 </li>
                                 <li>
-                                    <a href="#" onClick={(e) => { e.preventDefault(); (window as any).showToast("System Settings are locked by governance keys.", "error"); }} className={adminStyles.navLink}>
-                                        <MessageSquare size={20} /> Settings
-                                    </a>
+                                    <Link href="/admin/settings" className={`${adminStyles.navLink} ${pathname === "/admin/settings" ? adminStyles.navLinkActive : ""}`}>
+                                        <Settings size={20} /> Settings
+                                    </Link>
                                 </li>
                                 <li>
-                                    <a href="#" onClick={(e) => { e.preventDefault(); (window as any).showToast("System Integrations are nominal and running on manadavana.lv server.", "success"); }} className={adminStyles.navLink}>
+                                    <Link href="/admin/integrations" className={`${adminStyles.navLink} ${pathname === "/admin/integrations" ? adminStyles.navLinkActive : ""}`}>
                                         <ExternalLink size={20} /> Integrations
-                                    </a>
+                                    </Link>
                                 </li>
                                 <li>
                                     <Link href="/dashboard" className={adminStyles.navLink}>

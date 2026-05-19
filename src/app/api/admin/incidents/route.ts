@@ -56,20 +56,40 @@ export async function GET() {
 
 export async function POST(req: Request) {
     try {
-        const { id, action } = await req.json();
+        const body = await req.json();
+        const { id, action } = body;
         
+        console.log(`[INCIDENT_UPDATE] Action: ${action}, ID: ${id}`);
+
         if (action === 'RESOLVE') {
-            await db.execute('UPDATE "WorkflowLog" SET status = \'resolved\' WHERE id = $1', [id]);
+            if (!id) return NextResponse.json({ error: "Missing incident ID" }, { status: 400 });
+
+            // Ensure the ID is a valid UUID to prevent PostgreSQL from crashing on cast failure
+            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+            if (!uuidRegex.test(id)) {
+                return NextResponse.json({ error: "Invalid Incident ID format (Expected UUID)" }, { status: 400 });
+            }
+
+            // PostgreSQL IDs can be UUIDs or Strings. We use $1 to be safe.
+            const result = await db.execute('UPDATE "WorkflowLog" SET status = \'resolved\' WHERE id = $1', [id]);
             
-            // Log the resolution
-            // We might not have the user session here easily if this is a direct POST, 
-            // but for admin routes we usually do.
+            console.log(`[INCIDENT_UPDATE] Rows affected: ${result.rowCount}`);
+
+            if (result.rowCount === 0) {
+                console.warn(`[INCIDENT_UPDATE] No record found with ID: ${id}`);
+                return NextResponse.json({ error: "Incident record not found in database" }, { status: 404 });
+            }
+
             return NextResponse.json({ success: true });
         }
         
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
-    } catch (error) {
+    } catch (error: any) {
         console.error("Incidents Update Error:", error);
-        return NextResponse.json({ error: "Update failed" }, { status: 500 });
+        return NextResponse.json({ 
+            error: "Update failed", 
+            details: error.message,
+            hint: "Check if WorkflowLog table exists and has a 'status' column" 
+        }, { status: 500 });
     }
 }

@@ -45,7 +45,8 @@ export default function AuditVaultPage() {
                 if (res.ok) {
                     const data = await res.json();
                     setCurrentUser(data.user);
-                    if (data.user.role !== "SuperAdmin") {
+                    const role = (data.user.role || "").toUpperCase();
+                    if (role !== "SUPERADMIN" && role !== "SUPER ADMIN" && role !== "ROOT") {
                         router.replace("/admin");
                     }
                 } else {
