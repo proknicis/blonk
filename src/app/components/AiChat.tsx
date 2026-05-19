@@ -127,6 +127,16 @@ export default function AiChat() {
         setInput("");
         setIsLoading(true);
 
+        // Auto-escalate if user asks to connect with admin/support
+        const escalatePhrases = ["connect me with admin", "connect with support", "talk to admin", "talk to support", "human support", "real person", "support team"];
+        const shouldEscalate = escalatePhrases.some(phrase => text.toLowerCase().includes(phrase));
+
+        if (shouldEscalate && !isEscalated) {
+            await handleEscalate();
+            setIsLoading(false);
+            return;
+        }
+
         if (isEscalated && ticketId) {
             try {
                 const res = await fetch("/api/support", {
