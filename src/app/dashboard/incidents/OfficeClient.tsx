@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from "react";
 import styles from "./office.module.css";
 import ModalPortal from "@/app/components/ModalPortal";
-import { X, Activity, BarChart3, Clock, AlertCircle, CheckCircle2, ChevronRight, Zap, Sparkles, Filter, MoreHorizontal, Settings, Pause, Play, AlertTriangle } from "lucide-react";
+import { X, Activity, ChevronRight, Zap, Filter, MoreHorizontal, Settings, Pause, Play, AlertTriangle, CheckCircle2, Clock, FileText } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface AppIcon {
     name: string;
@@ -35,6 +36,7 @@ interface FeedItem {
 }
 
 export default function OfficeClient({ initialWorkflows, initialFeed, userRole }: { initialWorkflows: Workflow[], initialFeed: FeedItem[], userRole: string }) {
+    const router = useRouter();
     const [workflows, setWorkflows] = useState(initialWorkflows);
     const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(null);
     const [workflowLogs, setWorkflowLogs] = useState<any[]>([]);
@@ -68,7 +70,7 @@ export default function OfficeClient({ initialWorkflows, initialFeed, userRole }
     };
 
     const updateWorkflowState = async (workflow: Workflow, action: 'start' | 'end') => {
-        const previous = workflows;
+        const previous = [...workflows];
         const nextStatus = action === 'start' ? 'running' : 'idle';
         setWorkflows(current => current.map(item => item.id === workflow.id ? {
             ...item,
@@ -102,106 +104,101 @@ export default function OfficeClient({ initialWorkflows, initialFeed, userRole }
     };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 24, paddingBottom: 60 }}>
+        <div className={styles.officeContainer}>
             {/* Header Area */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', gap: 12, background: '#fff', padding: 6, borderRadius: 100, border: '1px solid #E2E8F0' }}>
-                    <FilterButton active={filter === 'all'} onClick={() => setFilter('all')} icon={<div style={{ width: 14, height: 14, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}><div style={{background: filter==='all'?'#10B981':'#94A3B8', borderRadius: 2}}/><div style={{background: filter==='all'?'#10B981':'#94A3B8', borderRadius: 2}}/><div style={{background: filter==='all'?'#10B981':'#94A3B8', borderRadius: 2}}/><div style={{background: filter==='all'?'#10B981':'#94A3B8', borderRadius: 2}}/></div>} label="All" />
-                    <FilterButton active={filter === 'running'} onClick={() => setFilter('running')} color="#10B981" label="Running" />
-                    <FilterButton active={filter === 'failed'} onClick={() => setFilter('failed')} color="#EF4444" label="Failed" />
-                    <FilterButton active={filter === 'needs_setup'} onClick={() => setFilter('needs_setup')} color="#F59E0B" label="Needs setup" />
+            <div className={styles.headerArea}>
+                <div className={styles.headerLeft}>
+                    <h1 className={styles.headerTitle}>Workflows</h1>
+                    <p className={styles.headerSubtitle}>Monitor and manage your automated workflows</p>
                 </div>
-                
-                <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748B', display: 'flex', gap: 8, alignItems: 'center' }}>
-                        Sort by <select style={{ border: 'none', background: 'transparent', fontWeight: 800, color: '#0F172A', outline: 'none' }}><option>Last run</option></select>
-                    </div>
-                    
-                    {/* Status Summary Strip */}
-                    <div style={{ display: 'flex', gap: 24, background: '#fff', padding: '10px 24px', borderRadius: 100, border: '1px solid #E2E8F0', borderLeft: '3px solid #EF4444' }}>
-                        <StatItem icon={<Play size={14} color="#10B981"/>} count={stats.running} label="RUNNING" />
-                        <StatItem icon={<X size={14} color="#EF4444"/>} count={stats.failed} label="FAILED" />
-                        <StatItem icon={<AlertCircle size={14} color="#F59E0B"/>} count={stats.needs_setup} label="NEEDS SETUP" />
-                        <StatItem count={stats.total} label="TOTAL" />
+                <div className={styles.headerRight}>
+                    <div className={styles.filterBar}>
+                        <FilterButton active={filter === 'all'} onClick={() => setFilter('all')} label="All" />
+                        <FilterButton active={filter === 'running'} onClick={() => setFilter('running')} color="#10B981" label="Running" />
+                        <FilterButton active={filter === 'failed'} onClick={() => setFilter('failed')} color="#EF4444" label="Failed" />
+                        <FilterButton active={filter === 'needs_setup'} onClick={() => setFilter('needs_setup')} color="#F59E0B" label="Needs Setup" />
                     </div>
                 </div>
             </div>
 
+            {/* Stats Strip */}
+            <div className={styles.statsStrip}>
+                <StatCard icon={<Play size={20} color="#10B981" />} iconBg="#ECFDF5" count={stats.running} label="Running" />
+                <StatCard icon={<AlertTriangle size={20} color="#EF4444" />} iconBg="#FEF2F2" count={stats.failed} label="Failed" />
+                <StatCard icon={<Settings size={20} color="#F59E0B" />} iconBg="#FFFBEB" count={stats.needs_setup} label="Needs Setup" />
+                <StatCard icon={<Activity size={20} color="#64748B" />} iconBg="#F1F5F9" count={stats.total} label="Total" />
+            </div>
+
             {/* Main Content */}
-            <div style={{ display: 'grid', gridTemplateColumns: '2.5fr 1fr', gap: '24px', alignItems: 'start' }}>
-                
+            <div className={styles.mainLayout}>
                 {/* Active Workflows Area */}
-                <div>
-                    <h3 style={{ fontSize: '0.75rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16 }}>Active Workflows</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                <div className={styles.workflowsArea}>
+                    <div className={styles.sectionHeader}>
+                        <h3 className={styles.sectionTitle}>Active Workflows</h3>
+                        <span className={styles.sectionCount}>{filteredWorkflows.length} workflows</span>
+                    </div>
+                    <div className={styles.workflowGrid}>
                         {filteredWorkflows.map(wf => (
-                            <div key={wf.id} style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2E8F0', padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                    <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                                        <div style={{ width: 44, height: 44, borderRadius: 12, background: wf.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: '1.2rem' }}>
-                                            {wf.initials}
-                                        </div>
-                                        <div>
-                                            <div style={{ fontSize: '1rem', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em', marginBottom: 2 }}>{wf.name}</div>
-                                            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748B' }}>{wf.role}</div>
-                                        </div>
+                            <div key={wf.id} className={styles.workflowCard}>
+                                <div className={styles.workflowHeader}>
+                                    <div className={styles.workflowAvatar} style={{ background: wf.color }}>
+                                        {wf.initials}
                                     </div>
-                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                                        <div style={{ padding: '4px 10px', borderRadius: 100, fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', ...getStatusStyle(wf.statusKey) }}>
-                                            {wf.status}
-                                        </div>
-                                        <button style={{ background: 'transparent', border: '1px solid #E2E8F0', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748B' }}>
-                                            <MoreHorizontal size={14} />
-                                        </button>
+                                    <div className={styles.workflowInfo}>
+                                        <div className={styles.workflowName}>{wf.name}</div>
+                                        <div className={styles.workflowRole}>{wf.role}</div>
+                                    </div>
+                                    <div className={`${styles.statusBadge} ${styles[wf.statusKey]}`}>
+                                        {wf.status}
                                     </div>
                                 </div>
                                 
-                                <p style={{ fontSize: '0.8rem', color: '#475569', margin: 0, lineHeight: 1.5 }}>
+                                <p className={styles.workflowDescription}>
                                     {wf.role === 'Analytics Workflow' ? "Generates daily reports and delivers to stakeholders via email." : 
                                      wf.role === 'Operations Workflow' ? "Monitors data systems and triggers alerts on anomalies or failures." : 
                                      wf.role === 'Finance Workflow' ? "Reconciles transactions and flags discrepancies for review." : "Syncs critical datasets between warehouse and downstream systems."}
                                 </p>
                                 
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', borderTop: '1px solid #F1F5F9', borderBottom: '1px solid #F1F5F9', padding: '16px 0', gap: 16 }}>
-                                    <div>
-                                        <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>Runs Today</div>
-                                        <div style={{ fontSize: '1rem', fontWeight: 900, color: '#0F172A' }}>{wf.runsToday}</div>
+                                <div className={styles.workflowMetrics}>
+                                    <div className={styles.metric}>
+                                        <div className={styles.metricLabel}>Runs Today</div>
+                                        <div className={styles.metricValue}>{wf.runsToday}</div>
                                     </div>
-                                    <div>
-                                        <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>Success Rate</div>
-                                        <div style={{ fontSize: '1rem', fontWeight: 900, color: wf.statusKey === 'failed' ? '#EF4444' : (wf.statusKey === 'needs_setup' ? '#0F172A' : '#10B981') }}>{wf.successRate}</div>
+                                    <div className={styles.metric}>
+                                        <div className={styles.metricLabel}>Success Rate</div>
+                                        <div className={styles.metricValue} style={{ color: wf.statusKey === 'failed' ? '#EF4444' : '#10B981' }}>{wf.successRate}</div>
                                     </div>
-                                    <div>
-                                        <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>Last Run</div>
-                                        <div style={{ fontSize: '1rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 6 }}>
-                                            {wf.statusKey === 'needs_setup' ? 'Never' : '5m ago'} 
-                                            {wf.statusKey !== 'needs_setup' && <div style={{width: 6, height: 6, borderRadius: '50%', background: wf.statusKey === 'failed' ? '#EF4444' : '#10B981'}}/>}
+                                    <div className={styles.metric}>
+                                        <div className={styles.metricLabel}>Last Run</div>
+                                        <div className={styles.metricValue}>
+                                            {wf.statusKey === 'needs_setup' ? 'Never' : '5m ago'}
+                                            {wf.statusKey !== 'needs_setup' && <div className={`${styles.statusDot} ${styles[wf.statusKey]}`} />}
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <div>
-                                    <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Connected Apps</div>
-                                    <div style={{ display: 'flex' }}>
+                                <div className={styles.connectedApps}>
+                                    <div className={styles.appsLabel}>Connected Apps</div>
+                                    <div className={styles.appsList}>
                                         {wf.apps.map((app, idx) => (
-                                            <div key={idx} style={{ width: 28, height: 28, borderRadius: '50%', background: app.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.6rem', fontWeight: 900, border: '2px solid #fff', zIndex: 10 - idx, marginLeft: idx > 0 ? -8 : 0 }}>
+                                            <div key={idx} className={styles.appIcon} style={{ background: app.color, marginLeft: idx > 0 ? '-8px' : '0' }}>
                                                 {app.name[0]}
                                             </div>
                                         ))}
-                                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', fontSize: '0.65rem', fontWeight: 800, border: '2px solid #fff', zIndex: 0, marginLeft: -8 }}>
+                                        <div className={styles.appIcon} style={{ background: '#F1F5F9', color: '#64748B', marginLeft: '-8px' }}>
                                             +{wf.runsToday % 3 + 1}
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
-                                    <button onClick={() => setSelectedWorkflow(wf)} style={{ flex: 1, padding: '10px', background: '#0F172A', color: '#fff', borderRadius: 8, fontSize: '0.75rem', fontWeight: 800, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                                <div className={styles.workflowActions}>
+                                    <button onClick={() => setSelectedWorkflow(wf)} className={styles.btnPrimary}>
                                         Open <ChevronRight size={14} />
                                     </button>
-                                    <button onClick={() => wf.statusKey === 'needs_setup' ? window.location.href = '/dashboard/registry' : updateWorkflowState(wf, wf.statusKey === 'running' ? 'end' : 'start')} style={{ flex: 1, padding: '10px', background: '#fff', color: '#475569', borderRadius: 8, fontSize: '0.75rem', fontWeight: 800, border: '1px solid #E2E8F0', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                                    <button onClick={() => wf.statusKey === 'needs_setup' ? router.push('/dashboard/registry') : updateWorkflowState(wf, wf.statusKey === 'running' ? 'end' : 'start')} className={styles.btnSecondary}>
                                         {wf.statusKey === 'needs_setup' ? <><Settings size={14} /> Setup</> : wf.statusKey === 'running' ? <><Pause size={14} /> Pause</> : <><Play size={14} /> Start</>}
                                     </button>
-                                    <button onClick={() => window.location.href = '/dashboard/registry'} style={{ flex: 1, padding: '10px', background: '#fff', color: '#475569', borderRadius: 8, fontSize: '0.75rem', fontWeight: 800, border: '1px solid #E2E8F0', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                                    <button onClick={() => router.push('/dashboard/registry')} className={styles.btnSecondary}>
                                         <Settings size={14} /> Settings
                                     </button>
                                 </div>
@@ -211,64 +208,104 @@ export default function OfficeClient({ initialWorkflows, initialFeed, userRole }
                 </div>
 
                 {/* Activity Feed Area */}
-                <div>
-                    <div style={{ background: '#fff', borderRadius: 24, border: '1px solid #E2E8F0', padding: 24 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.75rem', fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                <div className={styles.feedArea}>
+                    <div className={styles.feedCard}>
+                        <div className={styles.feedHeader}>
+                            <div className={styles.feedTitle}>
                                 <Activity size={16} /> Activity Feed
                             </div>
-                            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#10B981', cursor: 'pointer' }}>View all</span>
                         </div>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                        <div className={styles.feedList}>
                             {initialFeed.map((log, i) => (
-                                <div key={i} style={{ display: 'flex', gap: 16, alignItems: 'flex-start', paddingBottom: 20, borderBottom: i < initialFeed.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
-                                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: log.type === 'success' ? '#10B981' : (log.type === 'failed' ? '#EF4444' : '#F59E0B'), display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', flexShrink: 0 }}>
+                                <div key={i} className={styles.feedItem}>
+                                    <div className={`${styles.feedIcon} ${styles[log.type]}`}>
                                         {log.type === 'success' ? <CheckCircle2 size={16} /> : (log.type === 'failed' ? <X size={16} /> : <AlertTriangle size={16} />)}
                                     </div>
-                                    <div style={{ flex: 1 }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
-                                            <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A' }}>{log.msg}</div>
-                                            <div style={{ fontSize: '0.7rem', fontWeight: 600, color: '#94A3B8' }}>{log.time}</div>
+                                    <div className={styles.feedContent}>
+                                        <div className={styles.feedHeaderRow}>
+                                            <div className={styles.feedMessage}>{log.msg}</div>
+                                            <div className={styles.feedTime}>{log.time}</div>
                                         </div>
-                                        <div style={{ fontSize: '0.8rem', color: '#64748B', marginBottom: 4 }}>{log.stats}</div>
+                                        <div className={styles.feedStats}>{log.stats}</div>
                                     </div>
                                 </div>
                             ))}
                         </div>
+                        
+                        <div className={styles.feedFooter}>
+                            <span className={styles.viewAllLink}>View all activity <ChevronRight size={14} /></span>
+                        </div>
                     </div>
                 </div>
-                
             </div>
+
+            {/* Modal */}
+            {selectedWorkflow && (
+                <ModalPortal>
+                    <div className={styles.modalOverlay} onClick={() => setSelectedWorkflow(null)}>
+                        <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+                            <button className={styles.closeButton} onClick={() => setSelectedWorkflow(null)}>
+                                <X size={20} />
+                            </button>
+                            <div className={styles.modalHeader}>
+                                <div className={styles.modalTitle}>{selectedWorkflow.name}</div>
+                                <div className={styles.modalSubtitle}>Workflow execution logs and details</div>
+                            </div>
+                            <div className={styles.modalBody}>
+                                {isLoadingLogs ? (
+                                    <div className={styles.loadingState}>
+                                        <Clock size={32} color="#94A3B8" />
+                                        <p>Loading logs...</p>
+                                    </div>
+                                ) : workflowLogs.length > 0 ? (
+                                    <div className={styles.logsList}>
+                                        {workflowLogs.map((log, i) => (
+                                            <div key={i} className={styles.logItem}>
+                                                <div className={styles.logHeader}>
+                                                    <div className={styles.logTime}>{new Date(log.createdAt).toLocaleString()}</div>
+                                                </div>
+                                                <div className={styles.logMsg}>{log.result?.message || log.status}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className={styles.emptyLogs}>
+                                        <FileText size={32} color="#94A3B8" />
+                                        <p>No logs available</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </ModalPortal>
+            )}
         </div>
     );
 }
 
-function FilterButton({ active, onClick, icon, color, label }: any) {
+function FilterButton({ active, onClick, color, label }: any) {
     return (
         <button 
             onClick={onClick}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 14px', borderRadius: 100, border: 'none', background: active ? '#ECFDF5' : 'transparent', color: active ? '#10B981' : '#64748B', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer', transition: 'all 0.2s' }}
+            className={`${styles.filterButton} ${active ? styles.filterButtonActive : ''}`}
+            style={{ color: active ? (color || '#10B981') : '#64748B', background: active ? (color ? `${color}15` : '#ECFDF5') : 'transparent' }}
         >
-            {icon ? icon : <div style={{ width: 8, height: 8, borderRadius: '50%', background: color }} />}
             {label}
         </button>
     )
 }
 
-function StatItem({ icon, count, label }: any) {
+function StatCard({ icon, iconBg, count, label }: any) {
     return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {icon}
-            <span style={{ fontSize: '1rem', fontWeight: 900, color: '#0F172A' }}>{count}</span>
-            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</span>
+        <div className={styles.statCard}>
+            <div className={styles.statIcon} style={{ background: iconBg }}>
+                {icon}
+            </div>
+            <div className={styles.statInfo}>
+                <div className={styles.statCount}>{count}</div>
+                <div className={styles.statLabel}>{label}</div>
+            </div>
         </div>
     )
-}
-
-function getStatusStyle(statusKey: string) {
-    if (statusKey === 'running') return { color: '#10B981', background: '#ECFDF5' };
-    if (statusKey === 'failed') return { color: '#EF4444', background: '#FEF2F2' };
-    if (statusKey === 'needs_setup') return { color: '#F59E0B', background: '#FFFBEB' };
-    return { color: '#64748B', background: '#F1F5F9' };
 }

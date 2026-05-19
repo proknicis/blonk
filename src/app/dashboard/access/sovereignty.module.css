@@ -1,0 +1,476 @@
+/* 
+  BLONK | ACCESS PAGE
+  Aesthetic: Institutional Dashboard
+  Modern, clean, professional design
+*/
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding-bottom: 60px;
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* HEADER */
+.header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.headerTitle {
+    font-size: 2rem;
+    font-weight: 950;
+    color: #0F172A;
+    margin: 0;
+    letter-spacing: -0.04em;
+}
+
+.headerSubtitle {
+    font-size: 1rem;
+    color: #64748B;
+    font-weight: 500;
+    margin: 0;
+}
+
+/* METRICS ROW */
+.metricsRow {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 20px;
+}
+
+.metricCard {
+    background: #fff;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: all 0.3s ease;
+}
+
+.metricCard:hover {
+    border-color: #CBD5E1;
+    transform: translateY(-2px);
+}
+
+.metricIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.metricLabel {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #64748B;
+    margin-bottom: 4px;
+}
+
+.metricValue {
+    font-size: 1.6rem;
+    font-weight: 950;
+    color: #0F172A;
+}
+
+.metricSub {
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+.metricSubGreen {
+    color: #10B981;
+}
+
+/* MAIN GRID LAYOUT */
+.mainLayout {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+/* SECTION CARD */
+.sectionCard {
+    background: #fff;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sectionCardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.sectionCardTitle {
+    font-size: 1rem;
+    font-weight: 900;
+    margin: 0 0 4px 0;
+    color: #0F172A;
+}
+
+.sectionCardDesc {
+    font-size: 0.8rem;
+    color: #64748B;
+    font-weight: 500;
+    margin: 0;
+}
+
+.sectionCardAction {
+    background: transparent;
+    border: none;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #0F172A;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+}
+
+.sectionCardAction:hover {
+    color: #10B981;
+}
+
+/* TABLE */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th {
+    font-size: 0.65rem;
+    font-weight: 900;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 12px 0;
+    border-bottom: 1px solid #E2E8F0;
+    text-align: left;
+}
+
+.table td {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #475569;
+    padding: 14px 0;
+    border-bottom: 1px solid #F1F5F9;
+}
+
+.table td:last-child {
+    text-align: right;
+}
+
+.table tr:last-child td {
+    border-bottom: none;
+}
+
+.roleCell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.roleDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.permissionCell {
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+
+/* SETTINGS ROW */
+.settingsRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.settingsRowLeft {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.settingsRowIcon {
+    color: #94A3B8;
+    width: 20px;
+    height: 20px;
+}
+
+.settingsRowInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.settingsRowTitle {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #0F172A;
+}
+
+.settingsRowDesc {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #64748B;
+}
+
+.settingsRowRight {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.settingsRowStatus {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.settingsRowStatusValue {
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+
+.settingsRowStatusSub {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: #94A3B8;
+}
+
+.statusGreen {
+    color: #10B981;
+}
+
+/* FOOTER LINK */
+.footerLink {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #F1F5F9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.footerLinkText {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #0F172A;
+}
+
+.footerLink:hover .footerLinkText {
+    color: #10B981;
+}
+
+/* API KEY INPUT FORM */
+.addKeyForm {
+    background: #F8FAFC;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    border: 1px solid #E2E8F0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.addKeyInput {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    outline: none;
+    box-sizing: border-box;
+    font-weight: 600;
+}
+
+.addKeyInput:focus {
+    border-color: #0F172A;
+}
+
+.addKeyButtons {
+    display: flex;
+    gap: 8px;
+}
+
+.btnPrimary {
+    flex: 1;
+    padding: 10px;
+    background: #0F172A;
+    color: #fff;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btnPrimary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+}
+
+.btnSecondary {
+    flex: 1;
+    padding: 10px;
+    background: transparent;
+    color: #64748B;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    border: 1px solid #CBD5E1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btnSecondary:hover {
+    background: #F1F5F9;
+    color: #0F172A;
+}
+
+/* ALERTS SECTION */
+.alertsSection {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 8px;
+}
+
+.alertsHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.alertsTitle {
+    font-size: 1.1rem;
+    font-weight: 900;
+    margin: 0;
+    color: #0F172A;
+}
+
+.alertsSubtitle {
+    font-size: 0.85rem;
+    color: #64748B;
+    font-weight: 500;
+    margin: 0;
+}
+
+.alertsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.alertCard {
+    background: #fff;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.3s ease;
+}
+
+.alertCard:hover {
+    border-color: #CBD5E1;
+    transform: translateY(-2px);
+}
+
+.alertCardIcon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.alertCardContent {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.alertCardTitle {
+    font-size: 0.9rem;
+    font-weight: 900;
+    color: #0F172A;
+}
+
+.alertCardDesc {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #64748B;
+}
+
+.alertsFooter {
+    text-align: right;
+    margin-top: 4px;
+}
+
+.viewAllAlerts {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #0F172A;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.viewAllAlerts:hover {
+    color: #10B981;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+    .metricsRow {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .mainLayout {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .alertsGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .metricsRow {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .mainLayout {
+        grid-template-columns: 1fr;
+    }
+}

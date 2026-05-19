@@ -1,0 +1,547 @@
+/* 
+  BLONK | INTEGRATIONS PAGE
+  Aesthetic: Institutional Dashboard
+  Modern, clean, professional design
+*/
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding-bottom: 60px;
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* HEADER */
+.header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.headerTitle {
+    font-size: 2rem;
+    font-weight: 950;
+    color: #0F172A;
+    margin: 0;
+    letter-spacing: -0.04em;
+}
+
+.headerSubtitle {
+    font-size: 1rem;
+    color: #64748B;
+    font-weight: 500;
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* HEALTH STRIP */
+.healthStrip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.healthCard {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.3s ease;
+}
+
+.healthCard:hover {
+    border-color: #CBD5E1;
+    transform: translateY(-2px);
+}
+
+.healthIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.healthInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.healthCount {
+    font-size: 1.6rem;
+    font-weight: 950;
+    color: #0F172A;
+    letter-spacing: -0.04em;
+}
+
+.healthLabel {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748B;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* MAIN LAYOUT */
+.mainLayout {
+    display: grid;
+    grid-template-columns: 2.8fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+/* LEFT COLUMN */
+.leftColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.filterBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.filterGroup {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.filterPills {
+    display: flex;
+    gap: 4px;
+    background: #FFFFFF;
+    padding: 4px;
+    border-radius: 100px;
+    border: 1px solid #E2E8F0;
+}
+
+.filterPill {
+    padding: 8px 14px;
+    border-radius: 100px;
+    border: none;
+    background: transparent;
+    font-size: 0.75rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filterPillActive {
+    font-weight: 900;
+}
+
+.searchBox {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 100px;
+    width: 280px;
+}
+
+.searchBox input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    width: 100%;
+    color: #0F172A;
+}
+
+.searchBox input::placeholder {
+    color: #94A3B8;
+}
+
+.clearFilters {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #64748B;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.clearFilters:hover {
+    color: #0F172A;
+}
+
+/* TABLE */
+.tableContainer {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.connectionsTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.connectionsTable thead {
+    background: #F8FAFC;
+}
+
+.connectionsTable th {
+    padding: 16px 20px;
+    text-align: left;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.connectionsTable tbody tr {
+    border-bottom: 1px solid #F1F5F9;
+    transition: background 0.2s ease;
+}
+
+.connectionsTable tbody tr:hover {
+    background: #F8FAFC;
+}
+
+.connectionsTable tbody tr:last-child {
+    border-bottom: none;
+}
+
+.connectionsTable td {
+    padding: 20px;
+}
+
+.appCell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.appIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #3B82F6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
+    font-weight: 900;
+    font-size: 1.2rem;
+}
+
+.appInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.appName {
+    font-size: 0.9rem;
+    font-weight: 900;
+    color: #0F172A;
+}
+
+.appCategory {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748B;
+}
+
+.statusText {
+    font-size: 0.7rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.statusSub {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748B;
+}
+
+.workflowList {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.workflowTag {
+    font-size: 0.8rem;
+    color: #475569;
+    font-weight: 600;
+}
+
+.actionButton {
+    background: transparent;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #0F172A;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.actionButton:hover {
+    background: #F8FAFC;
+    border-color: #CBD5E1;
+}
+
+.tableFooter {
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #F1F5F9;
+}
+
+.showingText {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #64748B;
+}
+
+/* RIGHT COLUMN */
+.rightColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.attentionCard {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.attentionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.attentionTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    font-weight: 900;
+    color: #EF4444;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.attentionBadge {
+    background: #FEF2F2;
+    color: #EF4444;
+    font-weight: 900;
+    font-size: 0.75rem;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.attentionList {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.attentionItem {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #F1F5F9;
+}
+
+.attentionItem:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.attentionItemHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.attentionItemInfo {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.attentionItemIcon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
+    font-weight: 900;
+    font-size: 1rem;
+}
+
+.attentionItemName {
+    font-size: 0.9rem;
+    font-weight: 900;
+    color: #0F172A;
+}
+
+.attentionItemIssue {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748B;
+}
+
+.attentionItemTime {
+    font-size: 0.7rem;
+    color: #94A3B8;
+    font-weight: 600;
+}
+
+.configureButton {
+    width: 100%;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #0F172A;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.configureButton:hover {
+    background: #F8FAFC;
+}
+
+.viewAllButton {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+}
+
+.viewAllLink {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #EF4444;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* INFO CARDS */
+.infoCard {
+    background: #ECFDF5;
+    border-radius: 16px;
+    border: 1px solid #A7F3D0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.infoCardGray {
+    background: #F8FAFC;
+    border-radius: 16px;
+    border: 1px solid #E2E8F0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.infoCardHeader {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.infoCardTitle {
+    font-size: 0.8rem;
+    font-weight: 900;
+    color: #0F172A;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.infoCardText {
+    font-size: 0.8rem;
+    color: #475569;
+    margin: 0;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+.infoCardLink {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #10B981;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.infoCardLinkBlue {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #3B82F6;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+    .mainLayout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .healthStrip {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .filterBar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .searchBox {
+        width: 100%;
+    }
+}
