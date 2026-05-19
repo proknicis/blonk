@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { ShieldAlert, Terminal, MessageSquare, ExternalLink, Search, BellRing, Clock, RefreshCw, Server, Zap, CheckCircle2, ChevronDown } from "lucide-react";
+import { ShieldAlert, Terminal, MessageSquare, ExternalLink, Search, BellRing, Clock, RefreshCcw, Server, Zap, CheckCircle2, ChevronDown } from "lucide-react";
 import adminStyles from "../admin.module.css";
 
 interface Incident {
@@ -112,7 +112,7 @@ export default function IncidentFeed({ initialIncidents }: { initialIncidents: I
                                 className={adminStyles.refreshBtn}
                                 style={{ borderRadius: '16px' }}
                             >
-                                <RefreshCw size={18} className={isRefreshing ? adminStyles.spinning : ''} />
+                                <RefreshCcw size={18} className={isRefreshing ? adminStyles.spinning : ''} />
                             </button>
                         </div>
                     </div>

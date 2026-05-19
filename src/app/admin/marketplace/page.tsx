@@ -177,7 +177,7 @@ export default function MarketplaceManagementPage() {
     if (isCheckingRole || (currentUser && currentUser.role !== "SuperAdmin")) {
         return (
             <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <RefreshCw size={24} className={adminStyles.spinning} color="var(--accent)" />
+                <RefreshCcw size={24} className={adminStyles.spinning} color="var(--accent)" />
             </div>
         );
     }

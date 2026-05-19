@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { 
     Plus, Search, Trash2, Edit3, Shield, Mail, Lock, Check, X, 
-    ArrowUp, Download, Eye, ExternalLink, RefreshCw, Send, AlertTriangle,
+    ArrowUp, Download, Eye, ExternalLink, RefreshCcw, Send, AlertTriangle,
     Activity, EyeOff
 } from "lucide-react";
 import adminStyles from "../admin.module.css";
@@ -296,7 +296,7 @@ export default function UserDirectoryPage() {
     if (isCheckingRole || (currentUser && currentUser.role !== "SuperAdmin")) {
         return (
             <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <RefreshCw size={24} className={adminStyles.spinning} color="var(--accent)" />
+                <RefreshCcw size={24} className={adminStyles.spinning} color="var(--accent)" />
             </div>
         );
     }
@@ -422,7 +422,7 @@ export default function UserDirectoryPage() {
                     <div style={{ overflowX: 'auto' }}>
                         {isLoading ? (
                             <div style={{ padding: '48px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-                                <RefreshCw size={32} className={adminStyles.spinning} style={{ color: 'var(--accent)' }} />
+                                <RefreshCcw size={32} className={adminStyles.spinning} style={{ color: 'var(--accent)' }} />
                                 <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--muted-foreground)' }}>Synchronizing Database Registry...</span>
                             </div>
                         ) : (
@@ -874,7 +874,7 @@ export default function UserDirectoryPage() {
                                         onClick={generateSecurePassword}
                                         style={{ background: 'none', border: 'none', color: '#3B82F6', fontSize: '0.75rem', fontWeight: 950, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
                                     >
-                                        <RefreshCw size={12} /> Generate
+                                        <RefreshCcw size={12} /> Generate
                                     </button>
                                 </div>
                                 <div style={{ position: 'relative' }}>

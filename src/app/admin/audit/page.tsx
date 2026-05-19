@@ -16,8 +16,7 @@ import {
     ChevronDown,
     RefreshCcw,
     Database,
-    Fingerprint,
-    RefreshCw
+    Fingerprint
 } from "lucide-react";
 import styles from "../marketplace/marketplace.module.css";
 import adminStyles from "../admin.module.css";
@@ -93,7 +92,7 @@ export default function AuditVaultPage() {
     if (isCheckingRole || (currentUser && currentUser.role !== "SuperAdmin")) {
         return (
             <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <RefreshCw size={24} className={adminStyles.spinning} color="var(--accent)" />
+                <RefreshCcw size={24} className={adminStyles.spinning} color="var(--accent)" />
             </div>
         );
     }
