@@ -26,7 +26,7 @@ interface AttentionItem {
     color: string;
 }
 
-export default function ConnectionsClient({ initialConnections, needsAttention }: { initialConnections: Connection[], needsAttention: AttentionItem[] }) {
+export default function ConnectionsClient({ initialConnections, needsAttention, pendingWorkflows = [] }: { initialConnections: Connection[], needsAttention: AttentionItem[], pendingWorkflows?: string[] }) {
     const router = useRouter();
     const [filter, setFilter] = useState('All');
     const [search, setSearch] = useState("");
@@ -52,6 +52,11 @@ export default function ConnectionsClient({ initialConnections, needsAttention }
                 <p className={styles.headerSubtitle}>
                     Manage connected apps, credentials, and integration health.
                 </p>
+                {pendingWorkflows.length > 0 && (
+                    <div style={{ marginTop: 16, padding: '14px 18px', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 14, fontSize: '0.88rem', fontWeight: 700, color: '#92400E' }}>
+                        Connect apps below for: <strong>{pendingWorkflows.join(', ')}</strong>. Credentials are saved here and used when admin finishes setup.
+                    </div>
+                )}
             </div>
 
             {/* Health Summary Strip */}
@@ -147,7 +152,7 @@ export default function ConnectionsClient({ initialConnections, needsAttention }
                                         <td style={{ textAlign: 'right' }}>
                                             <button 
                                                 className={styles.actionButton}
-                                                onClick={() => router.push(conn.statusKey === 'connected' ? '/dashboard/access' : '/dashboard/registry')}
+                                                onClick={() => router.push('/dashboard/access')}
                                             >
                                                 {conn.action}
                                             </button>

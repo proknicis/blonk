@@ -258,6 +258,55 @@
     background: #F1F5F9;
 }
 
+.statusBadge.in_progress {
+    color: #3B82F6;
+    background: #EFF6FF;
+}
+
+.lifecycleTrack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 12px 0 4px;
+}
+
+.lifecyclePill {
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 4px 8px;
+    border-radius: 100px;
+    border: 1px solid #E2E8F0;
+    color: #94A3B8;
+    background: #F8FAFC;
+}
+
+.lifecyclePill.done {
+    color: #059669;
+    background: #ECFDF5;
+    border-color: #A7F3D0;
+}
+
+.lifecyclePill.current {
+    color: #1D4ED8;
+    background: #EFF6FF;
+    border-color: #BFDBFE;
+}
+
+.progressBar {
+    height: 6px;
+    background: #F1F5F9;
+    border-radius: 100px;
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.progressFill {
+    height: 100%;
+    background: linear-gradient(90deg, #3B82F6, #10B981);
+    border-radius: 100px;
+    transition: width 0.4s ease;
+}
+
 .workflowDescription {
     font-size: 0.85rem;
     color: #475569;

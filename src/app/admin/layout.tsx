@@ -183,6 +183,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                 </li>
                             )}
                             <li>
+                                <Link href="/admin/orders" className={`${adminStyles.navLink} ${pathname.startsWith("/admin/orders") ? adminStyles.navLinkActive : ""}`}>
+                                    <Zap size={20} /> Orders
+                                </Link>
+                            </li>
+                            <li>
                                 <Link href="/admin/fleet" className={`${adminStyles.navLink} ${pathname === "/admin/fleet" ? adminStyles.navLinkActive : ""}`}>
                                     <Activity size={20} /> Health Monitoring
                                 </Link>

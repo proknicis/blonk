@@ -122,7 +122,7 @@ export default function DashboardLayout({
         if (path === '/dashboard') return 'Fleet Overview';
         if (path === '/dashboard/incidents') return 'My Workflows';
         if (path === '/dashboard/operators') return 'Strategic Personnel';
-        if (path === '/dashboard/registry') return 'Marketplace';
+        if (path === '/dashboard/registry' || path === '/dashboard/marketplace') return 'Marketplace';
         if (path === '/dashboard/audit') return 'Audit Logs';
         if (path === '/dashboard/health') return 'Intelligence Reports';
         if (path === '/dashboard/access') return 'Security & Controls';
@@ -183,7 +183,7 @@ export default function DashboardLayout({
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/registry" className={`${styles.navLink} ${pathname === '/dashboard/registry' ? styles.navLinkActive : ''}`}>
+                                <Link href="/dashboard/marketplace" className={`${styles.navLink} ${pathname === '/dashboard/marketplace' || pathname === '/dashboard/registry' ? styles.navLinkActive : ''}`}>
                                     <ExternalLink size={20} /> Marketplace
                                 </Link>
                             </li>

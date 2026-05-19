@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from "@/lib/db";
+import { v4 as uuidv4 } from 'uuid';
 
 export async function GET() {
     try {
@@ -70,10 +71,13 @@ export async function POST(request: Request) {
         if (n8nWorkflowId !== undefined) {
             updates.push(`"n8nWorkflowId" = $${i++}`);
             params.push(n8nWorkflowId);
-            // When admin sets the n8n workflow ID, mark node as Ready unless status explicitly set
             if (status === undefined) {
                 updates.push(`status = $${i++}`);
-                params.push(n8nWorkflowId ? 'Ready' : 'Pending');
+                params.push(n8nWorkflowId ? 'Ready' : 'Awaiting_Admin_Setup');
+                if (n8nWorkflowId) {
+                    updates.push(`progress = $${i++}`);
+                    params.push(100);
+                }
             }
         }
 
@@ -111,6 +115,16 @@ export async function POST(request: Request) {
                 `UPDATE "Workflow" SET ${updates.join(', ')} WHERE id = $${params.length}`,
                 params
             );
+
+            if (n8nWorkflowId) {
+                const [wf] = await db.query('SELECT "teamId", name FROM "Workflow" WHERE id = $1', [id]) as any[];
+                if (wf?.teamId) {
+                    await db.execute(
+                        'INSERT INTO "Notification" (id, "teamId", title, message) VALUES ($1, $2, $3, $4)',
+                        [uuidv4(), wf.teamId, 'Workflow ready', `"${wf.name}" is configured and ready to run.`]
+                    );
+                }
+            }
         }
 
         return NextResponse.json({ success: true });

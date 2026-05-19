@@ -2,11 +2,21 @@
 
 import styles from "./registry.module.css";
 import React, { useState, useEffect } from "react";
-import { Activity, Zap, CheckCircle, AlertCircle, Plus, FileText, Link2, ArrowUpRight, ShieldCheck, ShieldAlert, X, MousePointer2, Settings, Cpu, Link, Search, Layers, Key, Euro, ShoppingCart } from "lucide-react";
+import { Activity, Zap, CheckCircle, AlertCircle, Plus, FileText, Link2, ArrowUpRight, ShieldCheck, ShieldAlert, X, MousePointer2, Settings, Cpu, Link, Search, Layers, Key, Euro, ShoppingCart, CreditCard, Loader2 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import ModalPortal from "@/app/components/ModalPortal";
 import { Skeleton } from "@/app/components/Skeleton";
 
+function getTemplatePrice(template: any) {
+    const directPrice = parseFloat(template.price || 0);
+    const productInfoPrice = template.productInfo ? parseFloat(template.productInfo.price || 0) : 0;
+    return productInfoPrice > 0 ? productInfoPrice : directPrice;
+}
+
 export default function WorkflowsPage() {
+    const router = useRouter();
+    const { data: session } = useSession();
     const [search, setSearch] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [templates, setTemplates] = useState<any[]>([]);
@@ -19,6 +29,8 @@ export default function WorkflowsPage() {
     const [deployResult, setDeployResult] = useState<any>(null);
     const [step, setStep] = useState<'configure' | 'result'>('configure');
     const [isDeploying, setIsDeploying] = useState(false);
+    const [paymentTemplate, setPaymentTemplate] = useState<any>(null);
+    const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
     // Custom workflow request wizard
     const [showCustomModal, setShowCustomModal] = useState(false);
@@ -69,6 +81,28 @@ export default function WorkflowsPage() {
         fetchMarketplace();
     }, []);
 
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const params = new URLSearchParams(window.location.search);
+        const success = params.get('success');
+        const templateId = params.get('templateId');
+        if (success === 'true' && templateId) {
+            (async () => {
+                try {
+                    await fetch('/api/marketplace/installed', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ templateId }),
+                    });
+                } catch { /* webhook is source of truth */ }
+                router.replace('/dashboard/incidents');
+            })();
+        } else if (params.get('canceled') === 'true') {
+            showToast('Payment canceled.', 'error');
+            router.replace('/dashboard/registry');
+        }
+    }, [router]);
+
     const fetchMarketplace = async () => {
         try {
             const res = await fetch('/api/workflows');
@@ -81,15 +115,39 @@ export default function WorkflowsPage() {
         }
     };
 
+    const handlePurchase = async (template: any) => {
+        const userId = (session?.user as any)?.id;
+        if (!userId) {
+            showToast('Please sign in to purchase.', 'error');
+            return;
+        }
+        setIsProcessingPayment(true);
+        try {
+            const price = getTemplatePrice(template);
+            const res = await fetch('/api/stripe/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ templateId: template.id, amount: price, userId }),
+            });
+            const data = await res.json();
+            if (res.ok && data.checkoutUrl) {
+                window.location.href = data.checkoutUrl;
+            } else {
+                showToast(data.error || 'Checkout failed.', 'error');
+            }
+        } catch {
+            showToast('Payment could not be started.', 'error');
+        } finally {
+            setIsProcessingPayment(false);
+            setPaymentTemplate(null);
+        }
+    };
+
     const handleAddClick = (template: any) => {
-        // Price can be in either direct price field or productInfo.price
-        const directPrice = parseFloat(template.price || 0);
-        const productInfoPrice = template.productInfo ? parseFloat(template.productInfo.price || 0) : 0;
-        const finalPrice = productInfoPrice > 0 ? productInfoPrice : directPrice;
-        
-        // If template has a price, redirect to marketplace for payment
+        const finalPrice = getTemplatePrice(template);
+
         if (finalPrice > 0) {
-            window.location.href = '/dashboard/marketplace';
+            setPaymentTemplate(template);
             return;
         }
         
@@ -134,7 +192,9 @@ export default function WorkflowsPage() {
             if (res.ok) {
                 setDeployResult(data.orchestration || {});
                 setStep('result');
-                showToast(`Orchestration sequence initiated!`);
+                showToast(`Workflow ordered! Track progress in My Workflows.`);
+                setConfigureTemplate(null);
+                router.push('/dashboard/incidents');
             } else {
                 showToast(data.error || "Deployment failed.", 'error');
             }
@@ -275,7 +335,9 @@ export default function WorkflowsPage() {
                                 </div>
                                 <div className={styles.cardActions}>
                                     <button className={styles.btnDetails}>View Details</button>
-                                    <button className={styles.btnInstall} onClick={() => handleAddClick(wf)}>Install</button>
+                                    <button className={styles.btnInstall} onClick={() => handleAddClick(wf)}>
+                                        {getTemplatePrice(wf) > 0 ? 'Order' : 'Install'}
+                                    </button>
                                 </div>
                             </div>
                         );
@@ -584,6 +646,34 @@ export default function WorkflowsPage() {
                                     </div>
                                 )}
                             </div>
+                        </div>
+                    </div>
+                </ModalPortal>
+            )}
+
+            {paymentTemplate && (
+                <ModalPortal>
+                    <div className={styles.modalOverlay} onClick={() => !isProcessingPayment && setPaymentTemplate(null)}>
+                        <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+                            <button className={styles.closeButton} onClick={() => setPaymentTemplate(null)} disabled={isProcessingPayment}>
+                                <X size={20} />
+                            </button>
+                            <h2 className={styles.onboardingTitle}>Order {paymentTemplate.name}</h2>
+                            <p className={styles.onboardingSubtitle}>
+                                Pay once — we provision your server, you add credentials, then our team completes setup.
+                            </p>
+                            <div style={{ background: '#F8FAFC', borderRadius: 14, padding: 16, marginBottom: 24, display: 'flex', justifyContent: 'space-between', fontWeight: 800 }}>
+                                <span>Total</span>
+                                <span style={{ color: '#10B981', fontWeight: 950 }}>€{getTemplatePrice(paymentTemplate).toFixed(2)}</span>
+                            </div>
+                            <button
+                                className={styles.btnInstall}
+                                style={{ width: '100%', height: 56 }}
+                                disabled={isProcessingPayment}
+                                onClick={() => handlePurchase(paymentTemplate)}
+                            >
+                                {isProcessingPayment ? 'Processing...' : 'Proceed to payment'}
+                            </button>
                         </div>
                     </div>
                 </ModalPortal>

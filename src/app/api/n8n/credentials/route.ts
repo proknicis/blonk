@@ -87,6 +87,11 @@ export async function POST(request: Request) {
 
         if (n8nRes.ok) {
             const resultData = JSON.parse(resultText);
+            const teamId = (session.user as any).teamId;
+            if (teamId) {
+                const { onCredentialsReceived } = await import('@/lib/order-pipeline');
+                await onCredentialsReceived(teamId);
+            }
             return NextResponse.json({ 
                 success: true, 
                 credentialId: resultData.id,

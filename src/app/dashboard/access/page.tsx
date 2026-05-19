@@ -79,6 +79,7 @@ export default async function SovereigntyPage() {
 
     return (
         <SovereigntyClient 
+            teamId={teamId}
             initialResidency={residency}
             initialKillSwitch={killSwitch}
             initialKeys={apiKeys}

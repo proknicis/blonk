@@ -18,16 +18,22 @@ export async function updateSetting(key: string, value: string) {
     }
 }
 
-export async function addApiKey(entry: any) {
+export async function addApiKey(entry: any, teamId?: string) {
     try {
-        // We store API keys in OperationalSetting with prefix "apikey_"
         const dbKey = `apikey_${entry.id}`;
         const dbValue = JSON.stringify(entry);
         await db.query(`
-            INSERT INTO "OperationalSetting" (id, key, value)
-            VALUES (gen_random_uuid(), $1, $2)
-        `, [dbKey, dbValue]);
+            INSERT INTO "OperationalSetting" (id, "teamId", key, value)
+            VALUES (gen_random_uuid(), $1, $2, $3)
+            ON CONFLICT ("teamId", key) DO UPDATE SET value = $3, "updatedAt" = CURRENT_TIMESTAMP
+        `, [teamId || null, dbKey, dbValue]);
+        if (teamId) {
+            const { onCredentialsReceived } = await import('@/lib/order-pipeline');
+            await onCredentialsReceived(teamId);
+        }
         revalidatePath("/dashboard/access");
+        revalidatePath("/dashboard/integrations");
+        revalidatePath("/dashboard/incidents");
     } catch (error) {
         console.error("Failed to add API key:", error);
     }

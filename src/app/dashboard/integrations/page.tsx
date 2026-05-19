@@ -101,10 +101,16 @@ export default async function ConnectionsPage() {
         .filter(conn => conn.statusKey !== "connected")
         .map(conn => ({ id: conn.id, app: conn.app, issue: conn.health, time: conn.lastChecked, color: conn.color }));
 
+    const pendingCredentialWorkflows = await db.query(
+        `SELECT name FROM "Workflow" WHERE "teamId" = $1 AND status IN ('Awaiting_Credentials', 'Provisioned')`,
+        [teamId]
+    ) as any[];
+
     return (
         <ConnectionsClient 
             initialConnections={connections} 
             needsAttention={needsAttention}
+            pendingWorkflows={(pendingCredentialWorkflows || []).map((w: any) => w.name)}
         />
     );
 }

@@ -14,6 +14,7 @@ interface ApiKey {
 }
 
 interface SovereigntyClientProps {
+    teamId?: string;
     initialResidency: "eu-cloud" | "local";
     initialKillSwitch: boolean;
     initialKeys: ApiKey[];
@@ -26,7 +27,7 @@ interface SovereigntyClientProps {
     }
 }
 
-export default function SovereigntyClient({ initialResidency, initialKillSwitch, initialKeys, metrics }: SovereigntyClientProps) {
+export default function SovereigntyClient({ teamId, initialResidency, initialKillSwitch, initialKeys, metrics }: SovereigntyClientProps) {
     const [residency, setResidency] = useState<"eu-cloud" | "local">(initialResidency);
     const [killSwitchArmed, setKillSwitchArmed] = useState(initialKillSwitch);
     const [killConfirm, setKillConfirm] = useState(false);
@@ -54,7 +55,7 @@ export default function SovereigntyClient({ initialResidency, initialKillSwitch,
         };
         setKeys(prev => [...prev, newEntry]);
         setNewLabel(""); setNewKey(""); setNewService(""); setAddingKey(false);
-        await addApiKey(newEntry);
+        await addApiKey(newEntry, teamId);
     };
 
     const handleDeleteKey = async (id: string) => {
