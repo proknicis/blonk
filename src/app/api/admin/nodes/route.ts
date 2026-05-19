@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
 async function probeNode(node: any) {
+    if (!node || !node.url) return { ...node, status: 'Invalid Config', cpu: 0, ram: 0, queue: 0, uptime: 'N/A' };
     const apiKey = node.api_key || node.apiKey;
     if (!apiKey) return { ...node, status: 'No API Key', cpu: 0, ram: 0, queue: 0, uptime: 'N/A' };
 
@@ -164,9 +165,9 @@ export async function GET(request: Request) {
                 max_workflows: n.max_workflows || 100
             };
         }));
-    } catch (error) {
+    } catch (error: any) {
         console.error("[Fleet] Failed to fetch nodes:", error);
-        return NextResponse.json({ error: "Failed to fetch nodes" }, { status: 500 });
+        return NextResponse.json({ error: "Failed to fetch nodes", details: error.message || String(error) }, { status: 500 });
     }
 }
 
