@@ -188,7 +188,7 @@ export default function UserDirectoryPage() {
                                     <td>
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                             <span style={{ fontSize: '0.65rem', fontWeight: 950, padding: '2px 8px', borderRadius: '6px', background: u.tier === 'Enterprise' ? '#0A0A0A' : '#F8F9FA', color: u.tier === 'Enterprise' ? '#FFFFFF' : '#64748B', width: 'fit-content' }}>{u.tier?.toUpperCase() || 'FREE'}</span>
-                                            <div style={{ fontWeight: 950, color: '#0A0A0A' }}>€{parseFloat(u.totalSpend || 0).toLocaleString()}</div>
+                                            <div style={{ fontWeight: 950, color: '#0A0A0A' }}>€{parseFloat(u.totalSpend || "0").toLocaleString()}</div>
                                         </div>
                                     </td>
                                     <td>
@@ -246,7 +246,7 @@ export default function UserDirectoryPage() {
                                         </div>
                                         <div style={{ background: '#0A0A0A', padding: '24px', borderRadius: '24px', color: '#FFF' }}>
                                             <div style={{ fontSize: '0.65rem', opacity: 0.6, fontWeight: 950 }}>LIFETIME VALUE</div>
-                                            <div style={{ fontSize: '2rem', fontWeight: 950 }}>€{parseFloat(selectedUser.totalSpend || 0).toLocaleString()}</div>
+                                            <div style={{ fontSize: '2rem', fontWeight: 950 }}>€{parseFloat(selectedUser.totalSpend || "0").toLocaleString()}</div>
                                         </div>
                                     </div>
                                     <div style={{ background: '#FFF', padding: '24px', borderRadius: '24px', border: '1px solid #EEE' }}>
