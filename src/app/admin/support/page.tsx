@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import adminStyles from "../admin.module.css";
 import { 
     MessageSquare, Send, User, Clock, CheckCircle, AlertCircle, Search, Inbox, 
     Filter, Paperclip, Smile, Bold, Italic, List, Link2, ExternalLink, 
     AlertTriangle, Bookmark, MoreVertical, X, ChevronDown, Download, 
     Play, FileText, Phone, ArrowUpRight
 } from "lucide-react";
+import styles from "./admin-support.module.css";
 
 interface Ticket {
     id: string;
@@ -174,24 +174,22 @@ export default function SupportInboxPage() {
     };
 
     return (
-        <div style={{ animation: "fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1)", height: "100%", display: "flex", flexDirection: "column" }}>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr 300px', gap: '24px', height: 'calc(100vh - 140px)', minHeight: '600px' }}>
+        <div className={styles.container}>
+            <div className={styles.mainLayout}>
                 
                 {/* 1. LEFT COLUMN: SUPPORT TICKETS LIST */}
-                <div style={{ background: '#FFFFFF', border: '1px solid var(--border)', borderRadius: '24px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
-                    
+                <div className={styles.ticketsList}>
                     {/* Header */}
-                    <div style={{ padding: '24px', borderBottom: '1px solid var(--border)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                            <h3 style={{ fontSize: '1rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '-0.01em', margin: 0, color: 'var(--foreground)' }}>Support Tickets</h3>
-                            <span style={{ fontSize: '0.7rem', fontWeight: 950, color: 'var(--accent)', background: 'rgba(16,185,129,0.08)', padding: '2px 8px', borderRadius: '100px' }}>
+                    <div className={styles.ticketsListHeader}>
+                        <div className={styles.ticketsListHeaderTop}>
+                            <h3 className={styles.ticketsListTitle}>Support Tickets</h3>
+                            <span className={styles.ticketCountBadge}>
                                 {tickets.length} Total
                             </span>
                         </div>
 
                         {/* Tabs */}
-                        <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', marginBottom: '16px', gap: '16px', overflowX: 'auto', paddingBottom: '8px' }}>
+                        <div className={styles.tabs}>
                             {[
                                 { key: 'open', label: 'Open', count: counts.open },
                                 { key: 'waiting_for_client', label: 'Client', count: counts.waiting_for_client },
@@ -201,23 +199,10 @@ export default function SupportInboxPage() {
                                 <button
                                     key={tab.key}
                                     onClick={() => setActiveTab(tab.key as any)}
-                                    style={{
-                                        border: 'none',
-                                        background: 'none',
-                                        padding: '4px 0',
-                                        fontSize: '0.8rem',
-                                        fontWeight: activeTab === tab.key ? 950 : 700,
-                                        color: activeTab === tab.key ? 'var(--foreground)' : 'var(--muted-foreground)',
-                                        borderBottom: activeTab === tab.key ? '2px solid var(--accent)' : '2px solid transparent',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '6px',
-                                        whiteSpace: 'nowrap'
-                                    }}
+                                    className={`${styles.tab} ${activeTab === tab.key ? styles.tabActive : ''}`}
                                 >
                                     {tab.label}
-                                    <span style={{ fontSize: '0.65rem', background: activeTab === tab.key ? 'var(--muted)' : 'rgba(0,0,0,0.03)', padding: '1px 5px', borderRadius: '6px', color: 'var(--muted-foreground)' }}>
+                                    <span className={styles.tabCount}>
                                         {tab.count}
                                     </span>
                                 </button>
@@ -225,37 +210,25 @@ export default function SupportInboxPage() {
                         </div>
 
                         {/* Search and Filters */}
-                        <div style={{ position: 'relative', display: 'flex', gap: '8px' }}>
+                        <div className={styles.searchContainer}>
                             <div style={{ position: 'relative', flex: 1 }}>
-                                <Search style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} size={14} />
+                                <Search style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} size={14} />
                                 <input
                                     type="text"
                                     placeholder="Search tickets..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    style={{
-                                        width: '100%',
-                                        height: '36px',
-                                        background: 'var(--muted)',
-                                        border: '1px solid var(--border)',
-                                        borderRadius: '10px',
-                                        paddingLeft: '34px',
-                                        paddingRight: '12px',
-                                        fontSize: '0.8rem',
-                                        fontWeight: 700,
-                                        color: 'var(--foreground)',
-                                        outline: 'none'
-                                    }}
+                                    className={styles.searchInput}
                                 />
                             </div>
-                            <button style={{ width: '36px', height: '36px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted-foreground)', cursor: 'pointer' }}>
+                            <button className={styles.filterButton}>
                                 <Filter size={14} />
                             </button>
                         </div>
                     </div>
 
                     {/* Scrollable list */}
-                    <div style={{ flex: 1, overflowY: 'auto', padding: '12px' }} className={adminStyles.ticketItems}>
+                    <div style={{ flex: 1, overflowY: 'auto', padding: '12px' }} className={styles.ticketItems}>
                         {filteredTickets.length === 0 ? (
                             <div style={{ padding: '48px 24px', textAlign: 'center', color: 'var(--muted-foreground)' }}>
                                 <Inbox size={32} style={{ marginBottom: '12px', opacity: 0.3 }} />
