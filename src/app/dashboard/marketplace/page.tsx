@@ -15,6 +15,7 @@ const FALLBACK_WORKFLOWS = [
         price: 149,
         setupTime: "~20 min",
         color: "#3B82F6",
+        includes: ["Dedicated Server", "n8n Setup", "Full Configuration", "Testing"]
     },
     {
         id: "tpl-discord-mod",
@@ -24,6 +25,7 @@ const FALLBACK_WORKFLOWS = [
         price: 99,
         setupTime: "~15 min",
         color: "#8B5CF6",
+        includes: ["Dedicated Server", "n8n Setup", "Full Configuration", "Testing"]
     },
     {
         id: "tpl-etsy",
@@ -33,6 +35,7 @@ const FALLBACK_WORKFLOWS = [
         price: 79,
         setupTime: "~12 min",
         color: "#F59E0B",
+        includes: ["Dedicated Server", "n8n Setup", "Full Configuration", "Testing"]
     },
     {
         id: "tpl-tiktok",
@@ -42,6 +45,7 @@ const FALLBACK_WORKFLOWS = [
         price: 129,
         setupTime: "~18 min",
         color: "#EF4444",
+        includes: ["Dedicated Server", "n8n Setup", "Full Configuration", "Testing"]
     },
 ];
 
@@ -144,7 +148,7 @@ export default function MarketplacePage() {
                         <div>
                             <p style={{ fontWeight: 950, marginBottom: 12 }}>Includes:</p>
                             <ul className={styles.includesList}>
-                                {["Dedicated Server", "n8n Setup", "Full Configuration", "Testing"].map((item) => (
+                                {(selected.includes || ["Dedicated Server", "n8n Setup", "Full Configuration", "Testing"]).map((item: string) => (
                                     <li key={item}>
                                         <Check size={18} color="#10B981" /> {item}
                                     </li>

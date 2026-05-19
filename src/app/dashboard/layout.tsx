@@ -162,12 +162,12 @@ export default function DashboardLayout({
                             </li>
                             <li>
                                 <Link href="/dashboard/incidents" className={`${styles.navLink} ${pathname === '/dashboard/incidents' ? styles.navLinkActive : ''}`}>
-                                    <Monitor size={20} /> My Workflows
+                                    <Activity size={20} /> My Workflows
                                 </Link>
                             </li>
                             <li>
                                 <Link href="/dashboard/integrations" className={`${styles.navLink} ${pathname === '/dashboard/integrations' ? styles.navLinkActive : ''}`}>
-                                    <Link2 size={20} /> Connections
+                                    <Link2 size={20} /> Integrations
                                 </Link>
                             </li>
                         </ul>
