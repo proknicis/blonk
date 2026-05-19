@@ -27,6 +27,29 @@ interface DbUser {
 export default function UserDirectoryPage() {
     const router = useRouter();
     
+    // Auth state from layout/session
+    const [currentUser, setCurrentUser] = useState<any>(null);
+    const [isCheckingRole, setIsCheckingRole] = useState(true);
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await fetch("/api/admin/session");
+                if (res.ok) {
+                    const data = await res.json();
+                    setCurrentUser(data.user);
+                    if (data.user.role !== "SuperAdmin") {
+                        router.replace("/admin");
+                    }
+                } else {
+                    router.replace("/admin/login");
+                }
+            } finally {
+                setIsCheckingRole(false);
+            }
+        })();
+    }, [router]);
+    
     // DB state
     const [users, setUsers] = useState<DbUser[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -269,6 +292,14 @@ export default function UserDirectoryPage() {
             default: return { bg: "#F1F5F9", text: "#64748B" };
         }
     };
+
+    if (isCheckingRole || (currentUser && currentUser.role !== "SuperAdmin")) {
+        return (
+            <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <RefreshCw size={24} className={adminStyles.spinning} color="var(--accent)" />
+            </div>
+        );
+    }
 
     return (
         <div style={{ animation: "fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1)", display: 'flex', flexDirection: 'column', gap: '32px' }}>
@@ -719,8 +750,8 @@ export default function UserDirectoryPage() {
             {viewingProfile && (
                 <ModalPortal>
                     <div className={adminStyles.modalOverlay} onClick={() => setViewingProfile(null)} style={{ backdropFilter: 'blur(16px)', background: 'rgba(0, 0, 0, 0.4)' }}>
-                        <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '780px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', overflow: 'hidden' }}>
-                            <div style={{ padding: '40px 48px', background: '#0F172A', color: '#FFFFFF', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '780px', maxHeight: '90vh', display: 'flex', flexDirection: 'column', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', overflow: 'hidden' }}>
+                            <div style={{ padding: '40px 48px', background: '#0F172A', color: '#FFFFFF', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
                                     <div style={{ width: '64px', height: '64px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 950 }}>
                                         {viewingProfile.name.charAt(0).toUpperCase()}
@@ -733,9 +764,9 @@ export default function UserDirectoryPage() {
                                 <button onClick={() => setViewingProfile(null)} style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: 'white', padding: '10px', borderRadius: '10px', cursor: 'pointer' }}><X size={20} /></button>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.8fr', minHeight: '540px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.8fr', flex: 1, overflow: 'hidden' }}>
                                 {/* Sidebar: Quick Stats & Security */}
-                                <div style={{ padding: '40px', borderRight: '1px solid #F1F5F9', background: '#F8FAFC' }}>
+                                <div style={{ padding: '40px', borderRight: '1px solid #F1F5F9', background: '#F8FAFC', overflowY: 'auto' }}>
                                     <div style={{ marginBottom: '40px' }}>
                                         <div style={{ fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '20px' }}>Security & Access</div>
                                         <button 
@@ -772,11 +803,11 @@ export default function UserDirectoryPage() {
 
                                 {/* Main Content: Activity Ledger */}
                                 <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                                    <div style={{ padding: '28px 40px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FFFFFF' }}>
+                                    <div style={{ padding: '28px 40px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FFFFFF', flexShrink: 0 }}>
                                         <span style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A', letterSpacing: '-0.01em' }}>Activity Ledger</span>
                                         <div style={{ padding: '5px 12px', background: '#EFF6FF', color: '#3B82F6', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 950, letterSpacing: '0.05em' }}>SYSTEM AUDIT</div>
                                     </div>
-                                    <div style={{ flex: 1, overflowY: 'auto', padding: '0 40px', background: '#FFFFFF' }}>
+                                    <div style={{ flex: 1, overflowY: 'auto', padding: '0 40px', background: '#FFFFFF', maxHeight: '600px' }}>
                                         {isLoadingActivity ? (
                                             <div style={{ padding: '60px', textAlign: 'center' }}><Activity className={adminStyles.spinning} color="#3B82F6" size={32} /></div>
                                         ) : userActivity.length === 0 ? (

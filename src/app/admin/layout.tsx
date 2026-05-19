@@ -51,9 +51,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     const [user, setUser] = useState({
         name: "Admin Operator",
-        role: "SUPER ADMIN",
+        role: "Operator",
         email: "admin@blonk.ai",
     });
+
+    const isSuperAdmin = user.role === "SuperAdmin";
 
     // Validate admin_token on every admin route (except /admin/login itself)
     useEffect(() => {
@@ -172,11 +174,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                     <LayoutGrid size={20} /> Provisioning
                                 </Link>
                             </li>
-                            <li>
-                                <Link href="/admin/marketplace" className={`${adminStyles.navLink} ${pathname.startsWith("/admin/marketplace") ? adminStyles.navLinkActive : ""}`}>
-                                    <Zap size={20} /> Registry
-                                </Link>
-                            </li>
+                            {isSuperAdmin && (
+                                <li>
+                                    <Link href="/admin/marketplace" className={`${adminStyles.navLink} ${pathname.startsWith("/admin/marketplace") ? adminStyles.navLinkActive : ""}`}>
+                                        <Zap size={20} /> Registry
+                                    </Link>
+                                </li>
+                            )}
                             <li>
                                 <Link href="/admin/fleet" className={`${adminStyles.navLink} ${pathname === "/admin/fleet" ? adminStyles.navLinkActive : ""}`}>
                                     <Activity size={20} /> Health Monitoring
@@ -188,11 +192,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <div className={adminStyles.navGroup}>
                         <span className={adminStyles.navGroupLabel}>GOVERNANCE</span>
                         <ul>
-                            <li>
-                                <Link href="/admin/users" className={`${adminStyles.navLink} ${pathname === "/admin/users" ? adminStyles.navLinkActive : ""}`}>
-                                    <Users size={20} /> Operators
-                                </Link>
-                            </li>
+                            {isSuperAdmin && (
+                                <li>
+                                    <Link href="/admin/users" className={`${adminStyles.navLink} ${pathname === "/admin/users" ? adminStyles.navLinkActive : ""}`}>
+                                        <Users size={20} /> Operators
+                                    </Link>
+                                </li>
+                            )}
                             <li>
                                 <Link href="/admin/incidents" className={`${adminStyles.navLink} ${pathname === "/admin/incidents" ? adminStyles.navLinkActive : ""}`}>
                                     <Shield size={20} /> Incident Command
@@ -206,42 +212,56 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         </ul>
                     </div>
 
-                    <div className={adminStyles.navGroup}>
-                        <span className={adminStyles.navGroupLabel}>SYSTEM</span>
-                        <ul>
-                            <li>
-                                <Link href="/admin/audit" className={`${adminStyles.navLink} ${pathname === "/admin/audit" ? adminStyles.navLinkActive : ""}`}>
-                                    <BarChart3 size={20} /> Audit Trail
-                                </Link>
-                            </li>
-                            <li>
-                                <a href="#" onClick={(e) => { e.preventDefault(); (window as any).showToast("Access & Roles configurations are managed by root admin policy.", "warning"); }} className={adminStyles.navLink}>
-                                    <Shield size={20} /> Access & Roles
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" onClick={(e) => { e.preventDefault(); (window as any).showToast("System Settings are locked by governance keys.", "error"); }} className={adminStyles.navLink}>
-                                    <MessageSquare size={20} /> Settings
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" onClick={(e) => { e.preventDefault(); (window as any).showToast("System Integrations are nominal and running on manadavana.lv server.", "success"); }} className={adminStyles.navLink}>
-                                    <ExternalLink size={20} /> Integrations
-                                </a>
-                            </li>
-                            <li>
-                                <Link href="/dashboard" className={adminStyles.navLink}>
-                                    <LogOut size={20} /> Exit to Firm
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
+                    {isSuperAdmin && (
+                        <div className={adminStyles.navGroup}>
+                            <span className={adminStyles.navGroupLabel}>SYSTEM</span>
+                            <ul>
+                                <li>
+                                    <Link href="/admin/audit" className={`${adminStyles.navLink} ${pathname === "/admin/audit" ? adminStyles.navLinkActive : ""}`}>
+                                        <BarChart3 size={20} /> Audit Trail
+                                    </Link>
+                                </li>
+                                <li>
+                                    <a href="#" onClick={(e) => { e.preventDefault(); (window as any).showToast("Access & Roles configurations are managed by root admin policy.", "warning"); }} className={adminStyles.navLink}>
+                                        <Shield size={20} /> Access & Roles
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" onClick={(e) => { e.preventDefault(); (window as any).showToast("System Settings are locked by governance keys.", "error"); }} className={adminStyles.navLink}>
+                                        <MessageSquare size={20} /> Settings
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" onClick={(e) => { e.preventDefault(); (window as any).showToast("System Integrations are nominal and running on manadavana.lv server.", "success"); }} className={adminStyles.navLink}>
+                                        <ExternalLink size={20} /> Integrations
+                                    </a>
+                                </li>
+                                <li>
+                                    <Link href="/dashboard" className={adminStyles.navLink}>
+                                        <LogOut size={20} /> Exit to Firm
+                                    </Link>
+                                </li>
+                            </ul>
+                        </div>
+                    )}
+
+                    {!isSuperAdmin && (
+                        <div className={adminStyles.navGroup}>
+                            <ul>
+                                <li>
+                                    <Link href="/dashboard" className={adminStyles.navLink}>
+                                        <LogOut size={20} /> Exit to Firm
+                                    </Link>
+                                </li>
+                            </ul>
+                        </div>
+                    )}
                 </nav>
 
                 <div className={adminStyles.usageSection}>
                     <div className={adminStyles.usageCard}>
                         <div className={adminStyles.usagePlanTop}>
-                            <span className={adminStyles.planBadge}>Root Operator</span>
+                            <span className={adminStyles.planBadge}>{isSuperAdmin ? "Root Operator" : "Admin Staff"}</span>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '2px 8px', background: '#10B98115', border: '1px solid #10B98125', borderRadius: '100px' }}>
                                 <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10B981' }} />
                                 <span style={{ fontSize: '0.6rem', fontWeight: 950, color: '#10B981' }}>HEALTHY</span>

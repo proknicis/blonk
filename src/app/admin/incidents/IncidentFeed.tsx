@@ -23,13 +23,29 @@ export default function IncidentFeed({ initialIncidents }: { initialIncidents: I
     const [showAll, setShowAll] = useState(false);
     const [resolvedIds, setResolvedIds] = useState<Set<string>>(new Set());
 
-    const toggleResolve = (id: string) => {
-        setResolvedIds(prev => {
-            const newSet = new Set(prev);
-            if (newSet.has(id)) newSet.delete(id);
-            else newSet.add(id);
-            return newSet;
-        });
+    const toggleResolve = async (id: string) => {
+        const isCurrentlyResolved = resolvedIds.has(id);
+        
+        try {
+            const res = await fetch('/api/admin/incidents', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, action: 'RESOLVE' })
+            });
+
+            if (res.ok) {
+                setResolvedIds(prev => {
+                    const newSet = new Set(prev);
+                    if (newSet.has(id)) newSet.delete(id);
+                    else newSet.add(id);
+                    return newSet;
+                });
+                (window as any).showToast(`Incident ${isCurrentlyResolved ? 'reopened' : 'resolved'} successfully.`, "success");
+            }
+        } catch (err) {
+            console.error("Failed to update incident:", err);
+            (window as any).showToast("Failed to update incident status.", "error");
+        }
     };
 
     const refreshData = async () => {
@@ -159,7 +175,7 @@ export default function IncidentFeed({ initialIncidents }: { initialIncidents: I
                                                 <Clock size={12} />
                                                 <span>{inc.timestamp}</span>
                                             </div>
-                                            <code style={{ background: 'var(--card)', border: '1px solid var(--border)', padding: '2px 8px', borderRadius: '6px', fontSize: '0.65rem' }}>LOG_{inc.id}</code> 
+                                            <code style={{ background: 'var(--card)', border: '1px solid var(--border)', padding: '2px 8px', borderRadius: '6px', fontSize: '0.65rem' }}>{inc.id.substring(0, 8)}</code> 
                                         </div>
                                     </div>
                                 </div>

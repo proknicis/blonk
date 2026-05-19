@@ -38,6 +38,28 @@ import adminStyles from "../admin.module.css";
 
 export default function MarketplaceManagementPage() {
     const router = useRouter();
+    const [currentUser, setCurrentUser] = useState<any>(null);
+    const [isCheckingRole, setIsCheckingRole] = useState(true);
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await fetch("/api/admin/session");
+                if (res.ok) {
+                    const data = await res.json();
+                    setCurrentUser(data.user);
+                    if (data.user.role !== "SuperAdmin") {
+                        router.replace("/admin");
+                    }
+                } else {
+                    router.replace("/admin/login");
+                }
+            } finally {
+                setIsCheckingRole(false);
+            }
+        })();
+    }, [router]);
+
     const [templates, setTemplates] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [categoryFilter, setCategoryFilter] = useState("All");
@@ -151,6 +173,14 @@ export default function MarketplaceManagementPage() {
         }));
 
     const activityList: any[] = []; // Real activity would come from Event table
+
+    if (isCheckingRole || (currentUser && currentUser.role !== "SuperAdmin")) {
+        return (
+            <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <RefreshCw size={24} className={adminStyles.spinning} color="var(--accent)" />
+            </div>
+        );
+    }
 
     return (
         <div style={{ animation: "fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1)", display: 'flex', flexDirection: 'column', gap: '32px' }}>
