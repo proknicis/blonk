@@ -1,8 +1,9 @@
 "use client";
 
-import styles from "../../dashboard/dashboard.module.css";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ShieldCheck } from "lucide-react";
+import styles from "./admin-login.module.css";
 
 export default function AdminLoginPage() {
     const [email, setEmail] = useState("");
@@ -38,38 +39,30 @@ export default function AdminLoginPage() {
     };
 
     return (
-        <div style={{
-            height: "100vh",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: "#F8F9FA"
-        }}>
-            <div className={styles.card} style={{ width: "400px", padding: "48px" }}>
-                <div style={{ textAlign: "center", marginBottom: "32px" }}>
+        <div className={styles.container}>
+            <div className={styles.loginCard}>
+                <div className={styles.header}>
                     <h1 className={styles.logo}>BLONK<span>.</span></h1>
-                    <p style={{ fontWeight: 700, color: "#949A97", marginTop: "8px" }}>CONTROL CENTER LOGIN</p>
+                    <p className={styles.subtitle}>Admin Control Center</p>
                 </div>
 
-                <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                    <div>
-                        <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 800, textTransform: "uppercase", marginBottom: "8px" }}>Admin Email</label>
+                <form onSubmit={handleLogin} className={styles.form}>
+                    <div className={styles.formGroup}>
+                        <label className={styles.label}>Admin Email</label>
                         <input
                             type="email"
-                            className={styles.searchInput}
-                            style={{ paddingLeft: "20px" }}
+                            className={styles.input}
                             placeholder="admin@blonk.ai"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
                         />
                     </div>
-                    <div>
-                        <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 800, textTransform: "uppercase", marginBottom: "8px" }}>Password</label>
+                    <div className={styles.formGroup}>
+                        <label className={styles.label}>Password</label>
                         <input
                             type="password"
-                            className={styles.searchInput}
-                            style={{ paddingLeft: "20px" }}
+                            className={styles.input}
                             placeholder="••••••••"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
@@ -77,17 +70,23 @@ export default function AdminLoginPage() {
                         />
                     </div>
 
-                    {error && <p style={{ color: "#FF5252", fontSize: "0.85rem", fontWeight: 700 }}>{error}</p>}
+                    {error && <p className={styles.error}>{error}</p>}
 
                     <button
                         type="submit"
-                        className={styles.btnDark}
-                        style={{ width: "100%", padding: "16px", marginTop: "12px" }}
+                        className={styles.button}
                         disabled={isLoading}
                     >
                         {isLoading ? "Authenticating..." : "Access Control Center"}
                     </button>
                 </form>
+
+                <div className={styles.securityNote}>
+                    <p>
+                        <ShieldCheck size={16} />
+                        Secure authentication with encryption
+                    </p>
+                </div>
             </div>
         </div>
     );

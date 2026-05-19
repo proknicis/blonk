@@ -1,0 +1,168 @@
+/* 
+  BLONK | ADMIN LOGIN PAGE
+  Aesthetic: Institutional Dashboard
+  Modern, clean, professional design
+*/
+
+.container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #FAFAFA;
+    padding: 20px;
+}
+
+.loginCard {
+    width: 100%;
+    max-width: 440px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 24px;
+    padding: 48px;
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.logo {
+    font-size: 2.5rem;
+    font-weight: 950;
+    color: #0F172A;
+    letter-spacing: -0.04em;
+    margin: 0;
+}
+
+.logo span {
+    color: #10B981;
+}
+
+.subtitle {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #64748B;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 12px 0 0 0;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #64748B;
+}
+
+.input {
+    width: 100%;
+    height: 52px;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 0 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #0F172A;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+.input:focus {
+    outline: none;
+    border-color: #0F172A;
+    background: #FFFFFF;
+}
+
+.input::placeholder {
+    color: #94A3B8;
+    font-weight: 500;
+}
+
+.error {
+    color: #EF4444;
+    font-size: 0.85rem;
+    font-weight: 800;
+    background: #FEF2F2;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid #FECACA;
+}
+
+.button {
+    width: 100%;
+    height: 52px;
+    background: #0F172A;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+}
+
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.securityNote {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid #F1F5F9;
+    text-align: center;
+}
+
+.securityNote p {
+    font-size: 0.8rem;
+    color: #64748B;
+    font-weight: 500;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.securityNote svg {
+    color: #10B981;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .loginCard {
+        padding: 32px 24px;
+    }
+    
+    .logo {
+        font-size: 2rem;
+    }
+}

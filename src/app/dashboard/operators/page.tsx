@@ -264,10 +264,6 @@ export default function TeamPage() {
             {/* HEADER */}
             <div className={styles.headerSection}>
                 <div className={styles.headerLeft}>
-                    <div className={styles.headerBadge}>
-                        <Users size={16} color="#10B981" />
-                        <span>TEAM OPERATIONS</span>
-                    </div>
                     <h1>Operators</h1>
                     <p>Manage personnel, roles, and access control across your autonomous firm.</p>
                 </div>

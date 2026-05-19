@@ -51,10 +51,6 @@ export default function AuditPage({ auditLogs, stats }: { auditLogs: AuditLog[];
             {/* HEADER */}
             <div className={styles.header}>
                 <div className={styles.headerLeft}>
-                    <div className={styles.headerBadge}>
-                        <FileText size={16} color="#8B5CF6" />
-                        <span>AUDIT TRAIL</span>
-                    </div>
                     <h1 className={styles.title}>Audit Logs</h1>
                     <p className={styles.subtitle}>Immutable ledger of workflow executions, access events, and operational changes.</p>
                 </div>
