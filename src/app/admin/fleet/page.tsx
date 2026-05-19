@@ -66,6 +66,17 @@ export default function FleetHealthMonitoringPage() {
     const [isProvisioning, setIsProvisioning] = useState(false);
     const [availableCustomers, setAvailableCustomers] = useState<any[]>([]);
 
+    // N8N MANAGEMENT STATE
+    const [showN8nModal, setShowN8nModal] = useState(false);
+    const [n8nAction, setN8nAction] = useState<'start' | 'stop' | 'restart' | 'update' | null>(null);
+    const [isN8nActionLoading, setIsN8nActionLoading] = useState(false);
+
+    // WORKFLOW DEPLOYMENT STATE
+    const [showDeployModal, setShowDeployModal] = useState(false);
+    const [deployData, setDeployData] = useState({ workflowId: "", serverId: "" });
+    const [availableWorkflows, setAvailableWorkflows] = useState<any[]>([]);
+    const [isDeploying, setIsDeploying] = useState(false);
+
     const fetchNodes = async (probe = false) => {
         setIsLoading(true);
         try {
@@ -86,6 +97,9 @@ export default function FleetHealthMonitoringPage() {
         
         // Fetch available customers for provisioning
         fetchAvailableCustomers();
+        
+        // Fetch available workflows for deployment
+        fetchAvailableWorkflows();
     }, []);
 
     const fetchAvailableCustomers = async () => {
@@ -101,6 +115,18 @@ export default function FleetHealthMonitoringPage() {
             }
         } catch (e) {
             console.error("Failed to fetch customers:", e);
+        }
+    };
+
+    const fetchAvailableWorkflows = async () => {
+        try {
+            const res = await fetch('/api/workflows');
+            if (res.ok) {
+                const workflows = await res.json();
+                setAvailableWorkflows(workflows);
+            }
+        } catch (e) {
+            console.error("Failed to fetch workflows:", e);
         }
     };
 
@@ -216,6 +242,64 @@ export default function FleetHealthMonitoringPage() {
         }
     };
 
+    const handleN8nAction = async (node: any, action: 'start' | 'stop' | 'restart' | 'update') => {
+        setSelectedNode(node);
+        setN8nAction(action);
+        setShowN8nModal(true);
+    };
+
+    const executeN8nAction = async () => {
+        if (!selectedNode || !n8nAction) return;
+        setIsN8nActionLoading(true);
+
+        try {
+            const res = await fetch(`/api/admin/nodes/${selectedNode.id}/n8n`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: n8nAction })
+            });
+
+            if (res.ok) {
+                (window as any).showToast(`n8n ${n8nAction} command sent successfully`, "success");
+                setShowN8nModal(false);
+                fetchNodes(true);
+            } else {
+                const err = await res.json();
+                (window as any).showToast(`n8n action failed: ${err.error}`, "error");
+            }
+        } catch (error) {
+            console.error("n8n action error:", error);
+            (window as any).showToast("Error executing n8n action", "error");
+        } finally {
+            setIsN8nActionLoading(false);
+        }
+    };
+
+    const handleDeployWorkflow = async () => {
+        setIsDeploying(true);
+        try {
+            const res = await fetch('/api/admin/workflows/deploy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(deployData)
+            });
+
+            if (res.ok) {
+                (window as any).showToast("Workflow deployed successfully", "success");
+                setShowDeployModal(false);
+                fetchNodes(true);
+            } else {
+                const err = await res.json();
+                (window as any).showToast(`Deployment failed: ${err.error}`, "error");
+            }
+        } catch (error) {
+            console.error("Workflow deployment error:", error);
+            (window as any).showToast("Error deploying workflow", "error");
+        } finally {
+            setIsDeploying(false);
+        }
+    };
+
     // Calculate real stats dynamically
     const totalNodes = nodes.length;
     const activeNodes = nodes.filter(n => n.status === 'Active').length;
@@ -309,6 +393,12 @@ export default function FleetHealthMonitoringPage() {
                     >
                         <Plus size={18} /> Provision New Server
                     </button>
+                    <button 
+                        onClick={() => setShowDeployModal(true)}
+                        style={{ background: '#3B82F6', color: '#FFFFFF', height: '56px', padding: '0 28px', borderRadius: '16px', border: 'none', fontWeight: 950, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 10px 20px rgba(59, 130, 246, 0.2)' }}
+                    >
+                        <Play size={18} /> Deploy Workflow
+                    </button>
                 </div>
             </div>
 
@@ -389,6 +479,118 @@ export default function FleetHealthMonitoringPage() {
                                 </button>
                                 <button 
                                     onClick={() => setShowProvisionModal(false)}
+                                    style={{ flex: 1, height: '52px', background: 'transparent', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: 'pointer' }}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* N8N ACTION CONFIRMATION MODAL */}
+            {showN8nModal && selectedNode && n8nAction && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                    <div style={{ background: '#FFFFFF', borderRadius: '24px', padding: '40px', maxWidth: '400px', width: '90%', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                            <h2 style={{ fontSize: '1.25rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>
+                                {n8nAction === 'start' && 'Start n8n'}
+                                {n8nAction === 'stop' && 'Stop n8n'}
+                                {n8nAction === 'restart' && 'Restart n8n'}
+                                {n8nAction === 'update' && 'Update n8n'}
+                            </h2>
+                            <button 
+                                onClick={() => setShowN8nModal(false)}
+                                style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#F8FAFC', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
+
+                        <div style={{ marginBottom: '24px' }}>
+                            <p style={{ fontSize: '0.95rem', color: '#64748B', fontWeight: 700, margin: 0 }}>
+                                Are you sure you want to {n8nAction} n8n on server <strong>{selectedNode.name}</strong>?
+                            </p>
+                            {n8nAction === 'stop' && (
+                                <p style={{ fontSize: '0.85rem', color: '#EF4444', fontWeight: 700, marginTop: '12px' }}>
+                                    This will stop all running workflows on this server.
+                                </p>
+                            )}
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                            <button 
+                                onClick={executeN8nAction}
+                                disabled={isN8nActionLoading}
+                                style={{ flex: 1, height: '52px', background: '#0F172A', color: '#FFFFFF', border: 'none', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: isN8nActionLoading ? 'not-allowed' : 'pointer', opacity: isN8nActionLoading ? 0.6 : 1 }}
+                            >
+                                {isN8nActionLoading ? 'Processing...' : 'Confirm'}
+                            </button>
+                            <button 
+                                onClick={() => setShowN8nModal(false)}
+                                style={{ flex: 1, height: '52px', background: 'transparent', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: 'pointer' }}
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* WORKFLOW DEPLOYMENT MODAL */}
+            {showDeployModal && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                    <div style={{ background: '#FFFFFF', borderRadius: '24px', padding: '40px', maxWidth: '500px', width: '90%', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                            <h2 style={{ fontSize: '1.25rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>Deploy Workflow</h2>
+                            <button 
+                                onClick={() => setShowDeployModal(false)}
+                                style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#F8FAFC', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '8px' }}>Workflow</label>
+                                <select 
+                                    value={deployData.workflowId}
+                                    onChange={(e) => setDeployData({ ...deployData, workflowId: e.target.value })}
+                                    style={{ width: '100%', height: '52px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 20px', fontSize: '0.95rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                >
+                                    <option value="">Select workflow...</option>
+                                    {availableWorkflows.map(workflow => (
+                                        <option key={workflow.id} value={workflow.id}>{workflow.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '8px' }}>Target Server</label>
+                                <select 
+                                    value={deployData.serverId}
+                                    onChange={(e) => setDeployData({ ...deployData, serverId: e.target.value })}
+                                    style={{ width: '100%', height: '52px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 20px', fontSize: '0.95rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                >
+                                    <option value="">Select server...</option>
+                                    {nodes.filter(n => n.status === 'Active').map(node => (
+                                        <option key={node.id} value={node.id}>{node.name} ({node.customerName || 'Unassigned'})</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                                <button 
+                                    onClick={handleDeployWorkflow}
+                                    disabled={isDeploying || !deployData.workflowId || !deployData.serverId}
+                                    style={{ flex: 1, height: '52px', background: '#0F172A', color: '#FFFFFF', border: 'none', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: isDeploying || !deployData.workflowId || !deployData.serverId ? 'not-allowed' : 'pointer', opacity: isDeploying || !deployData.workflowId || !deployData.serverId ? 0.6 : 1 }}
+                                >
+                                    {isDeploying ? 'Deploying...' : 'Deploy Workflow'}
+                                </button>
+                                <button 
+                                    onClick={() => setShowDeployModal(false)}
                                     style={{ flex: 1, height: '52px', background: 'transparent', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: 'pointer' }}
                                 >
                                     Cancel
@@ -555,6 +757,27 @@ export default function FleetHealthMonitoringPage() {
                                                 </td>
                                                 <td style={{ padding: '16px', borderTopRightRadius: '16px', borderBottomRightRadius: '16px', textAlign: 'right' }}>
                                                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                        <button 
+                                                            onClick={() => handleN8nAction(node, 'restart')}
+                                                            style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#FFFFFF', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748B' }}
+                                                            title="Restart n8n"
+                                                        >
+                                                            <RotateCcw size={16} />
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleN8nAction(node, 'start')}
+                                                            style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#FFFFFF', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#10B981' }}
+                                                            title="Start n8n"
+                                                        >
+                                                            <Play size={16} />
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleN8nAction(node, 'stop')}
+                                                            style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#FFFFFF', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#EF4444' }}
+                                                            title="Stop n8n"
+                                                        >
+                                                            <Pause size={16} />
+                                                        </button>
                                                         <button 
                                                             onClick={() => openTerminal(node)}
                                                             style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#FFFFFF', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: node.status === 'Active' ? '#10B981' : '#64748B' }}
