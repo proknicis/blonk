@@ -12,6 +12,7 @@ export type AuditEventType =
     | 'ticket_created' 
     | 'admin_change' 
     | 'admin_mail' 
+    | 'password_reset' 
     | 'failed_login';
 
 export async function logAudit(userId: string, eventType: AuditEventType, target: string, metadata: any = {}) {
