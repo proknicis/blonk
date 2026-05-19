@@ -9,9 +9,60 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 export async function POST(request: Request) {
     try {
         const body = await request.json().catch(() => ({}));
+        const { templateId, amount, userId } = body;
+
+        // Marketplace purchase flow
+        if (templateId && amount !== undefined) {
+            // Get template details
+            const template = await db.query('SELECT * FROM "WorkflowTemplate" WHERE id = $1', [templateId]) as any[];
+            if (!template.length) {
+                return NextResponse.json({ error: "Template not found" }, { status: 404 });
+            }
+
+            // Get user details
+            const user = await db.query('SELECT id, email, name FROM "User" WHERE id = $1', [userId]) as any[];
+            if (!user.length) {
+                return NextResponse.json({ error: "User not found" }, { status: 404 });
+            }
+
+            // Create one-time payment session for marketplace purchase
+            const session = await stripe.checkout.sessions.create({
+                payment_method_types: ['card'],
+                line_items: [
+                    {
+                        price_data: {
+                            currency: 'eur',
+                            product_data: {
+                                name: template[0].name,
+                                description: template[0].description,
+                            },
+                            unit_amount: Math.round(amount * 100), // Convert to cents
+                        },
+                        quantity: 1,
+                    }
+                ],
+                mode: 'payment',
+                success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/marketplace?success=true&templateId=${templateId}`,
+                cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/marketplace?canceled=true`,
+                customer_email: user[0].email,
+                client_reference_id: userId,
+                metadata: {
+                    templateId: templateId,
+                    userId: userId,
+                    type: 'marketplace_purchase'
+                }
+            });
+
+            if (!session.url) {
+                throw new Error("Stripe session creation failed (Missing URL)");
+            }
+
+            return NextResponse.json({ checkoutUrl: session.url });
+        }
+
+        // Original subscription flow
         const plan = body?.plan || 'Professional';
 
-        // 1. Environmental Validation - Institutional Grade
         const proPriceId = process.env.STRIPE_PRO_PRICE_ID;
         const setupFeeId = process.env.STRIPE_SETUP_FEE_PRICE_ID;
 
@@ -20,12 +71,10 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Institutional pricing is not initialized. Please configure STRIPE_PRO_PRICE_ID." }, { status: 500 });
         }
 
-        // 2. Get User Identity (Sovereign postgres)
         const rows = await db.query('SELECT id, email, "firmName" FROM "User" LIMIT 1');
         const user = rows[0];
         const userEmail = user?.email || 'user@blonk.ai';
 
-        // 3. Initiate High-Stakes Handshake
         const lineItems: any[] = [
             {
                 price: proPriceId,
@@ -33,7 +82,6 @@ export async function POST(request: Request) {
             }
         ];
 
-        // Include setup fee if it's the first time
         if (setupFeeId && !setupFeeId.includes("placeholder")) {
             lineItems.push({
                 price: setupFeeId,
