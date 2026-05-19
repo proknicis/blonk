@@ -170,9 +170,9 @@ export default function WorkflowsPage() {
                 <div className={styles.searchSort}>
                     <div className={styles.searchBox}>
                         <Search size={18} color="#94A3B8" />
-                        <input 
-                            type="text" 
-                            placeholder="Search automations..." 
+                        <input
+                            type="text"
+                            placeholder="Search automations..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
@@ -331,7 +331,7 @@ export default function WorkflowsPage() {
                                                     className={styles.fieldInput}
                                                     type="text"
                                                     placeholder={req.example || `Specify ${req.name}...`}
-                                                    onChange={e => setTemplateInputs({...templateInputs, [req.name]: e.target.value})}
+                                                    onChange={e => setTemplateInputs({ ...templateInputs, [req.name]: e.target.value })}
                                                 />
                                             </div>
                                         ))}
@@ -377,7 +377,7 @@ export default function WorkflowsPage() {
                                 </div>
                                 {wizardStep < 4 && (
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
-                                        {[{n:1,l:'Basics'},{n:2,l:'Describe'},{n:3,l:'Urgency'}].map((s, i) => (
+                                        {[{ n: 1, l: 'Basics' }, { n: 2, l: 'Describe' }, { n: 3, l: 'Urgency' }].map((s, i) => (
                                             <React.Fragment key={s.n}>
                                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
                                                     <div style={{
@@ -419,7 +419,7 @@ export default function WorkflowsPage() {
                                         <div>
                                             <label className={styles.fieldLabel}>Category</label>
                                             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
-                                                {['Accounting','Law','HR','IT','Marketing','Sales','General'].map(cat => (
+                                                {['Accounting', 'Law', 'HR', 'IT', 'Marketing', 'Sales', 'General'].map(cat => (
                                                     <button key={cat} onClick={() => setCustomForm(f => ({ ...f, category: cat }))} style={{
                                                         padding: '7px 16px', borderRadius: 100, fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', transition: 'all 0.15s',
                                                         background: customForm.category === cat ? '#0F172A' : '#F8FAFC',
@@ -467,7 +467,7 @@ export default function WorkflowsPage() {
                                             <div style={{ background: 'linear-gradient(135deg,#F0FDF4,#ECFDF5)', border: '1px solid #A7F3D0', borderRadius: 16, padding: '14px 16px' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
                                                     <Zap size={13} color="#10B981" />
-                                                    <span style={{ fontSize: '0.72rem', fontWeight: 950, color: '#059669', textTransform: 'uppercase', letterSpacing: '0.08em' }}>AI found similar workflows already in the marketplace</span>
+                                                    <span style={{ fontSize: '0.72rem', fontWeight: 950, color: '#059669', textTransform: 'uppercase', letterSpacing: '0.08em' }}>BLONK found similar workflows already in the marketplace</span>
                                                 </div>
                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                                                     {aiMatches.map((m, i) => (
@@ -508,10 +508,10 @@ export default function WorkflowsPage() {
                                         </div>
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                                             {[
-                                                { value: 'low',    label: 'Low priority',  sub: 'Within 2 weeks — no rush',   emoji: '🟢' },
-                                                { value: 'normal', label: 'Normal',        sub: 'Within 1 week — standard',   emoji: '🔵' },
-                                                { value: 'high',   label: 'High priority', sub: 'Within 2 days — important',  emoji: '🟡' },
-                                                { value: 'urgent', label: 'Urgent',        sub: 'ASAP — critical to business', emoji: '🔴' },
+                                                { value: 'low', label: 'Low priority', sub: 'Within 2 weeks — no rush', emoji: '🟢' },
+                                                { value: 'normal', label: 'Normal', sub: 'Within 1 week — standard', emoji: '🔵' },
+                                                { value: 'high', label: 'High priority', sub: 'Within 2 days — important', emoji: '🟡' },
+                                                { value: 'urgent', label: 'Urgent', sub: 'ASAP — critical to business', emoji: '🔴' },
                                             ].map(opt => (
                                                 <div key={opt.value} onClick={() => setCustomForm(f => ({ ...f, urgency: opt.value }))} style={{
                                                     display: 'flex', alignItems: 'center', gap: 14, padding: '13px 16px', borderRadius: 14, cursor: 'pointer', transition: 'all 0.15s',

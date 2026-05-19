@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { ShieldAlert, Terminal, MessageSquare, ExternalLink, Search, BellRing, Clock, RefreshCw, Server, Zap } from "lucide-react";
+import { ShieldAlert, Terminal, MessageSquare, ExternalLink, Search, BellRing, Clock, RefreshCw, Server, Zap, CheckCircle2, ChevronDown } from "lucide-react";
 import adminStyles from "../admin.module.css";
 
 interface Incident {
@@ -20,6 +20,17 @@ export default function IncidentFeed({ initialIncidents }: { initialIncidents: I
     const [incidents, setIncidents] = useState<Incident[]>(initialIncidents);
     const [search, setSearch] = useState('');
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [showAll, setShowAll] = useState(false);
+    const [resolvedIds, setResolvedIds] = useState<Set<string>>(new Set());
+
+    const toggleResolve = (id: string) => {
+        setResolvedIds(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(id)) newSet.delete(id);
+            else newSet.add(id);
+            return newSet;
+        });
+    };
 
     const refreshData = async () => {
         setIsRefreshing(true);
@@ -36,12 +47,25 @@ export default function IncidentFeed({ initialIncidents }: { initialIncidents: I
         }
     };
 
-    const filteredIncidents = incidents.filter(inc => 
+    const enrichedIncidents = incidents.map(inc => ({
+        ...inc,
+        status: resolvedIds.has(inc.id) ? 'Resolved' as const : 'Active' as const,
+    }));
+
+    const filteredIncidents = enrichedIncidents.filter(inc => 
         inc.firm.toLowerCase().includes(search.toLowerCase()) || 
         inc.description.toLowerCase().includes(search.toLowerCase())
-    );
+    ).sort((a, b) => {
+        // Active first, resolved last
+        if (a.status === 'Resolved' && b.status !== 'Resolved') return 1;
+        if (a.status !== 'Resolved' && b.status === 'Resolved') return -1;
+        return 0;
+    });
 
-    const getSeverityStyle = (severity: string) => {
+    const displayedIncidents = showAll ? filteredIncidents : filteredIncidents.slice(0, 6);
+
+    const getSeverityStyle = (severity: string, status: string) => {
+        if (status === 'Resolved') return { background: 'rgba(100, 116, 139, 0.1)', color: '#64748B' };
         if (severity === 'High') return { background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' };
         if (severity === 'Medium') return { background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' };
         return { background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' };
@@ -78,15 +102,16 @@ export default function IncidentFeed({ initialIncidents }: { initialIncidents: I
                     </div>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                        {filteredIncidents.map((inc) => (
+                        {displayedIncidents.map((inc) => (
                             <div key={inc.id} style={{ 
                                 display: "flex", 
                                 alignItems: "center", 
                                 justifyContent: "space-between", 
                                 padding: "24px", 
                                 borderRadius: "24px", 
-                                background: "var(--background)", 
+                                background: inc.status === 'Resolved' ? "rgba(248, 250, 252, 0.5)" : "var(--background)", 
                                 border: "1px solid var(--border)",
+                                opacity: inc.status === 'Resolved' ? 0.7 : 1,
                                 transition: 'all 0.3s ease'
                             }}>
                                 <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
@@ -94,39 +119,43 @@ export default function IncidentFeed({ initialIncidents }: { initialIncidents: I
                                         width: "52px", 
                                         height: "52px", 
                                         borderRadius: "16px", 
-                                        background: "var(--card)", 
+                                        background: inc.status === 'Resolved' ? "transparent" : "var(--card)", 
                                         display: "flex", 
                                         alignItems: "center", 
                                         justifyContent: "center", 
-                                        border: "1px solid var(--border)"
+                                        border: inc.status === 'Resolved' ? "1px dashed var(--border)" : "1px solid var(--border)"
                                     }}>
-                                        <ShieldAlert size={24} style={{ color: getSeverityStyle(inc.severity).color }} />
+                                        {inc.status === 'Resolved' ? (
+                                            <CheckCircle2 size={24} color="#64748B" />
+                                        ) : (
+                                            <ShieldAlert size={24} style={{ color: getSeverityStyle(inc.severity, inc.status).color }} />
+                                        )}
                                     </div>
                                     <div>
                                         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-                                            <span style={{ fontSize: "0.85rem", fontWeight: 950 }}>{inc.firm}</span>
+                                            <span style={{ fontSize: "0.85rem", fontWeight: 950, textDecoration: inc.status === 'Resolved' ? 'line-through' : 'none', color: inc.status === 'Resolved' ? '#94A3B8' : 'inherit' }}>{inc.firm}</span>
                                             <span style={{ 
                                                 fontSize: "0.6rem", 
                                                 fontWeight: 950, 
                                                 padding: "3px 8px", 
                                                 borderRadius: "100px", 
-                                                ...getSeverityStyle(inc.severity), 
+                                                ...getSeverityStyle(inc.severity, inc.status), 
                                                 textTransform: 'uppercase', 
                                                 letterSpacing: '0.05em' 
-                                            }}>{inc.severity} SEVERITY</span>
+                                            }}>{inc.status === 'Resolved' ? 'RESOLVED' : `${inc.severity} SEVERITY`}</span>
                                         </div>
-                                        <div style={{ fontSize: "0.95rem", color: "var(--foreground)", fontWeight: 800, maxWidth: '500px', letterSpacing: '-0.01em', marginBottom: "10px" }}>{inc.description}</div>
+                                        <div style={{ fontSize: "0.95rem", color: inc.status === 'Resolved' ? "#94A3B8" : "var(--foreground)", fontWeight: 800, maxWidth: '500px', letterSpacing: '-0.01em', marginBottom: "10px" }}>{inc.description}</div>
                                         
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: "0.75rem", color: "var(--muted-foreground)", fontWeight: 750, flexWrap: 'wrap' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--muted)', padding: '2px 8px', borderRadius: '6px' }}>
-                                                <Zap size={12} color="#10B981" />
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: inc.status === 'Resolved' ? 'transparent' : 'var(--muted)', padding: '2px 8px', borderRadius: '6px', border: inc.status === 'Resolved' ? '1px solid var(--border)' : 'none' }}>
+                                                <Zap size={12} color={inc.status === 'Resolved' ? '#94A3B8' : '#10B981'} />
                                                 <span>{inc.workflowName}</span>
                                             </div>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--muted)', padding: '2px 8px', borderRadius: '6px' }}>
-                                                <Server size={12} color="#3B82F6" />
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: inc.status === 'Resolved' ? 'transparent' : 'var(--muted)', padding: '2px 8px', borderRadius: '6px', border: inc.status === 'Resolved' ? '1px solid var(--border)' : 'none' }}>
+                                                <Server size={12} color={inc.status === 'Resolved' ? '#94A3B8' : '#3B82F6'} />
                                                 <span>{inc.serverName}</span>
                                             </div>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--muted)', padding: '2px 8px', borderRadius: '6px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: inc.status === 'Resolved' ? 'transparent' : 'var(--muted)', padding: '2px 8px', borderRadius: '6px', border: inc.status === 'Resolved' ? '1px solid var(--border)' : 'none' }}>
                                                 <Clock size={12} />
                                                 <span>{inc.timestamp}</span>
                                             </div>
@@ -134,17 +163,62 @@ export default function IncidentFeed({ initialIncidents }: { initialIncidents: I
                                         </div>
                                     </div>
                                 </div>
-                                <div style={{ display: "flex", gap: "12px" }}>
-                                    {inc.debugUrl && (
+                                <div style={{ display: "flex", gap: "12px", alignItems: 'center' }}>
+                                    <button 
+                                        onClick={() => toggleResolve(inc.id)}
+                                        className={adminStyles.primaryBtn} 
+                                        style={{ 
+                                            padding: '8px 16px', 
+                                            fontSize: '0.8rem', 
+                                            background: inc.status === 'Resolved' ? 'var(--card)' : '#10B981', 
+                                            color: inc.status === 'Resolved' ? 'var(--foreground)' : 'white',
+                                            border: inc.status === 'Resolved' ? '1px solid var(--border)' : 'none'
+                                        }}
+                                    >
+                                        {inc.status === 'Resolved' ? 'Reopen' : 'Mark Fixed'}
+                                    </button>
+                                    {inc.debugUrl && inc.status !== 'Resolved' && (
                                         <a href={inc.debugUrl} target="_blank" rel="noopener noreferrer" className={adminStyles.actionIconBtn} title="Launch Debugger">
                                             <Terminal size={18} />
                                         </a>
                                     )}
-                                    <button className={adminStyles.actionIconBtn} title="Dispatch Alert"><BellRing size={18} /></button>
-                                    <button className={adminStyles.actionIconBtn} title="External Logs"><ExternalLink size={18} /></button>
+                                    {inc.status !== 'Resolved' && (
+                                        <>
+                                            <button className={adminStyles.actionIconBtn} title="Dispatch Alert"><BellRing size={18} /></button>
+                                            <button className={adminStyles.actionIconBtn} title="External Logs"><ExternalLink size={18} /></button>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         ))}
+                        
+                        {!showAll && filteredIncidents.length > 6 && (
+                            <button 
+                                onClick={() => setShowAll(true)}
+                                style={{
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                                    padding: '16px', borderRadius: '20px', background: 'var(--card)', border: '1px solid var(--border)',
+                                    color: 'var(--foreground)', fontSize: '0.9rem', fontWeight: 950, cursor: 'pointer', transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--muted)'}
+                                onMouseLeave={(e) => e.currentTarget.style.background = 'var(--card)'}
+                            >
+                                View {filteredIncidents.length - 6} older incidents <ChevronDown size={16} />
+                            </button>
+                        )}
+
+                        {showAll && filteredIncidents.length > 6 && (
+                            <button 
+                                onClick={() => setShowAll(false)}
+                                style={{
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                                    padding: '16px', borderRadius: '20px', background: 'transparent', border: 'none',
+                                    color: 'var(--muted-foreground)', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s'
+                                }}
+                            >
+                                Show less
+                            </button>
+                        )}
                         
                         {filteredIncidents.length === 0 && (
                             <div className={adminStyles.emptyState} style={{ padding: '80px 0' }}>
