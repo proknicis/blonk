@@ -225,10 +225,54 @@ export default function DashboardPage() {
 
             {isEmpty ? (
                 <div className={styles.onboardingState}>
-                   <div className={styles.onboardingIllustration}><Plus size={32} /></div>
-                   <h2 className={styles.onboardingTitle}>Initialize your autonomous firm</h2>
-                   <p className={styles.onboardingSubtitle}>Your dashboard is empty because no workflows have been provisioned yet.</p>
-                   <Link href="/dashboard/registry?create=true" className={styles.btnInstitutional}>Generate Workflow</Link>
+                    <div className={styles.onboardingGrid}>
+                        <div className={styles.gridDot} style={{ animationDelay: '0s' }} />
+                        <div className={styles.gridDot} style={{ animationDelay: '0.2s' }} />
+                        <div className={styles.gridDot} style={{ animationDelay: '0.4s' }} />
+                        <div className={styles.gridDot} style={{ animationDelay: '0.6s' }} />
+                        <div className={styles.gridDot} style={{ animationDelay: '0.8s' }} />
+                        <div className={styles.gridDot} style={{ animationDelay: '1s' }} />
+                        <div className={styles.gridDot} style={{ animationDelay: '1.2s' }} />
+                        <div className={styles.gridDot} style={{ animationDelay: '1.4s' }} />
+                        <div className={styles.gridDot} style={{ animationDelay: '1.6s' }} />
+                    </div>
+                    <div className={styles.onboardingContent}>
+                        <div className={styles.onboardingIconWrapper}>
+                            <div className={styles.onboardingIconBg}>
+                                <Zap size={48} color="#10B981" />
+                            </div>
+                            <div className={styles.onboardingPulse} />
+                        </div>
+                        <h2 className={styles.onboardingTitle}>Initialize your autonomous firm</h2>
+                        <p className={styles.onboardingSubtitle}>
+                            Your dashboard is empty because no workflows have been provisioned yet. 
+                            Start by deploying your first automated workflow from the marketplace.
+                        </p>
+                        <div className={styles.onboardingActions}>
+                            <Link href="/dashboard/registry?create=true" className={styles.btnPrimary}>
+                                <Plus size={18} />
+                                Generate Workflow
+                            </Link>
+                            <Link href="/dashboard/registry" className={styles.btnSecondary}>
+                                <ExternalLink size={18} />
+                                Browse Marketplace
+                            </Link>
+                        </div>
+                        <div className={styles.onboardingFeatures}>
+                            <div className={styles.featureItem}>
+                                <div className={styles.featureIcon}><CheckCircle size={16} color="#10B981" /></div>
+                                <span className={styles.featureText}>100+ pre-built templates</span>
+                            </div>
+                            <div className={styles.featureItem}>
+                                <div className={styles.featureIcon}><CheckCircle size={16} color="#10B981" /></div>
+                                <span className={styles.featureText}>One-click deployment</span>
+                            </div>
+                            <div className={styles.featureItem}>
+                                <div className={styles.featureIcon}><CheckCircle size={16} color="#10B981" /></div>
+                                <span className={styles.featureText}>Real-time monitoring</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             ) : (
                 <div className={styles.commandGrid}>
