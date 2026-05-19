@@ -29,11 +29,18 @@ export async function POST(request: Request) {
         const hashedPassword = await bcrypt.hash(password, 10);
         const userId = uuidv4();
 
+        console.log(`[SERVER]: Registering new user: ${email}`);
+
         // Insert new user as an OWNER but without a team initially
-        await db.execute(
-            'INSERT INTO "User" (id, email, password, name, "firmName", industry, plan, role, "onboardingStatus") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
-            [userId, email, hashedPassword, name || email.split('@')[0], firmName || '', industry || '', 'Starter', 'OWNER', 'TEAM_PENDING']
-        );
+        try {
+            await db.execute(
+                'INSERT INTO "User" (id, email, password, name, "firmName", industry, plan, role, "onboardingStatus") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
+                [userId, email, hashedPassword, name || email.split('@')[0], firmName || '', industry || '', 'Starter', 'OWNER', 'TEAM_PENDING']
+            );
+        } catch (dbInsertError: any) {
+            console.error('[SERVER]: Database insertion failed during registration:', dbInsertError);
+            throw new Error(`Database registration failure: ${dbInsertError.message}`);
+        }
 
         // 4. Send Welcome Email via Hostinger SMTP
         try {

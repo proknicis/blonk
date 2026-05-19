@@ -30,17 +30,20 @@ export async function POST(request: NextRequest) {
 
         const user = rows?.[0];
         if (!user) {
-            // Log failed attempt if user email exists but no user found (or just log email for trace)
+            console.warn(`[auth/login] Identity handshake failed: No user found for ${email}`);
             return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
         }
 
+        console.log(`[auth/login] User identified: ${user.id}. Verifying credentials...`);
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
+            console.warn(`[auth/login] Identity handshake failed: Invalid password for ${email}`);
             await logAudit(user.id, 'failed_login', 'Account Login', { email });
             return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
         }
 
+        console.log(`[auth/login] Login successful for ${email}. Dispatching session...`);
         await logAudit(user.id, 'login', 'Account Login');
 
         return NextResponse.json({
