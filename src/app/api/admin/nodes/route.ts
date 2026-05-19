@@ -229,3 +229,39 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Failed to add node" }, { status: 500 });
     }
 }
+
+export async function PUT(req: Request) {
+    try {
+        const { id, name, url, api_key, max_workflows, teamId } = await req.json();
+        
+        if (!id) {
+            return NextResponse.json({ error: "Missing node ID" }, { status: 400 });
+        }
+
+        // Validate node exists
+        const existing = await db.query('SELECT * FROM "ClusterNode" WHERE id = $1', [id]) as any[];
+        if (existing.length === 0) {
+            return NextResponse.json({ error: "Node not found" }, { status: 404 });
+        }
+
+        // Update with provided fields or keep existing
+        const updatedName = name || existing[0].name;
+        const updatedUrl = url || existing[0].url;
+        const updatedApiKey = api_key || existing[0].api_key;
+        const updatedMaxWorkflows = max_workflows !== undefined ? max_workflows : existing[0].max_workflows;
+        const updatedTeamId = teamId !== undefined ? teamId : existing[0].teamId;
+
+        const res = await db.execute(
+            'UPDATE "ClusterNode" SET name = $1, url = $2, api_key = $3, max_workflows = $4, "teamId" = $5, status = $6 WHERE id = $7 RETURNING *',
+            [updatedName, updatedUrl, updatedApiKey, updatedMaxWorkflows, updatedTeamId, 'Pending', id]
+        );
+
+        // Clear cache for this node
+        nodeCache = nodeCache.filter(c => c.id !== id);
+
+        return NextResponse.json(res.rows[0]);
+    } catch (error: any) {
+        console.error("[Fleet API] Update failed:", error);
+        return NextResponse.json({ error: "Failed to update node", details: error.message }, { status: 500 });
+    }
+}
