@@ -23,14 +23,13 @@ export default async function AuditVaultPage() {
 
     interface AuditRow {
         id: string;
-        ts: string;
-        process: string;
-        user: string;
-        userInitials: string;
+        timestamp: string;
+        category: string;
+        actor: string;
         action: string;
-        outcome: string;
-        duration: string;
-        rawId: string;
+        target: string;
+        status: string;
+        ipAddress: string;
     }
 
     let logs: AuditRow[] = [];
@@ -47,7 +46,9 @@ export default async function AuditVaultPage() {
                 "workflowName",
                 status,
                 result,
-                "createdAt"
+                "createdAt",
+                COALESCE(result->'activity'->>'actor', result->>'actor') AS "actor",
+                COALESCE(result->'activity'->>'ipAddress', result->>'ipAddress') AS "ipAddress"
             FROM "WorkflowLog"
             WHERE "teamId" = $1
             ORDER BY "createdAt" DESC
@@ -93,23 +94,18 @@ export default async function AuditVaultPage() {
             else if (r.status in { error: 1, failed: 1 }) actionText = `Workflow "${r.workflowName || 'system'}" failed during execution`;
 
             // Resolve display name — prefer DB user, fallback to session
-            const userName     = r.userName  || currentUserName;
-            const userInitials = userName.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2);
-
-            // Duration from result metadata
-            const durationMs = resObj.durationMs || resObj.duration || null;
-            const duration   = durationMs ? `${(durationMs / 1000).toFixed(1)}s` : '—';
+            const userName = r.actor || currentUserName || currentUserEmail || "System";
+            const category = r.status === 'error' || r.status === 'failed' ? "Security" : "Provisioning";
 
             return {
-                id:           shortId,
-                rawId:        String(r.id),
-                ts:           tsStr,
-                process:      r.workflowName || "System Process",
-                user:         userName,
-                userInitials: userInitials,
-                action:       actionText,
-                outcome:      (r.status === 'error' || r.status === 'failed') ? "Failed" : "Success",
-                duration,
+                id: shortId,
+                timestamp: tsStr,
+                category,
+                actor: userName,
+                action: actionText,
+                target: r.workflowName || "System Process",
+                status: (r.status === 'error' || r.status === 'failed') ? "Failed" : "Success",
+                ipAddress: r.ipAddress || "Internal",
             };
         });
 
@@ -118,6 +114,14 @@ export default async function AuditVaultPage() {
     }
 
     return (
-        <AuditClient />
+        <AuditClient
+            auditLogs={logs}
+            stats={{
+                securityEvents: failures,
+                provisioning: successCount,
+                configurations: totalLogs,
+                failedAuth: failures,
+            }}
+        />
     );
 }

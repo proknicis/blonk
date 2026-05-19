@@ -73,9 +73,9 @@ export default function DashboardPage() {
                     setGlobalStats({ total_tasks: stats.total_tasks, status: 'online' });
                 }
             } catch (e) {
-                setGlobalStats(prev => ({ 
-                    status: 'online', 
-                    total_tasks: prev.total_tasks + Math.floor(Math.random() * 3) 
+                setGlobalStats(prev => ({
+                    status: 'offline',
+                    total_tasks: prev.total_tasks
                 }));
             }
         };

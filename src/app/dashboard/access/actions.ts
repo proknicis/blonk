@@ -12,7 +12,7 @@ export async function updateSetting(key: string, value: string) {
                 VALUES (gen_random_uuid(), $1, $2)
             `, [key, value]);
         }
-        revalidatePath("/dashboard/sovereignty");
+        revalidatePath("/dashboard/access");
     } catch (error) {
         console.error("Failed to update setting:", error);
     }
@@ -27,7 +27,7 @@ export async function addApiKey(entry: any) {
             INSERT INTO "OperationalSetting" (id, key, value)
             VALUES (gen_random_uuid(), $1, $2)
         `, [dbKey, dbValue]);
-        revalidatePath("/dashboard/sovereignty");
+        revalidatePath("/dashboard/access");
     } catch (error) {
         console.error("Failed to add API key:", error);
     }
@@ -37,7 +37,7 @@ export async function removeApiKey(id: string) {
     try {
         const dbKey = `apikey_${id}`;
         await db.query(`DELETE FROM "OperationalSetting" WHERE key = $1`, [dbKey]);
-        revalidatePath("/dashboard/sovereignty");
+        revalidatePath("/dashboard/access");
     } catch(e) {
         console.error("Failed to remove API key:", e);
     }

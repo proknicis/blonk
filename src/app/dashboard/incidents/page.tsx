@@ -6,7 +6,17 @@ import OfficeClient from "./OfficeClient";
 
 async function getAgents(teamId: string) {
     try {
-        const workflowRows = await db.query('SELECT * FROM "Workflow" WHERE "teamId" = $1 ORDER BY "createdAt" DESC', [teamId]);
+        const workflowRows = await db.query(`
+            SELECT
+                w.*,
+                COUNT(l.id)::int AS "runsToday",
+                COUNT(l.id) FILTER (WHERE l.status NOT IN ('error', 'failed'))::int AS "successRunsToday"
+            FROM "Workflow" w
+            LEFT JOIN "WorkflowLog" l ON l."workflowId" = w.id AND l."createdAt" >= CURRENT_DATE
+            WHERE w."teamId" = $1
+            GROUP BY w.id
+            ORDER BY w."createdAt" DESC
+        `, [teamId]);
 
         const appIcons = [
             { name: 'Google Sheets', color: '#10B981' },
@@ -28,19 +38,15 @@ async function getAgents(teamId: string) {
                 displayStatus = 'Failed';
                 color = '#EF4444';
                 statusKey = 'failed';
-            } else if (index === 2) {
-                displayStatus = 'Needs Setup';
-                color = '#F59E0B';
-                statusKey = 'needs_setup';
             } else if (wf.status === 'Active' || wf.status === 'Published' || wf.status === 'Running' || wf.status === 'Success' || wf.status === 'Completed') {
                 displayStatus = 'Running';
                 color = '#10B981';
                 statusKey = 'running';
             }
 
-            // Generate some deterministic mock data for stats
-            const runsToday = statusKey === 'needs_setup' ? 0 : (index * 12 + 18);
-            const successRate = statusKey === 'needs_setup' ? '-' : (statusKey === 'failed' ? '72%' : '98%');
+            const runsToday = Number(wf.runsToday || 0);
+            const successRunsToday = Number(wf.successRunsToday || 0);
+            const successRate = runsToday > 0 ? `${Math.round((successRunsToday / runsToday) * 100)}%` : '-';
             const apps = [appIcons[index % 5], appIcons[(index + 1) % 5]];
 
             return {

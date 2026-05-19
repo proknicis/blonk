@@ -189,7 +189,7 @@ export default function ReportsClient({
     const kpis = [
         {
             label: "Total Runs", value: (totalRuns ?? 0).toLocaleString(),
-            sub: `↑ 18% vs Apr 26 – May 3`, up: true,
+            sub: `From workflow logs`, up: true,
             icon: <BarChart3 size={22} />, color: "#3B82F6",
         },
         {
@@ -203,13 +203,13 @@ export default function ReportsClient({
             icon: <AlertCircle size={22} />, color: "#EF4444",
         },
         {
-            label: "Avg. Execution Time", value: avgExecMs ? `${avgExecMs}ms` : "14ms",
-            sub: `↓ 12% vs Apr 28 – May 5`, up: true,
+            label: "Avg. Execution Time", value: avgExecMs ? `${avgExecMs}ms` : "No data",
+            sub: `Average from logged duration`, up: true,
             icon: <Clock size={22} />, color: "#F59E0B",
         },
         {
             label: "SLA Compliance", value: `${slaCompliance}%`,
-            sub: `↑ 7% vs Apr 28 – May 5`, up: true,
+            sub: `Based on successful runs`, up: true,
             icon: <ShieldCheck size={22} />, color: "#8B5CF6",
         },
     ];
@@ -222,7 +222,7 @@ export default function ReportsClient({
                 <div className={styles.filterLeft}>
                     <div className={styles.datePill}>
                         <Calendar size={14} />
-                        May 10 – May 17, 2025
+                        Last 30 days
                         <ChevronDown size={13} />
                     </div>
                     <select className={styles.filterSel}><option>All Workflows</option>

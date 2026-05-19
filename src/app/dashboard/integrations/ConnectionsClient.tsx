@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { CheckCircle2, AlertTriangle, XCircle, MinusCircle, LayoutGrid, Search, ChevronLeft, ChevronRight, ArrowRight, ShieldCheck, Info, MoreHorizontal } from "lucide-react";
 
 interface Connection {
@@ -26,6 +26,20 @@ interface AttentionItem {
 
 export default function ConnectionsClient({ initialConnections, needsAttention }: { initialConnections: Connection[], needsAttention: AttentionItem[] }) {
     const [filter, setFilter] = useState('All');
+    const [search, setSearch] = useState("");
+
+    const filteredConnections = useMemo(() => {
+        const term = search.trim().toLowerCase();
+        return initialConnections.filter(conn => {
+            const matchesFilter = filter === 'All' || (filter === 'Connected' ? conn.statusKey === 'connected' : conn.statusKey !== 'connected');
+            const matchesSearch = !term || [conn.app, conn.category, conn.status, conn.health, ...conn.workflows].some(value => value.toLowerCase().includes(term));
+            return matchesFilter && matchesSearch;
+        });
+    }, [filter, initialConnections, search]);
+
+    const connectedCount = initialConnections.filter(conn => conn.statusKey === 'connected').length;
+    const notConnectedCount = initialConnections.filter(conn => conn.statusKey === 'not_connected').length;
+    const issueCount = initialConnections.length - connectedCount - notConnectedCount;
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24, paddingBottom: 60 }}>
@@ -39,11 +53,11 @@ export default function ConnectionsClient({ initialConnections, needsAttention }
 
             {/* Health Summary Strip */}
             <div style={{ display: 'flex', background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, overflow: 'hidden' }}>
-                <HealthItem icon={<CheckCircle2 size={24} color="#10B981" />} iconBg="#ECFDF5" count={12} label="Connected" />
-                <HealthItem icon={<AlertTriangle size={24} color="#F59E0B" />} iconBg="#FFFBEB" count={2} label="Needs Reconnect" />
-                <HealthItem icon={<XCircle size={24} color="#EF4444" />} iconBg="#FEF2F2" count={1} label="Expired" />
-                <HealthItem icon={<MinusCircle size={24} color="#64748B" />} iconBg="#F1F5F9" count={3} label="Not Connected" borderRight />
-                <HealthItem icon={<LayoutGrid size={24} color="#3B82F6" />} iconBg="#EFF6FF" count={18} label="Total Apps" noBorder />
+                <HealthItem icon={<CheckCircle2 size={24} color="#10B981" />} iconBg="#ECFDF5" count={connectedCount} label="Connected" />
+                <HealthItem icon={<AlertTriangle size={24} color="#F59E0B" />} iconBg="#FFFBEB" count={0} label="Needs Reconnect" />
+                <HealthItem icon={<XCircle size={24} color="#EF4444" />} iconBg="#FEF2F2" count={issueCount} label="Issues" />
+                <HealthItem icon={<MinusCircle size={24} color="#64748B" />} iconBg="#F1F5F9" count={notConnectedCount} label="Not Connected" borderRight />
+                <HealthItem icon={<LayoutGrid size={24} color="#3B82F6" />} iconBg="#EFF6FF" count={initialConnections.length} label="Total Apps" noBorder />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '2.8fr 1fr', gap: 24, alignItems: 'start' }}>
@@ -65,9 +79,9 @@ export default function ConnectionsClient({ initialConnections, needsAttention }
                         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#fff', border: '1px solid #E2E8F0', borderRadius: 100, padding: '8px 16px', width: 240 }}>
                                 <Search size={14} color="#94A3B8" />
-                                <input placeholder="Search connections..." style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: '0.8rem', width: '100%' }} />
+                                <input placeholder="Search connections..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: '0.8rem', width: '100%' }} />
                             </div>
-                            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748B', cursor: 'pointer' }}>Clear filters</span>
+                            <span onClick={() => { setSearch(""); setFilter("All"); }} style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748B', cursor: 'pointer' }}>Clear filters</span>
                         </div>
                     </div>
 
@@ -85,8 +99,8 @@ export default function ConnectionsClient({ initialConnections, needsAttention }
                                 </tr>
                             </thead>
                             <tbody>
-                                {initialConnections.map((conn, i) => (
-                                    <tr key={i} style={{ borderBottom: i < initialConnections.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
+                                {filteredConnections.map((conn, i) => (
+                                    <tr key={conn.id} style={{ borderBottom: i < filteredConnections.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
                                         <td style={tdStyle}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                                                 <div style={{ width: 36, height: 36, borderRadius: 10, background: conn.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: '1.2rem' }}>
@@ -119,7 +133,7 @@ export default function ConnectionsClient({ initialConnections, needsAttention }
                                             </div>
                                         </td>
                                         <td style={{...tdStyle, textAlign: 'right'}}>
-                                            <button style={{ background: 'transparent', border: '1px solid #E2E8F0', borderRadius: 8, padding: '8px 16px', fontSize: '0.75rem', fontWeight: 800, color: '#0F172A', cursor: 'pointer' }}>
+                                            <button onClick={() => window.location.href = conn.statusKey === 'connected' ? '/dashboard/access' : '/dashboard/registry'} style={{ background: 'transparent', border: '1px solid #E2E8F0', borderRadius: 8, padding: '8px 16px', fontSize: '0.75rem', fontWeight: 800, color: '#0F172A', cursor: 'pointer' }}>
                                                 {conn.action}
                                             </button>
                                         </td>
@@ -133,14 +147,7 @@ export default function ConnectionsClient({ initialConnections, needsAttention }
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16 }}>
-                        <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748B' }}>Showing 1–6 of 18 connections</span>
-                        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                            <button style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #E2E8F0', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', cursor: 'pointer' }}><ChevronLeft size={14}/></button>
-                            <button style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #10B981', background: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10B981', fontWeight: 900, cursor: 'pointer' }}>1</button>
-                            <button style={{ width: 32, height: 32, borderRadius: 8, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', fontWeight: 800, cursor: 'pointer' }}>2</button>
-                            <button style={{ width: 32, height: 32, borderRadius: 8, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', fontWeight: 800, cursor: 'pointer' }}>3</button>
-                            <button style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #E2E8F0', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', cursor: 'pointer' }}><ChevronRight size={14}/></button>
-                        </div>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748B' }}>Showing {filteredConnections.length} of {initialConnections.length} connections</span>
                     </div>
                 </div>
 
@@ -153,7 +160,7 @@ export default function ConnectionsClient({ initialConnections, needsAttention }
                                 <AlertTriangle size={14} /> NEEDS ATTENTION
                             </div>
                             <div style={{ background: '#FEF2F2', color: '#EF4444', fontWeight: 900, fontSize: '0.75rem', width: 24, height: 24, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                3
+                                {needsAttention.length}
                             </div>
                         </div>
 
@@ -172,8 +179,8 @@ export default function ConnectionsClient({ initialConnections, needsAttention }
                                         </div>
                                         <span style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 600 }}>{item.time}</span>
                                     </div>
-                                    <button style={{ width: '100%', background: '#fff', border: '1px solid #E2E8F0', borderRadius: 8, padding: '8px', fontSize: '0.75rem', fontWeight: 800, color: '#0F172A', cursor: 'pointer' }}>
-                                        Reconnect
+                                    <button onClick={() => window.location.href = '/dashboard/access'} style={{ width: '100%', background: '#fff', border: '1px solid #E2E8F0', borderRadius: 8, padding: '8px', fontSize: '0.75rem', fontWeight: 800, color: '#0F172A', cursor: 'pointer' }}>
+                                        Configure
                                     </button>
                                 </div>
                             ))}

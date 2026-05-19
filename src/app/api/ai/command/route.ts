@@ -9,7 +9,7 @@ Your job is to translate user commands into system actions.
 
 ACTIONS AVAILABLE:
 1. NAVIGATE: Change the page.
-   - Destinations: /dashboard (Overview), /dashboard/office (Mission Control), /dashboard/audit (Audit Vault), /dashboard/workflows (Marketplace), /dashboard/team (Personnel), /dashboard/settings (Settings).
+   - Destinations: /dashboard (Overview), /dashboard/incidents (My Workflows), /dashboard/audit (Audit Vault), /dashboard/registry (Marketplace), /dashboard/operators (Personnel), /dashboard/settings (Settings).
 2. MESSAGE: Trigger the AI Chat for complex questions.
 3. SEARCH: Filter current views (requires query).
 

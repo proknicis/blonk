@@ -35,7 +35,7 @@ interface FeedItem {
 }
 
 export default function OfficeClient({ initialWorkflows, initialFeed, userRole }: { initialWorkflows: Workflow[], initialFeed: FeedItem[], userRole: string }) {
-    const [workflows] = useState(initialWorkflows);
+    const [workflows, setWorkflows] = useState(initialWorkflows);
     const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(null);
     const [workflowLogs, setWorkflowLogs] = useState<any[]>([]);
     const [isLoadingLogs, setIsLoadingLogs] = useState(false);
@@ -64,6 +64,28 @@ export default function OfficeClient({ initialWorkflows, initialFeed, userRole }
             console.error("Error fetching logs:", error);
         } finally {
             setIsLoadingLogs(false);
+        }
+    };
+
+    const updateWorkflowState = async (workflow: Workflow, action: 'start' | 'end') => {
+        const previous = workflows;
+        const nextStatus = action === 'start' ? 'running' : 'idle';
+        setWorkflows(current => current.map(item => item.id === workflow.id ? {
+            ...item,
+            status: action === 'start' ? 'Running' : 'Paused',
+            statusKey: nextStatus,
+        } : item));
+        try {
+            const res = await fetch('/api/workflows/run', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ workflowId: workflow.id, action }),
+            });
+            if (!res.ok) {
+                setWorkflows(previous);
+            }
+        } catch {
+            setWorkflows(previous);
         }
     };
 
@@ -173,13 +195,13 @@ export default function OfficeClient({ initialWorkflows, initialFeed, userRole }
                                 </div>
                                 
                                 <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
-                                    <button style={{ flex: 1, padding: '10px', background: '#0F172A', color: '#fff', borderRadius: 8, fontSize: '0.75rem', fontWeight: 800, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                                    <button onClick={() => setSelectedWorkflow(wf)} style={{ flex: 1, padding: '10px', background: '#0F172A', color: '#fff', borderRadius: 8, fontSize: '0.75rem', fontWeight: 800, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                                         Open <ChevronRight size={14} />
                                     </button>
-                                    <button style={{ flex: 1, padding: '10px', background: '#fff', color: '#475569', borderRadius: 8, fontSize: '0.75rem', fontWeight: 800, border: '1px solid #E2E8F0', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                                        {wf.statusKey === 'needs_setup' ? <><Settings size={14} /> Setup</> : <><Pause size={14} /> Pause</>}
+                                    <button onClick={() => wf.statusKey === 'needs_setup' ? window.location.href = '/dashboard/registry' : updateWorkflowState(wf, wf.statusKey === 'running' ? 'end' : 'start')} style={{ flex: 1, padding: '10px', background: '#fff', color: '#475569', borderRadius: 8, fontSize: '0.75rem', fontWeight: 800, border: '1px solid #E2E8F0', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                                        {wf.statusKey === 'needs_setup' ? <><Settings size={14} /> Setup</> : wf.statusKey === 'running' ? <><Pause size={14} /> Pause</> : <><Play size={14} /> Start</>}
                                     </button>
-                                    <button style={{ flex: 1, padding: '10px', background: '#fff', color: '#475569', borderRadius: 8, fontSize: '0.75rem', fontWeight: 800, border: '1px solid #E2E8F0', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                                    <button onClick={() => window.location.href = '/dashboard/registry'} style={{ flex: 1, padding: '10px', background: '#fff', color: '#475569', borderRadius: 8, fontSize: '0.75rem', fontWeight: 800, border: '1px solid #E2E8F0', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                                         <Settings size={14} /> Settings
                                     </button>
                                 </div>

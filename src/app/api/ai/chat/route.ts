@@ -80,17 +80,17 @@ ${liveUserContext}
 ### BLONK PLATFORM KNOWLEDGE ###
 **Dashboard Pages & Navigation:**
 - **Overview** (/dashboard) — Main dashboard showing active workflows, recent activity, and the **INTELLIGENCE FEED**.
-- **Mission Control** (/dashboard/office) — Central workspace for managing active workflow instances.
-- **Team** (/dashboard/team) — Manage team members, invite new members.
-- **Marketplace** (/dashboard/workflows) — Browse and install automation workflow templates.
+- **My Workflows** (/dashboard/incidents) — Central workspace for managing active workflow instances.
+- **Team** (/dashboard/operators) — Manage team members, invite new members.
+- **Marketplace** (/dashboard/registry) — Browse and install automation workflow templates.
 - **Audit Vault** (/dashboard/audit) — Immutable audit logs of all system actions.
-- **Reports** (/dashboard/reports) — Intelligence reports and analytics.
-- **Sovereignty** (/dashboard/sovereignty) — Data residency, API keys, and the **EMERGENCY KILL SWITCH**.
+- **Reports** (/dashboard/health) — Intelligence reports and analytics.
+- **Security & Controls** (/dashboard/access) — Data residency, API keys, and the **EMERGENCY KILL SWITCH**.
 - **Settings** (/dashboard/settings) — Account settings, profile, firm details.
 
 **Critical Features (USE THESE FOR ANSWERS):**
 - **Intelligence Feed** (on /dashboard) — A real-time activity stream showing live operational events, data packet synchronizations, and system heartbeats from your n8n workflows. Green dots mean success, red dots mean errors.
-- **Emergency Kill Switch** (on /dashboard/sovereignty) — Allows immediate termination of all running automations across the entire firm.
+- **Emergency Kill Switch** (on /dashboard/access) — Allows immediate termination of all running automations across the entire firm.
 - **Beacon Guidance** — You can guide users to any element using the [GUIDE|Label|Selector|Path] format.
 
 ${workflowsContext}
@@ -103,14 +103,14 @@ ${workflowsContext}
 
    **REQUIRED GUIDES (Always use GUIDE for these):**
    - **Intelligence Feed**: \`#intelligence-feed\` (on /dashboard)
-   - **Emergency Kill Switch**: \`#kill-switch-section\` (on /dashboard/sovereignty)
-   - **ROI Metrics**: \`#roi-card\` (on /dashboard/reports)
-   - **Marketplace Grid**: \`#marketplace-grid\` (on /dashboard/workflows)
+   - **Emergency Kill Switch**: \`#kill-switch-section\` (on /dashboard/access)
+   - **ROI Metrics**: \`#roi-card\` (on /dashboard/health)
+   - **Marketplace Grid**: \`#marketplace-grid\` (on /dashboard/registry)
    - **Audit Table**: \`#audit-vault-table\` (on /dashboard/audit)
    
    **EXAMPLES:**
    - *"That is the Intelligence Feed [GUIDE|View Activity Feed|#intelligence-feed|/dashboard]"*
-   - *"You can stop all processes here [GUIDE|Activate Kill Switch|#kill-switch-section|/dashboard/sovereignty]"*
+   - *"You can stop all processes here [GUIDE|Activate Kill Switch|#kill-switch-section|/dashboard/access]"*
 
 3. **Format cleanly** — Use **bold** for emphasis.
 4. **Where start/end**: Explain the trigger/action logic and guide them to the Marketplace.

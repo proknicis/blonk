@@ -58,7 +58,7 @@ export default function DashboardLayout({
     const unreadCount = useMemo(() => notifications.length, [notifications]);
     const hasTeam = !!(session?.user as any)?.teamId;
     const isOwner = (session?.user as any)?.role === 'OWNER';
-    const isTeamPage = pathname === '/dashboard/team';
+    const isTeamPage = pathname === '/dashboard/operators';
 
     // Strict Institutional Gate: Force exit if unauthenticated
     useEffect(() => {
@@ -237,7 +237,7 @@ export default function DashboardLayout({
                         </div>
 
                         <div className={styles.topbarActions}>
-                            {pathname === '/dashboard/team' && (user.role === 'OWNER' || user.role === 'ADMIN') && (
+                            {pathname === '/dashboard/operators' && (user.role === 'OWNER' || user.role === 'ADMIN') && (
                                 <button 
                                     className={styles.createWorkflowBtn} 
                                     onClick={() => window.dispatchEvent(new CustomEvent('OPEN_INVITE_MODAL'))}
@@ -248,7 +248,7 @@ export default function DashboardLayout({
                             )}
                             
                             {pathname === '/dashboard' && (
-                                 <Link href="/dashboard/workflows?create=true" className={styles.createWorkflowBtn}>
+                                 <Link href="/dashboard/registry?create=true" className={styles.createWorkflowBtn}>
                                      <Zap size={16} /> Request Workflow
                                  </Link>
                             )}
