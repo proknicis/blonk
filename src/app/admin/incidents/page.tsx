@@ -39,9 +39,9 @@ export default async function IncidentCommandPage() {
             id: log.id,
             firm: log.firmName || 'System Archive',
             description: log.errorMessage || `Unknown failure in ${log.workflowName}`,
-            severity: 'High' as 'High' | 'Medium' | 'Low',
+            severity: 'High' as const,
             timestamp: dateStr,
-            status: log.status === 'resolved' ? 'Resolved' : 'Active',
+            status: (log.status === 'resolved' ? 'Resolved' : 'Active') as 'Resolved' | 'Active',
             debugUrl: log.serverUrl && log.n8nWorkflowId ? `${log.serverUrl.replace(/\/+$/, '')}/workflow/${log.n8nWorkflowId}` : log.serverUrl,
             workflowName: log.workflowName || 'Orphaned Execution',
             serverName: log.serverName || 'Unknown Node'
