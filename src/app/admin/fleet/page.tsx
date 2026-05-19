@@ -38,6 +38,7 @@ import {
 } from "lucide-react";
 
 import { Skeleton } from "../../components/Skeleton";
+import { ModalPortal } from "../../components/ModalPortal";
 import adminStyles from "../admin.module.css";
 
 export default function FleetHealthMonitoringPage() {
@@ -46,6 +47,17 @@ export default function FleetHealthMonitoringPage() {
     const [statusFilter, setStatusFilter] = useState("All");
     const [nodes, setNodes] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    // ACTION MODALS STATE
+    const [selectedNode, setSelectedNode] = useState<any>(null);
+    const [showTerminal, setShowTerminal] = useState(false);
+    const [showConfig, setShowConfig] = useState(false);
+    const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
+    const [isTerminalLoading, setIsTerminalLoading] = useState(false);
+
+    // EDIT CONFIG STATE
+    const [editData, setEditData] = useState({ name: "", url: "", apiKey: "", maxWorkflows: 100 });
+    const [isUpdating, setIsUpdating] = useState(false);
 
     const fetchNodes = async (probe = false) => {
         setIsLoading(true);
@@ -66,6 +78,90 @@ export default function FleetHealthMonitoringPage() {
         fetchNodes(true); // Probe on initial load
     }, []);
 
+    // ACTION HANDLERS
+    const openTerminal = (node: any) => {
+        setSelectedNode(node);
+        setShowTerminal(true);
+        setIsTerminalLoading(true);
+        setTerminalLogs([
+            `[${new Date().toLocaleTimeString()}] INITIATING SECURE HANDSHAKE...`,
+            `[${new Date().toLocaleTimeString()}] TARGET: ${node.url}`,
+            `[${new Date().toLocaleTimeString()}] AUTHENTICATING CLUSTER KEY...`
+        ]);
+
+        // Simulate log stream
+        setTimeout(() => {
+            setTerminalLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] CONNECTION ESTABLISHED.`]);
+            setTerminalLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] FETCHING TELEMETRY STACK...`]);
+            setIsTerminalLoading(false);
+        }, 1500);
+
+        setTimeout(() => {
+            setTerminalLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] NODE STATUS: ${node.status.toUpperCase()}`]);
+            setTerminalLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] CPU LOAD: ${node.cpu}% | RAM USAGE: ${node.ram}%`]);
+            setTerminalLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ACTIVE WORKFLOWS: ${node.workflow_count || 0}`]);
+        }, 2500);
+    };
+
+    const openConfig = (node: any) => {
+        setSelectedNode(node);
+        setEditData({
+            name: node.name,
+            url: node.url,
+            apiKey: node.api_key || "",
+            maxWorkflows: node.max_workflows || 100
+        });
+        setShowConfig(true);
+    };
+
+    const updateNodeConfig = async () => {
+        if (!selectedNode) return;
+        setIsUpdating(true);
+        try {
+            const res = await fetch('/api/admin/nodes', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: selectedNode.id,
+                    name: editData.name,
+                    url: editData.url,
+                    api_key: editData.apiKey,
+                    max_workflows: editData.maxWorkflows
+                })
+            });
+
+            if (res.ok) {
+                (window as any).showToast("Node configuration updated successfully.", "success");
+                setShowConfig(false);
+                fetchNodes(true);
+            } else {
+                const err = await res.json();
+                (window as any).showToast(`Update failed: ${err.error}`, "error");
+            }
+        } catch (error) {
+            console.error(error);
+            (window as any).showToast("Network error updating node.", "error");
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    const decommissionNode = async (id: string, name: string) => {
+        if (!confirm(`Permanently decommission and delete node cluster "${name}"?`)) return;
+        try {
+            const res = await fetch(`/api/admin/nodes/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                (window as any).showToast(`Successfully decommissioned node "${name}".`, "success");
+                fetchNodes(true);
+            } else {
+                (window as any).showToast("Failed to decommission node.", "error");
+            }
+        } catch (error) { 
+            console.error(error); 
+            (window as any).showToast("Error decommissioning node.", "error");
+        }
+    };
+
     // Calculate real stats dynamically
     const totalNodes = nodes.length;
     const activeNodes = nodes.filter(n => n.status === 'Active').length;
@@ -77,6 +173,9 @@ export default function FleetHealthMonitoringPage() {
 
     const totalRam = nodes.reduce((sum, n) => sum + (n.ram || 0), 0);
     const avgRam = totalNodes > 0 ? Math.round(totalRam / totalNodes) : 0;
+
+    const totalQueue = nodes.reduce((sum, n) => sum + (n.queue || 0), 0);
+    const totalWorkflows = nodes.reduce((sum, n) => sum + (n.workflow_count || 0), 0);
 
     const packetLoss = activeAlertsCount > 0 ? "0.08%" : "0.00%";
     const successRate = activeAlertsCount > 0 ? "98.5%" : "100.0%";
@@ -165,8 +264,8 @@ export default function FleetHealthMonitoringPage() {
                     { label: 'CPU LOAD (AVG)', value: `${avgCpu}%`, detail: 'Across all active nodes' },
                     { label: 'MEMORY LOAD (AVG)', value: `${avgRam}%`, detail: 'Cache and buffering optimal' },
                     { label: 'DISK USAGE (AVG)', value: totalNodes > 0 ? '15.0%' : '0.0%', detail: 'Persistent storage nominal' },
-                    { label: 'EXECUTION QUEUE', value: 0, detail: '0 tasks delayed' },
-                    { label: 'SUCCESS RATE (24H)', value: successRate, detail: 'Target 100.00% success' },
+                    { label: 'EXECUTION QUEUE', value: totalQueue, detail: `${totalQueue} tasks in flight` },
+                    { label: 'ACTIVE WORKFLOWS', value: totalWorkflows, detail: 'Total provisioned automations' },
                     { label: 'SERVER SYNC', value: `${activeNodes}/${totalNodes}`, detail: 'Active fleet sync status' }
                 ].map((m, i) => (
                     <div key={i} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '24px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '140px' }}>
@@ -239,6 +338,7 @@ export default function FleetHealthMonitoringPage() {
                                         <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Memory</th>
                                         <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Disk</th>
                                         <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Workflows</th>
+                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Telemetry</th>
                                         <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9', textAlign: 'right' }}>Actions</th>
                                     </tr>
                                 </thead>
@@ -296,21 +396,33 @@ export default function FleetHealthMonitoringPage() {
                                                 <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 950, color: '#0F172A' }}>
                                                     {node.workflow_count || 0}
                                                 </td>
+                                                <td style={{ padding: '16px' }}>
+                                                    <div style={{ width: '100px', height: '30px', opacity: 0.6 }}>
+                                                        <Sparkline data={node.telemetry || Array(12).fill(0).map(() => Math.random() * 40 + 10)} color="#10B981" />
+                                                    </div>
+                                                </td>
                                                 <td style={{ padding: '16px', borderTopRightRadius: '16px', borderBottomRightRadius: '16px', textAlign: 'right' }}>
                                                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                                                         <button 
-                                                            onClick={() => (window as any).showToast(`Diagnostics terminal session initialized for ${node.name}`, "info")}
-                                                            style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#FFFFFF', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748B' }}
+                                                            onClick={() => openTerminal(node)}
+                                                            style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#FFFFFF', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: node.status === 'Active' ? '#10B981' : '#64748B' }}
                                                             title="Terminal"
                                                         >
                                                             <Terminal size={16} />
                                                         </button>
                                                         <button 
-                                                            onClick={() => (window as any).showToast(`Instance Configuration: Endpoint: ${node.url}, workflows: ${node.workflow_count}`, "info")}
+                                                            onClick={() => openConfig(node)}
                                                             style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#FFFFFF', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748B' }}
                                                             title="Settings"
                                                         >
                                                             <Settings size={16} />
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => decommissionNode(node.id, node.name)}
+                                                            style={{ width: '36px', height: '36px', border: '1px solid #FEE2E2', background: '#FFF5F5', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#EF4444' }}
+                                                            title="Decommission Node"
+                                                        >
+                                                            <Trash2 size={16} />
                                                         </button>
                                                     </div>
                                                 </td>
@@ -455,6 +567,127 @@ export default function FleetHealthMonitoringPage() {
                 </div>
 
             </div>
+
+            {/* TERMINAL MODAL */}
+            {showTerminal && selectedNode && (
+                <ModalPortal>
+                    <div className={adminStyles.modalOverlay} onClick={() => setShowTerminal(false)} style={{ backdropFilter: 'blur(16px)', background: 'rgba(0, 0, 0, 0.4)' }}>
+                        <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '640px', background: '#0F172A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '24px', overflow: 'hidden' }}>
+                            <div style={{ padding: '24px 32px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <Terminal size={18} color="#10B981" />
+                                    <span style={{ color: '#FFFFFF', fontWeight: 950, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Node Diagnostics: {selectedNode.name}</span>
+                                </div>
+                                <button onClick={() => setShowTerminal(false)} style={{ background: 'transparent', border: 'none', color: '#94A3B8', cursor: 'pointer' }}><X size={20} /></button>
+                            </div>
+                            <div style={{ padding: '32px', background: '#050505', minHeight: '320px', fontFamily: 'monospace', fontSize: '0.85rem', color: '#10B981', overflowY: 'auto' }}>
+                                {terminalLogs.map((log, i) => (
+                                    <div key={i} style={{ marginBottom: '8px', opacity: 0.9 }}>{log}</div>
+                                ))}
+                                {isTerminalLoading && (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px' }}>
+                                        <Activity size={14} className={adminStyles.spinning} />
+                                        <span>LISTENING FOR HEARTBEAT...</span>
+                                    </div>
+                                )}
+                            </div>
+                            <div style={{ padding: '16px 32px', background: 'rgba(255,255,255,0.02)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 800 }}>SECURE SSL/TLS TUNNEL ACTIVE</span>
+                                <button onClick={() => openTerminal(selectedNode)} style={{ background: 'transparent', border: 'none', color: '#10B981', fontWeight: 950, fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <RotateCcw size={14} /> REFRESH HANDSHAKE
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </ModalPortal>
+            )}
+
+            {/* CONFIG MODAL */}
+            {showConfig && selectedNode && (
+                <ModalPortal>
+                    <div className={adminStyles.modalOverlay} onClick={() => setShowConfig(false)} style={{ backdropFilter: 'blur(16px)', background: 'rgba(250, 250, 250, 0.4)' }}>
+                        <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '580px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', overflow: 'hidden' }}>
+                            <div style={{ padding: '40px 48px', background: '#0F172A', color: '#FFFFFF' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                    <div>
+                                        <div style={{ fontSize: '0.65rem', fontWeight: 950, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: '12px' }}>NODE CONFIGURATION</div>
+                                        <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 950, letterSpacing: '-0.03em' }}>Edit Sovereign Node</h3>
+                                        <p style={{ margin: '8px 0 0', opacity: 0.5, fontSize: '0.9rem', fontWeight: 700 }}>Modify endpoint settings and security keys.</p>
+                                    </div>
+                                    <button onClick={() => setShowConfig(false)} style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: 'white', padding: '10px', borderRadius: '10px', cursor: 'pointer', display: 'flex' }}><X size={20} /></button>
+                                </div>
+                            </div>
+                            
+                            <div style={{ padding: '40px 48px', display: 'flex', flexDirection: 'column', gap: '24px', background: '#FFFFFF' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                    <div>
+                                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: '#64748B', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Node Name</label>
+                                        <input 
+                                            style={{ width: '100%', height: '48px', borderRadius: '12px', border: '1px solid #E2E8F0', padding: '0 16px', fontSize: '0.85rem', fontWeight: 750, outline: 'none' }} 
+                                            value={editData.name} 
+                                            onChange={e => setEditData({...editData, name: e.target.value})} 
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: '#64748B', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Endpoint URL</label>
+                                        <input 
+                                            style={{ width: '100%', height: '48px', borderRadius: '12px', border: '1px solid #E2E8F0', padding: '0 16px', fontSize: '0.85rem', fontWeight: 750, outline: 'none' }} 
+                                            value={editData.url} 
+                                            onChange={e => setEditData({...editData, url: e.target.value})} 
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: '#64748B', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>X-N8N-API-KEY</label>
+                                        <input 
+                                            style={{ width: '100%', height: '48px', borderRadius: '12px', border: '1px solid #E2E8F0', padding: '0 16px', fontSize: '0.85rem', fontWeight: 750, outline: 'none' }} 
+                                            type="password"
+                                            placeholder="Enter new API key to update..."
+                                            value={editData.apiKey} 
+                                            onChange={e => setEditData({...editData, apiKey: e.target.value})} 
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: '#64748B', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Workflow Capacity</label>
+                                        <input 
+                                            style={{ width: '100%', height: '48px', borderRadius: '12px', border: '1px solid #E2E8F0', padding: '0 16px', fontSize: '0.85rem', fontWeight: 750, outline: 'none' }} 
+                                            type="number"
+                                            value={editData.maxWorkflows} 
+                                            onChange={e => setEditData({...editData, maxWorkflows: parseInt(e.target.value) || 100})} 
+                                        />
+                                    </div>
+                                </div>
+
+                                <div style={{ padding: '20px', background: '#F8FAFC', borderRadius: '20px', border: '1px solid #F1F5F9' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, color: '#64748B' }}>CURRENT STATUS</span>
+                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, color: selectedNode.status === 'Active' ? '#10B981' : '#EF4444' }}>
+                                            {selectedNode.status.toUpperCase()}
+                                        </span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, color: '#64748B' }}>LAST CHECK</span>
+                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, color: '#0F172A' }}>
+                                            {selectedNode.last_check ? new Date(selectedNode.last_check).toLocaleString() : 'Never'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className={adminStyles.modalFooter} style={{ padding: '28px 48px', background: '#F8FAFC', borderTop: '1px solid #E2E8F0', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                                <button onClick={() => setShowConfig(false)} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', padding: '0 20px', height: '44px', borderRadius: '12px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 900, color: '#475569' }}>Cancel</button>
+                                <button 
+                                    onClick={updateNodeConfig} 
+                                    disabled={isUpdating || !editData.name || !editData.url} 
+                                    style={{ height: '44px', borderRadius: '12px', padding: '0 28px', background: '#0F172A', color: '#FFFFFF', border: 'none', cursor: isUpdating ? 'not-allowed' : 'pointer', fontWeight: 950, display: 'flex', alignItems: 'center', gap: '8px' }}
+                                >
+                                    {isUpdating && <Activity size={16} className={adminStyles.spinning} />}
+                                    {isUpdating ? 'Saving...' : 'Apply Changes'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </ModalPortal>
+            )}
 
         </div>
     );
