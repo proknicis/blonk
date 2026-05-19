@@ -1,2 +1,1001 @@
 /* Team / Operators Page Module CSS */
-/* Styles are inherited from dashboard.module.css — this file satisfies the import */
+
+.teamContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* HEADER */
+.headerSection {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+}
+
+.headerLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.headerBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: #ECFDF5;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #10B981;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    width: fit-content;
+}
+
+.headerSection h1 {
+    font-size: 2rem;
+    font-weight: 950;
+    color: #0F172A;
+    margin: 0;
+    letter-spacing: -0.04em;
+}
+
+.headerSection p {
+    font-size: 1rem;
+    color: #64748B;
+    font-weight: 500;
+    margin: 0;
+    line-height: 1.6;
+}
+
+.btnPrimary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 24px;
+    background: #0F172A;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btnPrimary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.2);
+}
+
+/* METRICS GRID */
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.statCard {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.3s ease;
+}
+
+.statCard:hover {
+    border-color: #CBD5E1;
+    transform: translateY(-2px);
+}
+
+.statIconBox {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.statInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.statValue {
+    font-size: 1.8rem;
+    font-weight: 950;
+    color: #0F172A;
+    letter-spacing: -0.04em;
+}
+
+.statLabel {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #64748B;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* OWNER CARD */
+.ownerCard {
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+    border-radius: 24px;
+    padding: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 32px;
+}
+
+.ownerLeft {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.ownerAvatar {
+    width: 72px;
+    height: 72px;
+    background: rgba(16, 185, 129, 0.15);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.ownerInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ownerNameRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ownerName {
+    font-size: 1.2rem;
+    font-weight: 950;
+    color: #FFFFFF;
+}
+
+.ownerBadge {
+    padding: 6px 12px;
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #10B981;
+    letter-spacing: 0.05em;
+}
+
+.ownerEmail {
+    font-size: 0.9rem;
+    color: #94A3B8;
+    font-weight: 600;
+}
+
+.ownerMeta {
+    display: flex;
+    gap: 16px;
+}
+
+.ownerMetaItem {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: #64748B;
+    font-weight: 700;
+}
+
+.accessPanel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.accessLabel {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.accessChips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.accessChip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #FFFFFF;
+}
+
+/* MAIN LAYOUT */
+.mainLayout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 24px;
+}
+
+.contentArea {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* FILTERS BAR */
+.filtersBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.searchBox {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 14px;
+}
+
+.searchBox input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0F172A;
+}
+
+.searchBox input::placeholder {
+    color: #94A3B8;
+}
+
+.filterGroup {
+    display: flex;
+    gap: 12px;
+}
+
+.filterSelect {
+    padding: 12px 16px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #0F172A;
+    cursor: pointer;
+    outline: none;
+}
+
+.clearFilters {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 16px;
+    background: transparent;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #64748B;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.clearFilters:hover {
+    background: #F1F5F9;
+    color: #0F172A;
+}
+
+/* TABLE */
+.tableContainer {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.teamTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.teamTable thead {
+    background: #F8FAFC;
+}
+
+.teamTable th {
+    padding: 16px 20px;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #64748B;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.teamTable tbody tr {
+    border-bottom: 1px solid #F1F5F9;
+    transition: background 0.2s ease;
+}
+
+.teamTable tbody tr:hover {
+    background: #F8FAFC;
+}
+
+.teamTable tbody tr:last-child {
+    border-bottom: none;
+}
+
+.teamTable td {
+    padding: 20px;
+}
+
+.memberCell {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.memberAvatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 900;
+    flex-shrink: 0;
+}
+
+.memberDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.memberName {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #0F172A;
+}
+
+.memberEmail {
+    font-size: 0.8rem;
+    color: #64748B;
+    font-weight: 600;
+}
+
+.roleButton {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.roleButton:hover {
+    transform: scale(1.05);
+}
+
+.workflowCount {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #0F172A;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.workflowCount:hover {
+    color: #3B82F6;
+}
+
+.statusBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+.statusDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.lastActive {
+    font-size: 0.8rem;
+    color: #64748B;
+    font-weight: 700;
+}
+
+.actionBtn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #94A3B8;
+}
+
+.actionBtn:hover {
+    background: #F1F5F9;
+    color: #0F172A;
+}
+
+.emptyTable {
+    padding: 60px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.emptyTable p {
+    font-size: 0.9rem;
+    color: #64748B;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* SIDEBAR */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sidebarCard {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    padding: 24px;
+}
+
+.sidebarHeader {
+    margin-bottom: 20px;
+}
+
+.sidebarTitle {
+    font-size: 1rem;
+    font-weight: 950;
+    color: #0F172A;
+    margin: 0 0 4px 0;
+}
+
+.sidebarSubtitle {
+    font-size: 0.8rem;
+    color: #64748B;
+    font-weight: 600;
+}
+
+.permissionList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.permissionItem {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.roleIconBox {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.permissionInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.roleTitle {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #0F172A;
+}
+
+.roleDesc {
+    font-size: 0.75rem;
+    color: #64748B;
+    font-weight: 600;
+}
+
+.activityList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.activityItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.activityIconBox {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.activityContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.activityAction {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #0F172A;
+}
+
+.activityUser {
+    font-weight: 800;
+}
+
+.activityTime {
+    font-size: 0.75rem;
+    color: #94A3B8;
+    font-weight: 600;
+}
+
+.emptyActivity {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 32px 20px;
+    text-align: center;
+}
+
+.emptyActivity span {
+    font-size: 0.85rem;
+    color: #64748B;
+    font-weight: 700;
+}
+
+.sidebarLink {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #0F172A;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.sidebarLink:hover {
+    background: #E2E8F0;
+    border-color: #CBD5E1;
+}
+
+/* MODALS */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal {
+    background: #FFFFFF;
+    border-radius: 24px;
+    padding: 32px;
+    max-width: 560px;
+    width: 100%;
+    margin: 20px;
+    box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+    animation: modalSlideUp 0.3s ease-out;
+}
+
+@keyframes modalSlideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modalHeader {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.modalIconWrapper {
+    width: 56px;
+    height: 56px;
+    background: #ECFDF5;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modalTitle {
+    font-size: 1.4rem;
+    font-weight: 950;
+    color: #0F172A;
+    margin: 0 0 4px 0;
+}
+
+.modalSubtitle {
+    font-size: 0.9rem;
+    color: #64748B;
+    font-weight: 600;
+    margin: 0;
+}
+
+.formGroup {
+    margin-bottom: 20px;
+}
+
+.formLabel {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #0F172A;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.formInput {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #0F172A;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.formInput:focus {
+    border-color: #3B82F6;
+}
+
+.formInput::placeholder {
+    color: #94A3B8;
+}
+
+.roleSelector {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.roleOption {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    border: 2px solid;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.roleOption:hover {
+    transform: scale(1.02);
+}
+
+.roleOptionIcon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: currentColor;
+    opacity: 0.15;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.roleOptionLabel {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #0F172A;
+}
+
+.roleOptionDesc {
+    display: block;
+    font-size: 0.8rem;
+    color: #64748B;
+    font-weight: 600;
+}
+
+.modalActions {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+}
+
+.btnCancel {
+    flex: 1;
+    padding: 14px 24px;
+    background: transparent;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #0F172A;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btnCancel:hover {
+    background: #F1F5F9;
+}
+
+.btnDanger {
+    flex: 1;
+    padding: 14px 24px;
+    background: #EF4444;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btnDanger:hover {
+    background: #DC2626;
+    transform: translateY(-1px);
+}
+
+.dangerIconWrapper {
+    width: 72px;
+    height: 72px;
+    background: #FEF2F2;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+}
+
+.errorMessage {
+    padding: 12px 16px;
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    border-radius: 12px;
+    color: #EF4444;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+/* ONBOARDING GATE */
+.onboardingGate {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+}
+
+.onboardingCard {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 24px;
+    padding: 48px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+}
+
+.onboardingIconBox {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+}
+
+.onboardingTitle {
+    font-size: 1.6rem;
+    font-weight: 950;
+    color: #0F172A;
+    margin: 0 0 12px 0;
+}
+
+.onboardingText {
+    font-size: 1rem;
+    color: #64748B;
+    font-weight: 600;
+    margin: 0 0 32px 0;
+    line-height: 1.6;
+}
+
+.onboardingForm {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    text-align: left;
+}
+
+.onboardingField {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.onboardingField label {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #0F172A;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.onboardingInput {
+    padding: 14px 16px;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #0F172A;
+    outline: none;
+}
+
+.onboardingInput:focus {
+    border-color: #3B82F6;
+}
+
+.onboardingSubmit {
+    padding: 16px 24px;
+    background: #0F172A;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.onboardingSubmit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.2);
+}
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+    .mainLayout {
+        grid-template-columns: 1fr;
+    }
+    
+    .sidebar {
+        display: none;
+    }
+}
+
+@media (max-width: 900px) {
+    .statsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .ownerCard {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .ownerLeft {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 600px) {
+    .headerSection {
+        flex-direction: column;
+    }
+    
+    .statsGrid {
+        grid-template-columns: 1fr;
+    }
+    
+    .filtersBar {
+        flex-direction: column;
+    }
+    
+    .filterGroup {
+        width: 100%;
+    }
+    
+    .filterSelect {
+        flex: 1;
+    }
+}

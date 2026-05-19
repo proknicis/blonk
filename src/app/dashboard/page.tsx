@@ -201,23 +201,6 @@ export default function DashboardPage() {
 
             {/* ACTIVITY VISUALIZATION */}
             <div className={styles.projectionSection}>
-                <div className={styles.sectionHeader}>
-                    <div>
-                        <h3 className={styles.sectionTitle}>Workflow Activity</h3>
-                        <span className={styles.sectionSubtitle}>Runs across active workflows</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', fontWeight: 800, color: '#64748B' }}>
-                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#34D186' }} />
-                            Real Runs (24h Window)
-                        </div>
-                        <div style={{ display: 'flex', background: '#F1F5F9', padding: '4px', borderRadius: '10px' }}>
-                            {['24H', '7D', '30D'].map(r => (
-                                <button key={r} style={{ padding: '6px 12px', border: 'none', background: r === '24H' ? '#111' : 'transparent', color: r === '24H' ? '#FFF' : '#64748B', fontSize: '0.65rem', fontWeight: 950, borderRadius: '8px', cursor: 'pointer' }}>{r}</button>
-                            ))}
-                        </div>
-                    </div>
-                </div>
                 <div className={styles.chartWrapper}>
                     <FleetVelocityChart initialData={data.chartData} />
                 </div>
