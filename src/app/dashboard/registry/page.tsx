@@ -82,6 +82,15 @@ export default function WorkflowsPage() {
     };
 
     const handleAddClick = (template: any) => {
+        const price = parseFloat(template.price || 0);
+        
+        // If template has a price, redirect to marketplace for payment
+        if (price > 0) {
+            window.location.href = '/dashboard/marketplace';
+            return;
+        }
+        
+        // Free templates use the old configuration flow
         const robustParse = (val: any) => {
             if (!val) return [];
             if (Array.isArray(val)) return val;
@@ -250,8 +259,10 @@ export default function WorkflowsPage() {
                                         <span className={styles.statLabel}>Installs</span>
                                     </div>
                                     <div className={styles.statItem} style={{ textAlign: 'right' }}>
-                                        <span className={styles.statValue}>4.9</span>
-                                        <span className={styles.statLabel}>Rating</span>
+                                        <span className={styles.statValue} style={{ color: parseFloat(wf.price || 0) > 0 ? '#10B981' : '#0F172A' }}>
+                                            {parseFloat(wf.price || 0) > 0 ? `€${parseFloat(wf.price).toFixed(2)}` : 'Free'}
+                                        </span>
+                                        <span className={styles.statLabel}>Price</span>
                                     </div>
                                 </div>
                                 <div className={styles.cardActions}>
