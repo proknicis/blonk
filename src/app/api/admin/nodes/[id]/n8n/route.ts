@@ -9,11 +9,11 @@ import { db } from "@/lib/db";
 
 export async function POST(
     req: Request,
-    { params }: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
 ) {
     try {
         const { action } = await req.json();
-        const nodeId = params.id;
+        const { id: nodeId } = await context.params;
 
         if (!action || !['start', 'stop', 'restart', 'update'].includes(action)) {
             return NextResponse.json({ error: "Invalid action" }, { status: 400 });
