@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import OfficeClient from "./OfficeClient";
+import OfficeClient, { OrderCard } from "./OfficeClient";
 import { getTeamOrders } from "@/lib/order-pipeline";
 import { getOrderChecklist, formatOrderNumber, needsCredentialsAction, isOrderComplete } from "@/lib/order-lifecycle";
 import { db } from "@/lib/db";
@@ -37,7 +37,7 @@ export default async function OfficePage() {
     ) as any[];
 
     // Map existing orders
-    const orderCards = (orders || []).map((o: any) => {
+    const orderCards: OrderCard[] = (orders || []).map((o: any) => {
         const logs = typeof o.logs === "string" ? JSON.parse(o.logs || "[]") : o.logs || [];
         return {
             id: o.id,
