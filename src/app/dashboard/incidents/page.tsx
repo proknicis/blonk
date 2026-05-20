@@ -100,7 +100,11 @@ export default async function OfficePage() {
     });
 
     // Sort again by creation date
-    orderCards.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    orderCards.sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
+    });
 
     let feed: any[] = [];
     try {
