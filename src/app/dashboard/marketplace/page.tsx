@@ -91,6 +91,15 @@ export default function MarketplacePage() {
     const [sortBy, setSortBy] = useState("Most Popular");
 
     useEffect(() => {
+        if (selected) {
+            document.body.classList.add('modal-open');
+        } else {
+            document.body.classList.remove('modal-open');
+        }
+        return () => document.body.classList.remove('modal-open');
+    }, [selected]);
+
+    useEffect(() => {
         fetch("/api/marketplace")
             .then((r) => r.json())
             .then((data) => {
