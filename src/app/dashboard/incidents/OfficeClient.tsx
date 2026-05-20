@@ -96,7 +96,7 @@ export default function OfficeClient({
 
     // Process orders with real data
     const processedOrders = useMemo(() => {
-        return orders.map(order => {
+        const sorted = orders.map(order => {
             const isRunning = order.status === 'Active' || order.status === 'Running' || order.status === 'Ready';
             const isFailed = order.status === 'Failed' || order.status === 'Error';
             const needsSetup = order.status === 'Awaiting_Credentials' || order.status === 'WAITING_CREDENTIALS';
@@ -109,10 +109,21 @@ export default function OfficeClient({
             return {
                 ...order,
                 statusLabel,
-                type: order.orderNumber === "INSTALLED" ? "Operational Workflow" : "Provisioning Pipeline"
+                type: order.orderNumber === "INSTALLED" ? "Operational Workflow" : "Deployment Pipeline"
             };
         });
+        return sorted;
     }, [orders]);
+
+    const newestOrderByTemplate = useMemo(() => {
+        if (!highlightId) return null;
+        // If highlightId is a templateId, find the newest order for it
+        const matching = processedOrders.filter(o => o.templateId === highlightId);
+        if (matching.length > 0) {
+            return matching.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())[0].id;
+        }
+        return highlightId; // Assume it's a direct order ID
+    }, [processedOrders, highlightId]);
 
     const filteredOrders = useMemo(() => {
         return processedOrders.filter(o => {
@@ -132,22 +143,22 @@ export default function OfficeClient({
     }, [processedOrders]);
 
     useEffect(() => {
-        if (highlightId) {
-            const el = document.getElementById(`order-${highlightId}`);
+        if (newestOrderByTemplate) {
+            const el = document.getElementById(`order-${newestOrderByTemplate}`);
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-    }, [highlightId]);
+    }, [newestOrderByTemplate]);
 
     return (
         <div className={styles.officeContainer}>
             <style jsx global>{`
-                @keyframes glow {
-                    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); border-color: #10B981; }
-                    50% { box-shadow: 0 0 30px 10px rgba(16, 185, 129, 0.2); border-color: #10B981; }
-                    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); border-color: #10B981; }
+                @keyframes highlight {
+                    0% { border-color: #10B981; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
+                    50% { border-color: #10B981; box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.2); }
+                    100% { border-color: #10B981; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
                 }
                 .highlight-glow {
-                    animation: glow 2s infinite ease-in-out;
+                    animation: highlight 2s ease-in-out 3; /* Pulse only 3 times then stop */
                     border: 2px solid #10B981 !important;
                 }
             `}</style>
@@ -263,7 +274,7 @@ export default function OfficeClient({
                         <div className={styles.workflowGrid}>
                             {filteredOrders.map((order) => {
                                 const { initials, color } = getWorkflowMeta(order.workflowName, order.icon, order.color);
-                                const isHighlighted = highlightId === order.templateId || highlightId === order.id;
+                                const isHighlighted = newestOrderByTemplate === order.id;
                                 
                                 return (
                                     <div 
@@ -276,10 +287,26 @@ export default function OfficeClient({
                                                 <div className={styles.cardIcon} style={{ background: color }}>{initials}</div>
                                                 <div className={styles.cardNameGroup}>
                                                     <div className={styles.cardName}>{order.workflowName}</div>
-                                                    <div className={styles.cardType}>{order.type}</div>
+                                                    <div className={styles.cardType}>
+                                                        {order.statusLabel === 'RUNNING' ? 'Operational Workflow' : 'Deployment Pipeline'}
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div className={styles.cardBadgeGroup}>
+                                                {isHighlighted && (
+                                                    <span style={{ 
+                                                        background: '#10B981', 
+                                                        color: '#FFF', 
+                                                        padding: '4px 8px', 
+                                                        borderRadius: '6px', 
+                                                        fontSize: '0.6rem', 
+                                                        fontWeight: 950,
+                                                        textTransform: 'uppercase',
+                                                        letterSpacing: '0.05em'
+                                                    }}>
+                                                        Just Added
+                                                    </span>
+                                                )}
                                                 <span className={`${styles.statusBadge} ${styles[order.statusLabel.toLowerCase().replace(' ', '')]}`}>
                                                     {order.statusLabel}
                                                 </span>
@@ -289,49 +316,121 @@ export default function OfficeClient({
                                             </div>
                                         </div>
 
-                                        <p className={styles.cardDesc}>{order.description}</p>
-
-                                        <div className={styles.cardMetrics}>
-                                            <div className={styles.metricItem}>
-                                                <span className={styles.metricLabel}>Runs Today</span>
-                                                <span className={styles.metricValue}>{order.runsToday}</span>
-                                            </div>
-                                            <div className={styles.metricItem}>
-                                                <span className={styles.metricLabel}>Success Rate</span>
-                                                <span className={styles.metricValue} style={{ color: '#10B981' }}>{order.successRate}</span>
-                                            </div>
-                                            <div className={styles.metricItem}>
-                                                <span className={styles.metricLabel}>Last Run</span>
-                                                <span className={styles.metricValue}>
-                                                    {order.lastRun}
-                                                    {order.lastRun !== "Never" && (
-                                                        <span className={styles.lastRunDot} style={{ background: order.statusLabel === 'RUNNING' ? '#10B981' : '#EF4444' }} />
-                                                    )}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <div className={styles.connectedApps}>
-                                            <div className={styles.appsTitle}>Connected Apps</div>
-                                            <div className={styles.appsList}>
-                                                {order.apps.length > 0 ? (
-                                                    order.apps.map(app => (
-                                                        <div key={app.name} className={styles.appIcon} title={app.name}>
-                                                            <img src={app.icon} alt={app.name} />
+                                        {order.statusLabel === 'PROVISIONING' || order.statusLabel === 'NEEDS SETUP' ? (
+                                            /* DEPLOYMENT PIPELINE VIEW */
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                                    {order.checklist.map((step, i) => (
+                                                        <div key={i} style={{ 
+                                                            display: 'flex', 
+                                                            alignItems: 'center', 
+                                                            gap: 10,
+                                                            opacity: step.done || step.current ? 1 : 0.4
+                                                        }}>
+                                                            {step.done ? (
+                                                                <Check size={14} color="#10B981" style={{ background: '#ECFDF5', borderRadius: '50%', padding: 2 }} />
+                                                            ) : step.current ? (
+                                                                <Loader2 size={14} color="#3B82F6" className="spin" />
+                                                            ) : (
+                                                                <Circle size={14} color="#94A3B8" />
+                                                            )}
+                                                            <span style={{ 
+                                                                fontSize: '0.8rem', 
+                                                                fontWeight: step.current ? 800 : 600,
+                                                                color: step.current ? '#0F172A' : '#64748B'
+                                                            }}>
+                                                                {step.label}
+                                                            </span>
                                                         </div>
-                                                    ))
-                                                ) : (
-                                                    <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 600 }}>Standard Node</div>
+                                                    ))}
+                                                </div>
+
+                                                {order.needsCredentials && (
+                                                    <div style={{ 
+                                                        background: '#FFFBEB', 
+                                                        border: '1px solid #FEF3C7', 
+                                                        padding: '12px', 
+                                                        borderRadius: '12px',
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        gap: 8
+                                                    }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                            <AlertTriangle size={14} color="#F59E0B" />
+                                                            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#92400E' }}>Configuration Required</span>
+                                                        </div>
+                                                        <button 
+                                                            onClick={() => router.push('/dashboard/integrations')}
+                                                            style={{ 
+                                                                width: '100%',
+                                                                padding: '8px',
+                                                                background: '#F59E0B',
+                                                                color: '#FFF',
+                                                                border: 'none',
+                                                                borderRadius: '8px',
+                                                                fontSize: '0.75rem',
+                                                                fontWeight: 900,
+                                                                cursor: 'pointer'
+                                                            }}
+                                                        >
+                                                            Setup Integrations
+                                                        </button>
+                                                    </div>
                                                 )}
-                                                {order.apps.length > 3 && <span className={styles.moreApps}>+{order.apps.length - 3}</span>}
                                             </div>
-                                        </div>
+                                        ) : (
+                                            /* OPERATIONAL VIEW */
+                                            <>
+                                                <p className={styles.cardDesc}>{order.description}</p>
+
+                                                <div className={styles.cardMetrics}>
+                                                    <div className={styles.metricItem}>
+                                                        <span className={styles.metricLabel}>Runs Today</span>
+                                                        <span className={styles.metricValue}>{order.runsToday}</span>
+                                                    </div>
+                                                    <div className={styles.metricItem}>
+                                                        <span className={styles.metricLabel}>Success Rate</span>
+                                                        <span className={styles.metricValue} style={{ color: '#10B981' }}>{order.successRate}</span>
+                                                    </div>
+                                                    <div className={styles.metricItem}>
+                                                        <span className={styles.metricLabel}>Last Run</span>
+                                                        <span className={styles.metricValue}>
+                                                            {order.lastRun}
+                                                            {order.lastRun !== "Never" && (
+                                                                <span className={styles.lastRunDot} style={{ background: order.statusLabel === 'RUNNING' ? '#10B981' : '#EF4444' }} />
+                                                            )}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div className={styles.connectedApps}>
+                                                    <div className={styles.appsTitle}>Connected Apps</div>
+                                                    <div className={styles.appsList}>
+                                                        {order.apps.length > 0 ? (
+                                                            order.apps.map(app => (
+                                                                <div key={app.name} className={styles.appIcon} title={app.name}>
+                                                                    <img src={app.icon} alt={app.name} />
+                                                                </div>
+                                                            ))
+                                                        ) : (
+                                                            <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 600 }}>Standard Node</div>
+                                                        )}
+                                                        {order.apps.length > 3 && <span className={styles.moreApps}>+{order.apps.length - 3}</span>}
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )}
 
                                         <div className={styles.cardActions}>
-                                            <button className={`${styles.actionBtn} ${styles.actionBtnPrimary}`} onClick={() => order.n8nWorkflowId && window.open(`${process.env.NEXT_PUBLIC_BASE_URL}/api/n8n/proxy/${order.n8nWorkflowId}`, '_blank')}>
+                                            <button 
+                                                className={`${styles.actionBtn} ${order.statusLabel === 'RUNNING' ? styles.actionBtnPrimary : ''}`} 
+                                                onClick={() => order.n8nWorkflowId && window.open(`${process.env.NEXT_PUBLIC_BASE_URL}/api/n8n/proxy/${order.n8nWorkflowId}`, '_blank')}
+                                                disabled={order.statusLabel === 'PROVISIONING'}
+                                                style={{ opacity: order.statusLabel === 'PROVISIONING' ? 0.5 : 1 }}
+                                            >
                                                 Open <ArrowUpRight size={14} />
                                             </button>
-                                            <button className={styles.actionBtn}>
+                                            <button className={styles.actionBtn} disabled={order.statusLabel === 'PROVISIONING'} style={{ opacity: order.statusLabel === 'PROVISIONING' ? 0.5 : 1 }}>
                                                 {order.statusLabel === 'RUNNING' ? <><Pause size={14} /> Pause</> : <><Play size={14} /> Start</>}
                                             </button>
                                             <button className={styles.actionBtn}>
