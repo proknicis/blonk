@@ -29,9 +29,16 @@ export async function POST(request: Request) {
             const session = event.data.object as Stripe.Checkout.Session;
             const metadata = session.metadata;
 
+            console.log('[Stripe Webhook] Processing checkout.session.completed', {
+                sessionId: session.id,
+                email: session.customer_email,
+                metadata
+            });
+
             // 1. Common logic: Update user plan and record payment
             const userEmail = session.customer_email || session.customer_details?.email;
             if (userEmail) {
+                console.log(`[Stripe Webhook] Updating plan for ${userEmail}`);
                 await db.execute(
                     "UPDATE \"User\" SET plan = 'Professional', tier = 'Professional' WHERE email = $1",
                     [userEmail]
@@ -42,6 +49,7 @@ export async function POST(request: Request) {
             const userId = metadata?.userId || session.client_reference_id;
 
             if (userId) {
+                console.log(`[Stripe Webhook] Recording payment for userId: ${userId}, amount: ${amount}`);
                 // Record Real Payment
                 await db.execute(
                     'INSERT INTO "Payment" ("userId", "amount", "currency", "status", "stripeSessionId") VALUES ($1, $2, $3, \'completed\', $4)',
@@ -59,14 +67,19 @@ export async function POST(request: Request) {
                     'INSERT INTO "Event" ("userId", "eventType", "metadata") VALUES ($1, \'payment_completed\', $2)',
                     [userId, JSON.stringify({ amount, currency: session.currency, type: metadata?.type || 'subscription' })]
                 );
+            } else {
+                console.warn('[Stripe Webhook] No userId found in metadata or client_reference_id');
             }
 
             // 2. Specific logic for Marketplace Purchases
             if (metadata?.type === 'marketplace_purchase') {
                 const { templateId, userId: metaUserId } = metadata;
                 const finalUserId = metaUserId || userId;
+                console.log('[Stripe Webhook] Marketplace purchase detected', { templateId, finalUserId });
                 if (templateId && finalUserId) {
                     await handleMarketplacePurchase(templateId, finalUserId, session);
+                } else {
+                    console.error('[Stripe Webhook] Missing templateId or finalUserId for marketplace purchase');
                 }
             }
         }
@@ -79,14 +92,16 @@ export async function POST(request: Request) {
 }
 
 async function handleMarketplacePurchase(templateId: string, userId: string, session: Stripe.Checkout.Session) {
+    console.log(`[Webhook] handleMarketplacePurchase started for user: ${userId}, template: ${templateId}`);
     const userRows = await db.query('SELECT id, email, name, "teamId" FROM "User" WHERE id = $1', [userId]) as any[];
     
     if (!userRows.length) {
-        console.error('[Webhook] User missing:', userId);
+        console.error('[Webhook] User missing in database:', userId);
         return;
     }
 
     let teamId = userRows[0].teamId;
+    console.log(`[Webhook] User found: ${userRows[0].email}, current teamId: ${teamId}`);
 
     // If user has no team, create one for them (Sovereign Auto-Provisioning)
     if (!teamId) {
@@ -98,24 +113,28 @@ async function handleMarketplacePurchase(templateId: string, userId: string, ses
         ) as any[];
         teamId = teamRes[0].id;
         await db.execute('UPDATE "User" SET "teamId" = $1, "onboardingStatus" = \'COMPLETED\' WHERE id = $2', [teamId, userId]);
+        console.log(`[Webhook] Team created: ${teamId} and linked to user ${userId}`);
     }
 
     const templateRows = await db.query('SELECT * FROM "WorkflowTemplate" WHERE id = $1', [templateId]) as any[];
     if (!templateRows.length) {
-        console.error('[Webhook] Template missing:', templateId);
+        console.error('[Webhook] Template missing in database:', templateId);
         return;
     }
     const template = templateRows[0];
+    console.log(`[Webhook] Template found: ${template.name}`);
 
     const amount = parseFloat(template.price || 0) || (session.amount_total ? session.amount_total / 100 : 0);
 
     // Update Marketplace Stats
+    console.log(`[Webhook] Updating template stats for ${templateId}`);
     await db.execute(
         'UPDATE "WorkflowTemplate" SET purchases = COALESCE(purchases, 0) + 1, revenue = COALESCE(revenue, 0) + $1 WHERE id = $2',
         [amount, templateId]
     );
 
     // Create Order and Workflow
+    console.log(`[Webhook] Creating order for team: ${teamId}, user: ${userId}`);
     const { orderId } = await createOrderFromPayment({
         teamId: teamId,
         userId: userId,

@@ -30,6 +30,7 @@ export default async function OfficePage() {
             logs: logs.slice(-8),
             n8nWorkflowId: o.n8nWorkflowId,
             workflowId: o.workflowId,
+            templateId: o.templateId,
             createdAt: o.createdAt,
         };
     });

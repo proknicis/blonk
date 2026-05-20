@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./office.module.css";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
     CheckCircle2,
     Circle,
@@ -31,6 +31,7 @@ export type OrderCard = {
     logs: { message: string; at?: string; level?: string }[];
     n8nWorkflowId?: string;
     workflowId?: string;
+    templateId?: string;
 };
 
 type FeedItem = {
@@ -51,10 +52,44 @@ export default function OfficeClient({
     userRole: string;
 }) {
     const router = useRouter();
-    const [expandedId, setExpandedId] = useState<string | null>(orders[0]?.id || null);
+    const searchParams = useSearchParams();
+    const highlightId = searchParams.get("highlight");
+    const [expandedId, setExpandedId] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (highlightId) {
+            const orderToHighlight = orders.find(o => o.templateId === highlightId || o.id === highlightId);
+            if (orderToHighlight) {
+                setExpandedId(orderToHighlight.id);
+                // Scroll to the highlighted item
+                setTimeout(() => {
+                    const el = document.getElementById(`order-${orderToHighlight.id}`);
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 500);
+            }
+        } else if (orders.length > 0) {
+            setExpandedId(orders[0].id);
+        }
+    }, [highlightId, orders]);
 
     return (
         <div className={styles.officeContainer}>
+            <style jsx global>{`
+                @keyframes glow {
+                    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); border-color: #10B981; }
+                    50% { box-shadow: 0 0 30px 10px rgba(16, 185, 129, 0.2); border-color: #10B981; }
+                    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); border-color: #10B981; }
+                }
+                @keyframes pulse {
+                    0% { transform: scale(1); opacity: 1; }
+                    50% { transform: scale(1.05); opacity: 0.9; }
+                    100% { transform: scale(1); opacity: 1; }
+                }
+                .highlight-glow {
+                    animation: glow 2s infinite ease-in-out;
+                    border: 2px solid #10B981 !important;
+                }
+            `}</style>
             <div className={styles.headerArea}>
                 <div className={styles.headerLeft}>
                     <h1 className={styles.headerTitle}>My Workflows</h1>
@@ -78,19 +113,39 @@ export default function OfficeClient({
                 </div>
             ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                    {orders.map((order) => (
-                        <div
-                            key={order.id}
-                            className={styles.workflowCard}
-                            style={{ cursor: "pointer" }}
-                            onClick={() => setExpandedId(expandedId === order.id ? null : order.id)}
-                        >
+                    {orders.map((order) => {
+                        const isHighlighted = highlightId === order.templateId || highlightId === order.id;
+                        return (
+                            <div
+                                key={order.id}
+                                id={`order-${order.id}`}
+                                className={`${styles.workflowCard} ${isHighlighted ? 'highlight-glow' : ''}`}
+                                style={{ cursor: "pointer" }}
+                                onClick={() => setExpandedId(expandedId === order.id ? null : order.id)}
+                            >
                             <div className={styles.workflowHeader}>
-                                <div>
-                                    <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#94A3B8" }}>
-                                        Order {order.orderNumber}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                    <div>
+                                        <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#94A3B8" }}>
+                                            Order {order.orderNumber}
+                                        </div>
+                                        <div className={styles.workflowName}>{order.workflowName}</div>
                                     </div>
-                                    <div className={styles.workflowName}>{order.workflowName}</div>
+                                    {isHighlighted && (
+                                        <span style={{ 
+                                            background: '#10B981', 
+                                            color: '#FFF', 
+                                            padding: '4px 10px', 
+                                            borderRadius: '100px', 
+                                            fontSize: '0.65rem', 
+                                            fontWeight: 950,
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.05em',
+                                            animation: 'pulse 2s infinite'
+                                        }}>
+                                            New
+                                        </span>
+                                    )}
                                 </div>
                                 <span
                                     className={styles.statusBadge}
@@ -164,7 +219,7 @@ export default function OfficeClient({
                                 </>
                             )}
                         </div>
-                    ))}
+                    )})}
                 </div>
             )}
 

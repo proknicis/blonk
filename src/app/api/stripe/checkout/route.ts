@@ -42,7 +42,7 @@ export async function POST(request: Request) {
                     }
                 ],
                 mode: 'payment',
-                success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/incidents?ordered=true`,
+                success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/marketplace/success?templateId=${templateId}`,
                 cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/marketplace?canceled=true`,
                 customer_email: user[0].email,
                 client_reference_id: userId,
