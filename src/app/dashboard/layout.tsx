@@ -7,7 +7,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import AiChat from "../components/AiChat";
 import CommandPalette from "../components/CommandPalette";
-import { Search, Bell, Menu, User, Settings, LogOut, FileText, LayoutGrid, Zap, Users, Monitor, ExternalLink, Activity, ShieldCheck, Link2 } from "lucide-react";
+import { Search, Bell, Menu, User, Settings, LogOut, FileText, LayoutGrid, Zap, Users, Monitor, ExternalLink, Activity, ShieldCheck, Link2, Store, BarChart3, ClipboardList } from "lucide-react";
 
 type NotificationItem = {
     id?: string | number;
@@ -184,7 +184,7 @@ export default function DashboardLayout({
                             </li>
                             <li>
                                 <Link href="/dashboard/marketplace" className={`${styles.navLink} ${pathname === '/dashboard/marketplace' || pathname === '/dashboard/registry' ? styles.navLinkActive : ''}`}>
-                                    <ExternalLink size={20} /> Marketplace
+                                    <Store size={20} /> Marketplace
                                 </Link>
                             </li>
                         </ul>
@@ -196,12 +196,12 @@ export default function DashboardLayout({
                         <ul>
                             <li>
                                 <Link href="/dashboard/audit" className={`${styles.navLink} ${pathname === '/dashboard/audit' ? styles.navLinkActive : ''}`}>
-                                    <FileText size={20} /> Audit Logs
+                                    <ClipboardList size={20} /> Audit Logs
                                 </Link>
                             </li>
                             <li>
                                 <Link href="/dashboard/health" className={`${styles.navLink} ${pathname === '/dashboard/health' ? styles.navLinkActive : ''}`}>
-                                    <Activity size={20} /> Reports
+                                    <BarChart3 size={20} /> Reports
                                 </Link>
                             </li>
                             <li>
