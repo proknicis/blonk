@@ -15,11 +15,22 @@ export default async function OfficePage() {
 
     const orders = await getTeamOrders(teamId);
     
-    // Fetch direct workflows for this team to catch anything not in WorkflowOrder
+    // Fetch direct workflows for this team with template metadata and run stats
     const workflows = await db.query(
-        `SELECT w.*, cn.name as "serverName", cn.status as "serverStatus"
+        `SELECT 
+            w.*, 
+            cn.name as "serverName", 
+            cn.status as "serverStatus",
+            wt.description as "templateDescription",
+            wt.icon as "templateIcon",
+            wt.color as "templateColor",
+            wt.requirements as "templateRequirements",
+            (SELECT count(*) FROM "WorkflowLog" wl WHERE wl."workflowId" = w.id AND wl."createdAt" > CURRENT_DATE) as "runsToday",
+            (SELECT count(*) FROM "WorkflowLog" wl WHERE wl."workflowId" = w.id AND wl.status = 'Success') as "totalSuccess",
+            (SELECT count(*) FROM "WorkflowLog" wl WHERE wl."workflowId" = w.id) as "totalRuns"
          FROM "Workflow" w
          LEFT JOIN "ClusterNode" cn ON cn.id = w."serverId"
+         LEFT JOIN "WorkflowTemplate" wt ON wt.id = w."templateId"
          WHERE w."teamId" = $1
          ORDER BY w."createdAt" DESC`,
         [teamId]
@@ -43,6 +54,12 @@ export default async function OfficePage() {
             workflowId: o.workflowId,
             templateId: o.templateId,
             createdAt: o.createdAt,
+            // Real stats if available (orders usually don't have them yet)
+            runsToday: 0,
+            successRate: "0%",
+            lastRun: "Never",
+            description: "Provisioning your automated infrastructure...",
+            apps: []
         };
     });
 
@@ -51,8 +68,12 @@ export default async function OfficePage() {
     
     workflows.forEach((w) => {
         if (!existingOrderWorkflowIds.has(w.id)) {
+            const successRate = w.totalRuns > 0 
+                ? Math.round((w.totalSuccess / w.totalRuns) * 100) + "%" 
+                : "0%";
+
             orderCards.push({
-                id: w.id, // Use workflow ID as card ID
+                id: w.id, 
                 orderNumber: "INSTALLED",
                 workflowName: w.name,
                 status: w.status,
@@ -66,6 +87,14 @@ export default async function OfficePage() {
                 workflowId: w.id,
                 templateId: w.templateId,
                 createdAt: w.createdAt,
+                // Real data
+                runsToday: parseInt(w.runsToday || 0),
+                successRate: successRate,
+                lastRun: w.lastRun ? formatTimeAgo(w.lastRun) : "Never",
+                description: w.templateDescription || "Institutional automation workflow.",
+                icon: w.templateIcon,
+                color: w.templateColor,
+                apps: parseRequirementsToApps(w.templateRequirements)
             });
         }
     });
@@ -84,7 +113,7 @@ export default async function OfficePage() {
             msg: n.title,
             detail: n.message,
             type: "success",
-            time: new Date(n.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+            time: formatTimeAgo(n.createdAt),
             stats: "",
         }));
     } catch {
@@ -92,4 +121,37 @@ export default async function OfficePage() {
     }
 
     return <OfficeClient orders={orderCards} initialFeed={feed} userRole={(session.user as any).role || "MEMBER"} />;
+}
+
+function formatTimeAgo(date: any) {
+    if (!date) return "Never";
+    const now = new Date();
+    const then = new Date(date);
+    const diff = Math.floor((now.getTime() - then.getTime()) / 1000);
+    
+    if (diff < 60) return "just now";
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    return `${Math.floor(diff / 86400)}d ago`;
+}
+
+function parseRequirementsToApps(requirements: any) {
+    try {
+        const reqs = typeof requirements === 'string' ? JSON.parse(requirements) : requirements;
+        if (!Array.isArray(reqs)) return [];
+        
+        return reqs.slice(0, 3).map((r: any) => {
+            const name = r.name || r.service || "App";
+            // Map common names to icons
+            let icon = 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/chrome/chrome-original.svg';
+            if (name.toLowerCase().includes('slack')) icon = 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/slack/slack-original.svg';
+            if (name.toLowerCase().includes('discord')) icon = 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/discordjs/discordjs-original.svg';
+            if (name.toLowerCase().includes('openai') || name.toLowerCase().includes('gpt')) icon = 'https://static.cdnlogo.com/logos/o/38/openai.svg';
+            if (name.toLowerCase().includes('google')) icon = 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg';
+            
+            return { name, icon };
+        });
+    } catch {
+        return [];
+    }
 }

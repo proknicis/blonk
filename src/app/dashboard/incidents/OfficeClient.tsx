@@ -49,6 +49,13 @@ export type OrderCard = {
     workflowId?: string;
     templateId?: string;
     createdAt?: string;
+    runsToday: number;
+    successRate: string;
+    lastRun: string;
+    description: string;
+    icon?: string;
+    color?: string;
+    apps: { name: string; icon: string }[];
 };
 
 type FeedItem = {
@@ -60,8 +67,11 @@ type FeedItem = {
     stats: string;
 };
 
-// Mock helper to get icons/initials for workflows
-const getWorkflowMeta = (name: string) => {
+// Mock helper to get icons/initials for workflows if not provided by template
+const getWorkflowMeta = (name: string, templateIcon?: string, templateColor?: string) => {
+    if (templateIcon && templateColor) {
+        return { initials: templateIcon.substring(0, 2).toUpperCase(), color: templateColor };
+    }
     const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
     const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
     const color = colors[Math.abs(name.length % colors.length)];
@@ -84,12 +94,12 @@ export default function OfficeClient({
     const [sortBy, setSortBy] = useState("Last run");
     const [searchQuery, setSearchQuery] = useState("");
 
-    // Enrich orders with mock metrics for the new design
-    const enrichedOrders = useMemo(() => {
+    // Process orders with real data
+    const processedOrders = useMemo(() => {
         return orders.map(order => {
-            const isRunning = order.status === 'Active' || order.status === 'Running';
+            const isRunning = order.status === 'Active' || order.status === 'Running' || order.status === 'Ready';
             const isFailed = order.status === 'Failed' || order.status === 'Error';
-            const needsSetup = order.status === 'Awaiting_Credentials';
+            const needsSetup = order.status === 'Awaiting_Credentials' || order.status === 'WAITING_CREDENTIALS';
             
             let statusLabel = "PROVISIONING";
             if (isRunning) statusLabel = "RUNNING";
@@ -99,36 +109,27 @@ export default function OfficeClient({
             return {
                 ...order,
                 statusLabel,
-                runsToday: Math.floor(Math.random() * 50),
-                successRate: (85 + Math.random() * 14).toFixed(0) + "%",
-                lastRun: Math.floor(Math.random() * 60) + "m ago",
-                description: "Monitors and automates business logic for " + order.workflowName.toLowerCase() + ".",
-                type: "Operations Workflow",
-                apps: [
-                    { name: 'Discord', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/discordjs/discordjs-original.svg' },
-                    { name: 'OpenAI', icon: 'https://static.cdnlogo.com/logos/o/38/openai.svg' },
-                    { name: 'Slack', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/slack/slack-original.svg' }
-                ]
+                type: order.orderNumber === "INSTALLED" ? "Operational Workflow" : "Provisioning Pipeline"
             };
         });
     }, [orders]);
 
     const filteredOrders = useMemo(() => {
-        return enrichedOrders.filter(o => {
+        return processedOrders.filter(o => {
             const matchesFilter = filter === "All" || o.statusLabel === filter.toUpperCase();
             const matchesSearch = o.workflowName.toLowerCase().includes(searchQuery.toLowerCase());
             return matchesFilter && matchesSearch;
         });
-    }, [enrichedOrders, filter, searchQuery]);
+    }, [processedOrders, filter, searchQuery]);
 
     const stats = useMemo(() => {
         return {
-            running: enrichedOrders.filter(o => o.statusLabel === 'RUNNING').length,
-            failed: enrichedOrders.filter(o => o.statusLabel === 'FAILED').length,
-            needsSetup: enrichedOrders.filter(o => o.statusLabel === 'NEEDS SETUP').length,
-            total: enrichedOrders.length
+            running: processedOrders.filter(o => o.statusLabel === 'RUNNING').length,
+            failed: processedOrders.filter(o => o.statusLabel === 'FAILED').length,
+            needsSetup: processedOrders.filter(o => o.statusLabel === 'NEEDS SETUP').length,
+            total: processedOrders.length
         };
-    }, [enrichedOrders]);
+    }, [processedOrders]);
 
     useEffect(() => {
         if (highlightId) {
@@ -261,7 +262,7 @@ export default function OfficeClient({
                     ) : (
                         <div className={styles.workflowGrid}>
                             {filteredOrders.map((order) => {
-                                const { initials, color } = getWorkflowMeta(order.workflowName);
+                                const { initials, color } = getWorkflowMeta(order.workflowName, order.icon, order.color);
                                 const isHighlighted = highlightId === order.templateId || highlightId === order.id;
                                 
                                 return (
@@ -303,7 +304,9 @@ export default function OfficeClient({
                                                 <span className={styles.metricLabel}>Last Run</span>
                                                 <span className={styles.metricValue}>
                                                     {order.lastRun}
-                                                    <span className={styles.lastRunDot} style={{ background: order.statusLabel === 'RUNNING' ? '#10B981' : '#EF4444' }} />
+                                                    {order.lastRun !== "Never" && (
+                                                        <span className={styles.lastRunDot} style={{ background: order.statusLabel === 'RUNNING' ? '#10B981' : '#EF4444' }} />
+                                                    )}
                                                 </span>
                                             </div>
                                         </div>
@@ -311,12 +314,16 @@ export default function OfficeClient({
                                         <div className={styles.connectedApps}>
                                             <div className={styles.appsTitle}>Connected Apps</div>
                                             <div className={styles.appsList}>
-                                                {order.apps.map(app => (
-                                                    <div key={app.name} className={styles.appIcon} title={app.name}>
-                                                        <img src={app.icon} alt={app.name} />
-                                                    </div>
-                                                ))}
-                                                <span className={styles.moreApps}>+2</span>
+                                                {order.apps.length > 0 ? (
+                                                    order.apps.map(app => (
+                                                        <div key={app.name} className={styles.appIcon} title={app.name}>
+                                                            <img src={app.icon} alt={app.name} />
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 600 }}>Standard Node</div>
+                                                )}
+                                                {order.apps.length > 3 && <span className={styles.moreApps}>+{order.apps.length - 3}</span>}
                                             </div>
                                         </div>
 
