@@ -113,6 +113,14 @@ async function migrate() {
             ALTER TABLE "Workflow" ADD COLUMN IF NOT EXISTS "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
         `);
 
+        // 8. UPDATE WORKFLOWORDER TABLE
+        console.log('📦 Enhancing WorkflowOrder table...');
+        await client.query(`
+            ALTER TABLE "WorkflowOrder" ADD COLUMN IF NOT EXISTS "userId" UUID;
+            ALTER TABLE "WorkflowOrder" ADD COLUMN IF NOT EXISTS "templateId" UUID;
+            ALTER TABLE "WorkflowOrder" ADD COLUMN IF NOT EXISTS "stripeSessionId" VARCHAR(255);
+        `);
+
         console.log('✅ Fleet migration synchronized. Institutional ledger up-to-date.');
     } catch (err) {
         console.error('❌ Migration failure:', err);

@@ -14,7 +14,18 @@ export default async function OfficePage() {
     if (!teamId) redirect("/setup");
 
     const orders = await getTeamOrders(teamId);
+    
+    // Fetch direct workflows for this team to catch anything not in WorkflowOrder
+    const workflows = await db.query(
+        `SELECT w.*, cn.name as "serverName", cn.status as "serverStatus"
+         FROM "Workflow" w
+         LEFT JOIN "ClusterNode" cn ON cn.id = w."serverId"
+         WHERE w."teamId" = $1
+         ORDER BY w."createdAt" DESC`,
+        [teamId]
+    ) as any[];
 
+    // Map existing orders
     const orderCards = (orders || []).map((o: any) => {
         const logs = typeof o.logs === "string" ? JSON.parse(o.logs || "[]") : o.logs || [];
         return {
@@ -34,6 +45,33 @@ export default async function OfficePage() {
             createdAt: o.createdAt,
         };
     });
+
+    // Add workflows that aren't linked to an active order card
+    const existingOrderWorkflowIds = new Set(orderCards.map(oc => oc.workflowId));
+    
+    workflows.forEach((w) => {
+        if (!existingOrderWorkflowIds.has(w.id)) {
+            orderCards.push({
+                id: w.id, // Use workflow ID as card ID
+                orderNumber: "INSTALLED",
+                workflowName: w.name,
+                status: w.status,
+                checklist: getOrderChecklist(w.status === 'Active' || w.status === 'Ready' ? 'COMPLETED' : w.status),
+                needsCredentials: w.status === 'Awaiting_Credentials',
+                isComplete: w.status === 'Active' || w.status === 'Ready' || w.status === 'Running',
+                serverName: w.serverName,
+                serverStatus: w.serverStatus,
+                logs: [],
+                n8nWorkflowId: w.n8nWorkflowId,
+                workflowId: w.id,
+                templateId: w.templateId,
+                createdAt: w.createdAt,
+            });
+        }
+    });
+
+    // Sort again by creation date
+    orderCards.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     let feed: any[] = [];
     try {
