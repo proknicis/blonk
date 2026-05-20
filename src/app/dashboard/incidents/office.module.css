@@ -1,7 +1,7 @@
 /* 
   BLONK | INCIDENTS PAGE
-  Aesthetic: Institutional Dashboard
-  Modern, clean, professional design
+  Aesthetic: Institutional Dashboard - Option 1 Balanced Card Grid
+  Modern, clean, professional design with high-contrast elements
 */
 
 .officeContainer {
@@ -10,6 +10,8 @@
     gap: 32px;
     padding-bottom: 60px;
     animation: fadeIn 0.4s ease-out;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
 @keyframes fadeIn {
@@ -17,321 +19,284 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* HEADER */
+/* HEADER AREA */
 .headerArea {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     gap: 24px;
 }
 
 .headerLeft {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
 }
 
 .headerTitle {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 950;
     color: #0F172A;
     margin: 0;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
 }
 
 .headerSubtitle {
-    font-size: 1rem;
+    font-size: 0.85rem;
     color: #64748B;
-    font-weight: 500;
+    font-weight: 600;
     margin: 0;
-    line-height: 1.6;
 }
 
-.headerRight {
+/* TOP BAR CONTROLS */
+.controlsRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.filterGroup {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #FFFFFF;
+    padding: 6px;
+    border-radius: 12px;
+    border: 1px solid #E2E8F0;
+}
+
+.filterBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #64748B;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filterBtn:hover {
+    background: #F8FAFC;
+    color: #0F172A;
+}
+
+.filterBtnActive {
+    background: #F0FDF4 !important;
+    color: #10B981 !important;
+    border: 1px solid #BBF7D0 !important;
+}
+
+.filterDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.sortGroup {
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
-.filterBar {
-    display: flex;
-    gap: 8px;
-    background: #FFFFFF;
-    padding: 6px;
-    border-radius: 100px;
-    border: 1px solid #E2E8F0;
+.sortLabel {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #94A3B8;
 }
 
-.filterButton {
+.sortSelect {
     padding: 8px 16px;
-    border-radius: 100px;
-    border: none;
-    background: transparent;
-    font-size: 0.85rem;
-    font-weight: 800;
+    border-radius: 12px;
+    border: 1px solid #E2E8F0;
+    background: #FFFFFF;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #0F172A;
     cursor: pointer;
-    transition: all 0.2s ease;
 }
 
-.filterButtonActive {
-    font-weight: 900;
-}
-
-/* STATS STRIP */
-.statsStrip {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-}
-
-.statCard {
+/* STATUS SUMMARY */
+.statusSummary {
+    display: flex;
     background: #FFFFFF;
     border: 1px solid #E2E8F0;
     border-radius: 16px;
-    padding: 20px;
+    padding: 12px 24px;
+    gap: 32px;
+    align-items: center;
+}
+
+.summaryItem {
     display: flex;
     align-items: center;
-    gap: 16px;
-    transition: all 0.3s ease;
+    gap: 12px;
 }
 
-.statCard:hover {
-    border-color: #CBD5E1;
-    transform: translateY(-2px);
-}
-
-.statIcon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
+.summaryIcon {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
 }
 
-.statInfo {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.statCount {
-    font-size: 1.6rem;
+.summaryValue {
+    font-size: 1.1rem;
     font-weight: 950;
     color: #0F172A;
-    letter-spacing: -0.04em;
 }
 
-.statLabel {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #64748B;
+.summaryLabel {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #94A3B8;
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 
-/* MAIN LAYOUT */
+.divider {
+    width: 1px;
+    height: 32px;
+    background: #E2E8F0;
+}
+
+/* MAIN CONTENT GRID */
 .mainLayout {
     display: grid;
-    grid-template-columns: 2.5fr 1fr;
-    gap: 24px;
+    grid-template-columns: 1fr 350px;
+    gap: 32px;
     align-items: start;
 }
 
-/* WORKFLOWS AREA */
 .workflowsArea {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
 }
 
-.sectionHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.sectionTitle {
+.areaHeader {
     font-size: 0.75rem;
     font-weight: 800;
     color: #94A3B8;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    margin: 0;
-}
-
-.sectionCount {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #64748B;
 }
 
 .workflowGrid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    gap: 24px;
 }
 
+/* WORKFLOW CARD */
 .workflowCard {
     background: #FFFFFF;
     border: 1px solid #E2E8F0;
-    border-radius: 20px;
+    border-radius: 24px;
     padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 20px;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
 }
 
 .workflowCard:hover {
     border-color: #CBD5E1;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
 }
 
-.workflowHeader {
+.cardHeader {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 12px;
 }
 
-.workflowAvatar {
+.cardIdentity {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.cardIcon {
     width: 48px;
     height: 48px;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #FFFFFF;
     font-weight: 900;
     font-size: 1.2rem;
-    flex-shrink: 0;
+    color: #FFFFFF;
 }
 
-.workflowInfo {
+.cardNameGroup {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
 }
 
-.workflowName {
+.cardName {
     font-size: 1rem;
     font-weight: 900;
     color: #0F172A;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
 }
 
-.workflowRole {
+.cardType {
     font-size: 0.75rem;
     font-weight: 600;
     color: #64748B;
 }
 
+.cardBadgeGroup {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .statusBadge {
-    padding: 6px 12px;
+    padding: 4px 10px;
     border-radius: 100px;
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 
-.statusBadge.running {
-    color: #10B981;
-    background: #ECFDF5;
-}
-
-.statusBadge.failed {
-    color: #EF4444;
-    background: #FEF2F2;
-}
-
-.statusBadge.needs_setup {
-    color: #F59E0B;
-    background: #FFFBEB;
-}
-
-.statusBadge.idle {
-    color: #64748B;
-    background: #F1F5F9;
-}
-
-.statusBadge.in_progress {
-    color: #3B82F6;
-    background: #EFF6FF;
-}
-
-.lifecycleTrack {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin: 12px 0 4px;
-}
-
-.lifecyclePill {
-    font-size: 0.6rem;
-    font-weight: 800;
-    padding: 4px 8px;
-    border-radius: 100px;
-    border: 1px solid #E2E8F0;
-    color: #94A3B8;
-    background: #F8FAFC;
-}
-
-.lifecyclePill.done {
-    color: #059669;
-    background: #ECFDF5;
-    border-color: #A7F3D0;
-}
-
-.lifecyclePill.current {
-    color: #1D4ED8;
-    background: #EFF6FF;
-    border-color: #BFDBFE;
-}
-
-.progressBar {
-    height: 6px;
-    background: #F1F5F9;
-    border-radius: 100px;
-    overflow: hidden;
-    margin-top: 8px;
-}
-
-.progressFill {
-    height: 100%;
-    background: linear-gradient(90deg, #3B82F6, #10B981);
-    border-radius: 100px;
-    transition: width 0.4s ease;
-}
-
-.workflowDescription {
+.cardDesc {
     font-size: 0.85rem;
-    color: #475569;
-    margin: 0;
-    line-height: 1.6;
+    color: #64748B;
     font-weight: 500;
+    line-height: 1.5;
+    margin: 0;
 }
 
-.workflowMetrics {
+/* CARD METRICS */
+.cardMetrics {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 16px;
-    padding: 16px 0;
+    padding-top: 16px;
     border-top: 1px solid #F1F5F9;
-    border-bottom: 1px solid #F1F5F9;
 }
 
-.metric {
+.metricItem {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
 }
 
 .metricLabel {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     font-weight: 800;
     color: #94A3B8;
     text-transform: uppercase;
@@ -339,137 +304,123 @@
 }
 
 .metricValue {
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 900;
     color: #0F172A;
-    display: flex;
-    align-items: center;
-    gap: 6px;
 }
 
-.statusDot {
+.lastRunDot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
+    display: inline-block;
+    margin-left: 6px;
 }
 
-.statusDot.running {
-    background: #10B981;
-}
-
-.statusDot.failed {
-    background: #EF4444;
-}
-
+/* CONNECTED APPS */
 .connectedApps {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
 }
 
-.appsLabel {
-    font-size: 0.65rem;
+.appsTitle {
+    font-size: 0.6rem;
     font-weight: 800;
     color: #94A3B8;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
 }
 
 .appsList {
     display: flex;
     align-items: center;
+    gap: 8px;
 }
 
 .appIcon {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: #F8FAFC;
+    border: 1px solid #F1F5F9;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #FFFFFF;
-    font-size: 0.7rem;
-    font-weight: 900;
-    border: 2px solid #FFFFFF;
-    flex-shrink: 0;
+    overflow: hidden;
 }
 
-.workflowActions {
-    display: flex;
+.appIcon img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+}
+
+.moreApps {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #94A3B8;
+    margin-left: 4px;
+}
+
+/* CARD ACTIONS */
+.cardActions {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 12px;
 }
 
-.btnPrimary {
-    flex: 1;
-    padding: 10px 16px;
-    background: #0F172A;
-    color: #FFFFFF;
-    border: none;
+.actionBtn {
+    height: 40px;
     border-radius: 10px;
-    font-size: 0.75rem;
-    font-weight: 800;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    transition: all 0.2s ease;
-}
-
-.btnPrimary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
-}
-
-.btnSecondary {
-    flex: 1;
-    padding: 10px 16px;
-    background: #FFFFFF;
-    color: #475569;
     border: 1px solid #E2E8F0;
-    border-radius: 10px;
+    background: #FFFFFF;
     font-size: 0.75rem;
     font-weight: 800;
-    cursor: pointer;
+    color: #0F172A;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 8px;
+    cursor: pointer;
     transition: all 0.2s ease;
 }
 
-.btnSecondary:hover {
+.actionBtn:hover {
     background: #F8FAFC;
-    color: #0F172A;
+    border-color: #CBD5E1;
 }
 
-/* FEED AREA */
-.feedArea {
+.actionBtnPrimary {
+    background: #0F172A !important;
+    color: #FFFFFF !important;
+    border: none !important;
+}
+
+.actionBtnPrimary:hover {
+    background: #1E293B !important;
+}
+
+/* ACTIVITY FEED */
+.sidebar {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 24px;
+    padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
-.feedCard {
-    background: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    border-radius: 20px;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-}
-
-.feedHeader {
+.sidebarHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
 }
 
-.feedTitle {
+.sidebarTitle {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     font-size: 0.75rem;
     font-weight: 800;
     color: #10B981;
@@ -477,240 +428,69 @@
     letter-spacing: 0.1em;
 }
 
-.feedList {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+.viewAll {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #10B981;
+    text-decoration: none;
 }
 
-.feedItem {
+.activityList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.activityItem {
     display: flex;
     gap: 16px;
     align-items: flex-start;
-    padding-bottom: 20px;
+    padding-bottom: 16px;
     border-bottom: 1px solid #F1F5F9;
 }
 
-.feedItem:last-child {
+.activityItem:last-child {
     border-bottom: none;
     padding-bottom: 0;
 }
 
-.feedIcon {
+.activityIcon {
     width: 32px;
     height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #FFFFFF;
     flex-shrink: 0;
 }
 
-.feedIcon.success {
-    background: #10B981;
-}
-
-.feedIcon.failed {
-    background: #EF4444;
-}
-
-.feedIcon.warning {
-    background: #F59E0B;
-}
-
-.feedContent {
+.activityContent {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
     flex: 1;
 }
 
-.feedHeaderRow {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 4px;
-}
-
-.feedMessage {
+.activityWorkflow {
     font-size: 0.85rem;
-    font-weight: 800;
+    font-weight: 900;
     color: #0F172A;
 }
 
-.feedTime {
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: #94A3B8;
-}
-
-.feedStats {
-    font-size: 0.8rem;
-    color: #64748B;
-    margin-bottom: 4px;
-}
-
-.feedFooter {
-    margin-top: 20px;
-    padding-top: 16px;
-    border-top: 1px solid #F1F5F9;
-    display: flex;
-    justify-content: center;
-}
-
-.viewAllLink {
-    font-size: 0.8rem;
-    font-weight: 800;
-    color: #10B981;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.viewAllLink:hover {
-    color: #059669;
-}
-
-/* MODAL */
-.modalOverlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(8px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px;
-    z-index: 1000;
-}
-
-.modalContent {
-    background: #FFFFFF;
-    width: 100%;
-    max-width: 700px;
-    max-height: 90vh;
-    border-radius: 24px;
-    border: 1px solid #E2E8F0;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    animation: modalSlideUp 0.3s ease-out;
-}
-
-@keyframes modalSlideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-.closeButton {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: #F1F5F9;
-    border: 1px solid #E2E8F0;
-    color: #64748B;
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    z-index: 10;
-}
-
-.closeButton:hover {
-    background: #E2E8F0;
-    color: #0F172A;
-}
-
-.modalHeader {
-    padding: 32px;
-    border-bottom: 1px solid #F1F5F9;
-}
-
-.modalTitle {
-    font-size: 1.25rem;
-    font-weight: 950;
-    color: #0F172A;
-    margin-bottom: 4px;
-}
-
-.modalSubtitle {
-    font-size: 0.85rem;
-    color: #64748B;
-    font-weight: 500;
-}
-
-.modalBody {
-    padding: 32px;
-    overflow-y: auto;
-    flex: 1;
-}
-
-.loadingState {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    padding: 40px;
-    color: #94A3B8;
-}
-
-.loadingState p {
-    margin: 0;
-    font-size: 0.9rem;
-    font-weight: 600;
-}
-
-.logsList {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.logItem {
-    background: #F8FAFC;
-    border: 1px solid #E2E8F0;
-    border-radius: 12px;
-    padding: 16px;
-}
-
-.logHeader {
-    margin-bottom: 8px;
-}
-
-.logTime {
+.activityStatus {
     font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748B;
+}
+
+.activityTime {
+    font-size: 0.7rem;
     font-weight: 700;
     color: #94A3B8;
 }
 
-.logMsg {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #0F172A;
-    line-height: 1.5;
-}
-
-.emptyLogs {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    padding: 40px;
-    color: #94A3B8;
-}
-
-.emptyLogs p {
-    margin: 0;
-    font-size: 0.9rem;
-    font-weight: 600;
-}
-
-/* RESPONSIVE */
-@media (max-width: 1200px) {
+/* MOBILE RESPONSIVENESS */
+@media (max-width: 1024px) {
     .mainLayout {
         grid-template-columns: 1fr;
     }
@@ -721,15 +501,13 @@
 }
 
 @media (max-width: 768px) {
-    .headerArea {
+    .controlsRow {
         flex-direction: column;
+        align-items: flex-start;
     }
     
-    .statsStrip {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .workflowMetrics {
-        grid-template-columns: 1fr;
+    .statusSummary {
+        width: 100%;
+        overflow-x: auto;
     }
 }
