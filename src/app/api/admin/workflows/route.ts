@@ -6,40 +6,14 @@ export async function GET() {
     try {
         const rows = await db.query(`
             SELECT 
-                w."id", 
-                w."name", 
-                w."sector", 
-                w."status", 
-                w."n8nWebhookUrl",
-                w."n8nWorkflowId",
-                w."inputs", 
-                w."requestedBy",
-                w."progress",
-                w."errorMessage",
-                w."createdAt",
-                w."updatedAt",
-                w."serverId",
-                w."templateId",
-                w."tasksCount",
-                cn.name AS "serverName",
-                cn.url AS "serverUrl",
-                wt.name AS "templateName",
-                COALESCE(u."plan", 'Starter')  AS "userTier",
+                w.*,
                 COALESCE(u."email", w."requestedBy", 'Anonymous') AS "userEmail",
-                (
-                    SELECT COUNT(*) 
-                    FROM "Workflow" w2 
-                    WHERE 
-                        (w."userId" IS NOT NULL AND w2."userId" = w."userId") OR
-                        (w."userId" IS NULL AND w2."requestedBy" = w."requestedBy" AND w2."requestedBy" IS NOT NULL) OR
-                        (w."userId" IS NULL AND w."requestedBy" IS NULL AND w2.id = w.id)
-                ) AS "workflowCount"
+                COALESCE(u."name", 'System Operator') AS "userName",
+                cn."name" AS "nodeName"
             FROM "Workflow" w
-            LEFT JOIN "User" u   ON u."id" = w."userId"
-            LEFT JOIN "ClusterNode" cn ON w."serverId" = cn.id
-            LEFT JOIN "WorkflowTemplate" wt ON w."templateId" = wt.id
-            GROUP BY w."id", u."plan", u."email", cn.name, cn.url, wt.name, w."tasksCount"
-            ORDER BY w."updatedAt" DESC
+            LEFT JOIN "User" u ON u."id" = w."userId"
+            LEFT JOIN "ClusterNode" cn ON cn."id" = w."serverId"
+            ORDER BY w."createdAt" DESC
         `);
         
         console.log(`[INSTITUTIONAL_ADMIN_API] Successfully synchronized ${rows?.length || 0} nodes from the fleet registry.`);

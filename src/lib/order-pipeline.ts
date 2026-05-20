@@ -6,7 +6,7 @@ import { advanceWorkflowsAwaitingCredentials, allocateNodeForTeam, bindNodeToTea
 export async function ensureOrderSchema() {
     await db.execute(`
         CREATE TABLE IF NOT EXISTS "WorkflowOrder" (
-            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
             "orderNumber" SERIAL,
             "teamId" UUID NOT NULL,
             "userId" UUID NOT NULL,
@@ -25,7 +25,7 @@ export async function ensureOrderSchema() {
     `);
     await db.execute(`
         CREATE TABLE IF NOT EXISTS "OrderEvent" (
-            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
             "orderId" UUID NOT NULL,
             message TEXT NOT NULL,
             level VARCHAR(20) DEFAULT 'info',
@@ -82,7 +82,7 @@ export async function createOrderFromPayment(params: {
         `SELECT id FROM "WorkflowOrder" WHERE "teamId" = $1 AND "templateId" = $2 AND status NOT IN ('${ORDER_STATUS.COMPLETED}', '${ORDER_STATUS.FAILED}') ORDER BY "createdAt" DESC LIMIT 1`,
         [params.teamId, params.templateId]
     ) as any[];
-    if (existing.length > 0) return existing[0];
+    if (existing.length > 0) return { orderId: existing[0].id };
 
     const orderId = uuidv4();
     const workflowId = uuidv4();
@@ -104,11 +104,12 @@ export async function createOrderFromPayment(params: {
     );
 
     await db.execute(
-        `INSERT INTO "Workflow" (id, "teamId", "templateId", name, sector, status, performance, "tasksCount", inputs, "requestedBy", progress)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+        `INSERT INTO "Workflow" (id, "teamId", "userId", "templateId", name, sector, status, performance, "tasksCount", inputs, "requestedBy", progress)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
         [
             workflowId,
             params.teamId,
+            params.userId,
             params.templateId,
             params.workflowName,
             "General",
