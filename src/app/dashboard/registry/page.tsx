@@ -116,22 +116,17 @@ export default function WorkflowsPage() {
     };
 
     const handlePurchase = async (template: any) => {
-        const userId = (session?.user as any)?.id;
-        if (!userId) {
-            showToast('Please sign in to purchase.', 'error');
-            return;
-        }
         setIsProcessingPayment(true);
         try {
             const price = getTemplatePrice(template);
-            const res = await fetch('/api/stripe/checkout', {
+            const res = await fetch('/api/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ templateId: template.id, amount: price, userId }),
+                body: JSON.stringify({ workflowName: template.name, price: price }),
             });
             const data = await res.json();
-            if (res.ok && data.checkoutUrl) {
-                window.location.href = data.checkoutUrl;
+            if (res.ok) {
+                router.push('/dashboard/orders');
             } else {
                 showToast(data.error || 'Checkout failed.', 'error');
             }
@@ -658,10 +653,32 @@ export default function WorkflowsPage() {
                             <button className={styles.closeButton} onClick={() => setPaymentTemplate(null)} disabled={isProcessingPayment}>
                                 <X size={20} />
                             </button>
-                            <h2 className={styles.onboardingTitle}>Order {paymentTemplate.name}</h2>
-                            <p className={styles.onboardingSubtitle}>
-                                Pay once — we provision your server, you add credentials, then our team completes setup.
-                            </p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                                <div style={{ width: 40, height: 40, background: '#10B98115', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Zap size={20} color="#10B981" />
+                                </div>
+                                <h2 className={styles.onboardingTitle} style={{ margin: 0 }}>Order Workflow</h2>
+                            </div>
+                            
+                            <div style={{ padding: '16px', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #F1F5F9', marginBottom: '20px' }}>
+                                <div style={{ fontWeight: 900, color: '#0F172A', fontSize: '1.05rem', marginBottom: '4px' }}>{paymentTemplate.name}</div>
+                                <div style={{ color: '#64748B', fontSize: '0.85rem', marginBottom: '16px' }}>Setup Time: ~20 min</div>
+                                
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>
+                                        <CheckCircle size={14} color="#10B981" /> Dedicated Server
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>
+                                        <CheckCircle size={14} color="#10B981" /> n8n Setup
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>
+                                        <CheckCircle size={14} color="#10B981" /> Full Configuration
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>
+                                        <CheckCircle size={14} color="#10B981" /> Testing
+                                    </div>
+                                </div>
+                            </div>
                             <div style={{ background: '#F8FAFC', borderRadius: 14, padding: 16, marginBottom: 24, display: 'flex', justifyContent: 'space-between', fontWeight: 800 }}>
                                 <span>Total</span>
                                 <span style={{ color: '#10B981', fontWeight: 950 }}>€{getTemplatePrice(paymentTemplate).toFixed(2)}</span>
@@ -672,7 +689,7 @@ export default function WorkflowsPage() {
                                 disabled={isProcessingPayment}
                                 onClick={() => handlePurchase(paymentTemplate)}
                             >
-                                {isProcessingPayment ? 'Processing...' : 'Proceed to payment'}
+                                {isProcessingPayment ? 'Processing...' : 'Continue to Payment'}
                             </button>
                         </div>
                     </div>
