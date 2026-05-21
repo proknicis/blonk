@@ -7,6 +7,9 @@ import { getAllOrdersForAdmin, setOrderStatus } from "@/lib/order-pipeline";
 export async function GET() {
     try {
         const session = await getServerSession(authOptions);
+        if (!session) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
         const orders = await getAllOrdersForAdmin();
         return NextResponse.json({ orders });
     } catch (error) {
