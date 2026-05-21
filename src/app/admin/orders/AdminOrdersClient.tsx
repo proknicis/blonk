@@ -68,8 +68,8 @@ export default function AdminOrdersClient() {
 
                         return (
                             <tr key={order.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                                <td style={{ padding: '16px 24px', fontSize: '0.85rem', fontWeight: 800 }}>#{order.id.split('-')[0]}</td>
-                                <td style={{ padding: '16px 24px', fontSize: '0.85rem', fontWeight: 700, color: '#0F172A' }}>{order.firmName || order.team_name}</td>
+                                <td style={{ padding: '16px 24px', fontSize: '0.85rem', fontWeight: 800 }}>#{order.orderNumber || order.id.split('-')[0]}</td>
+                                <td style={{ padding: '16px 24px', fontSize: '0.85rem', fontWeight: 700, color: '#0F172A' }}>{order.teamName || order.userName}</td>
                                 <td style={{ padding: '16px 24px', fontSize: '0.85rem', color: '#334155' }}>{order.workflowName}</td>
                                 <td style={{ padding: '16px 24px' }}>
                                     <select 

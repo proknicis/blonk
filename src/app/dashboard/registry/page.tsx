@@ -122,11 +122,11 @@ export default function WorkflowsPage() {
             const res = await fetch('/api/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ workflowName: template.name, price: price }),
+                body: JSON.stringify({ workflowName: template.name, price: price, templateId: template.id }),
             });
             const data = await res.json();
             if (res.ok) {
-                router.push('/dashboard/orders');
+                router.push(`/dashboard/incidents?highlight=${template.id}`);
             } else {
                 showToast(data.error || 'Checkout failed.', 'error');
             }
