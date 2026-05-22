@@ -232,11 +232,11 @@ export default function DashboardPage() {
                             Start by deploying your first automated workflow from the marketplace.
                         </p>
                         <div className={styles.onboardingActions}>
-                            <Link href="/dashboard/registry?create=true" className={styles.btnPrimary}>
+                            <Link href="/dashboard/marketplace?create=true" className={styles.btnPrimary}>
                                 <Plus size={18} />
                                 Generate Workflow
                             </Link>
-                            <Link href="/dashboard/registry" className={styles.btnSecondary}>
+                            <Link href="/dashboard/marketplace" className={styles.btnSecondary}>
                                 <ExternalLink size={18} />
                                 Browse Marketplace
                             </Link>

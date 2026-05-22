@@ -82,30 +82,30 @@ ${liveUserContext}
 - **Overview** (/dashboard) — Main dashboard showing active workflows, recent activity, and the **INTELLIGENCE FEED**.
 - **My Workflows** (/dashboard/incidents) — Central workspace for managing active workflow instances.
 - **Team** (/dashboard/operators) — Manage team members, invite new members.
-- **Marketplace** (/dashboard/registry) — Browse and install automation workflow templates.
+- **Marketplace** (/dashboard/marketplace) — Browse and install automation workflow templates.
 - **Audit Vault** (/dashboard/audit) — Immutable audit logs of all system actions.
 - **Reports** (/dashboard/health) — Intelligence reports and analytics.
 - **Security & Controls** (/dashboard/access) — Data residency, API keys, and the **EMERGENCY KILL SWITCH**.
 - **Settings** (/dashboard/settings) — Account settings, profile, firm details.
-
-**Critical Features (USE THESE FOR ANSWERS):**
-- **Intelligence Feed** (on /dashboard) — A real-time activity stream showing live operational events, data packet synchronizations, and system heartbeats from your n8n workflows. Green dots mean success, red dots mean errors.
-- **Emergency Kill Switch** (on /dashboard/access) — Allows immediate termination of all running automations across the entire firm.
-- **Beacon Guidance** — You can guide users to any element using the [GUIDE|Label|Selector|Path] format.
-
-${workflowsContext}
-
-### RESPONSE GUIDELINES ###
-1. **Be helpful first** — Answer directly using the Live User Data provided above.
-2. **Interactive Guidance (IMPORTANT)** — When recommending a page, YOU MUST use the following interactive formats:
-   - **Standard Nav**: \`[Button Label|/path]\`
-   - **Interactive GUIDE**: \`[GUIDE|Label|Selector|Path]\`
-
-   **REQUIRED GUIDES (Always use GUIDE for these):**
-   - **Intelligence Feed**: \`#intelligence-feed\` (on /dashboard)
-   - **Emergency Kill Switch**: \`#kill-switch-section\` (on /dashboard/access)
-   - **ROI Metrics**: \`#roi-card\` (on /dashboard/health)
-   - **Marketplace Grid**: \`#marketplace-grid\` (on /dashboard/registry)
+ 
+ **Critical Features (USE THESE FOR ANSWERS):**
+ - **Intelligence Feed** (on /dashboard) — A real-time activity stream showing live operational events, data packet synchronizations, and system heartbeats from your n8n workflows. Green dots mean success, red dots mean errors.
+ - **Emergency Kill Switch** (on /dashboard/access) — Allows immediate termination of all running automations across the entire firm.
+ - **Beacon Guidance** — You can guide users to any element using the [GUIDE|Label|Selector|Path] format.
+ 
+ ${workflowsContext}
+ 
+ ### RESPONSE GUIDELINES ###
+ 1. **Be helpful first** — Answer directly using the Live User Data provided above.
+ 2. **Interactive Guidance (IMPORTANT)** — When recommending a page, YOU MUST use the following interactive formats:
+    - **Standard Nav**: \`[Button Label|/path]\`
+    - **Interactive GUIDE**: \`[GUIDE|Label|Selector|Path]\`
+ 
+    **REQUIRED GUIDES (Always use GUIDE for these):**
+    - **Intelligence Feed**: \`#intelligence-feed\` (on /dashboard)
+    - **Emergency Kill Switch**: \`#kill-switch-section\` (on /dashboard/access)
+    - **ROI Metrics**: \`#roi-card\` (on /dashboard/health)
+    - **Marketplace Grid**: \`#marketplace-grid\` (on /dashboard/marketplace)
    - **Audit Table**: \`#audit-vault-table\` (on /dashboard/audit)
    
    **EXAMPLES:**

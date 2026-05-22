@@ -324,19 +324,20 @@ function BuilderContent() {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
                                     <div className={styles.formGroup}>
-                                        <label className={styles.label}>Deployment Window (Setup Time)</label>
-                                        <div style={{ position: 'relative' }}>
-                                            <Clock size={18} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
-                                            <input className={styles.input} style={{ height: '64px', borderRadius: '18px', paddingLeft: '56px' }} value={formData.productInfo.setupTime} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, setupTime: e.target.value}})} placeholder="e.g. 15 minutes" />
-                                        </div>
-                                    </div>
-                                    <div className={styles.formGroup}>
                                         <label className={styles.label}>Target Operator</label>
                                         <select className={styles.select} style={{ height: '64px', borderRadius: '18px' }} value={formData.productInfo.targetUser} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, targetUser: e.target.value}})}>
                                             <option>Institutional Admin</option>
                                             <option>SME Owner</option>
                                             <option>Department Lead</option>
                                             <option>Independent Contractor</option>
+                                        </select>
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Revenue Model</label>
+                                        <select className={styles.select} style={{ height: '64px', borderRadius: '18px' }} value={formData.productInfo.monetization} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, monetization: e.target.value}})}>
+                                            <option>Subscription</option>
+                                            <option>Per Operation</option>
+                                            <option>One-time Licensing</option>
                                         </select>
                                     </div>
                                 </div>
@@ -418,16 +419,6 @@ function BuilderContent() {
                                     <input className={styles.input} style={{ height: '64px', borderRadius: '18px' }} value={formData.productInfo.valueProp} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, valueProp: e.target.value}})} placeholder="Describe the high-level benefit for the firm..." />
                                 </div>
 
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
-                                    <div className={styles.formGroup}>
-                                        <label className={styles.label}>Revenue Model</label>
-                                        <select className={styles.select} style={{ height: '64px', borderRadius: '18px' }} value={formData.productInfo.monetization} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, monetization: e.target.value}})}>
-                                            <option>Subscription</option>
-                                            <option>Per Operation</option>
-                                            <option>One-time Licensing</option>
-                                        </select>
-                                    </div>
-                                </div>
                             </div>
                         )}
 

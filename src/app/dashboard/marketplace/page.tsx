@@ -1,373 +1,813 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import styles from "./marketplace.module.css";
+import React, { useState, useEffect } from "react";
+import { Activity, Zap, CheckCircle, AlertCircle, Plus, FileText, Link2, ArrowUpRight, ShieldCheck, ShieldAlert, X, MousePointer2, Settings, Cpu, Link, Search, Layers, Key, Euro, ShoppingCart, CreditCard, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Zap, X, Check, Loader2, Search, SlidersHorizontal, Layers, ShieldCheck, ZapIcon, Clock, ArrowRight, MessageSquare, PencilLine, ClipboardCheck, Rocket } from "lucide-react";
-import styles from "./marketplace.module.css";
+import ModalPortal from "@/app/components/ModalPortal";
+import { Skeleton } from "@/app/components/Skeleton";
 
-const CATEGORIES = ["All", "Accounting", "Law", "HR", "IT", "General"];
-
-const FALLBACK_WORKFLOWS = [
-    {
-        id: "tpl-ai-support",
-        name: "Invoice Automation",
-        description: "Extract invoice data, validate, and sync to your accounting tool automatically.",
-        sector: "Accounting",
-        price: 149,
-        setupTime: "~20 min",
-        color: "#10B981",
-        installs: "1.2K",
-        rating: "4.9",
-        includes: ["Dedicated Server", "n8n Setup", "Full Configuration", "Testing"]
-    },
-    {
-        id: "tpl-discord-mod",
-        name: "Employee Onboarding",
-        description: "Automate the onboarding process: forms, accounts, notifications, and more.",
-        sector: "HR",
-        price: 99,
-        setupTime: "~15 min",
-        color: "#3B82F6",
-        installs: "892",
-        rating: "4.8",
-        includes: ["Dedicated Server", "n8n Setup", "Full Configuration", "Testing"]
-    },
-    {
-        id: "tpl-etsy",
-        name: "Contract Manager",
-        description: "Track contracts, renewals, and send reminders before important dates.",
-        sector: "Law",
-        price: 79,
-        setupTime: "~12 min",
-        color: "#8B5CF6",
-        installs: "654",
-        rating: "4.9",
-        includes: ["Dedicated Server", "n8n Setup", "Full Configuration", "Testing"]
-    },
-    {
-        id: "tpl-tiktok",
-        name: "Lead Enrichment",
-        description: "Enrich leads with data, score them, and send qualified leads to your CRM.",
-        sector: "General",
-        price: 129,
-        setupTime: "~18 min",
-        color: "#F59E0B",
-        installs: "1.5K",
-        rating: "4.7",
-        includes: ["Dedicated Server", "n8n Setup", "Full Configuration", "Testing"]
-    },
-    {
-        id: "tpl-support",
-        name: "Support Ticket Sync",
-        description: "Sync support tickets from multiple channels to your project management tool.",
-        sector: "IT",
-        price: 119,
-        setupTime: "~25 min",
-        color: "#06B6D4",
-        installs: "732",
-        rating: "4.6",
-        includes: ["Dedicated Server", "n8n Setup", "Full Configuration", "Testing"]
-    },
-];
-
-function getPrice(t: any) {
-    const p = parseFloat(t.price || 0);
-    const pi = t.productInfo ? parseFloat(t.productInfo.price || 0) : 0;
-    return pi > 0 ? pi : p;
+function getTemplatePrice(template: any) {
+    if (!template) return 0;
+    const pInfo = typeof template.productInfo === 'string' 
+        ? JSON.parse(template.productInfo) 
+        : (template.productInfo || {});
+        
+    const setupPrice = parseFloat(pInfo.discountSetupPrice || pInfo.setupPrice || 0);
+    const monthlyPrice = parseFloat(pInfo.discountMonthlyPrice || pInfo.monthlyPrice || 0);
+    if (setupPrice > 0 || monthlyPrice > 0) {
+        return setupPrice + monthlyPrice;
+    }
+    const directPrice = parseFloat(template.price || 0);
+    const productInfoPrice = pInfo.price ? parseFloat(pInfo.price) : 0;
+    return productInfoPrice > 0 ? productInfoPrice : directPrice;
 }
 
-export default function MarketplacePage() {
-    const { data: session } = useSession();
+function robustParse(val: any): any[] {
+    if (!val) return [];
+    if (Array.isArray(val)) return val;
+    if (typeof val === 'string') {
+        try {
+            const parsed = JSON.parse(val);
+            return robustParse(parsed);
+        } catch (e) { return []; }
+    }
+    return [];
+}
+
+export default function WorkflowsPage() {
     const router = useRouter();
+    const { data: session } = useSession();
+    const [search, setSearch] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("All");
     const [templates, setTemplates] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [selected, setSelected] = useState<any | null>(null);
-    const [paying, setPaying] = useState(false);
-    
-    // Filtering states
-    const [activeCategory, setActiveCategory] = useState("All");
-    const [searchQuery, setSearchQuery] = useState("");
-    const [sortBy, setSortBy] = useState("Most Popular");
+    const [isLoading, setIsLoading] = useState(true);
+    const [toast, setToast] = useState<string | null>(null);
+    const [configureTemplate, setConfigureTemplate] = useState<any>(null);
+    const [previewTemplate, setPreviewTemplate] = useState<any>(null);
+    const [templateInputs, setTemplateInputs] = useState<Record<string, any>>({});
+    const [helpStep, setHelpStep] = useState<any>(null);
+    const [deployResult, setDeployResult] = useState<any>(null);
+    const [step, setStep] = useState<'configure' | 'result'>('configure');
+    const [isDeploying, setIsDeploying] = useState(false);
+    const [paymentTemplate, setPaymentTemplate] = useState<any>(null);
+    const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
+    // Custom workflow request wizard
+    const [showCustomModal, setShowCustomModal] = useState(false);
+    const [wizardStep, setWizardStep] = useState(1);
+    const [customForm, setCustomForm] = useState({ name: '', category: 'General', description: '', tools: '', urgency: 'normal', timeline: '' });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [aiMatches, setAiMatches] = useState<any[]>([]);
+
+    // AI match: find marketplace templates that overlap with the description
+    const findAiMatches = (description: string) => {
+        if (!description.trim() || templates.length === 0) { setAiMatches([]); return; }
+        const words = description.toLowerCase().split(/\W+/).filter(w => w.length > 3);
+        const scored = templates.map(t => {
+            const haystack = `${t.name} ${t.description} ${t.sector}`.toLowerCase();
+            const score = words.filter(w => haystack.includes(w)).length;
+            return { ...t, score };
+        }).filter(t => t.score > 0).sort((a: any, b: any) => b.score - a.score).slice(0, 3);
+        setAiMatches(scored);
+    };
+
+    const handleCustomRequest = async () => {
+        if (!customForm.name.trim() || !customForm.description.trim()) return;
+        setIsSubmitting(true);
+        try {
+            const res = await fetch('/api/support', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    subject: `Custom Workflow Request: ${customForm.name}`,
+                    message: `**Workflow:** ${customForm.name}\n**Category:** ${customForm.category}\n\n**What to automate:**\n${customForm.description}\n\n**Tools / Apps:** ${customForm.tools || 'Not specified'}\n**Urgency:** ${customForm.urgency}\n**Timeline:** ${customForm.timeline || 'Flexible'}`,
+                })
+            });
+            if (res.ok) { setWizardStep(4); }
+            else { const err = await res.json(); showToast(err.error || 'Submission failed.', 'error'); }
+        } catch { showToast('Network error. Please try again.', 'error'); }
+        finally { setIsSubmitting(false); }
+    };
+
+    const openCustomModal = () => {
+        setCustomForm({ name: '', category: 'General', description: '', tools: '', urgency: 'normal', timeline: '' });
+        setWizardStep(1); setAiMatches([]); setShowCustomModal(true);
+    };
+
+    const categories = ["All", "Accounting", "Law", "HR", "IT", "General"];
 
     useEffect(() => {
-        if (selected) {
-            document.body.classList.add('modal-open');
-        } else {
-            document.body.classList.remove('modal-open');
-        }
-        return () => document.body.classList.remove('modal-open');
-    }, [selected]);
-
-    useEffect(() => {
-        fetch("/api/marketplace")
-            .then((r) => r.json())
-            .then((data) => {
-                if (Array.isArray(data) && data.length > 0) {
-                    const enriched = data.map((t: any) => ({
-                        ...t,
-                        installs: t.purchases || Math.floor(Math.random() * 1000) + 50,
-                        rating: (4.5 + Math.random() * 0.5).toFixed(1)
-                    }));
-                    setTemplates(enriched);
-                } else {
-                    setTemplates(FALLBACK_WORKFLOWS);
-                }
-            })
-            .catch(() => setTemplates(FALLBACK_WORKFLOWS))
-            .finally(() => setLoading(false));
+        fetchMarketplace();
     }, []);
 
-    const filteredTemplates = templates.filter(t => {
-        const matchesCategory = activeCategory === "All" || t.sector === activeCategory;
-        const matchesSearch = t.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                             (t.description || "").toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesCategory && matchesSearch;
-    });
-
     useEffect(() => {
-        if (typeof window === "undefined") return;
-        if (new URLSearchParams(window.location.search).get("canceled") === "true") {
-            alert("Payment canceled.");
-            router.replace("/dashboard/marketplace");
+        if (typeof window === 'undefined') return;
+        const params = new URLSearchParams(window.location.search);
+        const success = params.get('success');
+        const templateId = params.get('templateId');
+        if (success === 'true' && templateId) {
+            (async () => {
+                try {
+                    await fetch('/api/marketplace/installed', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ templateId }),
+                    });
+                } catch { /* webhook is source of truth */ }
+                router.replace('/dashboard/incidents');
+            })();
+        } else if (params.get('canceled') === 'true') {
+            showToast('Payment canceled.', 'error');
+            router.replace('/dashboard/marketplace');
         }
     }, [router]);
 
-    const startPayment = async () => {
-        const userId = (session?.user as any)?.id;
-        if (!selected || !userId) return;
-        setPaying(true);
+    const fetchMarketplace = async () => {
         try {
-            const res = await fetch("/api/stripe/checkout", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    templateId: selected.id,
-                    amount: getPrice(selected),
-                    userId,
-                }),
-            });
+            const res = await fetch('/api/workflows');
             const data = await res.json();
-            if (data.checkoutUrl) window.location.href = data.checkoutUrl;
-            else alert(data.error || "Checkout failed");
-        } catch {
-            alert("Could not start payment");
+            if (data.templates) setTemplates(data.templates);
+        } catch (error) {
+            console.error("Error fetching marketplace:", error);
         } finally {
-            setPaying(false);
+            setIsLoading(false);
         }
     };
 
+    const handlePurchase = async (template: any) => {
+        setIsProcessingPayment(true);
+        try {
+            const price = getTemplatePrice(template);
+            const res = await fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ workflowName: template.name, price: price, templateId: template.id }),
+            });
+            const data = await res.json();
+            if (res.ok) {
+                router.push(`/dashboard/incidents?highlight=${template.id}`);
+            } else {
+                showToast(data.error || 'Checkout failed.', 'error');
+            }
+        } catch {
+            showToast('Payment could not be started.', 'error');
+        } finally {
+            setIsProcessingPayment(false);
+            setPaymentTemplate(null);
+        }
+    };
+
+    const handleAddClick = (template: any) => {
+        const finalPrice = getTemplatePrice(template);
+
+        if (finalPrice > 0) {
+            setPaymentTemplate(template);
+            return;
+        }
+        
+        // Free templates use the old configuration flow
+        const reqs = robustParse(template.requirements);
+        if (reqs.length > 0) {
+            setConfigureTemplate({ ...template, parsedReqs: reqs });
+            setTemplateInputs({});
+            setStep('configure');
+            setDeployResult(null);
+        } else {
+            deployWorkflow(template, {});
+        }
+    };
+
+    const deployWorkflow = async (template: any, inputs: Record<string, any>) => {
+        setIsDeploying(true);
+        try {
+            const res = await fetch('/api/workflows', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: template.name,
+                    sector: template.sector,
+                    templateId: template.id,
+                    inputs
+                })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setDeployResult(data.orchestration || {});
+                setStep('result');
+                showToast(`Workflow ordered! Track progress in My Workflows.`);
+                setConfigureTemplate(null);
+                router.push('/dashboard/incidents');
+            } else {
+                showToast(data.error || "Deployment failed.", 'error');
+            }
+        } catch (error) {
+            showToast("Network disruption detected.", 'error');
+        } finally {
+            setIsDeploying(false);
+        }
+    };
+
+    const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
+        setToast(msg);
+        setTimeout(() => setToast(null), 3500);
+    };
+
+    const filteredTemplates = templates.filter(wf => {
+        const matchesSearch = wf.name.toLowerCase().includes(search.toLowerCase());
+        const matchesCategory = selectedCategory === "All" || wf.sector === selectedCategory;
+        return matchesSearch && matchesCategory;
+    });
+
     return (
-        <div className={styles.page}>
-            {/* Header */}
-            <div className={styles.headerContainer}>
-                <div>
-                    <h1 className={styles.headerTitle}>Marketplace</h1>
-                    <p className={styles.headerSub}>Add powerful, pre-built workflows to automate and scale your operations.</p>
-                </div>
+        <div className={styles.workflowsContainer}>
+            {/* HEADER */}
+            <div className={styles.header}>
+                <h1 className={styles.title}>Marketplace</h1>
+                <p className={styles.subtitle}>
+                    Add powerful, pre-built workflows to automate and scale your operations.
+                </p>
             </div>
 
-            {/* Filters */}
-            <div className={styles.filterSection}>
-                <div className={styles.categories}>
-                    {CATEGORIES.map(cat => (
-                        <button 
-                            key={cat} 
-                            className={`${styles.categoryBtn} ${activeCategory === cat ? styles.categoryBtnActive : ""}`}
-                            onClick={() => setActiveCategory(cat)}
+            {/* FILTERS & SEARCH */}
+            <div className={styles.filterRow}>
+                <div className={styles.filterTabs}>
+                    {categories.map(cat => (
+                        <button
+                            key={cat}
+                            className={`${styles.filterTab} ${selectedCategory === cat ? styles.filterTabActive : ''}`}
+                            onClick={() => setSelectedCategory(cat)}
                         >
                             {cat}
                         </button>
                     ))}
                 </div>
-                
-                <div className={styles.searchSortBar}>
-                    <div style={{ position: 'relative' }}>
-                        <Search size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-                        <input 
-                            type="text" 
-                            placeholder="Search automations..." 
-                            className={styles.searchInput}
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                <div className={styles.searchSort}>
+                    <div className={styles.searchBox}>
+                        <Search size={18} color="#94A3B8" />
+                        <input
+                            type="text"
+                            placeholder="Search automations..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
                         />
                     </div>
-                    <select className={styles.sortSelect} value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                    <select className={styles.sortSelect}>
                         <option>Most Popular</option>
                         <option>Newest</option>
-                        <option>Highest Rated</option>
                     </select>
                 </div>
             </div>
 
-            {/* Trust Strip */}
+            {/* TRUST STRIP */}
             <div className={styles.trustStrip}>
                 <div className={styles.trustItem}>
-                    <div className={styles.trustIconBox}><Layers size={20} /></div>
-                    <div className={styles.trustInfo}>
-                        <span className={styles.trustLabel}>98+</span>
-                        <span className={styles.trustSub}>Workflows Available</span>
+                    <div className={styles.trustIcon}><Zap size={24} /></div>
+                    <div className={styles.trustContent}>
+                        <span className={styles.trustTitle}>98+</span>
+                        <span className={styles.trustDesc}>Workflows Available</span>
                     </div>
                 </div>
                 <div className={styles.trustItem}>
-                    <div className={styles.trustIconBox}><ShieldCheck size={20} /></div>
-                    <div className={styles.trustInfo}>
-                        <span className={styles.trustLabel}>Trusted</span>
-                        <span className={styles.trustSub}>Built by automation experts</span>
+                    <div className={styles.trustIcon}><ShieldCheck size={24} /></div>
+                    <div className={styles.trustContent}>
+                        <span className={styles.trustTitle}>Trusted</span>
+                        <span className={styles.trustDesc}>Built by experts</span>
                     </div>
                 </div>
                 <div className={styles.trustItem}>
-                    <div className={styles.trustIconBox}><ZapIcon size={20} /></div>
-                    <div className={styles.trustInfo}>
-                        <span className={styles.trustLabel}>Instant Use</span>
-                        <span className={styles.trustSub}>Add and run in minutes</span>
+                    <div className={styles.trustIcon}><Activity size={24} /></div>
+                    <div className={styles.trustContent}>
+                        <span className={styles.trustTitle}>Instant Use</span>
+                        <span className={styles.trustDesc}>No coding needed</span>
                     </div>
                 </div>
                 <div className={styles.trustItem}>
-                    <div className={styles.trustIconBox}><Clock size={20} /></div>
-                    <div className={styles.trustInfo}>
-                        <span className={styles.trustLabel}>Always Updated</span>
-                        <span className={styles.trustSub}>New workflows added weekly</span>
+                    <div className={styles.trustIcon}><Plus size={24} /></div>
+                    <div className={styles.trustContent}>
+                        <span className={styles.trustTitle}>Updated</span>
+                        <span className={styles.trustDesc}>New loops weekly</span>
                     </div>
                 </div>
             </div>
 
-            {/* Workflows Grid */}
-            <section>
-                <div className={styles.sectionHeader}>
-                    <h2 className={styles.sectionTitle}>Featured Workflows</h2>
-                    <a href="#" className={styles.viewAll}>View all workflows <ArrowRight size={16} style={{ marginLeft: 4, verticalAlign: 'middle' }} /></a>
-                </div>
+            {/* FEATURED WORKFLOWS */}
+            <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>Featured Workflows</h2>
+                <Link href="#" className={styles.viewAllLink}>
+                    View all workflows <ArrowUpRight size={16} />
+                </Link>
+            </div>
 
-                {loading ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: "#64748b", fontWeight: 700, padding: 40 }}>
-                        <Loader2 className="spinning" size={24} />
-                        <span>Synchronizing marketplace registry…</span>
-                    </div>
-                ) : (
-                    <div className={styles.grid}>
-                        {filteredTemplates.map((wf) => (
-                            <div key={wf.id} className={styles.card}>
-                                <div className={styles.cardTop}>
-                                    <div className={styles.cardIconLarge} style={{ background: `${wf.color || "#10B981"}15`, color: wf.color || "#10B981" }}>
-                                        <Zap size={32} />
-                                    </div>
-                                    <h3 className={styles.cardTitle}>{wf.name}</h3>
-                                    <p className={styles.cardDesc}>{wf.description || "Professional automation workflow."}</p>
-                                    <span className={styles.cardTag}>{wf.sector || "General"}</span>
+            {isLoading ? (
+                <div className={styles.workflowGrid}>
+                    {[1, 2, 3, 4, 5].map(i => (
+                        <div key={i} style={{ height: '360px', background: '#F8FAFC', borderRadius: '24px', animation: 'pulse 2s infinite' }} />
+                    ))}
+                </div>
+            ) : (
+                <div className={styles.workflowGrid}>
+                    {filteredTemplates.map(wf => {
+                        const iconColor = wf.sector === 'Accounting' ? '#10B981' : (wf.sector === 'Law' ? '#8B5CF6' : '#3B82F6');
+                        return (
+                            <div key={wf.id} className={styles.workflowCard}>
+                                <div className={styles.cardIcon} style={{ background: `${iconColor}15`, color: iconColor }}>
+                                    <Zap size={24} />
                                 </div>
-                                
+                                <div className={styles.cardContent}>
+                                    <h3 className={styles.cardTitle}>{wf.name}</h3>
+                                    <p className={styles.cardDesc}>{wf.description}</p>
+                                    {/* Associated Connections */}
+                                    {(() => {
+                                        const reqs = robustParse(wf.requirements);
+                                        const services = Array.from(
+                                            new Set(reqs.map((r: any) => r.service || r.app).filter(Boolean))
+                                        );
+                                        if (services.length === 0) return null;
+                                        return (
+                                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '12px' }}>
+                                                {services.map((svc: any) => (
+                                                    <span key={svc} style={{ fontSize: '0.68rem', background: '#F1F5F9', color: '#475569', padding: '3px 8px', borderRadius: '6px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid #E2E8F0' }}>
+                                                        <Key size={10} color="#64748B" /> {svc}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        );
+                                    })()}
+                                    <div className={styles.categoryTag} style={{ background: `${iconColor}15`, color: iconColor }}>{wf.sector}</div>
+                                </div>
                                 <div className={styles.cardStats}>
                                     <div className={styles.statItem}>
-                                        <span className={styles.statValue}>{wf.installs || "1.2K"}</span>
+                                        <span className={styles.statValue}>1.2K</span>
                                         <span className={styles.statLabel}>Installs</span>
                                     </div>
-                                    <div className={styles.statItem}>
-                                        <span className={styles.statValue}>⭐ {wf.rating || "4.9"}</span>
-                                        <span className={styles.statLabel}>Rating</span>
+                                    <div className={styles.statItem} style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'flex-end' }}>
+                                        {(() => {
+                                            const pInfo = typeof wf.productInfo === 'string'
+                                                ? JSON.parse(wf.productInfo)
+                                                : (wf.productInfo || {});
+                                            const setupPrice = parseFloat(pInfo.setupPrice || 0);
+                                            const monthlyPrice = parseFloat(pInfo.monthlyPrice || 0);
+                                            const discountSetup = parseFloat(pInfo.discountSetupPrice || 0);
+                                            const discountMonthly = parseFloat(pInfo.discountMonthlyPrice || 0);
+
+                                            // Fallback for legacy data
+                                            let showSetup = setupPrice;
+                                            let showMonthly = monthlyPrice;
+
+                                            if (setupPrice === 0 && monthlyPrice === 0) {
+                                                const legacyPrice = parseFloat(wf.price || 0);
+                                                if (pInfo.monetization === 'Subscription') {
+                                                    showMonthly = legacyPrice;
+                                                } else {
+                                                    showSetup = legacyPrice;
+                                                }
+                                            }
+
+                                            if (showSetup === 0 && showMonthly === 0) {
+                                                return (
+                                                    <>
+                                                        <span className={styles.statValue} style={{ color: '#0F172A' }}>Free</span>
+                                                        <span className={styles.statLabel}>Price</span>
+                                                    </>
+                                                );
+                                            }
+
+                                            return (
+                                                <>
+                                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1px' }}>
+                                                        {showMonthly > 0 && (
+                                                            <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                                                                {discountMonthly > 0 ? (
+                                                                    <>
+                                                                        <span style={{ fontSize: '0.7rem', color: '#94A3B8', textDecoration: 'line-through', fontWeight: 600 }}>€{showMonthly.toFixed(0)}</span>
+                                                                        <span className={styles.statValue} style={{ color: '#10B981', fontSize: '0.85rem' }}>€{discountMonthly.toFixed(0)}</span>
+                                                                    </>
+                                                                ) : (
+                                                                    <span className={styles.statValue} style={{ color: '#0F172A', fontSize: '0.85rem' }}>€{showMonthly.toFixed(0)}</span>
+                                                                )}
+                                                                <span style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 700 }}>/mo</span>
+                                                             </div>
+                                                         )}
+                                                         {showSetup > 0 && (
+                                                             <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                                                                 {discountSetup > 0 ? (
+                                                                     <>
+                                                                         <span style={{ fontSize: '0.7rem', color: '#94A3B8', textDecoration: 'line-through', fontWeight: 600 }}>€{showSetup.toFixed(0)}</span>
+                                                                         <span className={styles.statValue} style={{ color: '#10B981', fontSize: '0.85rem' }}>€{discountSetup.toFixed(0)}</span>
+                                                                     </>
+                                                                 ) : (
+                                                                     <span className={styles.statValue} style={{ color: '#64748B', fontSize: '0.85rem' }}>€{showSetup.toFixed(0)}</span>
+                                                                 )}
+                                                                 <span style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 700 }}>setup</span>
+                                                             </div>
+                                                         )}
+                                                     </div>
+                                                     <span className={styles.statLabel} style={{ marginTop: '2px' }}>Price</span>
+                                                 </>
+                                             );
+                                         })()}
+                                     </div>
+                                 </div>
+                                <div className={styles.cardActions}>
+                                    <button className={styles.btnDetails}>View Details</button>
+                                    <button className={styles.btnInstall} onClick={() => handleAddClick(wf)}>
+                                        {getTemplatePrice(wf) > 0 ? 'Order' : 'Install'}
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+
+            {/* CUSTOM REQUEST SECTION */}
+            <div className={styles.customSection}>
+                <div className={styles.customLeft}>
+                    <h2>Can't find what you need?</h2>
+                    <p>Request a custom workflow tailored to your unique business processes.</p>
+                    <button className={styles.btnRequest} onClick={openCustomModal}>
+                        Request Custom Workflow <ArrowUpRight size={18} />
+                    </button>
+                    <div className={styles.responseNote}>
+                        <CheckCircle size={16} /> Our team will get back to you within 24 hours.
+                    </div>
+                </div>
+                <div className={styles.howItWorks}>
+                    <span className={styles.howHeader}>How it works</span>
+                    <div className={styles.stepGrid}>
+                        <div className={styles.stepItem}>
+                            <div className={styles.stepIcon}><FileText size={20} /></div>
+                            <div>
+                                <span className={styles.stepNumber}>1. Tell us your needs</span>
+                                <p className={styles.stepDesc}>Fill out a short form and explain what you want to automate.</p>
+                            </div>
+                        </div>
+                        <div className={styles.stepItem}>
+                            <div className={styles.stepIcon}><MousePointer2 size={20} /></div>
+                            <div>
+                                <span className={styles.stepNumber}>2. We design it</span>
+                                <p className={styles.stepDesc}>Our automation experts create a tailored workflow for you.</p>
+                            </div>
+                        </div>
+                        <div className={styles.stepItem}>
+                            <div className={styles.stepIcon}><Settings size={20} /></div>
+                            <div>
+                                <span className={styles.stepNumber}>3. Review & approve</span>
+                                <p className={styles.stepDesc}>Review the workflow and request any adjustments needed.</p>
+                            </div>
+                        </div>
+                        <div className={styles.stepItem}>
+                            <div className={styles.stepIcon}><Zap size={20} /></div>
+                            <div>
+                                <span className={styles.stepNumber}>4. We deliver & set up</span>
+                                <p className={styles.stepDesc}>We deliver, install, and help you get it running smoothly.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* INSTALL MODAL */}
+            {configureTemplate && (
+                <ModalPortal>
+                    <div className={styles.modalOverlay} onClick={() => setConfigureTemplate(null)}>
+                        <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+                            <button className={styles.closeButton} onClick={() => setConfigureTemplate(null)}>
+                                <X size={20} />
+                            </button>
+                            {step === 'configure' ? (
+                                <>
+                                    <h2 className={styles.onboardingTitle}>Install {configureTemplate.name}</h2>
+                                    <p className={styles.onboardingSubtitle}>Configure your parameters to begin orchestration.</p>
+                                    <div className={styles.configFieldset}>
+                                        {configureTemplate.parsedReqs.map((req: any, idx: number) => (
+                                            <div key={idx} className={styles.formGroup} style={{ marginBottom: '16px' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                                    <label className={styles.fieldLabel} style={{ margin: 0, fontSize: '0.8rem', fontWeight: 800 }}>{req.label || req.name.replace(/_/g, ' ')}</label>
+                                                    {(req.service || req.app) && (
+                                                        <span style={{ fontSize: '0.65rem', background: '#EFF6FF', color: '#1E40AF', padding: '2px 8px', borderRadius: '4px', fontWeight: 800, border: '1px solid #BFDBFE' }}>
+                                                            Linked to: {req.service || req.app}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                {req.description && (
+                                                    <p style={{ margin: '0 0 8px', fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>{req.description}</p>
+                                                )}
+                                                <input
+                                                    className={styles.fieldInput}
+                                                    type={req.type === 'password' ? 'password' : 'text'}
+                                                    placeholder={req.placeholder || req.example || `Specify ${req.name}...`}
+                                                    onChange={e => setTemplateInputs({ ...templateInputs, [req.name]: e.target.value })}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button className={styles.btnInstall} style={{ width: '100%', height: '56px', marginTop: '32px' }} disabled={isDeploying} onClick={() => deployWorkflow(configureTemplate, templateInputs)}>
+                                        {isDeploying ? 'Deploying...' : 'Install Workflow'}
+                                    </button>
+                                </>
+                            ) : (
+                                <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                                    <div style={{ width: '64px', height: '64px', background: '#10B981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+                                        <CheckCircle size={32} color="white" />
+                                    </div>
+                                    <h2 className={styles.onboardingTitle}>Workflow Installed</h2>
+                                    <p className={styles.onboardingSubtitle}>Orchestration has been initiated successfully.</p>
+                                    <button className={styles.btnInstall} style={{ width: '100%' }} onClick={() => setConfigureTemplate(null)}>Return to Marketplace</button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </ModalPortal>
+            )}
+
+            {/* CUSTOM WORKFLOW REQUEST WIZARD */}
+            {showCustomModal && (
+                <ModalPortal>
+                    <div className={styles.modalOverlay} onClick={() => setShowCustomModal(false)}>
+                        <div className={styles.modalContent} onClick={e => e.stopPropagation()} style={{ maxWidth: 560, padding: 0, overflow: 'hidden', borderRadius: 28 }}>
+
+                            {/* Dark header with progress */}
+                            <div style={{ background: 'linear-gradient(135deg,#0F172A 0%,#1E293B 100%)', padding: '28px 32px 24px', position: 'relative' }}>
+                                <button className={styles.closeButton} onClick={() => setShowCustomModal(false)} style={{ color: 'rgba(255,255,255,0.4)', top: 18, right: 18 }}>
+                                    <X size={20} />
+                                </button>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: wizardStep < 4 ? 24 : 0 }}>
+                                    <div style={{ width: 44, height: 44, background: 'rgba(16,185,129,0.15)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(16,185,129,0.3)' }}>
+                                        <Zap size={20} color="#10B981" />
+                                    </div>
+                                    <div>
+                                        <div style={{ fontSize: '0.68rem', fontWeight: 950, color: '#10B981', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>Custom Build</div>
+                                        <div style={{ fontSize: '1.2rem', fontWeight: 950, color: '#fff', letterSpacing: '-0.02em' }}>Request a Workflow</div>
+                                    </div>
+                                </div>
+                                {wizardStep < 4 && (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+                                        {[{ n: 1, l: 'Basics' }, { n: 2, l: 'Describe' }, { n: 3, l: 'Urgency' }].map((s, i) => (
+                                            <React.Fragment key={s.n}>
+                                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
+                                                    <div style={{
+                                                        width: 30, height: 30, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                        background: wizardStep > s.n ? '#10B981' : wizardStep === s.n ? '#fff' : 'rgba(255,255,255,0.08)',
+                                                        color: wizardStep > s.n ? '#fff' : wizardStep === s.n ? '#0F172A' : 'rgba(255,255,255,0.3)',
+                                                        fontWeight: 950, fontSize: '0.8rem', transition: 'all 0.3s',
+                                                        border: wizardStep === s.n ? 'none' : '1px solid rgba(255,255,255,0.12)'
+                                                    }}>
+                                                        {wizardStep > s.n ? '✓' : s.n}
+                                                    </div>
+                                                    <span style={{ fontSize: '0.68rem', fontWeight: 800, color: wizardStep === s.n ? '#fff' : 'rgba(255,255,255,0.35)', whiteSpace: 'nowrap' }}>{s.l}</span>
+                                                </div>
+                                                {i < 2 && <div style={{ flex: 1, height: 1, background: wizardStep > s.n ? '#10B981' : 'rgba(255,255,255,0.1)', marginBottom: 18, transition: 'background 0.3s', marginLeft: 6, marginRight: 6 }} />}
+                                            </React.Fragment>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Step body */}
+                            <div style={{ padding: '28px 32px 32px' }}>
+
+                                {/* STEP 1 — Basics */}
+                                {wizardStep === 1 && (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                                        <div>
+                                            <div style={{ fontSize: '1.05rem', fontWeight: 950, color: '#0F172A', marginBottom: 4 }}>What would you like to automate?</div>
+                                            <div style={{ fontSize: '0.83rem', color: '#94A3B8', fontWeight: 600 }}>Give your workflow a name and pick a category.</div>
+                                        </div>
+                                        <div>
+                                            <label className={styles.fieldLabel}>Workflow Name *</label>
+                                            <input className={styles.fieldInput} type="text" autoFocus
+                                                placeholder="e.g. Monthly Invoice Reconciliation"
+                                                value={customForm.name}
+                                                onChange={e => setCustomForm(f => ({ ...f, name: e.target.value }))}
+                                                style={{ width: '100%', boxSizing: 'border-box' }} />
+                                        </div>
+                                        <div>
+                                            <label className={styles.fieldLabel}>Category</label>
+                                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
+                                                {['Accounting', 'Law', 'HR', 'IT', 'Marketing', 'Sales', 'General'].map(cat => (
+                                                    <button key={cat} onClick={() => setCustomForm(f => ({ ...f, category: cat }))} style={{
+                                                        padding: '7px 16px', borderRadius: 100, fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', transition: 'all 0.15s',
+                                                        background: customForm.category === cat ? '#0F172A' : '#F8FAFC',
+                                                        color: customForm.category === cat ? '#fff' : '#475569',
+                                                        border: customForm.category === cat ? 'none' : '1px solid #F1F5F9'
+                                                    }}>{cat}</button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <button className={styles.btnInstall} disabled={!customForm.name.trim()}
+                                            style={{ width: '100%', height: 50, marginTop: 4, opacity: !customForm.name.trim() ? 0.5 : 1 }}
+                                            onClick={() => { findAiMatches(customForm.name); setWizardStep(2); }}>
+                                            Continue →
+                                        </button>
+                                    </div>
+                                )}
+
+                                {/* STEP 2 — Describe + AI Match */}
+                                {wizardStep === 2 && (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+                                        <div>
+                                            <div style={{ fontSize: '1.05rem', fontWeight: 950, color: '#0F172A', marginBottom: 4 }}>Describe the workflow</div>
+                                            <div style={{ fontSize: '0.83rem', color: '#94A3B8', fontWeight: 600 }}>The more detail, the faster we can build it.</div>
+                                        </div>
+                                        <div>
+                                            <label className={styles.fieldLabel}>What should it do? *</label>
+                                            <textarea rows={4} autoFocus
+                                                placeholder="e.g. When a new invoice arrives via email, extract the data, match it to our CRM, and notify the finance team on Slack..."
+                                                value={customForm.description}
+                                                onChange={e => { setCustomForm(f => ({ ...f, description: e.target.value })); findAiMatches(e.target.value + ' ' + customForm.name); }}
+                                                style={{ width: '100%', boxSizing: 'border-box', background: '#F8FAFC', border: '1px solid #F1F5F9', borderRadius: 14, padding: '12px 16px', fontSize: '0.88rem', fontWeight: 600, lineHeight: 1.7, resize: 'vertical', outline: 'none', color: '#0F172A', fontFamily: 'inherit' }}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className={styles.fieldLabel}>Apps & tools involved</label>
+                                            <input className={styles.fieldInput} type="text"
+                                                placeholder="e.g. Gmail, Airtable, Slack, HubSpot..."
+                                                value={customForm.tools}
+                                                onChange={e => setCustomForm(f => ({ ...f, tools: e.target.value }))}
+                                                style={{ width: '100%', boxSizing: 'border-box' }} />
+                                        </div>
+
+                                        {/* AI MATCH SUGGESTIONS */}
+                                        {aiMatches.length > 0 && (
+                                            <div style={{ background: 'linear-gradient(135deg,#F0FDF4,#ECFDF5)', border: '1px solid #A7F3D0', borderRadius: 16, padding: '14px 16px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                                                    <Zap size={13} color="#10B981" />
+                                                    <span style={{ fontSize: '0.72rem', fontWeight: 950, color: '#059669', textTransform: 'uppercase', letterSpacing: '0.08em' }}>BLONK found similar workflows already in the marketplace</span>
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                                    {aiMatches.map((m, i) => (
+                                                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: '#fff', borderRadius: 12, border: '1px solid #D1FAE5', cursor: 'pointer' }}
+                                                            onClick={() => { setShowCustomModal(false); handleAddClick(m); }}>
+                                                            <div style={{ width: 34, height: 34, background: '#10B98115', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                                                 <Zap size={16} color="#10B981" />
+                                                            </div>
+                                                            <div style={{ flex: 1, minWidth: 0 }}>
+                                                                <div style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.name}</div>
+                                                                <div style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 700 }}>{m.sector} · Click to install</div>
+                                                            </div>
+                                                            <ArrowUpRight size={14} color="#10B981" />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div style={{ fontSize: '0.75rem', color: '#6EE7B7', fontWeight: 700, marginTop: 10, textAlign: 'center' }}>
+                                                    Not quite right? Continue to request a custom build ↓
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <div style={{ display: 'flex', gap: 10 }}>
+                                            <button onClick={() => setWizardStep(1)} style={{ flex: 1, height: 50, background: '#F8FAFC', border: '1px solid #F1F5F9', borderRadius: 14, fontWeight: 950, color: '#64748B', cursor: 'pointer', fontSize: '0.88rem' }}>← Back</button>
+                                            <button className={styles.btnInstall} disabled={!customForm.description.trim()}
+                                                style={{ flex: 2, height: 50, opacity: !customForm.description.trim() ? 0.5 : 1 }}
+                                                onClick={() => setWizardStep(3)}>Continue →</button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* STEP 3 — Urgency */}
+                                {wizardStep === 3 && (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+                                        <div>
+                                            <div style={{ fontSize: '1.05rem', fontWeight: 950, color: '#0F172A', marginBottom: 4 }}>When do you need it?</div>
+                                            <div style={{ fontSize: '0.83rem', color: '#94A3B8', fontWeight: 600 }}>Set urgency so we can prioritise your request correctly.</div>
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                            {[
+                                                { value: 'low', label: 'Low priority', sub: 'Within 2 weeks — no rush', emoji: '🟢' },
+                                                { value: 'normal', label: 'Normal', sub: 'Within 1 week — standard', emoji: '🔵' },
+                                                { value: 'high', label: 'High priority', sub: 'Within 2 days — important', emoji: '🟡' },
+                                                { value: 'urgent', label: 'Urgent', sub: 'ASAP — critical to business', emoji: '🔴' },
+                                            ].map(opt => (
+                                                <div key={opt.value} onClick={() => setCustomForm(f => ({ ...f, urgency: opt.value }))} style={{
+                                                    display: 'flex', alignItems: 'center', gap: 14, padding: '13px 16px', borderRadius: 14, cursor: 'pointer', transition: 'all 0.15s',
+                                                    background: customForm.urgency === opt.value ? '#0F172A' : '#F8FAFC',
+                                                    border: `1px solid ${customForm.urgency === opt.value ? '#0F172A' : '#F1F5F9'}`,
+                                                }}>
+                                                    <span style={{ fontSize: '1.1rem' }}>{opt.emoji}</span>
+                                                    <div style={{ flex: 1 }}>
+                                                        <div style={{ fontWeight: 950, fontSize: '0.88rem', color: customForm.urgency === opt.value ? '#fff' : '#0F172A' }}>{opt.label}</div>
+                                                        <div style={{ fontSize: '0.75rem', fontWeight: 600, color: customForm.urgency === opt.value ? 'rgba(255,255,255,0.5)' : '#94A3B8' }}>{opt.sub}</div>
+                                                    </div>
+                                                    {customForm.urgency === opt.value && <CheckCircle size={17} color="#10B981" />}
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div>
+                                            <label className={styles.fieldLabel}>Preferred delivery date (optional)</label>
+                                            <input className={styles.fieldInput} type="date"
+                                                value={customForm.timeline}
+                                                onChange={e => setCustomForm(f => ({ ...f, timeline: e.target.value }))}
+                                                style={{ width: '100%', boxSizing: 'border-box' }} />
+                                        </div>
+                                        <div style={{ display: 'flex', gap: 10 }}>
+                                            <button onClick={() => setWizardStep(2)} style={{ flex: 1, height: 50, background: '#F8FAFC', border: '1px solid #F1F5F9', borderRadius: 14, fontWeight: 950, color: '#64748B', cursor: 'pointer', fontSize: '0.88rem' }}>← Back</button>
+                                            <button className={styles.btnInstall} disabled={isSubmitting}
+                                                style={{ flex: 2, height: 50, opacity: isSubmitting ? 0.6 : 1 }}
+                                                onClick={handleCustomRequest}>{isSubmitting ? 'Submitting...' : 'Submit Request ✓'}</button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* STEP 4 — Success */}
+                                {wizardStep === 4 && (
+                                    <div style={{ textAlign: 'center', padding: '8px 0 4px' }}>
+                                        <div style={{ width: 76, height: 76, background: 'linear-gradient(135deg,#10B981,#059669)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', boxShadow: '0 8px 24px rgba(16,185,129,0.28)' }}>
+                                            <CheckCircle size={38} color="white" />
+                                        </div>
+                                        <h2 style={{ fontSize: '1.4rem', fontWeight: 950, color: '#0F172A', marginBottom: 8 }}>Request Sent!</h2>
+                                        <p style={{ color: '#64748B', fontWeight: 600, lineHeight: 1.6, maxWidth: 340, margin: '0 auto 24px', fontSize: '0.9rem' }}>
+                                            Your workflow <strong style={{ color: '#0F172A' }}>"{customForm.name}"</strong> has been submitted. We'll get back to you within 24 hours.
+                                        </p>
+                                        <div style={{ background: '#F8FAFC', borderRadius: 14, padding: '14px 18px', marginBottom: 24, textAlign: 'left', border: '1px solid #F1F5F9' }}>
+                                            {[{ l: 'Workflow', v: customForm.name }, { l: 'Category', v: customForm.category }, { l: 'Urgency', v: customForm.urgency }].map(item => (
+                                                <div key={item.l} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #F1F5F9' }}>
+                                                    <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#94A3B8' }}>{item.l}</span>
+                                                    <span style={{ fontSize: '0.8rem', fontWeight: 950, color: '#0F172A', textTransform: 'capitalize' }}>{item.v}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <button className={styles.btnInstall} style={{ width: '100%', height: 50 }} onClick={() => setShowCustomModal(false)}>Back to Marketplace</button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </ModalPortal>
+            )}
+
+            {paymentTemplate && (
+                <ModalPortal>
+                    <div className={styles.modalOverlay} onClick={() => !isProcessingPayment && setPaymentTemplate(null)}>
+                        <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+                            <button className={styles.closeButton} onClick={() => setPaymentTemplate(null)} disabled={isProcessingPayment}>
+                                <X size={20} />
+                            </button>
+                            
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                                <div style={{ width: 40, height: 40, background: '#10B98115', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Zap size={20} color="#10B981" />
+                                </div>
+                                <h2 className={styles.onboardingTitle} style={{ margin: 0 }}>Order Workflow</h2>
+                            </div>
+
+                            <div style={{ padding: '16px', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #F1F5F9', marginBottom: '20px' }}>
+                                <div style={{ fontWeight: 900, color: '#0F172A', fontSize: '1.05rem', marginBottom: '16px' }}>{paymentTemplate.name}</div>
+                                
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>
+                                        <CheckCircle size={14} color="#10B981" /> Dedicated Server
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>
+                                        <CheckCircle size={14} color="#10B981" /> n8n Setup
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>
+                                        <CheckCircle size={14} color="#10B981" /> Full Configuration
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>
+                                        <CheckCircle size={14} color="#10B981" /> Testing
                                     </div>
                                 </div>
 
-                                <div className={styles.cardActions}>
-                                    <button className={styles.viewDetailsBtn} onClick={() => setSelected(wf)}>View Details</button>
-                                    <button className={styles.installBtn} onClick={() => setSelected(wf)}>Install</button>
-                                </div>
+                                {(() => {
+                                    const reqs = robustParse(paymentTemplate.requirements);
+                                    const services = Array.from(new Set(reqs.map((r: any) => r.service || r.app).filter(Boolean)));
+                                    if (services.length === 0) return null;
+                                    return (
+                                        <div style={{ borderTop: '1px solid #E2E8F0', marginTop: '16px', paddingTop: '12px' }}>
+                                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', marginBottom: '8px' }}>Credentials & Connections Used:</div>
+                                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                                {services.map((svc: any) => (
+                                                    <span key={svc} style={{ fontSize: '0.72rem', background: '#FFFFFF', color: '#1E293B', padding: '3px 8px', borderRadius: '6px', fontWeight: 800, border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                        <Key size={10} color="#64748B" /> {svc}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
                             </div>
-                        ))}
-                    </div>
-                )}
-            </section>
-
-            {/* Custom Request */}
-            <section className={styles.customRequest}>
-                <div className={styles.requestLeft}>
-                    <h2 className={styles.requestTitle}>Can't find what you need?</h2>
-                    <p className={styles.requestSub}>Request a custom workflow tailored to your unique business processes.</p>
-                    <button className={styles.requestBtn}>
-                        Request Custom Workflow <ArrowRight size={20} />
-                    </button>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#10b981', fontWeight: 800, fontSize: '0.9rem' }}>
-                        <Check size={16} /> Our team will get back to you within 24 hours.
-                    </div>
-                </div>
-
-                <div className={styles.howItWorks}>
-                    <h3 className={styles.howTitle}>How it works</h3>
-                    <div className={styles.stepsGrid}>
-                        <div className={styles.stepConnector} />
-                        <div className={styles.stepItem}>
-                            <div className={styles.stepIconBox}><PencilLine size={20} /></div>
-                            <div className={styles.stepInfo}>
-                                <span className={styles.stepLabel}>1. Tell us your needs</span>
-                                <span className={styles.stepDesc}>Fill out a short form and explain what you want.</span>
+                            
+                            <div style={{ background: '#F8FAFC', borderRadius: 14, padding: 16, marginBottom: 24, display: 'flex', justifyContent: 'space-between', fontWeight: 800 }}>
+                                <span>Total</span>
+                                <span style={{ color: '#10B981', fontWeight: 950 }}>€{getTemplatePrice(paymentTemplate).toFixed(2)}</span>
                             </div>
-                        </div>
-                        <div className={styles.stepItem}>
-                            <div className={styles.stepIconBox}><MessageSquare size={20} /></div>
-                            <div className={styles.stepInfo}>
-                                <span className={styles.stepLabel}>2. We design it</span>
-                                <span className={styles.stepDesc}>Our automation experts create a tailored workflow for you.</span>
-                            </div>
-                        </div>
-                        <div className={styles.stepItem}>
-                            <div className={styles.stepIconBox}><ClipboardCheck size={20} /></div>
-                            <div className={styles.stepInfo}>
-                                <span className={styles.stepLabel}>3. Review & approve</span>
-                                <span className={styles.stepDesc}>Review the workflow and request any adjustments.</span>
-                            </div>
-                        </div>
-                        <div className={styles.stepItem}>
-                            <div className={styles.stepIconBox}><Rocket size={20} /></div>
-                            <div className={styles.stepInfo}>
-                                <span className={styles.stepLabel}>4. We deliver & set up</span>
-                                <span className={styles.stepDesc}>We deliver, install, and help you get it running smoothly.</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Modal */}
-            {selected && (
-                <div className={styles.overlay} onClick={() => !paying && setSelected(null)}>
-                    <div className={styles.panel} onClick={(e) => e.stopPropagation()}>
-                        <button type="button" className={styles.closeBtn} onClick={() => setSelected(null)}>
-                            <X size={20} />
-                        </button>
-                        
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                            <div className={styles.cardIconLarge} style={{ background: `${selected.color || "#10B981"}15`, color: selected.color || "#10B981" }}>
-                                <Zap size={40} />
-                            </div>
-                            <h2 className={styles.panelTitle}>{selected.name}</h2>
-                            <p style={{ fontSize: '1.1rem', color: "#64748b", fontWeight: 600, lineHeight: 1.6 }}>{selected.description}</p>
-                        </div>
-
-                        <div style={{ background: '#f8fafc', padding: 24, borderRadius: 24, border: '1px solid #f1f5f9' }}>
-                            <h3 style={{ fontSize: '0.9rem', fontWeight: 950, marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.1em' }}>What's included</h3>
-                            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                                {(selected.includes || ["Dedicated Server", "n8n Setup", "Full Configuration", "Testing"]).map((item: string) => (
-                                    <li key={item} style={{ display: 'flex', alignItems: 'center', gap: 12, fontWeight: 700, fontSize: '0.95rem' }}>
-                                        <Check size={18} color="#10B981" /> {item}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-
-                        <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span style={{ fontWeight: 800, color: '#64748b' }}>Investment</span>
-                                <span style={{ fontSize: "2rem", fontWeight: 950, color: "#0f172a" }}>
-                                    €{getPrice(selected).toFixed(2)}
-                                </span>
-                            </div>
-                            <button type="button" className={styles.payBtn} disabled={paying} onClick={startPayment} style={{ height: 64, borderRadius: 20, fontSize: '1.1rem', fontWeight: 950 }}>
-                                {paying ? <><Loader2 className="spinning" size={24} /> Processing Registry…</> : "Continue to Deployment →"}
+                            <button
+                                className={styles.btnInstall}
+                                style={{ width: '100%', height: 56 }}
+                                disabled={isProcessingPayment}
+                                onClick={() => handlePurchase(paymentTemplate)}
+                            >
+                                {isProcessingPayment ? 'Processing...' : 'Continue to Payment'}
                             </button>
                         </div>
                     </div>
-                </div>
+                </ModalPortal>
             )}
+
+            {toast && <div className={styles.toast}><CheckCircle size={20} /> {toast}</div>}
         </div>
     );
 }
