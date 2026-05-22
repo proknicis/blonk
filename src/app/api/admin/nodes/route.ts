@@ -254,14 +254,23 @@ export async function POST(req: Request) {
             }
         }
 
+        let resolvedTeamId = teamId || null;
+        if (customerId && !resolvedTeamId) {
+            const userTeam = await db.query('SELECT "teamId" FROM "User" WHERE id = $1', [customerId]) as any[];
+            if (userTeam.length > 0 && userTeam[0].teamId) {
+                resolvedTeamId = userTeam[0].teamId;
+            }
+        }
+
         const res = await db.execute(
             'INSERT INTO "ClusterNode" (name, url, api_key, status, max_workflows, "teamId", "customerId", "customerName", "customerEmail", provider, region, "ipAddress") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *',
-            [name, url, api_key, 'Pending', max_workflows || 100, teamId || null, customerId || null, customerName || null, customerEmail || null, provider || 'manual', region || null, ipAddress || null]
+            [name, url, api_key, 'Active', max_workflows || 100, resolvedTeamId, customerId || null, customerName || null, customerEmail || null, provider || 'manual', region || null, ipAddress || null]
         );
 
         return NextResponse.json(res.rows[0]);
-    } catch (error) {
-        return NextResponse.json({ error: "Failed to add node" }, { status: 500 });
+    } catch (error: any) {
+        console.error("[Manual Node POST] Error:", error);
+        return NextResponse.json({ error: "Failed to add node", details: error.message }, { status: 500 });
     }
 }
 

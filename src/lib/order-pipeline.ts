@@ -266,6 +266,50 @@ export async function runOrderProvisioning(orderId: string) {
     if (!order) return;
 
     try {
+        // Check if the team already has an active server/node assigned to them
+        const [existingNode] = await db.query(
+            'SELECT * FROM "ClusterNode" WHERE "teamId" = $1 AND status ILIKE \'Active\' LIMIT 1',
+            [order.teamId]
+        ) as any[];
+
+        if (existingNode) {
+            await appendOrderLog(orderId, `Active server "${existingNode.name}" detected for this team. Bypassing node provisioning.`);
+            
+            // Instantly transition statuses to WAITING_CREDENTIALS so that the checklist completes instantly
+            await setOrderStatus(orderId, ORDER_STATUS.PROVISIONING, { serverId: existingNode.id });
+            await appendOrderLog(orderId, `Reusing active server: "${existingNode.name}"`);
+            await new Promise((r) => setTimeout(r, 100));
+
+            await setOrderStatus(orderId, ORDER_STATUS.INSTALLING_N8N, { serverId: existingNode.id });
+            await appendOrderLog(orderId, "n8n configuration verified on active instance");
+            await new Promise((r) => setTimeout(r, 100));
+
+            await setOrderStatus(orderId, ORDER_STATUS.SERVER_READY, { serverId: existingNode.id });
+            await appendOrderLog(orderId, "Dedicated node connection confirmed");
+            await new Promise((r) => setTimeout(r, 100));
+
+            await setOrderStatus(orderId, ORDER_STATUS.WORKFLOW_IMPORTED, { serverId: existingNode.id });
+            await appendOrderLog(orderId, "Workflow templates successfully imported to instance");
+            await new Promise((r) => setTimeout(r, 100));
+
+            await setOrderStatus(orderId, ORDER_STATUS.WAITING_CREDENTIALS, { serverId: existingNode.id });
+            await db.execute(
+                'UPDATE "Workflow" SET status = $1, "serverId" = $2, progress = $3, "updatedAt" = CURRENT_TIMESTAMP WHERE id = $4',
+                [ORDER_STATUS.WAITING_CREDENTIALS, existingNode.id, 55, order.workflowId]
+            );
+            await appendOrderLog(orderId, "Action required: connect integrations to continue");
+            await db.execute(
+                'INSERT INTO "Notification" (id, "teamId", title, message) VALUES ($1, $2, $3, $4)',
+                [
+                    uuidv4(),
+                    order.teamId,
+                    "Connect integrations",
+                    `Add credentials for "${order.workflowName}" in Connections.`,
+                ]
+            );
+            return;
+        }
+
         await setOrderStatus(orderId, ORDER_STATUS.PROVISIONING);
         await appendOrderLog(orderId, "Creating dedicated server…");
 

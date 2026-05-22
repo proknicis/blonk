@@ -66,6 +66,21 @@ export default function FleetHealthMonitoringPage() {
     const [isProvisioning, setIsProvisioning] = useState(false);
     const [availableCustomers, setAvailableCustomers] = useState<any[]>([]);
 
+    // MANUAL REGISTRATION STATE
+    const [showManualModal, setShowManualModal] = useState(false);
+    const [manualData, setManualData] = useState({
+        name: "",
+        url: "",
+        apiKey: "",
+        maxWorkflows: 100,
+        customerId: "",
+        customerName: "",
+        customerEmail: "",
+        region: "EU",
+        ipAddress: ""
+    });
+    const [isRegistering, setIsRegistering] = useState(false);
+
     // N8N MANAGEMENT STATE
     const [showN8nModal, setShowN8nModal] = useState(false);
     const [n8nAction, setN8nAction] = useState<'start' | 'stop' | 'restart' | 'update' | null>(null);
@@ -242,6 +257,54 @@ export default function FleetHealthMonitoringPage() {
         }
     };
 
+    const handleManualRegisterServer = async () => {
+        setIsRegistering(true);
+        try {
+            const res = await fetch('/api/admin/nodes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: manualData.name,
+                    url: manualData.url,
+                    api_key: manualData.apiKey,
+                    max_workflows: manualData.maxWorkflows,
+                    customerId: manualData.customerId || null,
+                    customerName: manualData.customerName || null,
+                    customerEmail: manualData.customerEmail || null,
+                    provider: 'manual',
+                    region: manualData.region || 'EU',
+                    ipAddress: manualData.ipAddress || null
+                })
+            });
+
+            if (res.ok) {
+                (window as any).showToast(`Server "${manualData.name}" registered successfully.`, "success");
+                setShowManualModal(false);
+                setManualData({
+                    name: "",
+                    url: "",
+                    apiKey: "",
+                    maxWorkflows: 100,
+                    customerId: "",
+                    customerName: "",
+                    customerEmail: "",
+                    region: "EU",
+                    ipAddress: ""
+                });
+                fetchNodes(true);
+                fetchAvailableCustomers();
+            } else {
+                const err = await res.json();
+                (window as any).showToast(`Registration failed: ${err.error}`, "error");
+            }
+        } catch (error) {
+            console.error("Manual registration error:", error);
+            (window as any).showToast("Error registering server", "error");
+        } finally {
+            setIsRegistering(false);
+        }
+    };
+
     const handleN8nAction = async (node: any, action: 'start' | 'stop' | 'restart' | 'update') => {
         setSelectedNode(node);
         setN8nAction(action);
@@ -394,6 +457,12 @@ export default function FleetHealthMonitoringPage() {
                         <Plus size={18} /> Provision New Server
                     </button>
                     <button 
+                        onClick={() => setShowManualModal(true)}
+                        style={{ background: 'rgba(255, 255, 255, 0.08)', color: '#FFFFFF', height: '56px', padding: '0 28px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.1)', fontWeight: 950, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '8px' }}
+                    >
+                        <Server size={18} /> Add Server Manually
+                    </button>
+                    <button 
                         onClick={() => setShowDeployModal(true)}
                         style={{ background: '#3B82F6', color: '#FFFFFF', height: '56px', padding: '0 28px', borderRadius: '16px', border: 'none', fontWeight: 950, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 10px 20px rgba(59, 130, 246, 0.2)' }}
                     >
@@ -479,6 +548,133 @@ export default function FleetHealthMonitoringPage() {
                                 </button>
                                 <button 
                                     onClick={() => setShowProvisionModal(false)}
+                                    style={{ flex: 1, height: '52px', background: 'transparent', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: 'pointer' }}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* MANUAL REGISTRATION MODAL */}
+            {showManualModal && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                    <div style={{ background: '#FFFFFF', borderRadius: '24px', padding: '40px', maxWidth: '550px', width: '90%', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                            <div>
+                                <h2 style={{ fontSize: '1.25rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>Register Manual Server</h2>
+                                <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0', fontWeight: 700 }}>Connect an existing n8n server to a customer tenant.</p>
+                            </div>
+                            <button 
+                                onClick={() => setShowManualModal(false)}
+                                style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#F8FAFC', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '6px' }}>Assign Customer (Optional)</label>
+                                <select 
+                                    value={manualData.customerId}
+                                    onChange={(e) => {
+                                        const customer = availableCustomers.find(c => c.id === e.target.value);
+                                        setManualData({
+                                            ...manualData,
+                                            customerId: e.target.value,
+                                            customerName: customer?.name || '',
+                                            customerEmail: customer?.email || ''
+                                        });
+                                    }}
+                                    style={{ width: '100%', height: '48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                >
+                                    <option value="">Leave Unassigned (Internal Pool)</option>
+                                    {availableCustomers.map(customer => (
+                                        <option key={customer.id} value={customer.id}>{customer.name} ({customer.email})</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '6px' }}>Server Name</label>
+                                    <input 
+                                        type="text"
+                                        placeholder="e.g. Riga Core Node"
+                                        value={manualData.name}
+                                        onChange={(e) => setManualData({ ...manualData, name: e.target.value })}
+                                        style={{ width: '100%', height: '48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '6px' }}>Max Workflows</label>
+                                    <input 
+                                        type="number"
+                                        value={manualData.maxWorkflows}
+                                        onChange={(e) => setManualData({ ...manualData, maxWorkflows: parseInt(e.target.value) || 100 })}
+                                        style={{ width: '100%', height: '48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '6px' }}>n8n URL Endpoint</label>
+                                <input 
+                                    type="text"
+                                    placeholder="https://your-n8n-instance.com"
+                                    value={manualData.url}
+                                    onChange={(e) => setManualData({ ...manualData, url: e.target.value })}
+                                    style={{ width: '100%', height: '48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                />
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '6px' }}>n8n API Key</label>
+                                <input 
+                                    type="password"
+                                    placeholder="n8n_api_key_..."
+                                    value={manualData.apiKey}
+                                    onChange={(e) => setManualData({ ...manualData, apiKey: e.target.value })}
+                                    style={{ width: '100%', height: '48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                />
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '6px' }}>IP Address (Optional)</label>
+                                    <input 
+                                        type="text"
+                                        placeholder="e.g. 192.168.1.1"
+                                        value={manualData.ipAddress}
+                                        onChange={(e) => setManualData({ ...manualData, ipAddress: e.target.value })}
+                                        style={{ width: '100%', height: '48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '6px' }}>Region (Optional)</label>
+                                    <input 
+                                        type="text"
+                                        placeholder="e.g. Riga, LV"
+                                        value={manualData.region}
+                                        onChange={(e) => setManualData({ ...manualData, region: e.target.value })}
+                                        style={{ width: '100%', height: '48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                                <button 
+                                    onClick={handleManualRegisterServer}
+                                    disabled={isRegistering || !manualData.name || !manualData.url || !manualData.apiKey}
+                                    style={{ flex: 1, height: '52px', background: '#0F172A', color: '#FFFFFF', border: 'none', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: isRegistering || !manualData.name || !manualData.url || !manualData.apiKey ? 'not-allowed' : 'pointer', opacity: isRegistering || !manualData.name || !manualData.url || !manualData.apiKey ? 0.6 : 1 }}
+                                >
+                                    {isRegistering ? 'Registering...' : 'Register Server'}
+                                </button>
+                                <button 
+                                    onClick={() => setShowManualModal(false)}
                                     style={{ flex: 1, height: '52px', background: 'transparent', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: 'pointer' }}
                                 >
                                     Cancel
