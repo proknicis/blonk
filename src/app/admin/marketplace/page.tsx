@@ -36,6 +36,47 @@ import {
 import { Skeleton } from "../../components/Skeleton";
 import adminStyles from "../admin.module.css";
 
+// High‑fidelity skeleton for marketplace table rows
+const SkeletonRow = () => (
+  <tr style={{ background: '#F8FAFC', borderRadius: '16px' }}>
+    {/* Icon placeholder */}
+    <td style={{ padding: '16px', borderTopLeftRadius: '16px', borderBottomLeftRadius: '16px' }}>
+      <Skeleton width="40px" height="40px" />
+    </td>
+    {/* Name & sector placeholder */}
+    <td style={{ padding: '16px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <Skeleton width="120px" height="20px" />
+        <Skeleton width="80px" height="14px" />
+      </div>
+    </td>
+    {/* Price placeholder */}
+    <td style={{ padding: '16px' }}>
+      <Skeleton width="60px" height="20px" />
+    </td>
+    {/* Installs placeholder */}
+    <td style={{ padding: '16px' }}>
+      <Skeleton width="50px" height="20px" />
+    </td>
+    {/* Revenue placeholder */}
+    <td style={{ padding: '16px' }}>
+      <Skeleton width="70px" height="20px" />
+    </td>
+    {/* Error Rate placeholder */}
+    <td style={{ padding: '16px' }}>
+      <Skeleton width="40px" height="20px" />
+    </td>
+    {/* Status placeholder */}
+    <td style={{ padding: '16px' }}>
+      <Skeleton width="80px" height="20px" />
+    </td>
+    {/* Controls placeholder */}
+    <td style={{ padding: '16px', textAlign: 'right' }}>
+      <Skeleton width="24px" height="24px" />
+    </td>
+  </tr>
+);
+
 export default function MarketplaceManagementPage() {
     const router = useRouter();
     const [currentUser, setCurrentUser] = useState<any>(null);

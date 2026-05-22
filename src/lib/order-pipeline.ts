@@ -378,3 +378,76 @@ export async function getAllOrdersForAdmin() {
          ORDER BY o."createdAt" DESC`
     ) as Promise<any[]>;
 }
+
+export async function updateOrderDetails(orderId: string, details: {
+    workflowName?: string;
+    status?: string;
+    amount?: number;
+    serverId?: string | null;
+    n8nWorkflowId?: string | null;
+    addLogMessage?: string;
+}) {
+    await ensureOrderSchema();
+    const [order] = await db.query('SELECT * FROM "WorkflowOrder" WHERE id = $1', [orderId]) as any[];
+    if (!order) throw new Error("Order not found");
+
+    const sets: string[] = ['"updatedAt" = CURRENT_TIMESTAMP'];
+    const params: any[] = [];
+    let idx = 1;
+
+    if (details.workflowName !== undefined) {
+        sets.push(`"workflowName" = $${idx++}`);
+        params.push(details.workflowName);
+    }
+    if (details.amount !== undefined) {
+        sets.push(`amount = $${idx++}`);
+        params.push(details.amount);
+    }
+    if (details.serverId !== undefined) {
+        sets.push(`"serverId" = $${idx++}`);
+        params.push(details.serverId);
+    }
+    if (details.n8nWorkflowId !== undefined) {
+        sets.push(`"n8nWorkflowId" = $${idx++}`);
+        params.push(details.n8nWorkflowId);
+    }
+    params.push(orderId);
+
+    if (sets.length > 1) {
+        await db.execute(`UPDATE "WorkflowOrder" SET ${sets.join(", ")} WHERE id = $${idx}`, params);
+    }
+
+    // If status is changed, use setOrderStatus to keep it in sync and add logs
+    if (details.status && details.status !== order.status) {
+        await setOrderStatus(orderId, details.status);
+    } else {
+        // Sync name/server/n8nWorkflowId to Workflow table as well
+        if (order.workflowId) {
+            const wfSets: string[] = ['"updatedAt" = CURRENT_TIMESTAMP'];
+            const wfParams: any[] = [];
+            let wfIdx = 1;
+
+            if (details.workflowName !== undefined) {
+                wfSets.push(`name = $${wfIdx++}`);
+                wfParams.push(details.workflowName);
+            }
+            if (details.serverId !== undefined) {
+                wfSets.push(`"serverId" = $${wfIdx++}`);
+                wfParams.push(details.serverId);
+            }
+            if (details.n8nWorkflowId !== undefined) {
+                wfSets.push(`"n8nWebhookUrl" = $${wfIdx++}`);
+                wfParams.push(`https://n8n.blonk.ai/webhook/${details.n8nWorkflowId}`);
+            }
+
+            if (wfSets.length > 1) {
+                wfParams.push(order.workflowId);
+                await db.execute(`UPDATE "Workflow" SET ${wfSets.join(", ")} WHERE id = $${wfIdx}`, wfParams);
+            }
+        }
+    }
+
+    if (details.addLogMessage) {
+        await appendOrderLog(orderId, details.addLogMessage, "info");
+    }
+}

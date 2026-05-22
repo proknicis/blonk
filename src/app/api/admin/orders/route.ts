@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from "@/lib/db";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { getAllOrdersForAdmin, setOrderStatus } from "@/lib/order-pipeline";
+import { getAllOrdersForAdmin, updateOrderDetails } from "@/lib/order-pipeline";
 
 export async function GET() {
     try {
@@ -25,9 +25,16 @@ export async function PATCH(request: Request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
         const body = await request.json();
-        const { id, status } = body;
+        const { id, status, workflowName, serverId, n8nWorkflowId, amount, addLogMessage } = body;
 
-        await setOrderStatus(id, status);
+        await updateOrderDetails(id, {
+            status,
+            workflowName,
+            serverId,
+            n8nWorkflowId,
+            amount: amount !== undefined && amount !== null ? Number(amount) : undefined,
+            addLogMessage
+        });
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error('Error updating order:', error);
