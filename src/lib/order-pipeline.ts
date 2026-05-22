@@ -4,9 +4,10 @@ import { ORDER_STATUS } from "@/lib/order-lifecycle";
 import { advanceWorkflowsAwaitingCredentials, allocateNodeForTeam, bindNodeToTeam } from "@/lib/workflow-provision";
 
 export async function ensureOrderSchema() {
+    // Use gen_random_uuid() — works without any extension in PostgreSQL 13+
     await db.execute(`
         CREATE TABLE IF NOT EXISTS "WorkflowOrder" (
-            id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             "orderNumber" SERIAL,
             "teamId" UUID NOT NULL,
             "userId" UUID NOT NULL,
@@ -25,13 +26,17 @@ export async function ensureOrderSchema() {
     `);
     await db.execute(`
         CREATE TABLE IF NOT EXISTS "OrderEvent" (
-            id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             "orderId" UUID NOT NULL,
             message TEXT NOT NULL,
             level VARCHAR(20) DEFAULT 'info',
             "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     `);
+
+    // Ensure Workflow table has the columns needed by the order pipeline
+    await db.execute(`ALTER TABLE "Workflow" ADD COLUMN IF NOT EXISTS "templateId" UUID`).catch(() => {});
+    await db.execute(`ALTER TABLE "Workflow" ADD COLUMN IF NOT EXISTS "serverId" UUID`).catch(() => {});
 }
 
 export async function appendOrderLog(orderId: string, message: string, level = "info") {
