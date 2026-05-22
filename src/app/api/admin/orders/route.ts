@@ -21,6 +21,9 @@ export async function GET() {
 export async function PATCH(request: Request) {
     try {
         const session = await getServerSession(authOptions);
+        if (!session) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
         const body = await request.json();
         const { id, status } = body;
 

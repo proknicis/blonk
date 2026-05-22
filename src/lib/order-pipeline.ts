@@ -54,23 +54,146 @@ export async function appendOrderLog(orderId: string, message: string, level = "
 }
 
 export async function setOrderStatus(orderId: string, status: string, extras?: { serverId?: string; workflowId?: string; n8nWorkflowId?: string }) {
+    // 1. Fetch the existing order details
+    const [order] = await db.query('SELECT * FROM "WorkflowOrder" WHERE id = $1', [orderId]) as any[];
+    if (!order) return;
+
+    const finalWorkflowId = extras?.workflowId || order.workflowId;
+    const finalServerId = extras?.serverId || order.serverId;
+    const finalN8nWorkflowId = extras?.n8nWorkflowId || order.n8nWorkflowId;
+
+    // 2. Perform the update on WorkflowOrder
     const sets = ['status = $1', '"updatedAt" = CURRENT_TIMESTAMP'];
     const params: any[] = [status];
     let i = 2;
-    if (extras?.serverId) {
+    if (finalServerId) {
         sets.push(`"serverId" = $${i++}`);
-        params.push(extras.serverId);
+        params.push(finalServerId);
     }
-    if (extras?.workflowId) {
+    if (finalWorkflowId) {
         sets.push(`"workflowId" = $${i++}`);
-        params.push(extras.workflowId);
+        params.push(finalWorkflowId);
     }
-    if (extras?.n8nWorkflowId) {
+    if (finalN8nWorkflowId) {
         sets.push(`"n8nWorkflowId" = $${i++}`);
-        params.push(extras.n8nWorkflowId);
+        params.push(finalN8nWorkflowId);
     }
     params.push(orderId);
     await db.execute(`UPDATE "WorkflowOrder" SET ${sets.join(", ")} WHERE id = $${i}`, params);
+
+    // 3. Keep Workflow table in sync
+    if (finalWorkflowId) {
+        let workflowStatus = status;
+        let progress = 10;
+
+        switch (status) {
+            case 'PAYMENT_RECEIVED':
+                workflowStatus = 'Initializing';
+                progress = 10;
+                break;
+            case 'PROVISIONING':
+                workflowStatus = 'Initializing';
+                progress = 20;
+                break;
+            case 'INSTALLING_N8N':
+                workflowStatus = 'Initializing';
+                progress = 35;
+                break;
+            case 'SERVER_READY':
+                workflowStatus = 'Initializing';
+                progress = 45;
+                break;
+            case 'WORKFLOW_IMPORTED':
+                workflowStatus = 'Initializing';
+                progress = 50;
+                break;
+            case 'WAITING_CREDENTIALS':
+                workflowStatus = 'Awaiting_Credentials';
+                progress = 55;
+                break;
+            case 'CREDENTIALS_RECEIVED':
+                workflowStatus = 'Syncing';
+                progress = 70;
+                break;
+            case 'ADMIN_SETUP':
+                workflowStatus = 'Syncing';
+                progress = 85;
+                break;
+            case 'TESTING':
+                workflowStatus = 'Connecting';
+                progress = 95;
+                break;
+            case 'COMPLETED':
+                workflowStatus = 'Active';
+                progress = 100;
+                break;
+            case 'FAILED':
+                workflowStatus = 'Error';
+                progress = 0;
+                break;
+        }
+
+        const wfSets = ['status = $1', 'progress = $2', '"updatedAt" = CURRENT_TIMESTAMP'];
+        const wfParams: any[] = [workflowStatus, progress];
+        let wfIdx = 3;
+
+        if (finalServerId) {
+            wfSets.push(`"serverId" = $${wfIdx++}`);
+            wfParams.push(finalServerId);
+        }
+        if (finalN8nWorkflowId) {
+            wfSets.push(`"n8nWebhookUrl" = $${wfIdx++}`);
+            // Generate a simulated or actual webhook url if available
+            wfParams.push(`https://n8n.blonk.ai/webhook/${finalN8nWorkflowId}`);
+        }
+        wfParams.push(finalWorkflowId);
+
+        await db.execute(`UPDATE "Workflow" SET ${wfSets.join(", ")} WHERE id = $${wfIdx}`, wfParams);
+    }
+
+    // 4. Append professional descriptive log
+    let logMessage = `Status updated to ${status.replace(/_/g, ' ')}`;
+    let logLevel = 'info';
+
+    switch (status) {
+        case 'PAYMENT_RECEIVED':
+            logMessage = "Payment processed successfully. Sovereign provisioning scheduled.";
+            break;
+        case 'PROVISIONING':
+            logMessage = "Provisioning secure cloud VPS node in fleet cluster...";
+            break;
+        case 'INSTALLING_N8N':
+            logMessage = "Installing isolated Docker container and n8n engine on host node.";
+            break;
+        case 'SERVER_READY':
+            logMessage = "Dedicated n8n host environment fully operational and secured.";
+            break;
+        case 'WORKFLOW_IMPORTED':
+            logMessage = "Autonomous workflow templates successfully synchronized and imported.";
+            break;
+        case 'WAITING_CREDENTIALS':
+            logMessage = "System is waiting for required integration credentials from customer.";
+            logLevel = 'warning';
+            break;
+        case 'CREDENTIALS_RECEIVED':
+            logMessage = "Secure integration credentials received and validated. Deploying triggers.";
+            break;
+        case 'ADMIN_SETUP':
+            logMessage = "Administrator completing manual trigger configuration and final overrides.";
+            break;
+        case 'TESTING':
+            logMessage = "Initiating automated tests and execution simulation.";
+            break;
+        case 'COMPLETED':
+            logMessage = "Workflow verified. System running autonomously in active monitoring mode.";
+            break;
+        case 'FAILED':
+            logMessage = "Critical deployment exception occurred. Operator review required.";
+            logLevel = 'error';
+            break;
+    }
+
+    await appendOrderLog(orderId, logMessage, logLevel);
 }
 
 export async function createOrderFromPayment(params: {

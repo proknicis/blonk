@@ -1,7 +1,20 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Loader2, ArrowRight, RefreshCw, ShoppingCart } from "lucide-react";
+import { 
+    Loader2, 
+    ArrowRight, 
+    RefreshCw, 
+    ShoppingCart,
+    Cpu,
+    Users,
+    User,
+    Clock,
+    CheckCircle2,
+    AlertCircle,
+    Terminal
+} from "lucide-react";
+import adminStyles from "../admin.module.css";
 
 const STATUS_ORDER = [
     'PAYMENT_RECEIVED',
@@ -17,18 +30,31 @@ const STATUS_ORDER = [
     'FAILED',
 ];
 
-const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
-    PAYMENT_RECEIVED:    { bg: '#EFF6FF', color: '#3B82F6' },
-    PROVISIONING:        { bg: '#FFF7ED', color: '#F97316' },
-    INSTALLING_N8N:      { bg: '#FFF7ED', color: '#F97316' },
-    SERVER_READY:        { bg: '#F0FDF4', color: '#22C55E' },
-    WORKFLOW_IMPORTED:   { bg: '#F0FDF4', color: '#22C55E' },
-    WAITING_CREDENTIALS: { bg: '#FFFBEB', color: '#F59E0B' },
-    CREDENTIALS_RECEIVED:{ bg: '#FFFBEB', color: '#F59E0B' },
-    ADMIN_SETUP:         { bg: '#FAF5FF', color: '#A855F7' },
-    TESTING:             { bg: '#FAF5FF', color: '#A855F7' },
-    COMPLETED:           { bg: '#F0FDF4', color: '#16A34A' },
-    FAILED:              { bg: '#FFF1F2', color: '#EF4444' },
+const STATUS_COLORS: Record<string, { bg: string; color: string; border: string }> = {
+    PAYMENT_RECEIVED:    { bg: 'rgba(59, 130, 246, 0.08)', color: '#3B82F6', border: 'rgba(59, 130, 246, 0.2)' },
+    PROVISIONING:        { bg: 'rgba(249, 115, 22, 0.08)', color: '#F97316', border: 'rgba(249, 115, 22, 0.2)' },
+    INSTALLING_N8N:      { bg: 'rgba(249, 115, 22, 0.08)', color: '#F97316', border: 'rgba(249, 115, 22, 0.2)' },
+    SERVER_READY:        { bg: 'rgba(34, 197, 94, 0.08)', color: '#22C55E', border: 'rgba(34, 197, 94, 0.2)' },
+    WORKFLOW_IMPORTED:   { bg: 'rgba(34, 197, 94, 0.08)', color: '#22C55E', border: 'rgba(34, 197, 94, 0.2)' },
+    WAITING_CREDENTIALS: { bg: 'rgba(245, 158, 11, 0.08)', color: '#F59E0B', border: 'rgba(245, 158, 11, 0.2)' },
+    CREDENTIALS_RECEIVED:{ bg: 'rgba(245, 158, 11, 0.08)', color: '#F59E0B', border: 'rgba(245, 158, 11, 0.2)' },
+    ADMIN_SETUP:         { bg: 'rgba(168, 85, 247, 0.08)', color: '#A855F7', border: 'rgba(168, 85, 247, 0.2)' },
+    TESTING:             { bg: 'rgba(168, 85, 247, 0.08)', color: '#A855F7', border: 'rgba(168, 85, 247, 0.2)' },
+    COMPLETED:           { bg: 'rgba(22, 163, 74, 0.08)',  color: '#16A34A', border: 'rgba(22, 163, 74, 0.2)' },
+    FAILED:              { bg: 'rgba(239, 68, 68, 0.08)',  color: '#EF4444', border: 'rgba(239, 68, 68, 0.2)' },
+};
+
+// Friendly button labels for the next pipeline transition
+const NEXT_STEP_LABELS: Record<string, string> = {
+    PAYMENT_RECEIVED:    'Start Provisioning',
+    PROVISIONING:        'Install n8n',
+    INSTALLING_N8N:      'Confirm Server Ready',
+    SERVER_READY:        'Import Workflow JSON',
+    WORKFLOW_IMPORTED:   'Request Credentials',
+    WAITING_CREDENTIALS: 'Force Sync Credentials',
+    CREDENTIALS_RECEIVED:'Begin Admin Setup',
+    ADMIN_SETUP:         'Trigger Testing Suite',
+    TESTING:             'Promote to Live',
 };
 
 export default function AdminOrdersClient() {
@@ -36,6 +62,14 @@ export default function AdminOrdersClient() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+    const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
+        if (typeof window !== 'undefined' && (window as any).showToast) {
+            (window as any).showToast(message, type);
+        } else {
+            console.log(`[Toast] ${type.toUpperCase()}: ${message}`);
+        }
+    }, []);
 
     const fetchOrders = useCallback(async () => {
         setIsLoading(true);
@@ -66,9 +100,15 @@ export default function AdminOrdersClient() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id, status: newStatus }),
             });
-            if (res.ok) await fetchOrders();
+            if (res.ok) {
+                showToast(`Order status updated to ${newStatus.replace(/_/g, ' ')}`, "success");
+                await fetchOrders();
+            } else {
+                showToast("Failed to update status", "error");
+            }
         } catch (e) {
             console.error(e);
+            showToast("Network error occurred", "error");
         } finally {
             setUpdatingId(null);
         }
@@ -83,116 +123,268 @@ export default function AdminOrdersClient() {
     };
 
     if (isLoading) return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '300px', gap: 12, color: '#64748B' }}>
-            <Loader2 size={24} style={{ animation: 'spin 1s linear infinite' }} />
-            <span style={{ fontWeight: 700 }}>Loading orders…</span>
-            <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '300px', gap: 16, color: 'var(--muted-foreground)' }}>
+            <Loader2 size={36} className={adminStyles.spinning} />
+            <span style={{ fontWeight: 800, letterSpacing: '-0.02em', fontSize: '1rem' }}>Synchronizing Order Pipeline…</span>
         </div>
     );
 
     if (error) return (
         <div style={{ padding: 40 }}>
-            <div style={{ background: '#FFF1F2', border: '1px solid #FECDD3', borderRadius: 16, padding: '24px 32px', color: '#EF4444', fontWeight: 700 }}>
-                ❌ Error fetching orders: {error}
-                <button onClick={fetchOrders} style={{ display: 'block', marginTop: 12, background: '#EF4444', color: '#fff', border: 'none', padding: '8px 20px', borderRadius: 8, cursor: 'pointer', fontWeight: 700 }}>Retry</button>
+            <div style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: 24, padding: '32px 40px', color: '#EF4444' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontWeight: 950, fontSize: '1.1rem', marginBottom: 8 }}>
+                    <AlertCircle size={20} /> Connection Exception
+                </div>
+                <p style={{ margin: 0, fontWeight: 700, opacity: 0.8 }}>{error}</p>
+                <button 
+                    onClick={fetchOrders} 
+                    className={adminStyles.primaryBtn}
+                    style={{ marginTop: 24, height: 44, background: '#EF4444', color: '#fff' }}
+                >
+                    Retry Connection
+                </button>
             </div>
         </div>
     );
 
     return (
-        <div style={{ padding: '40px', maxWidth: '1400px', margin: '0 auto' }}>
-            {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
-                <div>
-                    <h1 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>Orders Mission Control</h1>
-                    <p style={{ color: '#64748B', margin: '6px 0 0', fontWeight: 600 }}>
-                        {orders.length} order{orders.length !== 1 ? 's' : ''} in pipeline
-                    </p>
+        <div className={adminStyles.dashboard}>
+            {/* Header / Mission Control Status */}
+            <div className={adminStyles.integrityPanel}>
+                <div className={adminStyles.integrityHub}>
+                    <div className={adminStyles.statusIndicatorHealthy}>
+                        <div className={adminStyles.beaconPulseActive} />
+                    </div>
+                    <div>
+                        <h1 className={adminStyles.panelTitle}>Orders Mission Control</h1>
+                        <p className={adminStyles.panelSubtitle}>End-to-end client workspace provisioning pipeline</p>
+                    </div>
                 </div>
-                <button
-                    onClick={fetchOrders}
-                    style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '10px 18px', borderRadius: 12, cursor: 'pointer', fontWeight: 700, color: '#475569', fontSize: '0.85rem' }}
-                >
-                    <RefreshCw size={16} /> Refresh
-                </button>
+                
+                <div className={adminStyles.hubMetrics}>
+                    <div className={adminStyles.hubItem}>
+                        <div>
+                            <span className={adminStyles.hubLabel}>Active Orders</span>
+                            <div className={adminStyles.hubValue}>{orders.filter(o => o.status !== 'COMPLETED' && o.status !== 'FAILED').length}</div>
+                        </div>
+                    </div>
+                    <div className={adminStyles.hubItem}>
+                        <div>
+                            <span className={adminStyles.hubLabel}>Total Processed</span>
+                            <div className={adminStyles.hubValue}>{orders.length}</div>
+                        </div>
+                    </div>
+                    <button onClick={fetchOrders} className={adminStyles.refreshBtn} style={{ marginLeft: 16 }}>
+                        <RefreshCw size={18} />
+                    </button>
+                </div>
             </div>
 
-            {/* Empty state */}
-            {orders.length === 0 ? (
-                <div style={{ background: '#fff', border: '1px dashed #E2E8F0', borderRadius: 24, padding: '80px 40px', textAlign: 'center' }}>
-                    <ShoppingCart size={48} style={{ color: '#CBD5E1', marginBottom: 16 }} />
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#475569', margin: '0 0 8px' }}>No orders yet</h3>
-                    <p style={{ color: '#94A3B8', fontWeight: 600 }}>Orders will appear here once customers purchase a workflow from the marketplace.</p>
+            {/* Main Orders Table */}
+            <div className={adminStyles.registryCard}>
+                <div className={adminStyles.registryHeader}>
+                    <div>
+                        <h2 className={adminStyles.registryTitle}>Provisioning Queue</h2>
+                        <p className={adminStyles.registrySubtitle}>Review user requests, servers, and advance deployment stages</p>
+                    </div>
                 </div>
-            ) : (
-                <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 24, overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.04)' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                        <thead>
-                            <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
-                                {['Order #', 'Client', 'Team', 'Workflow', 'Status', 'Amount', 'Created', 'Actions'].map(h => (
-                                    <th key={h} style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 900, color: '#64748B', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {orders.map(order => {
-                                const currentIndex = STATUS_ORDER.indexOf(order.status);
-                                const nextStatus = currentIndex >= 0 && currentIndex < STATUS_ORDER.length - 1 ? STATUS_ORDER[currentIndex + 1] : null;
-                                const col = STATUS_COLORS[order.status] ?? { bg: '#F1F5F9', color: '#64748B' };
-                                const isUpdating = updatingId === order.id;
 
-                                return (
-                                    <tr key={order.id} style={{ borderBottom: '1px solid #F1F5F9', opacity: isUpdating ? 0.5 : 1, transition: 'opacity 0.2s' }}>
-                                        <td style={{ padding: '16px 20px', fontWeight: 900, color: '#0F172A', fontSize: '0.9rem' }}>
-                                            #{order.orderNumber ?? order.id?.slice(0, 8)}
-                                        </td>
-                                        <td style={{ padding: '16px 20px' }}>
-                                            <div style={{ fontWeight: 800, color: '#0F172A', fontSize: '0.9rem' }}>{order.userName ?? '—'}</div>
-                                            <div style={{ fontSize: '0.75rem', color: '#94A3B8', fontWeight: 600 }}>{order.userEmail ?? ''}</div>
-                                        </td>
-                                        <td style={{ padding: '16px 20px', fontWeight: 700, color: '#475569', fontSize: '0.85rem' }}>
-                                            {order.teamName ?? '—'}
-                                        </td>
-                                        <td style={{ padding: '16px 20px', fontWeight: 700, color: '#334155', fontSize: '0.85rem' }}>
-                                            {order.workflowName ?? '—'}
-                                        </td>
-                                        <td style={{ padding: '16px 20px' }}>
-                                            <select
-                                                value={order.status}
-                                                disabled={isUpdating}
-                                                onChange={e => updateStatus(order.id, e.target.value)}
-                                                style={{ padding: '6px 10px', borderRadius: 8, border: `1px solid ${col.color}30`, fontSize: '0.78rem', fontWeight: 700, background: col.bg, color: col.color, cursor: 'pointer' }}
-                                            >
-                                                {STATUS_ORDER.map(s => (
-                                                    <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
-                                                ))}
-                                            </select>
-                                        </td>
-                                        <td style={{ padding: '16px 20px', fontWeight: 800, color: '#0F172A', fontSize: '0.9rem' }}>
-                                            {order.amount ? `€${Number(order.amount).toFixed(2)}` : '—'}
-                                        </td>
-                                        <td style={{ padding: '16px 20px', fontSize: '0.8rem', color: '#94A3B8', fontWeight: 600 }}>
-                                            {fmt(order.createdAt)}
-                                        </td>
-                                        <td style={{ padding: '16px 20px' }}>
-                                            {nextStatus && order.status !== 'FAILED' && (
-                                                <button
-                                                    disabled={isUpdating}
-                                                    onClick={() => updateStatus(order.id, nextStatus)}
-                                                    style={{ background: '#0F172A', color: '#fff', border: 'none', padding: '7px 14px', borderRadius: 8, fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}
-                                                >
-                                                    {isUpdating ? <Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} /> : <ArrowRight size={12} />}
-                                                    Advance
-                                                </button>
-                                            )}
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+                {orders.length === 0 ? (
+                    <div style={{ border: '1px dashed var(--border)', borderRadius: 28, padding: '96px 40px', textAlign: 'center', background: 'var(--muted)' }}>
+                        <ShoppingCart size={56} style={{ color: 'var(--muted-foreground)', marginBottom: 20, opacity: 0.5 }} />
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: 950, color: 'var(--foreground)', margin: '0 0 8px', letterSpacing: '-0.03em' }}>No Orders Registered</h3>
+                        <p style={{ color: 'var(--muted-foreground)', fontWeight: 700, fontSize: '0.95rem', margin: 0 }}>Orders will automatically appear here once users submit requests.</p>
+                    </div>
+                ) : (
+                    <div className={adminStyles.tableWrapper}>
+                        <table className={adminStyles.registryTable}>
+                            <thead>
+                                <tr>
+                                    <th className={adminStyles.registryTH}>Order #</th>
+                                    <th className={adminStyles.registryTH}>Client Profile</th>
+                                    <th className={adminStyles.registryTH}>Organization / Node</th>
+                                    <th className={adminStyles.registryTH}>Workflow Name</th>
+                                    <th className={adminStyles.registryTH}>Pipeline Status</th>
+                                    <th className={adminStyles.registryTH}>Revenue</th>
+                                    <th className={adminStyles.registryTH}>Submission</th>
+                                    <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {orders.map(order => {
+                                    const currentIndex = STATUS_ORDER.indexOf(order.status);
+                                    const nextStatus = currentIndex >= 0 && currentIndex < STATUS_ORDER.length - 1 ? STATUS_ORDER[currentIndex + 1] : null;
+                                    const col = STATUS_COLORS[order.status] ?? { bg: 'var(--muted)', color: 'var(--muted-foreground)', border: 'var(--border)' };
+                                    const isUpdating = updatingId === order.id;
+
+                                    // Professional fallback for Client name/email
+                                    const clientName = order.userName || order.userEmail?.split('@')[0] || 'Operator';
+                                    const clientEmail = order.userEmail || 'system.provision@blonk.ai';
+
+                                    // Next step friendly text
+                                    const nextStepLabel = nextStatus ? (NEXT_STEP_LABELS[order.status] || `Advance to ${nextStatus.replace(/_/g, ' ')}`) : null;
+
+                                    return (
+                                        <tr key={order.id} className={adminStyles.registryRow} style={{ opacity: isUpdating ? 0.6 : 1 }}>
+                                            {/* Order Number Monospace hash */}
+                                            <td>
+                                                <span className={adminStyles.identityHash}>
+                                                    #{order.orderNumber ? String(order.orderNumber).padStart(4, '0') : order.id?.slice(0, 8).toUpperCase()}
+                                                </span>
+                                            </td>
+
+                                            {/* Client Profile */}
+                                            <td>
+                                                <div className={adminStyles.requesterInfo}>
+                                                    <div className={adminStyles.requesterAvatar} style={{ background: 'var(--primary)' }}>
+                                                        <User size={14} />
+                                                    </div>
+                                                    <div>
+                                                        <div className={adminStyles.requesterName} style={{ color: 'var(--foreground)' }}>
+                                                            {clientName}
+                                                        </div>
+                                                        <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>
+                                                            {clientEmail}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            {/* Team and Server Status */}
+                                            <td>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 800, color: 'var(--foreground)', fontSize: '0.85rem' }}>
+                                                        <Users size={14} style={{ color: 'var(--muted-foreground)' }} />
+                                                        {order.teamName || 'Standalone Tier'}
+                                                    </div>
+                                                    {order.serverName && (
+                                                        <div style={{ fontSize: '0.75rem', color: 'var(--accent)', fontWeight: 850, display: 'flex', alignItems: 'center', gap: 4 }}>
+                                                            <Cpu size={12} /> {order.serverName} ({order.serverStatus || 'Active'})
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </td>
+
+                                            {/* Workflow Name */}
+                                            <td>
+                                                <div style={{ fontWeight: 800, color: 'var(--foreground)', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                    <Terminal size={14} style={{ color: 'var(--muted-foreground)' }} />
+                                                    {order.workflowName || 'Legacy Integration'}
+                                                </div>
+                                            </td>
+
+                                            {/* Status Dropdown */}
+                                            <td>
+                                                <div style={{ position: 'relative', display: 'inline-block' }}>
+                                                    <select
+                                                        value={order.status}
+                                                        disabled={isUpdating}
+                                                        onChange={e => updateStatus(order.id, e.target.value)}
+                                                        style={{ 
+                                                            padding: '8px 16px', 
+                                                            borderRadius: '12px', 
+                                                            border: `1px solid ${col.border}`, 
+                                                            fontSize: '0.78rem', 
+                                                            fontWeight: 900, 
+                                                            background: col.bg, 
+                                                            color: col.color, 
+                                                            cursor: 'pointer',
+                                                            outline: 'none',
+                                                            appearance: 'none',
+                                                            WebkitAppearance: 'none',
+                                                            paddingRight: '32px',
+                                                            letterSpacing: '0.04em',
+                                                            textTransform: 'uppercase',
+                                                            transition: 'all 0.2s'
+                                                        }}
+                                                    >
+                                                        {STATUS_ORDER.map(s => (
+                                                            <option key={s} value={s} style={{ background: 'var(--card)', color: 'var(--foreground)' }}>
+                                                                {s.replace(/_/g, ' ')}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                    <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: col.color, display: 'flex', alignItems: 'center' }}>
+                                                        <Loader2 size={12} className={isUpdating ? adminStyles.spinning : ''} style={{ display: isUpdating ? 'block' : 'none' }} />
+                                                        <span style={{ display: isUpdating ? 'none' : 'block', fontSize: '8px' }}>▼</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            {/* Amount formatted */}
+                                            <td>
+                                                <div style={{ fontWeight: 950, color: 'var(--foreground)', fontSize: '0.9rem' }}>
+                                                    {order.amount && Number(order.amount) > 0 ? (
+                                                        `€${Number(order.amount).toFixed(2)}`
+                                                    ) : (
+                                                        <span style={{ color: 'var(--accent)', fontWeight: 900, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Free Setup</span>
+                                                    )}
+                                                </div>
+                                            </td>
+
+                                            {/* Submission Date */}
+                                            <td>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>
+                                                    <Clock size={13} />
+                                                    {fmt(order.createdAt)}
+                                                </div>
+                                            </td>
+
+                                            {/* Action Button: Advance step */}
+                                            <td style={{ textAlign: 'right' }}>
+                                                {nextStepLabel && order.status !== 'FAILED' ? (
+                                                    <button
+                                                        disabled={isUpdating}
+                                                        onClick={() => nextStatus && updateStatus(order.id, nextStatus)}
+                                                        className={adminStyles.primaryBtn}
+                                                        style={{ 
+                                                            display: 'inline-flex', 
+                                                            alignItems: 'center', 
+                                                            gap: 8, 
+                                                            height: '38px', 
+                                                            padding: '0 16px', 
+                                                            borderRadius: '12px', 
+                                                            fontSize: '0.78rem', 
+                                                            fontWeight: 950, 
+                                                            cursor: 'pointer',
+                                                            background: 'var(--foreground)',
+                                                            color: 'var(--background)',
+                                                            border: 'none',
+                                                            whiteSpace: 'nowrap',
+                                                            transition: 'all 0.25s'
+                                                        }}
+                                                    >
+                                                        {isUpdating ? (
+                                                            <Loader2 size={13} className={adminStyles.spinning} />
+                                                        ) : (
+                                                            <>
+                                                                {nextStepLabel}
+                                                                <ArrowRight size={13} style={{ transition: 'transform 0.2s' }} />
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                ) : (
+                                                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.8rem', color: order.status === 'COMPLETED' ? 'var(--accent)' : 'var(--destructive)', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                                        {order.status === 'COMPLETED' ? (
+                                                            <>
+                                                                <CheckCircle2 size={14} /> Active
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <AlertCircle size={14} /> Failed
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
