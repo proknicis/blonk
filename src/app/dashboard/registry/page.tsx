@@ -9,9 +9,31 @@ import ModalPortal from "@/app/components/ModalPortal";
 import { Skeleton } from "@/app/components/Skeleton";
 
 function getTemplatePrice(template: any) {
+    if (!template) return 0;
+    const pInfo = typeof template.productInfo === 'string' 
+        ? JSON.parse(template.productInfo) 
+        : (template.productInfo || {});
+        
+    const setupPrice = parseFloat(pInfo.discountSetupPrice || pInfo.setupPrice || 0);
+    const monthlyPrice = parseFloat(pInfo.discountMonthlyPrice || pInfo.monthlyPrice || 0);
+    if (setupPrice > 0 || monthlyPrice > 0) {
+        return setupPrice + monthlyPrice;
+    }
     const directPrice = parseFloat(template.price || 0);
-    const productInfoPrice = template.productInfo ? parseFloat(template.productInfo.price || 0) : 0;
+    const productInfoPrice = pInfo.price ? parseFloat(pInfo.price) : 0;
     return productInfoPrice > 0 ? productInfoPrice : directPrice;
+}
+
+function robustParse(val: any): any[] {
+    if (!val) return [];
+    if (Array.isArray(val)) return val;
+    if (typeof val === 'string') {
+        try {
+            const parsed = JSON.parse(val);
+            return robustParse(parsed);
+        } catch (e) { return []; }
+    }
+    return [];
 }
 
 export default function WorkflowsPage() {
@@ -147,18 +169,6 @@ export default function WorkflowsPage() {
         }
         
         // Free templates use the old configuration flow
-        const robustParse = (val: any) => {
-            if (!val) return [];
-            if (Array.isArray(val)) return val;
-            if (typeof val === 'string') {
-                try {
-                    const parsed = JSON.parse(val);
-                    return robustParse(parsed);
-                } catch (e) { return []; }
-            }
-            return [];
-        };
-
         const reqs = robustParse(template.requirements);
         if (reqs.length > 0) {
             setConfigureTemplate({ ...template, parsedReqs: reqs });
@@ -309,6 +319,23 @@ export default function WorkflowsPage() {
                                 <div className={styles.cardContent}>
                                     <h3 className={styles.cardTitle}>{wf.name}</h3>
                                     <p className={styles.cardDesc}>{wf.description}</p>
+                                    {/* Associated Connections */}
+                                    {(() => {
+                                        const reqs = robustParse(wf.requirements);
+                                        const services = Array.from(
+                                            new Set(reqs.map((r: any) => r.service || r.app).filter(Boolean))
+                                        );
+                                        if (services.length === 0) return null;
+                                        return (
+                                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '12px' }}>
+                                                {services.map((svc: any) => (
+                                                    <span key={svc} style={{ fontSize: '0.68rem', background: '#F1F5F9', color: '#475569', padding: '3px 8px', borderRadius: '6px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid #E2E8F0' }}>
+                                                        <Key size={10} color="#64748B" /> {svc}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        );
+                                    })()}
                                     <div className={styles.categoryTag} style={{ background: `${iconColor}15`, color: iconColor }}>{wf.sector}</div>
                                 </div>
                                 <div className={styles.cardStats}>
@@ -316,18 +343,74 @@ export default function WorkflowsPage() {
                                         <span className={styles.statValue}>1.2K</span>
                                         <span className={styles.statLabel}>Installs</span>
                                     </div>
-                                    <div className={styles.statItem} style={{ textAlign: 'right' }}>
-                                        <span className={styles.statValue} style={{ color: (parseFloat(wf.price || 0) > 0 || (wf.productInfo && parseFloat(wf.productInfo.price || 0) > 0)) ? '#10B981' : '#0F172A' }}>
-                                            {(() => {
-                                                const directPrice = parseFloat(wf.price || 0);
-                                                const productInfoPrice = wf.productInfo ? parseFloat(wf.productInfo.price || 0) : 0;
-                                                const finalPrice = productInfoPrice > 0 ? productInfoPrice : directPrice;
-                                                return finalPrice > 0 ? `€${finalPrice.toFixed(2)}` : 'Free';
-                                            })()}
-                                        </span>
-                                        <span className={styles.statLabel}>Price</span>
-                                    </div>
-                                </div>
+                                    <div className={styles.statItem} style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'flex-end' }}>
+                                        {(() => {
+                                            const pInfo = typeof wf.productInfo === 'string'
+                                                ? JSON.parse(wf.productInfo)
+                                                : (wf.productInfo || {});
+                                            const setupPrice = parseFloat(pInfo.setupPrice || 0);
+                                            const monthlyPrice = parseFloat(pInfo.monthlyPrice || 0);
+                                            const discountSetup = parseFloat(pInfo.discountSetupPrice || 0);
+                                            const discountMonthly = parseFloat(pInfo.discountMonthlyPrice || 0);
+
+                                            // Fallback for legacy data
+                                            let showSetup = setupPrice;
+                                            let showMonthly = monthlyPrice;
+
+                                            if (setupPrice === 0 && monthlyPrice === 0) {
+                                                const legacyPrice = parseFloat(wf.price || 0);
+                                                if (pInfo.monetization === 'Subscription') {
+                                                    showMonthly = legacyPrice;
+                                                } else {
+                                                    showSetup = legacyPrice;
+                                                }
+                                            }
+
+                                            if (showSetup === 0 && showMonthly === 0) {
+                                                return (
+                                                    <>
+                                                        <span className={styles.statValue} style={{ color: '#0F172A' }}>Free</span>
+                                                        <span className={styles.statLabel}>Price</span>
+                                                    </>
+                                                );
+                                            }
+
+                                            return (
+                                                <>
+                                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1px' }}>
+                                                        {showMonthly > 0 && (
+                                                            <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                                                                {discountMonthly > 0 ? (
+                                                                    <>
+                                                                        <span style={{ fontSize: '0.7rem', color: '#94A3B8', textDecoration: 'line-through', fontWeight: 600 }}>€{showMonthly.toFixed(0)}</span>
+                                                                        <span className={styles.statValue} style={{ color: '#10B981', fontSize: '0.85rem' }}>€{discountMonthly.toFixed(0)}</span>
+                                                                    </>
+                                                                ) : (
+                                                                    <span className={styles.statValue} style={{ color: '#0F172A', fontSize: '0.85rem' }}>€{showMonthly.toFixed(0)}</span>
+                                                                )}
+                                                                <span style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 700 }}>/mo</span>
+                                                             </div>
+                                                         )}
+                                                         {showSetup > 0 && (
+                                                             <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                                                                 {discountSetup > 0 ? (
+                                                                     <>
+                                                                         <span style={{ fontSize: '0.7rem', color: '#94A3B8', textDecoration: 'line-through', fontWeight: 600 }}>€{showSetup.toFixed(0)}</span>
+                                                                         <span className={styles.statValue} style={{ color: '#10B981', fontSize: '0.85rem' }}>€{discountSetup.toFixed(0)}</span>
+                                                                     </>
+                                                                 ) : (
+                                                                     <span className={styles.statValue} style={{ color: '#64748B', fontSize: '0.85rem' }}>€{showSetup.toFixed(0)}</span>
+                                                                 )}
+                                                                 <span style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 700 }}>setup</span>
+                                                             </div>
+                                                         )}
+                                                     </div>
+                                                     <span className={styles.statLabel} style={{ marginTop: '2px' }}>Price</span>
+                                                 </>
+                                             );
+                                         })()}
+                                     </div>
+                                 </div>
                                 <div className={styles.cardActions}>
                                     <button className={styles.btnDetails}>View Details</button>
                                     <button className={styles.btnInstall} onClick={() => handleAddClick(wf)}>
@@ -401,12 +484,22 @@ export default function WorkflowsPage() {
                                     <p className={styles.onboardingSubtitle}>Configure your parameters to begin orchestration.</p>
                                     <div className={styles.configFieldset}>
                                         {configureTemplate.parsedReqs.map((req: any, idx: number) => (
-                                            <div key={idx} className={styles.formGroup}>
-                                                <label className={styles.fieldLabel}>{req.name.replace(/_/g, ' ')}</label>
+                                            <div key={idx} className={styles.formGroup} style={{ marginBottom: '16px' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                                    <label className={styles.fieldLabel} style={{ margin: 0, fontSize: '0.8rem', fontWeight: 800 }}>{req.label || req.name.replace(/_/g, ' ')}</label>
+                                                    {(req.service || req.app) && (
+                                                        <span style={{ fontSize: '0.65rem', background: '#EFF6FF', color: '#1E40AF', padding: '2px 8px', borderRadius: '4px', fontWeight: 800, border: '1px solid #BFDBFE' }}>
+                                                            Linked to: {req.service || req.app}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                {req.description && (
+                                                    <p style={{ margin: '0 0 8px', fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>{req.description}</p>
+                                                )}
                                                 <input
                                                     className={styles.fieldInput}
-                                                    type="text"
-                                                    placeholder={req.example || `Specify ${req.name}...`}
+                                                    type={req.type === 'password' ? 'password' : 'text'}
+                                                    placeholder={req.placeholder || req.example || `Specify ${req.name}...`}
                                                     onChange={e => setTemplateInputs({ ...templateInputs, [req.name]: e.target.value })}
                                                 />
                                             </div>
@@ -653,13 +746,14 @@ export default function WorkflowsPage() {
                             <button className={styles.closeButton} onClick={() => setPaymentTemplate(null)} disabled={isProcessingPayment}>
                                 <X size={20} />
                             </button>
+                            
                             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
                                 <div style={{ width: 40, height: 40, background: '#10B98115', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <Zap size={20} color="#10B981" />
                                 </div>
                                 <h2 className={styles.onboardingTitle} style={{ margin: 0 }}>Order Workflow</h2>
                             </div>
-                            
+
                             <div style={{ padding: '16px', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #F1F5F9', marginBottom: '20px' }}>
                                 <div style={{ fontWeight: 900, color: '#0F172A', fontSize: '1.05rem', marginBottom: '4px' }}>{paymentTemplate.name}</div>
                                 <div style={{ color: '#64748B', fontSize: '0.85rem', marginBottom: '16px' }}>Setup Time: ~20 min</div>
@@ -678,7 +772,26 @@ export default function WorkflowsPage() {
                                         <CheckCircle size={14} color="#10B981" /> Testing
                                     </div>
                                 </div>
+
+                                {(() => {
+                                    const reqs = robustParse(paymentTemplate.requirements);
+                                    const services = Array.from(new Set(reqs.map((r: any) => r.service || r.app).filter(Boolean)));
+                                    if (services.length === 0) return null;
+                                    return (
+                                        <div style={{ borderTop: '1px solid #E2E8F0', marginTop: '16px', paddingTop: '12px' }}>
+                                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', marginBottom: '8px' }}>Credentials & Connections Used:</div>
+                                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                                {services.map((svc: any) => (
+                                                    <span key={svc} style={{ fontSize: '0.72rem', background: '#FFFFFF', color: '#1E293B', padding: '3px 8px', borderRadius: '6px', fontWeight: 800, border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                        <Key size={10} color="#64748B" /> {svc}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
                             </div>
+                            
                             <div style={{ background: '#F8FAFC', borderRadius: 14, padding: 16, marginBottom: 24, display: 'flex', justifyContent: 'space-between', fontWeight: 800 }}>
                                 <span>Total</span>
                                 <span style={{ color: '#10B981', fontWeight: 950 }}>€{getTemplatePrice(paymentTemplate).toFixed(2)}</span>

@@ -507,7 +507,7 @@ export default function MarketplaceManagementPage() {
                             <tbody>
                                 {isLoading ? (
                                     Array(3).fill(0).map((_, i) => (
-                                        <tr key={i}><td colSpan={8} style={{ padding: '16px' }}><Skeleton width="100%" height="48px" /></td></tr>
+                                        <SkeletonRow key={i} />
                                     ))
                                 ) : filteredTemplates.length > 0 ? (
                                     filteredTemplates.map(t => {

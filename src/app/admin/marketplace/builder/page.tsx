@@ -76,7 +76,11 @@ function BuilderContent() {
             version: "1.0.0",
             rateLimit: "100 ops/min",
             sla: "99.9%",
-            securityLevel: "Institutional"
+            securityLevel: "Institutional",
+            setupPrice: "",
+            monthlyPrice: "",
+            discountSetupPrice: "",
+            discountMonthlyPrice: ""
         }
     });
 
@@ -96,22 +100,35 @@ function BuilderContent() {
                     icon: data.icon || "Zap",
                     complexity: data.complexity || "Low",
                     savings: data.savings || "",
-                    inputs: Array.isArray(data.requirements) ? data.requirements : [],
+                    inputs: Array.isArray(data.requirements) ? data.requirements.map((req: any) => ({
+                        id: req.id || Date.now().toString() + Math.random(),
+                        name: req.name || "",
+                        type: req.type || "text",
+                        label: req.label || "",
+                        placeholder: req.placeholder || "",
+                        required: req.required !== undefined ? req.required : true,
+                        description: req.description || "",
+                        service: req.service || req.app || ""
+                    })) : [],
                     guide: Array.isArray(data.setupGuide) ? data.setupGuide : [],
                     webhookUrl: data.webhookUrl || "",
                     status: data.status || "Draft",
                     workflow: data.workflow || "",
-                    productInfo: data.productInfo || {
-                        valueProp: "",
-                        targetUser: "SME Owners",
-                        setupTime: "15 minutes",
-                        price: "49",
-                        difficulty: "Medium",
-                        monetization: "Subscription",
-                        version: "1.0.0",
-                        rateLimit: "100 ops/min",
-                        sla: "99.9%",
-                        securityLevel: "Institutional"
+                    productInfo: {
+                        valueProp: data.productInfo?.valueProp || "",
+                        targetUser: data.productInfo?.targetUser || "SME Owners",
+                        setupTime: data.productInfo?.setupTime || "15 minutes",
+                        price: data.productInfo?.price || "49",
+                        difficulty: data.productInfo?.difficulty || "Medium",
+                        monetization: data.productInfo?.monetization || "Subscription",
+                        version: data.productInfo?.version || "1.0.0",
+                        rateLimit: data.productInfo?.rateLimit || "100 ops/min",
+                        sla: data.productInfo?.sla || "99.9%",
+                        securityLevel: data.productInfo?.securityLevel || "Institutional",
+                        setupPrice: data.productInfo?.setupPrice || "",
+                        monthlyPrice: data.productInfo?.monthlyPrice || "",
+                        discountSetupPrice: data.productInfo?.discountSetupPrice || "",
+                        discountMonthlyPrice: data.productInfo?.discountMonthlyPrice || ""
                     }
                 });
             }
@@ -153,7 +170,7 @@ function BuilderContent() {
     const addInput = () => {
         setFormData({
             ...formData,
-            inputs: [...formData.inputs, { id: Date.now().toString(), name: "", type: "text", label: "", placeholder: "", required: true, description: "" }]
+            inputs: [...formData.inputs, { id: Date.now().toString(), name: "", type: "text", label: "", placeholder: "", required: true, description: "", service: "" }]
         });
     };
 
@@ -307,17 +324,91 @@ function BuilderContent() {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
                                     <div className={styles.formGroup}>
-                                        <label className={styles.label}>Access Fee (EUR)</label>
-                                        <div style={{ position: 'relative' }}>
-                                            <Euro size={18} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
-                                            <input type="number" className={styles.input} style={{ height: '64px', borderRadius: '18px', paddingLeft: '56px', fontSize: '1.25rem', fontWeight: 950 }} value={formData.productInfo.price} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, price: e.target.value}})} />
-                                        </div>
-                                    </div>
-                                    <div className={styles.formGroup}>
                                         <label className={styles.label}>Deployment Window (Setup Time)</label>
                                         <div style={{ position: 'relative' }}>
                                             <Clock size={18} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
-                                            <input className={styles.input} style={{ height: '64px', borderRadius: '18px', paddingLeft: '56px' }} value={formData.productInfo.setupTime} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, setupTime: e.target.value}})} placeholder="e.g. 5 minutes" />
+                                            <input className={styles.input} style={{ height: '64px', borderRadius: '18px', paddingLeft: '56px' }} value={formData.productInfo.setupTime} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, setupTime: e.target.value}})} placeholder="e.g. 15 minutes" />
+                                        </div>
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Target Operator</label>
+                                        <select className={styles.select} style={{ height: '64px', borderRadius: '18px' }} value={formData.productInfo.targetUser} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, targetUser: e.target.value}})}>
+                                            <option>Institutional Admin</option>
+                                            <option>SME Owner</option>
+                                            <option>Department Lead</option>
+                                            <option>Independent Contractor</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>One-time Setup Fee (EUR)</label>
+                                        <div style={{ position: 'relative' }}>
+                                            <Euro size={18} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
+                                            <input 
+                                                type="number" 
+                                                className={styles.input} 
+                                                style={{ height: '64px', borderRadius: '18px', paddingLeft: '56px', fontSize: '1.25rem', fontWeight: 950 }} 
+                                                value={formData.productInfo.setupPrice} 
+                                                onChange={e => {
+                                                    const val = e.target.value;
+                                                    setFormData({
+                                                        ...formData, 
+                                                        productInfo: {
+                                                            ...formData.productInfo, 
+                                                            setupPrice: val,
+                                                            price: val || formData.productInfo.price // update legacy price
+                                                        }
+                                                    });
+                                                }} 
+                                                placeholder="0.00"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Monthly Subscription Fee (EUR)</label>
+                                        <div style={{ position: 'relative' }}>
+                                            <Euro size={18} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
+                                            <input 
+                                                type="number" 
+                                                className={styles.input} 
+                                                style={{ height: '64px', borderRadius: '18px', paddingLeft: '56px', fontSize: '1.25rem', fontWeight: 950 }} 
+                                                value={formData.productInfo.monthlyPrice} 
+                                                onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, monthlyPrice: e.target.value}})} 
+                                                placeholder="0.00"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Discounted One-time Setup Fee (EUR, Optional)</label>
+                                        <div style={{ position: 'relative' }}>
+                                            <Euro size={18} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
+                                            <input 
+                                                type="number" 
+                                                className={styles.input} 
+                                                style={{ height: '64px', borderRadius: '18px', paddingLeft: '56px', fontSize: '1.25rem', fontWeight: 950 }} 
+                                                value={formData.productInfo.discountSetupPrice} 
+                                                onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, discountSetupPrice: e.target.value}})} 
+                                                placeholder="e.g. 29.00"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Discounted Monthly Subscription Fee (EUR, Optional)</label>
+                                        <div style={{ position: 'relative' }}>
+                                            <Euro size={18} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
+                                            <input 
+                                                type="number" 
+                                                className={styles.input} 
+                                                style={{ height: '64px', borderRadius: '18px', paddingLeft: '56px', fontSize: '1.25rem', fontWeight: 950 }} 
+                                                value={formData.productInfo.discountMonthlyPrice} 
+                                                onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, discountMonthlyPrice: e.target.value}})} 
+                                                placeholder="e.g. 19.00"
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -334,15 +425,6 @@ function BuilderContent() {
                                             <option>Subscription</option>
                                             <option>Per Operation</option>
                                             <option>One-time Licensing</option>
-                                        </select>
-                                    </div>
-                                    <div className={styles.formGroup}>
-                                        <label className={styles.label}>Target Operator</label>
-                                        <select className={styles.select} style={{ height: '64px', borderRadius: '18px' }} value={formData.productInfo.targetUser} onChange={e => setFormData({...formData, productInfo: {...formData.productInfo, targetUser: e.target.value}})}>
-                                            <option>Institutional Admin</option>
-                                            <option>SME Owner</option>
-                                            <option>Department Lead</option>
-                                            <option>Independent Contractor</option>
                                         </select>
                                     </div>
                                 </div>
@@ -394,12 +476,55 @@ function BuilderContent() {
 
                                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginTop: '24px' }}>
                                                 <div className={styles.formGroup}>
+                                                    <label className={styles.label}>Credential Connection / Service</label>
+                                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                                        <select 
+                                                            className={styles.select} 
+                                                            style={{ height: '52px', borderRadius: '12px', flex: 1 }} 
+                                                            value={['Stripe', 'Gmail', 'Google Sheets', 'Telegram', 'OpenAI'].includes(input.service) ? input.service : (input.service ? 'custom' : '')} 
+                                                            onChange={e => {
+                                                                const val = e.target.value;
+                                                                if (val === 'custom') {
+                                                                    updateInput(input.id, { service: 'Custom' });
+                                                                } else {
+                                                                    updateInput(input.id, { service: val });
+                                                                }
+                                                            }}
+                                                        >
+                                                            <option value="">None / Custom API Key</option>
+                                                            <option value="Stripe">Stripe</option>
+                                                            <option value="Gmail">Gmail</option>
+                                                            <option value="Google Sheets">Google Sheets</option>
+                                                            <option value="Telegram">Telegram</option>
+                                                            <option value="OpenAI">OpenAI</option>
+                                                            <option value="custom">Custom Service...</option>
+                                                        </select>
+                                                        {(!['Stripe', 'Gmail', 'Google Sheets', 'Telegram', 'OpenAI', ''].includes(input.service) || input.service === 'Custom') && (
+                                                            <input 
+                                                                className={styles.input} 
+                                                                style={{ height: '52px', borderRadius: '12px', flex: 1 }} 
+                                                                value={input.service === 'Custom' ? '' : input.service} 
+                                                                onChange={e => updateInput(input.id, { service: e.target.value })} 
+                                                                placeholder="e.g. HubSpot, Airtable" 
+                                                                autoFocus
+                                                            />
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className={styles.formGroup}>
                                                     <label className={styles.label}>Public Label (Visible to User)</label>
                                                     <input className={styles.input} style={{ height: '52px', borderRadius: '12px' }} value={input.label} onChange={e => updateInput(input.id, { label: e.target.value })} placeholder="e.g. Your Stripe Secret Key" />
                                                 </div>
+                                            </div>
+
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginTop: '24px' }}>
                                                 <div className={styles.formGroup}>
                                                     <label className={styles.label}>Placeholder / Help Text</label>
                                                     <input className={styles.input} style={{ height: '52px', borderRadius: '12px' }} value={input.placeholder} onChange={e => updateInput(input.id, { placeholder: e.target.value })} placeholder="e.g. sk_live_..." />
+                                                </div>
+                                                <div className={styles.formGroup}>
+                                                    <label className={styles.label}>Requirement Description</label>
+                                                    <input className={styles.input} style={{ height: '52px', borderRadius: '12px' }} value={input.description || ''} onChange={e => updateInput(input.id, { description: e.target.value })} placeholder="What is this credential used for?" />
                                                 </div>
                                             </div>
                                         </div>

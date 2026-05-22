@@ -12,7 +12,7 @@ export async function POST(request: Request) {
         const { templateId, amount, userId } = body;
 
         // Marketplace purchase flow
-        if (templateId && amount !== undefined) {
+        if (templateId) {
             // Get template details
             const template = await db.query('SELECT * FROM "WorkflowTemplate" WHERE id = $1', [templateId]) as any[];
             if (!template.length) {
@@ -25,23 +25,76 @@ export async function POST(request: Request) {
                 return NextResponse.json({ error: "User not found" }, { status: 404 });
             }
 
-            // Create one-time payment session for marketplace purchase
-            const session = await stripe.checkout.sessions.create({
-                payment_method_types: ['card'],
-                line_items: [
-                    {
+            const productInfo = typeof template[0].productInfo === 'string' 
+                ? JSON.parse(template[0].productInfo) 
+                : (template[0].productInfo || {});
+
+            let setupAmt = parseFloat(productInfo.discountSetupPrice || productInfo.setupPrice || 0);
+            let monthlyAmt = parseFloat(productInfo.discountMonthlyPrice || productInfo.monthlyPrice || 0);
+
+            // Fallback for legacy price if both setup and monthly are 0
+            if (setupAmt === 0 && monthlyAmt === 0) {
+                const legacyPrice = parseFloat(template[0].price || amount || 0);
+                if (productInfo.monetization === 'Subscription') {
+                    monthlyAmt = legacyPrice;
+                } else {
+                    setupAmt = legacyPrice;
+                }
+            }
+
+            const lineItems: any[] = [];
+            let sessionMode: 'payment' | 'subscription' = 'payment';
+
+            if (monthlyAmt > 0) {
+                sessionMode = 'subscription';
+                lineItems.push({
+                    price_data: {
+                        currency: 'eur',
+                        product_data: {
+                            name: `${template[0].name} (Monthly License)`,
+                            description: `Recurring monthly license subscription for ${template[0].name}`,
+                        },
+                        unit_amount: Math.round(monthlyAmt * 100), // Convert to cents
+                        recurring: {
+                            interval: 'month',
+                        },
+                    },
+                    quantity: 1,
+                });
+
+                if (setupAmt > 0) {
+                    lineItems.push({
                         price_data: {
                             currency: 'eur',
                             product_data: {
-                                name: template[0].name,
-                                description: template[0].description,
+                                name: `${template[0].name} (Setup & Implementation)`,
+                                description: `One-time setup and configuration fee for ${template[0].name}`,
                             },
-                            unit_amount: Math.round(amount * 100), // Convert to cents
+                            unit_amount: Math.round(setupAmt * 100), // Convert to cents
                         },
                         quantity: 1,
-                    }
-                ],
-                mode: 'payment',
+                    });
+                }
+            } else {
+                sessionMode = 'payment';
+                lineItems.push({
+                    price_data: {
+                        currency: 'eur',
+                        product_data: {
+                            name: `${template[0].name} (Setup & Implementation)`,
+                            description: template[0].description || `One-time payment for ${template[0].name}`,
+                        },
+                        unit_amount: Math.round(setupAmt * 100), // Convert to cents
+                    },
+                    quantity: 1,
+                });
+            }
+
+            // Create payment session for marketplace purchase
+            const session = await stripe.checkout.sessions.create({
+                payment_method_types: ['card'],
+                line_items: lineItems,
+                mode: sessionMode,
                 success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/marketplace/success?templateId=${templateId}`,
                 cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/marketplace?canceled=true`,
                 customer_email: user[0].email,
