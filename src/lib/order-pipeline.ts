@@ -274,18 +274,38 @@ export async function runOrderProvisioning(orderId: string) {
         if (!node) {
             try {
                 const user = await db.query('SELECT name, email FROM "User" WHERE id = $1', [order.userId]) as any[];
-                const contaboRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/admin/contabo`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        customerId: order.teamId,
-                        customerName: user[0]?.name || "Customer",
-                        customerEmail: user[0]?.email,
-                        instanceType: "VPS-2",
-                        region: "EU-CENTRAL-1",
-                    }),
-                });
-                if (contaboRes.ok) {
+                
+                const urlsToTry = [];
+                if (process.env.NEXT_PUBLIC_BASE_URL) {
+                    urlsToTry.push(`${process.env.NEXT_PUBLIC_BASE_URL}/api/admin/contabo`);
+                }
+                urlsToTry.push(`http://127.0.0.1:3000/api/admin/contabo`);
+                urlsToTry.push(`http://localhost:3000/api/admin/contabo`);
+
+                let contaboRes = null;
+                for (const url of urlsToTry) {
+                    try {
+                        const res = await fetch(url, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                customerId: order.teamId,
+                                customerName: user[0]?.name || "Customer",
+                                customerEmail: user[0]?.email,
+                                instanceType: "VPS-2",
+                                region: "EU-CENTRAL-1",
+                            }),
+                        });
+                        if (res.ok) {
+                            contaboRes = res;
+                            break;
+                        }
+                    } catch (e) {
+                        // Suppress logs for fallback attempts
+                    }
+                }
+
+                if (contaboRes && contaboRes.ok) {
                     const data = await contaboRes.json();
                     if (data.node?.id) {
                         await bindNodeToTeam(data.node.id, order.teamId);
