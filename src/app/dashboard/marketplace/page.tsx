@@ -121,6 +121,12 @@ export default function WorkflowsPage() {
     const [paymentTemplate, setPaymentTemplate] = useState<any>(null);
     const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
+    // Promo/discount states
+    const [promoInput, setPromoInput] = useState("");
+    const [appliedPromo, setAppliedPromo] = useState("");
+    const [promoDiscountPercent, setPromoDiscountPercent] = useState(0);
+    const [promoError, setPromoError] = useState("");
+
     // Custom workflow request wizard
     const [showCustomModal, setShowCustomModal] = useState(false);
     const [wizardStep, setWizardStep] = useState(1);
@@ -206,11 +212,14 @@ export default function WorkflowsPage() {
     const handlePurchase = async (template: any) => {
         setIsProcessingPayment(true);
         try {
-            const price = getTemplatePrice(template);
+            const basePrice = getTemplatePrice(template);
+            const discountAmount = (basePrice * promoDiscountPercent) / 100;
+            const finalPrice = Math.max(0, basePrice - discountAmount);
+
             const res = await fetch('/api/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ workflowName: template.name, price: price, templateId: template.id }),
+                body: JSON.stringify({ workflowName: template.name, price: finalPrice, templateId: template.id }),
             });
             const data = await res.json();
             if (res.ok) {
@@ -231,6 +240,10 @@ export default function WorkflowsPage() {
 
         if (finalPrice > 0) {
             setPaymentTemplate(template);
+            setPromoInput("");
+            setAppliedPromo("");
+            setPromoDiscountPercent(0);
+            setPromoError("");
             return;
         }
         
@@ -808,46 +821,67 @@ export default function WorkflowsPage() {
             {paymentTemplate && (
                 <ModalPortal>
                     <div className={styles.modalOverlay} onClick={() => !isProcessingPayment && setPaymentTemplate(null)}>
-                        <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
-                            <button className={styles.closeButton} onClick={() => setPaymentTemplate(null)} disabled={isProcessingPayment}>
+                        <div className={styles.modalContent} onClick={e => e.stopPropagation()} style={{ maxWidth: 640, borderRadius: '24px', padding: '36px' }}>
+                            <button className={styles.closeButton} onClick={() => setPaymentTemplate(null)} disabled={isProcessingPayment} style={{ top: 24, right: 24 }}>
                                 <X size={20} />
                             </button>
                             
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                                <div style={{ width: 40, height: 40, background: '#10B98115', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Zap size={20} color="#10B981" />
+                            {/* MODAL HEADER */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24 }}>
+                                <div style={{ width: 48, height: 48, background: '#10B98115', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #10B98125' }}>
+                                    <Zap size={24} color="#10B981" />
                                 </div>
-                                <h2 className={styles.onboardingTitle} style={{ margin: 0 }}>Order Workflow</h2>
+                                <div>
+                                    <h2 className={styles.onboardingTitle} style={{ margin: 0, fontSize: '1.4rem', fontWeight: 950, color: '#0F172A', letterSpacing: '-0.02em' }}>Confirm Your Order</h2>
+                                    <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: '#64748B', fontWeight: 500 }}>Review your workflow specifications, resource allocations, and pricing summary.</p>
+                                </div>
                             </div>
 
-                            <div style={{ padding: '16px', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #F1F5F9', marginBottom: '20px' }}>
-                                <div style={{ fontWeight: 900, color: '#0F172A', fontSize: '1.05rem', marginBottom: '16px' }}>{paymentTemplate.name}</div>
-                                
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>
-                                        <CheckCircle size={14} color="#10B981" /> Dedicated Server
+                            {/* WORKFLOW IDENTITY & FEATURE LIST */}
+                            <div style={{ background: '#F8FAFC', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '24px', marginBottom: '24px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                                    <div>
+                                        <div style={{ fontWeight: 950, color: '#0F172A', fontSize: '1.2rem', letterSpacing: '-0.01em' }}>{paymentTemplate.name}</div>
+                                        <span style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>PRE-BUILT SYSTEM PACKAGE</span>
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>
-                                        <CheckCircle size={14} color="#10B981" /> n8n Setup
-                                    </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>
-                                        <CheckCircle size={14} color="#10B981" /> Full Configuration
-                                    </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>
-                                        <CheckCircle size={14} color="#10B981" /> Testing
-                                    </div>
+                                    <span style={{ fontSize: '0.65rem', background: '#E0F2FE', color: '#0369A1', padding: '4px 10px', borderRadius: '6px', fontWeight: 900, textTransform: 'uppercase' }}>
+                                        {paymentTemplate.sector}
+                                    </span>
                                 </div>
 
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+                                    {[
+                                        'Dedicated Cloud Container',
+                                        'Orchestration Engine (n8n Setup)',
+                                        'End-to-End System Integration',
+                                        'Automated Quality Assurance Loop'
+                                    ].map((item, idx) => (
+                                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.82rem', fontWeight: 650, color: '#334155' }}>
+                                            <CheckCircle size={14} color="#10B981" />
+                                            <span>{item}</span>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* CONNECTIONS & CREDENTIALS STATUS */}
                                 {(() => {
                                     const reqs = robustParse(paymentTemplate.requirements);
                                     const services = Array.from(new Set(reqs.map((r: any) => r.service || r.app).filter(Boolean)));
                                     if (services.length === 0) return null;
                                     return (
-                                        <div style={{ borderTop: '1px solid #E2E8F0', marginTop: '16px', paddingTop: '12px' }}>
-                                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', marginBottom: '8px' }}>Credentials & Connections Used:</div>
-                                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                        <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '16px', marginTop: '16px' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                                <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+                                                    Credentials & Connections Used:
+                                                </span>
+                                                <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#10B981', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981', display: 'inline-block' }}></span>
+                                                    All connections ready
+                                                </span>
+                                            </div>
+                                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                                                 {services.map((svc: any) => (
-                                                    <span key={svc} style={{ fontSize: '0.72rem', background: '#FFFFFF', color: '#1E293B', padding: '3px 8px', borderRadius: '6px', fontWeight: 800, border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                    <span key={svc} style={{ fontSize: '0.72rem', background: '#FFFFFF', color: '#0F172A', padding: '4px 10px', borderRadius: '8px', fontWeight: 850, border: '1px solid #E2E8F0', display: 'inline-flex', alignItems: 'center', gap: '6px', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
                                                         {getServiceIcon(svc)} {svc}
                                                     </span>
                                                 ))}
@@ -856,19 +890,145 @@ export default function WorkflowsPage() {
                                     );
                                 })()}
                             </div>
-                            
-                            <div style={{ background: '#F8FAFC', borderRadius: 14, padding: 16, marginBottom: 24, display: 'flex', justifyContent: 'space-between', fontWeight: 800 }}>
-                                <span>Total</span>
-                                <span style={{ color: '#10B981', fontWeight: 950 }}>€{getTemplatePrice(paymentTemplate).toFixed(2)}</span>
+
+                            {/* COST SUMMARY & DETAILS */}
+                            <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '20px', marginBottom: '24px' }}>
+                                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '14px' }}>
+                                    PAYMENT BREAKDOWN
+                                </div>
+                                
+                                {(() => {
+                                    const pInfo = typeof paymentTemplate.productInfo === 'string'
+                                        ? JSON.parse(paymentTemplate.productInfo)
+                                        : (paymentTemplate.productInfo || {});
+                                    const setupPrice = parseFloat(pInfo.setupPrice || 0);
+                                    const monthlyPrice = parseFloat(pInfo.monthlyPrice || 0);
+                                    const discountSetup = parseFloat(pInfo.discountSetupPrice || 0);
+                                    const discountMonthly = parseFloat(pInfo.discountMonthlyPrice || 0);
+
+                                    let showSetup = setupPrice;
+                                    let showMonthly = monthlyPrice;
+
+                                    if (setupPrice === 0 && monthlyPrice === 0) {
+                                        const legacyPrice = parseFloat(paymentTemplate.price || 0);
+                                        if (pInfo.monetization === 'Subscription') {
+                                            showMonthly = legacyPrice;
+                                        } else {
+                                            showSetup = legacyPrice;
+                                        }
+                                    }
+
+                                    const baseTotal = (discountSetup > 0 ? discountSetup : showSetup) + (discountMonthly > 0 ? discountMonthly : showMonthly);
+                                    const promoDiscount = (baseTotal * promoDiscountPercent) / 100;
+                                    const finalTotal = Math.max(0, baseTotal - promoDiscount);
+
+                                    return (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                            {/* Setup Fee Row */}
+                                            {showSetup > 0 && (
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <span style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 600 }}>One-time Setup & Configuration</span>
+                                                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                                        {discountSetup > 0 && (
+                                                            <span style={{ fontSize: '0.8rem', color: '#94A3B8', textDecoration: 'line-through', fontWeight: 600 }}>€{setupPrice.toFixed(2)}</span>
+                                                        )}
+                                                        <span style={{ fontSize: '0.88rem', color: '#0F172A', fontWeight: 800 }}>€{(discountSetup > 0 ? discountSetup : showSetup).toFixed(2)}</span>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Monthly Fee Row */}
+                                            {showMonthly > 0 && (
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <span style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 600 }}>Monthly Hosting & Management License</span>
+                                                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                                        {discountMonthly > 0 && (
+                                                            <span style={{ fontSize: '0.8rem', color: '#94A3B8', textDecoration: 'line-through', fontWeight: 600 }}>€{monthlyPrice.toFixed(2)}</span>
+                                                        )}
+                                                        <span style={{ fontSize: '0.88rem', color: '#0F172A', fontWeight: 800 }}>€{(discountMonthly > 0 ? discountMonthly : showMonthly).toFixed(2)}<span style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 700 }}>/mo</span></span>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* PROMO INPUT AND DISPLAY */}
+                                            <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: '12px', marginTop: '4px' }}>
+                                                {appliedPromo ? (
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F0FDF4', border: '1px solid #DCFCE7', borderRadius: '8px', padding: '10px 12px' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                            <CheckCircle size={14} color="#10B981" />
+                                                            <span style={{ fontSize: '0.78rem', color: '#15803D', fontWeight: 800 }}>Promo Code: <strong style={{ textTransform: 'uppercase' }}>{appliedPromo}</strong> applied</span>
+                                                        </div>
+                                                        <span style={{ fontSize: '0.8rem', color: '#15803D', fontWeight: 800 }}>-€{promoDiscount.toFixed(2)} (-{promoDiscountPercent}%)</span>
+                                                    </div>
+                                                ) : (
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                                            <input
+                                                                type="text"
+                                                                className={styles.fieldInput}
+                                                                placeholder="Enter Promo Code (e.g. BLONK20)"
+                                                                value={promoInput}
+                                                                onChange={e => setPromoInput(e.target.value)}
+                                                                style={{ height: '36px', fontSize: '0.8rem', flex: 1, borderRadius: '8px', padding: '0 12px' }}
+                                                            />
+                                                            <button
+                                                                onClick={() => {
+                                                                    const code = promoInput.toUpperCase().trim();
+                                                                    if (code === 'WELCOME10') {
+                                                                        setAppliedPromo('WELCOME10');
+                                                                        setPromoDiscountPercent(10);
+                                                                        setPromoError("");
+                                                                    } else if (code === 'BLONK20') {
+                                                                        setAppliedPromo('BLONK20');
+                                                                        setPromoDiscountPercent(20);
+                                                                        setPromoError("");
+                                                                    } else if (code === 'FREE50') {
+                                                                        setAppliedPromo('FREE50');
+                                                                        setPromoDiscountPercent(50);
+                                                                        setPromoError("");
+                                                                    } else if (code) {
+                                                                        setPromoError("Invalid promo code");
+                                                                    }
+                                                                }}
+                                                                style={{ background: '#0F172A', color: '#fff', border: 'none', borderRadius: '8px', padding: '0 16px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer', height: '36px' }}
+                                                            >
+                                                                Apply
+                                                            </button>
+                                                        </div>
+                                                        {promoError && (
+                                                            <span style={{ fontSize: '0.72rem', color: '#EF4444', fontWeight: 700, marginLeft: '4px' }}>{promoError}</span>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Due Today (Total) */}
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #E2E8F0', paddingTop: '14px', marginTop: '4px' }}>
+                                                <div>
+                                                    <span style={{ fontSize: '0.95rem', fontWeight: 950, color: '#0F172A' }}>Total Due Today</span>
+                                                    <p style={{ margin: '2px 0 0', fontSize: '0.7rem', color: '#64748B', fontWeight: 650 }}>Includes setup fee & first month license</p>
+                                                </div>
+                                                <span style={{ color: '#10B981', fontWeight: 950, fontSize: '1.4rem' }}>€{finalTotal.toFixed(2)}</span>
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
                             </div>
+
+                            {/* CTAS */}
                             <button
                                 className={styles.btnInstall}
-                                style={{ width: '100%', height: 56 }}
+                                style={{ width: '100%', height: 56, fontSize: '0.88rem', fontWeight: 900 }}
                                 disabled={isProcessingPayment}
                                 onClick={() => handlePurchase(paymentTemplate)}
                             >
-                                {isProcessingPayment ? 'Processing...' : 'Continue to Payment'}
+                                {isProcessingPayment ? 'Initiating Deployment...' : 'Confirm & Continue to Payment'}
                             </button>
+
+                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px', marginTop: '16px', color: '#64748B' }}>
+                                <ShieldCheck size={14} color="#10B981" />
+                                <span style={{ fontSize: '0.72rem', fontWeight: 650 }}>Secure checkout processed via Stripe Billing</span>
+                            </div>
                         </div>
                     </div>
                 </ModalPortal>
