@@ -1197,6 +1197,27 @@ export default function AdminOrdersClient() {
                                                     >
                                                         <MoreHorizontal size={14} />
                                                     </button>
+                                                    <button
+                                                        onClick={() => handleDeleteOrder(order.id, order.orderNumber)}
+                                                        title="Delete Order"
+                                                        style={{
+                                                            width: '28px',
+                                                            height: '28px',
+                                                            borderRadius: '6px',
+                                                            border: '1px solid #FEE2E2',
+                                                            background: '#FEF2F2',
+                                                            color: '#EF4444',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            cursor: 'pointer',
+                                                            transition: 'all 0.2s'
+                                                        }}
+                                                        onMouseEnter={(e) => { e.currentTarget.style.background = '#FCA5A5'; e.currentTarget.style.borderColor = '#EF4444'; e.currentTarget.style.color = '#FFFFFF'; }}
+                                                        onMouseLeave={(e) => { e.currentTarget.style.background = '#FEF2F2'; e.currentTarget.style.borderColor = '#FEE2E2'; e.currentTarget.style.color = '#EF4444'; }}
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
