@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 import { logAudit } from '@/lib/audit';
-import { runOrderProvisioning } from '@/lib/order-pipeline';
+import { runOrderProvisioning, ensureOrderSchema } from '@/lib/order-pipeline';
 
 /**
  * Support Ticket System API
@@ -90,6 +90,7 @@ export async function POST(req: Request) {
         // If it is a custom workflow request, create the order in addition to the ticket
         if (body.isCustomWorkflowRequest && body.customForm) {
             const { customForm } = body;
+            await ensureOrderSchema();
             let teamId = user.teamId;
             if (!teamId) {
                 const teamRows = await db.query('SELECT id FROM "Team" WHERE "ownerId" = $1 LIMIT 1', [user.id]) as any[];
@@ -111,8 +112,8 @@ export async function POST(req: Request) {
 
                 // Insert into WorkflowOrder
                 await db.execute(
-                    `INSERT INTO "WorkflowOrder" (id, "teamId", "userId", "templateId", "workflowName", status, amount, "stripeSessionId", "workflowId", "orderType", "orderSubType", plan, priority, "assignedTo")
-                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+                    `INSERT INTO "WorkflowOrder" (id, "teamId", "userId", "templateId", "workflowName", status, amount, "stripeSessionId", "workflowId", "orderType", "orderSubType", plan, priority, "assignedTo", "customDetails")
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
                     [
                         orderId,
                         teamId,
@@ -127,7 +128,14 @@ export async function POST(req: Request) {
                         'Custom Build',
                         'Custom',
                         priority,
-                        'System Auto'
+                        'System Auto',
+                        JSON.stringify({
+                            category: customForm.category,
+                            description: customForm.description,
+                            tools: customForm.tools,
+                            urgency: customForm.urgency,
+                            timeline: customForm.timeline
+                        })
                     ]
                 );
 

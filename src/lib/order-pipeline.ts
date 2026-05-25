@@ -40,10 +40,12 @@ export async function ensureOrderSchema() {
     await db.execute(`ALTER TABLE "WorkflowOrder" ADD COLUMN IF NOT EXISTS "plan" VARCHAR(50) DEFAULT 'Startup'`).catch(() => {});
     await db.execute(`ALTER TABLE "WorkflowOrder" ADD COLUMN IF NOT EXISTS "priority" VARCHAR(50) DEFAULT 'MEDIUM'`).catch(() => {});
     await db.execute(`ALTER TABLE "WorkflowOrder" ADD COLUMN IF NOT EXISTS "assignedTo" VARCHAR(100) DEFAULT 'System Auto'`).catch(() => {});
+    await db.execute(`ALTER TABLE "WorkflowOrder" ADD COLUMN IF NOT EXISTS "customDetails" JSONB`).catch(() => {});
 
     // Ensure Workflow table has the columns needed by the order pipeline
     await db.execute(`ALTER TABLE "Workflow" ADD COLUMN IF NOT EXISTS "templateId" UUID`).catch(() => {});
     await db.execute(`ALTER TABLE "Workflow" ADD COLUMN IF NOT EXISTS "serverId" UUID`).catch(() => {});
+    await db.execute(`ALTER TABLE "Workflow" ADD COLUMN IF NOT EXISTS "userId" UUID`).catch(() => {});
 }
 
 export async function appendOrderLog(orderId: string, message: string, level = "info") {

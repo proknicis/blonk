@@ -272,6 +272,32 @@
     letter-spacing: 0.05em;
 }
 
+.running {
+    background: #E8FDF0 !important;
+    color: #10B981 !important;
+}
+
+.failed {
+    background: #FEE2E2 !important;
+    color: #EF4444 !important;
+}
+
+.needssetup {
+    background: #FEF3C7 !important;
+    color: #D97706 !important;
+}
+
+.provisioning {
+    background: #EFF6FF !important;
+    color: #3B82F6 !important;
+}
+
+.underreview {
+    background: #EEF2FF !important;
+    color: #4F46E5 !important;
+}
+
+
 .cardDesc {
     font-size: 0.85rem;
     color: #64748B;

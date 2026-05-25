@@ -39,13 +39,14 @@ export default async function OfficePage() {
     // Map existing orders
     const orderCards: OrderCard[] = (orders || []).map((o: any) => {
         const logs = typeof o.logs === "string" ? JSON.parse(o.logs || "[]") : o.logs || [];
+        const isCustom = o.orderType === 'Custom Request';
         return {
             id: o.id,
             orderNumber: formatOrderNumber(o.orderNumber || 0),
             workflowName: o.workflowName,
             status: o.status,
             checklist: getOrderChecklist(o.status),
-            needsCredentials: needsCredentialsAction(o.status),
+            needsCredentials: isCustom ? false : needsCredentialsAction(o.status),
             isComplete: isOrderComplete(o.status),
             serverName: o.serverName,
             serverStatus: o.serverStatus,
@@ -54,11 +55,13 @@ export default async function OfficePage() {
             workflowId: o.workflowId,
             templateId: o.templateId,
             createdAt: o.createdAt,
+            orderType: o.orderType,
+            customDetails: typeof o.customDetails === 'string' ? JSON.parse(o.customDetails || "{}") : o.customDetails || null,
             // Real stats if available (orders usually don't have them yet)
             runsToday: 0,
             successRate: "0%",
             lastRun: "Never",
-            description: "Provisioning your automated infrastructure...",
+            description: isCustom ? "Your custom request is currently under review." : "Provisioning your automated infrastructure...",
             apps: []
         };
     });

@@ -56,6 +56,8 @@ export type OrderCard = {
     icon?: string;
     color?: string;
     apps: { name: string; icon: string }[];
+    orderType?: string;
+    customDetails?: any;
 };
 
 type FeedItem = {
@@ -102,14 +104,17 @@ export default function OfficeClient({
             const needsSetup = order.status === 'Awaiting_Credentials' || order.status === 'WAITING_CREDENTIALS';
             
             let statusLabel = "PROVISIONING";
-            if (isRunning) statusLabel = "RUNNING";
-            if (isFailed) statusLabel = "FAILED";
-            if (needsSetup) statusLabel = "NEEDS SETUP";
+            if (order.orderType === 'Custom Request') statusLabel = "UNDER REVIEW";
+            else if (isRunning) statusLabel = "RUNNING";
+            else if (isFailed) statusLabel = "FAILED";
+            else if (needsSetup) statusLabel = "NEEDS SETUP";
 
             return {
                 ...order,
                 statusLabel,
-                type: order.orderNumber === "INSTALLED" ? "Operational Workflow" : "Deployment Pipeline"
+                type: order.orderType === 'Custom Request' 
+                    ? "Custom Workflow Request" 
+                    : (order.orderNumber === "INSTALLED" ? "Operational Workflow" : "Deployment Pipeline")
             };
         });
         return sorted;
@@ -316,7 +321,78 @@ export default function OfficeClient({
                                             </div>
                                         </div>
 
-                                        {order.statusLabel === 'PROVISIONING' || order.statusLabel === 'NEEDS SETUP' ? (
+                                        {order.orderType === 'Custom Request' ? (
+                                            /* CUSTOM REQUEST VIEW */
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                                                <div style={{ 
+                                                    background: '#EFF6FF', 
+                                                    border: '1px solid #BFDBFE', 
+                                                    padding: '16px', 
+                                                    borderRadius: '16px',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    gap: 12
+                                                }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                        <Clock size={16} color="#3B82F6" className="spin" style={{ animationDuration: '4s' }} />
+                                                        <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#1E40AF' }}>Under Review</span>
+                                                    </div>
+                                                    <p style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1E3A8A', lineHeight: 1.4 }}>
+                                                        We have successfully received your custom workflow request. Our team is currently reviewing your requirements, and we will contact you shortly about the deployment details.
+                                                    </p>
+                                                </div>
+
+                                                {order.customDetails && (
+                                                    <div style={{ 
+                                                        background: '#F8FAFC', 
+                                                        border: '1px solid #E2E8F0', 
+                                                        padding: '14px', 
+                                                        borderRadius: '14px',
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        gap: 10
+                                                    }}>
+                                                        {order.customDetails.description && (
+                                                            <div>
+                                                                <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase' }}>Description</span>
+                                                                <p style={{ fontSize: '0.75rem', fontWeight: 650, color: '#334155', marginTop: 2 }}>{order.customDetails.description}</p>
+                                                            </div>
+                                                        )}
+                                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                                                            {order.customDetails.category && (
+                                                                <div>
+                                                                    <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase' }}>Category</span>
+                                                                    <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0F172A', marginTop: 2 }}>{order.customDetails.category}</p>
+                                                                </div>
+                                                            )}
+                                                            {order.customDetails.urgency && (
+                                                                <div>
+                                                                    <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase' }}>Urgency</span>
+                                                                    <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0F172A', marginTop: 2, textTransform: 'capitalize' }}>{order.customDetails.urgency}</p>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        {order.customDetails.tools && (
+                                                            <div>
+                                                                <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase' }}>Integrations Requested</span>
+                                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 4 }}>
+                                                                    {order.customDetails.tools.split(',').map((tool: string, idx: number) => (
+                                                                        <span key={idx} style={{ 
+                                                                            background: '#F1F5F9', 
+                                                                            color: '#475569', 
+                                                                            padding: '3px 8px', 
+                                                                            borderRadius: '6px', 
+                                                                            fontSize: '0.65rem', 
+                                                                            fontWeight: 750 
+                                                                        }}>{tool.trim()}</span>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ) : order.statusLabel === 'PROVISIONING' || order.statusLabel === 'NEEDS SETUP' ? (
                                             /* DEPLOYMENT PIPELINE VIEW */
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -421,22 +497,34 @@ export default function OfficeClient({
                                             </>
                                         )}
 
-                                        <div className={styles.cardActions}>
-                                            <button 
-                                                className={`${styles.actionBtn} ${order.statusLabel === 'RUNNING' ? styles.actionBtnPrimary : ''}`} 
-                                                onClick={() => order.n8nWorkflowId && window.open(`${process.env.NEXT_PUBLIC_BASE_URL}/api/n8n/proxy/${order.n8nWorkflowId}`, '_blank')}
-                                                disabled={order.statusLabel === 'PROVISIONING'}
-                                                style={{ opacity: order.statusLabel === 'PROVISIONING' ? 0.5 : 1 }}
-                                            >
-                                                Open <ArrowUpRight size={14} />
-                                            </button>
-                                            <button className={styles.actionBtn} disabled={order.statusLabel === 'PROVISIONING'} style={{ opacity: order.statusLabel === 'PROVISIONING' ? 0.5 : 1 }}>
-                                                {order.statusLabel === 'RUNNING' ? <><Pause size={14} /> Pause</> : <><Play size={14} /> Start</>}
-                                            </button>
-                                            <button className={styles.actionBtn}>
-                                                <Settings size={14} /> Settings
-                                            </button>
-                                        </div>
+                                        {order.orderType === 'Custom Request' ? (
+                                            <div className={styles.cardActions}>
+                                                <button 
+                                                    className={`${styles.actionBtn} ${styles.actionBtnPrimary}`}
+                                                    onClick={() => router.push('/dashboard/support')}
+                                                    style={{ gridColumn: 'span 3', width: '100%' }}
+                                                >
+                                                    <MessageSquare size={14} /> Contact Support
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className={styles.cardActions}>
+                                                <button 
+                                                    className={`${styles.actionBtn} ${order.statusLabel === 'RUNNING' ? styles.actionBtnPrimary : ''}`} 
+                                                    onClick={() => order.n8nWorkflowId && window.open(`${process.env.NEXT_PUBLIC_BASE_URL}/api/n8n/proxy/${order.n8nWorkflowId}`, '_blank')}
+                                                    disabled={order.statusLabel === 'PROVISIONING'}
+                                                    style={{ opacity: order.statusLabel === 'PROVISIONING' ? 0.5 : 1 }}
+                                                >
+                                                    Open <ArrowUpRight size={14} />
+                                                </button>
+                                                <button className={styles.actionBtn} disabled={order.statusLabel === 'PROVISIONING'} style={{ opacity: order.statusLabel === 'PROVISIONING' ? 0.5 : 1 }}>
+                                                    {order.statusLabel === 'RUNNING' ? <><Pause size={14} /> Pause</> : <><Play size={14} /> Start</>}
+                                                </button>
+                                                <button className={styles.actionBtn}>
+                                                    <Settings size={14} /> Settings
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 );
                             })}
