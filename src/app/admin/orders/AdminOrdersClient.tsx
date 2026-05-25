@@ -106,6 +106,8 @@ export default function AdminOrdersClient() {
         templateId: null
     });
     const [isSavingDetails, setIsSavingDetails] = useState(false);
+    const [customQuotePrice, setCustomQuotePrice] = useState<number>(0);
+    const [isSavingPrice, setIsSavingPrice] = useState(false);
 
     // Create Order Modal state
     const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
@@ -1618,10 +1620,12 @@ export default function AdminOrdersClient() {
             {/* 8. INSPECT LOGS MODAL */}
             {inspectingOrder && (
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-                    <div style={{ background: '#FFFFFF', borderRadius: '16px', padding: '32px', maxWidth: '650px', width: '90%', maxHeight: '85vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
+                    <div style={{ background: '#FFFFFF', borderRadius: '16px', padding: '32px', maxWidth: '680px', width: '90%', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
-                                <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>Provisioning Log Stream</h2>
+                                <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>
+                                    {inspectingOrder.orderType === 'Custom Request' ? '✦ Custom Request Details' : 'Provisioning Log Stream'}
+                                </h2>
                                 <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0', fontWeight: 600 }}>
                                     Order #{inspectingOrder.orderNumber ? String(inspectingOrder.orderNumber).padStart(4, '0') : inspectingOrder.id?.slice(0, 8).toUpperCase()} for {inspectingOrder.userName || inspectingOrder.userEmail}
                                 </p>
@@ -1631,32 +1635,175 @@ export default function AdminOrdersClient() {
                             </button>
                         </div>
 
-                        {/* Logs Stream */}
-                        <div style={{ flex: 1, overflowY: 'auto', background: '#0F172A', borderRadius: '12px', padding: '20px', maxHeight: '360px', display: 'flex', flexDirection: 'column', gap: '8px', fontFamily: 'monospace', fontSize: '0.8rem', color: '#E2E8F0' }}>
-                            {(!inspectingOrder.logs || inspectingOrder.logs.length === 0) ? (
-                                <div style={{ color: '#64748B', fontStyle: 'italic', textAlign: 'center', padding: '40px 0' }}>No log entries recorded.</div>
-                            ) : (
-                                [...inspectingOrder.logs].reverse().map((log: any, idx: number) => {
-                                    let levelColor = '#10B981'; // green for info/success
-                                    if (log.level === 'error') levelColor = '#EF4444';
-                                    if (log.level === 'warning') levelColor = '#F59E0B';
-
-                                    return (
-                                        <div key={idx} style={{ display: 'flex', gap: '10px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '6px' }}>
-                                            <span style={{ color: '#64748B' }}>[{log.at ? new Date(log.at).toLocaleTimeString() : '—'}]</span>
-                                            <span style={{ color: levelColor, fontWeight: 'bold' }}>{log.level?.toUpperCase() || 'INFO'}</span>
-                                            <span style={{ color: '#FFFFFF' }}>{log.message}</span>
+                        {/* CUSTOM REQUEST DETAILS PANEL */}
+                        {inspectingOrder.orderType === 'Custom Request' && (() => {
+                            const cd = typeof inspectingOrder.customDetails === 'string'
+                                ? JSON.parse(inspectingOrder.customDetails || '{}')
+                                : inspectingOrder.customDetails || {};
+                            return (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                                    {/* Header banner */}
+                                    <div style={{ background: 'linear-gradient(135deg, #F3E8FF, #EDE9FE)', border: '1px solid #C4B5FD', borderRadius: 12, padding: '16px 20px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                                            <Sparkles size={16} color="#7C3AED" />
+                                            <span style={{ fontSize: '0.8rem', fontWeight: 900, color: '#5B21B6', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Custom Workflow Request</span>
                                         </div>
-                                    );
-                                })
-                            )}
+                                        <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#3B0764' }}>{inspectingOrder.workflowName}</div>
+                                        <div style={{ fontSize: '0.78rem', color: '#6D28D9', marginTop: 2, fontWeight: 600 }}>Submitted by {inspectingOrder.userName || inspectingOrder.userEmail}</div>
+                                    </div>
+
+                                    {/* Description */}
+                                    {cd.description && (
+                                        <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '14px 16px' }}>
+                                            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Description / Requirements</div>
+                                            <p style={{ fontSize: '0.88rem', fontWeight: 600, color: '#1E293B', lineHeight: 1.6, margin: 0 }}>{cd.description}</p>
+                                        </div>
+                                    )}
+
+                                    {/* Grid details */}
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                                        {cd.category && (
+                                            <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '12px 14px' }}>
+                                                <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Category</div>
+                                                <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0F172A' }}>{cd.category}</div>
+                                            </div>
+                                        )}
+                                        {cd.urgency && (
+                                            <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '12px 14px' }}>
+                                                <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Urgency / Priority</div>
+                                                <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0F172A', textTransform: 'capitalize' }}>{cd.urgency}</div>
+                                            </div>
+                                        )}
+                                        {cd.timeline && (
+                                            <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '12px 14px' }}>
+                                                <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Requested Timeline</div>
+                                                <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0F172A' }}>{cd.timeline}</div>
+                                            </div>
+                                        )}
+                                        {inspectingOrder.priority && (
+                                            <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '12px 14px' }}>
+                                                <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Order Priority</div>
+                                                <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0F172A' }}>{inspectingOrder.priority}</div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Tools / Integrations */}
+                                    {cd.tools && (
+                                        <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '14px 16px' }}>
+                                            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Requested Integrations / Tools</div>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                                                {cd.tools.split(',').map((tool: string, i: number) => (
+                                                    <span key={i} style={{ background: '#EDE9FE', color: '#5B21B6', padding: '4px 10px', borderRadius: 6, fontSize: '0.78rem', fontWeight: 700 }}>{tool.trim()}</span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Set Price & Request Payment panel */}
+                                    <div style={{ background: inspectingOrder.amount > 0 ? 'linear-gradient(135deg, #ECFDF5, #D1FAE5)' : '#F8FAFC', border: `1.5px solid ${inspectingOrder.amount > 0 ? '#10B981' : '#E2E8F0'}`, borderRadius: 12, padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <CreditCard size={16} color={inspectingOrder.amount > 0 ? '#059669' : '#64748B'} />
+                                            <span style={{ fontSize: '0.8rem', fontWeight: 900, color: inspectingOrder.amount > 0 ? '#065F46' : '#334155', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                                                {inspectingOrder.amount > 0 ? `Price Quoted: €${Number(inspectingOrder.amount).toLocaleString()}` : 'Set Price & Request Payment'}
+                                            </span>
+                                        </div>
+                                        {inspectingOrder.amount > 0 && (
+                                            <p style={{ fontSize: '0.78rem', fontWeight: 600, color: '#065F46', margin: 0 }}>A payment request of €{Number(inspectingOrder.amount).toLocaleString()} has been sent to the client. Update the price below to change it.</p>
+                                        )}
+                                        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                                            <div style={{ position: 'relative', flex: 1 }}>
+                                                <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: '0.9rem', fontWeight: 700, color: '#64748B' }}>€</span>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    step="0.01"
+                                                    defaultValue={inspectingOrder.amount > 0 ? Number(inspectingOrder.amount) : undefined}
+                                                    placeholder="Enter quoted price..."
+                                                    onChange={(e) => setCustomQuotePrice(parseFloat(e.target.value) || 0)}
+                                                    style={{ width: '100%', height: 44, border: '1.5px solid #CBD5E1', borderRadius: 8, paddingLeft: 28, paddingRight: 12, fontSize: '1rem', fontWeight: 700, outline: 'none', background: '#FFFFFF', boxSizing: 'border-box' }}
+                                                />
+                                            </div>
+                                            <button
+                                                disabled={isSavingPrice || customQuotePrice <= 0}
+                                                onClick={async () => {
+                                                    setIsSavingPrice(true);
+                                                    try {
+                                                        const res = await fetch('/api/admin/orders', {
+                                                            method: 'PATCH',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify({
+                                                                id: inspectingOrder.id,
+                                                                amount: customQuotePrice,
+                                                                addLogMessage: `Admin quoted price of €${customQuotePrice} for this custom workflow request.`
+                                                            })
+                                                        });
+                                                        if (res.ok) {
+                                                            showToast(`Price of €${customQuotePrice} sent to client`, 'success');
+                                                            await fetchOrders();
+                                                        } else {
+                                                            showToast('Failed to save price', 'error');
+                                                        }
+                                                    } catch {
+                                                        showToast('Network error', 'error');
+                                                    } finally {
+                                                        setIsSavingPrice(false);
+                                                    }
+                                                }}
+                                                style={{
+                                                    height: 44,
+                                                    padding: '0 20px',
+                                                    background: customQuotePrice > 0 ? '#059669' : '#CBD5E1',
+                                                    color: '#FFFFFF',
+                                                    border: 'none',
+                                                    borderRadius: 8,
+                                                    fontWeight: 800,
+                                                    fontSize: '0.85rem',
+                                                    cursor: customQuotePrice > 0 && !isSavingPrice ? 'pointer' : 'not-allowed',
+                                                    whiteSpace: 'nowrap',
+                                                    transition: 'background 0.2s'
+                                                }}
+                                            >
+                                                {isSavingPrice ? 'Sending...' : inspectingOrder.amount > 0 ? 'Update Price' : 'Send to Client'}
+                                            </button>
+                                        </div>
+                                        <p style={{ fontSize: '0.72rem', color: '#64748B', margin: 0, fontWeight: 600 }}>
+                                            Setting a price will show a payment button on the client's My Workflows page.
+                                        </p>
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
+                        {/* Logs Stream */}
+                        <div>
+                            <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Provisioning Log Stream</div>
+                            <div style={{ flex: 1, overflowY: 'auto', background: '#0F172A', borderRadius: '12px', padding: '20px', maxHeight: '260px', display: 'flex', flexDirection: 'column', gap: '8px', fontFamily: 'monospace', fontSize: '0.8rem', color: '#E2E8F0' }}>
+                                {(!inspectingOrder.logs || inspectingOrder.logs.length === 0) ? (
+                                    <div style={{ color: '#64748B', fontStyle: 'italic', textAlign: 'center', padding: '40px 0' }}>No log entries recorded.</div>
+                                ) : (
+                                    [...inspectingOrder.logs].reverse().map((log: any, idx: number) => {
+                                        let levelColor = '#10B981';
+                                        if (log.level === 'error') levelColor = '#EF4444';
+                                        if (log.level === 'warning') levelColor = '#F59E0B';
+
+                                        return (
+                                            <div key={idx} style={{ display: 'flex', gap: '10px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '6px' }}>
+                                                <span style={{ color: '#64748B' }}>[{log.at ? new Date(log.at).toLocaleTimeString() : '—'}]</span>
+                                                <span style={{ color: levelColor, fontWeight: 'bold' }}>{log.level?.toUpperCase() || 'INFO'}</span>
+                                                <span style={{ color: '#FFFFFF' }}>{log.message}</span>
+                                            </div>
+                                        );
+                                    })
+                                )}
+                            </div>
                         </div>
 
                         {/* Add Log Entry Form */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             <label style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B' }}>Add Manual Log Entry</label>
                             <div style={{ display: 'flex', gap: '8px' }}>
-                                <input 
+                                <input
                                     type="text"
                                     placeholder="Enter operator note or update..."
                                     id="manualLogInput"
@@ -1671,7 +1818,7 @@ export default function AdminOrdersClient() {
                                     }}
                                     style={{ flex: 1, height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 12px', fontSize: '0.88rem', outline: 'none' }}
                                 />
-                                <button 
+                                <button
                                     onClick={async () => {
                                         const input = document.getElementById('manualLogInput') as HTMLInputElement;
                                         if (input && input.value.trim()) {

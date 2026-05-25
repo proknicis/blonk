@@ -58,6 +58,8 @@ export type OrderCard = {
     apps: { name: string; icon: string }[];
     orderType?: string;
     customDetails?: any;
+    amount?: number;
+    paymentStatus?: string;
 };
 
 type FeedItem = {
@@ -324,29 +326,57 @@ export default function OfficeClient({
                                         {order.orderType === 'Custom Request' ? (
                                             /* CUSTOM REQUEST VIEW */
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                                                <div style={{ 
-                                                    background: '#EFF6FF', 
-                                                    border: '1px solid #BFDBFE', 
-                                                    padding: '16px', 
-                                                    borderRadius: '16px',
-                                                    display: 'flex',
-                                                    flexDirection: 'column',
-                                                    gap: 12
-                                                }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                        <Clock size={16} color="#3B82F6" className="spin" style={{ animationDuration: '4s' }} />
-                                                        <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#1E40AF' }}>Under Review</span>
+                                                {/* Price Quoted Banner - shown when admin has set a price */}
+                                                {order.amount && order.amount > 0 ? (
+                                                    <div style={{
+                                                        background: 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)',
+                                                        border: '1.5px solid #10B981',
+                                                        padding: '16px',
+                                                        borderRadius: '16px',
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        gap: 12
+                                                    }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                                <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                                    <TrendingUp size={16} color="#fff" />
+                                                                </div>
+                                                                <div>
+                                                                    <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#065F46', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Price Quoted by Admin</div>
+                                                                    <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#047857', letterSpacing: '-0.02em' }}>€{Number(order.amount).toLocaleString()}</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <p style={{ fontSize: '0.78rem', fontWeight: 600, color: '#065F46', lineHeight: 1.4, margin: 0 }}>
+                                                            Our team has reviewed your request and provided a quote. Complete payment to start building your custom workflow.
+                                                        </p>
                                                     </div>
-                                                    <p style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1E3A8A', lineHeight: 1.4 }}>
-                                                        We have successfully received your custom workflow request. Our team is currently reviewing your requirements, and we will contact you shortly about the deployment details.
-                                                    </p>
-                                                </div>
+                                                ) : (
+                                                    <div style={{
+                                                        background: '#EFF6FF',
+                                                        border: '1px solid #BFDBFE',
+                                                        padding: '16px',
+                                                        borderRadius: '16px',
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        gap: 12
+                                                    }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                            <Clock size={16} color="#3B82F6" className="spin" style={{ animationDuration: '4s' }} />
+                                                            <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#1E40AF' }}>Under Review</span>
+                                                        </div>
+                                                        <p style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1E3A8A', lineHeight: 1.4, margin: 0 }}>
+                                                            We have successfully received your custom workflow request. Our team is currently reviewing your requirements, and we will contact you shortly about the deployment details.
+                                                        </p>
+                                                    </div>
+                                                )}
 
                                                 {order.customDetails && (
-                                                    <div style={{ 
-                                                        background: '#F8FAFC', 
-                                                        border: '1px solid #E2E8F0', 
-                                                        padding: '14px', 
+                                                    <div style={{
+                                                        background: '#F8FAFC',
+                                                        border: '1px solid #E2E8F0',
+                                                        padding: '14px',
                                                         borderRadius: '14px',
                                                         display: 'flex',
                                                         flexDirection: 'column',
@@ -377,13 +407,13 @@ export default function OfficeClient({
                                                                 <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase' }}>Integrations Requested</span>
                                                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 4 }}>
                                                                     {order.customDetails.tools.split(',').map((tool: string, idx: number) => (
-                                                                        <span key={idx} style={{ 
-                                                                            background: '#F1F5F9', 
-                                                                            color: '#475569', 
-                                                                            padding: '3px 8px', 
-                                                                            borderRadius: '6px', 
-                                                                            fontSize: '0.65rem', 
-                                                                            fontWeight: 750 
+                                                                        <span key={idx} style={{
+                                                                            background: '#F1F5F9',
+                                                                            color: '#475569',
+                                                                            padding: '3px 8px',
+                                                                            borderRadius: '6px',
+                                                                            fontSize: '0.65rem',
+                                                                            fontWeight: 750
                                                                         }}>{tool.trim()}</span>
                                                                     ))}
                                                                 </div>
@@ -499,13 +529,46 @@ export default function OfficeClient({
 
                                         {order.orderType === 'Custom Request' ? (
                                             <div className={styles.cardActions}>
-                                                <button 
-                                                    className={`${styles.actionBtn} ${styles.actionBtnPrimary}`}
-                                                    onClick={() => router.push('/dashboard/support')}
-                                                    style={{ gridColumn: 'span 3', width: '100%' }}
-                                                >
-                                                    <MessageSquare size={14} /> Contact Support
-                                                </button>
+                                                {order.amount && order.amount > 0 ? (
+                                                    /* Pay Now button shown when admin has set a price */
+                                                    <button
+                                                        className={`${styles.actionBtn} ${styles.actionBtnPrimary}`}
+                                                        onClick={async () => {
+                                                            const res = await fetch('/api/orders/pay-custom', {
+                                                                method: 'POST',
+                                                                headers: { 'Content-Type': 'application/json' },
+                                                                body: JSON.stringify({ orderId: order.id })
+                                                            });
+                                                            const data = await res.json();
+                                                            if (data.checkoutUrl) {
+                                                                window.location.href = data.checkoutUrl;
+                                                            } else if (data.success) {
+                                                                router.refresh();
+                                                            }
+                                                        }}
+                                                        style={{
+                                                            gridColumn: 'span 3',
+                                                            width: '100%',
+                                                            background: 'linear-gradient(135deg, #059669, #10B981)',
+                                                            color: '#fff',
+                                                            fontWeight: 900,
+                                                            fontSize: '0.88rem',
+                                                            border: 'none',
+                                                            gap: 8,
+                                                            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.35)'
+                                                        }}
+                                                    >
+                                                        <Shield size={14} /> Pay Now — €{Number(order.amount).toLocaleString()}
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        className={`${styles.actionBtn} ${styles.actionBtnPrimary}`}
+                                                        onClick={() => router.push('/dashboard/support')}
+                                                        style={{ gridColumn: 'span 3', width: '100%' }}
+                                                    >
+                                                        <MessageSquare size={14} /> Contact Support
+                                                    </button>
+                                                )}
                                             </div>
                                         ) : (
                                             <div className={styles.cardActions}>

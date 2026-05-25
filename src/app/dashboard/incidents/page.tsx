@@ -57,6 +57,8 @@ export default async function OfficePage() {
             createdAt: o.createdAt,
             orderType: o.orderType,
             customDetails: typeof o.customDetails === 'string' ? JSON.parse(o.customDetails || "{}") : o.customDetails || null,
+            amount: o.amount ? Number(o.amount) : 0,
+            paymentStatus: o.paymentStatus || null,
             // Real stats if available (orders usually don't have them yet)
             runsToday: 0,
             successRate: "0%",
