@@ -427,9 +427,20 @@ export async function onCredentialsReceived(teamId: string) {
 export async function getTeamOrders(teamId: string) {
     await ensureOrderSchema();
     return db.query(
-        `SELECT o.*, u.name as "userName", u.email as "userEmail", cn.name as "serverName", cn.status as "serverStatus"
+        `SELECT o.*, 
+                COALESCE(u.name, tu.name) as "userName", 
+                COALESCE(u.email, tu.email) as "userEmail", 
+                cn.name as "serverName", 
+                cn.status as "serverStatus"
          FROM "WorkflowOrder" o
-         LEFT JOIN "User" u ON u.id = o."userId"
+         LEFT JOIN "User" u ON u.id = o."userId" AND u.id != '00000000-0000-0000-0000-000000000000'
+         LEFT JOIN LATERAL (
+             SELECT name, email 
+             FROM "User" 
+             WHERE "teamId" = o."teamId" 
+             ORDER BY role = 'Owner' DESC, id ASC 
+             LIMIT 1
+         ) tu ON TRUE
          LEFT JOIN "ClusterNode" cn ON cn.id = o."serverId"
          WHERE o."teamId" = $1
          ORDER BY o."createdAt" DESC`,
@@ -440,11 +451,22 @@ export async function getTeamOrders(teamId: string) {
 export async function getAllOrdersForAdmin() {
     await ensureOrderSchema();
     return db.query(
-        `SELECT o.*, u.name as "userName", u.email as "userEmail", t.name as "teamName",
-                cn.name as "serverName", cn.status as "serverStatus"
+        `SELECT o.*, 
+                COALESCE(u.name, tu.name) as "userName", 
+                COALESCE(u.email, tu.email) as "userEmail", 
+                t.name as "teamName",
+                cn.name as "serverName", 
+                cn.status as "serverStatus"
          FROM "WorkflowOrder" o
-         LEFT JOIN "User" u ON u.id = o."userId"
+         LEFT JOIN "User" u ON u.id = o."userId" AND u.id != '00000000-0000-0000-0000-000000000000'
          LEFT JOIN "Team" t ON t.id = o."teamId"
+         LEFT JOIN LATERAL (
+             SELECT name, email 
+             FROM "User" 
+             WHERE "teamId" = o."teamId" 
+             ORDER BY role = 'Owner' DESC, id ASC 
+             LIMIT 1
+         ) tu ON TRUE
          LEFT JOIN "ClusterNode" cn ON cn.id = o."serverId"
          ORDER BY o."createdAt" DESC`
     ) as Promise<any[]>;

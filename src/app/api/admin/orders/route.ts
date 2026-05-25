@@ -122,3 +122,38 @@ export async function PATCH(request: Request) {
     }
 }
 
+export async function DELETE(request: Request) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+        
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get('id');
+        
+        if (!id) {
+            return NextResponse.json({ error: 'Missing order ID' }, { status: 400 });
+        }
+
+        // Fetch order to find associated workflow
+        const [order] = await db.query('SELECT "workflowId" FROM "WorkflowOrder" WHERE id = $1', [id]) as any[];
+        
+        // Delete related order events
+        await db.execute('DELETE FROM "OrderEvent" WHERE "orderId" = $1', [id]);
+        
+        // Delete the order itself
+        await db.execute('DELETE FROM "WorkflowOrder" WHERE id = $1', [id]);
+
+        // Delete associated workflow if present
+        if (order?.workflowId) {
+            await db.execute('DELETE FROM "Workflow" WHERE id = $1', [order.workflowId]);
+        }
+        
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting order:', error);
+        return NextResponse.json({ error: 'Failed to delete order' }, { status: 500 });
+    }
+}
+

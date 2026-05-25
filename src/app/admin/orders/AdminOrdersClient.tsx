@@ -30,7 +30,8 @@ import {
     ArrowUpDown,
     CheckCircle,
     AlertTriangle,
-    Info
+    Info,
+    Trash2
 } from "lucide-react";
 import adminStyles from "../admin.module.css";
 
@@ -307,6 +308,29 @@ export default function AdminOrdersClient() {
                 await fetchOrders();
             } else {
                 showToast("Failed to update status", "error");
+            }
+        } catch (e) {
+            console.error(e);
+            showToast("Network error occurred", "error");
+        } finally {
+            setUpdatingId(null);
+        }
+    };
+
+    const handleDeleteOrder = async (id: string, orderNumber: string | number) => {
+        if (!window.confirm(`Are you sure you want to delete order ORD-${orderNumber}? This will also delete associated events and workflow deployments.`)) {
+            return;
+        }
+        setUpdatingId(id);
+        try {
+            const res = await fetch(`/api/admin/orders?id=${id}`, {
+                method: 'DELETE'
+            });
+            if (res.ok) {
+                showToast("Order deleted successfully", "success");
+                await fetchOrders();
+            } else {
+                showToast("Failed to delete order", "error");
             }
         } catch (e) {
             console.error(e);
