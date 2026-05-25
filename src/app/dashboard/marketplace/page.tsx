@@ -156,6 +156,8 @@ export default function WorkflowsPage() {
                 body: JSON.stringify({
                     subject: `Custom Workflow Request: ${customForm.name}`,
                     message: `**Workflow:** ${customForm.name}\n**Category:** ${customForm.category}\n\n**What to automate:**\n${customForm.description}\n\n**Tools / Apps:** ${customForm.tools || 'Not specified'}\n**Urgency:** ${customForm.urgency}\n**Timeline:** ${customForm.timeline || 'Flexible'}`,
+                    isCustomWorkflowRequest: true,
+                    customForm
                 })
             });
             if (res.ok) { setWizardStep(4); }

@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 import { logAudit } from '@/lib/audit';
+import { runOrderProvisioning } from '@/lib/order-pipeline';
 
 /**
  * Support Ticket System API
@@ -84,6 +85,92 @@ export async function POST(req: Request) {
                  VALUES ($1, $2, $3, 'user', $4, $5)`,
                 [msgId, newTicketId, user.id, user.name || user.email, message]
             );
+        }
+
+        // If it is a custom workflow request, create the order in addition to the ticket
+        if (body.isCustomWorkflowRequest && body.customForm) {
+            const { customForm } = body;
+            let teamId = user.teamId;
+            if (!teamId) {
+                const teamRows = await db.query('SELECT id FROM "Team" WHERE "ownerId" = $1 LIMIT 1', [user.id]) as any[];
+                if (teamRows.length > 0) {
+                    teamId = teamRows[0].id;
+                } else {
+                    const anyTeamRow = await db.query('SELECT "teamId" FROM "User" WHERE id = $1 LIMIT 1', [user.id]) as any[];
+                    if (anyTeamRow.length > 0 && anyTeamRow[0].teamId) {
+                        teamId = anyTeamRow[0].teamId;
+                    }
+                }
+            }
+
+            if (teamId) {
+                const userId = user.id;
+                const orderId = uuidv4();
+                const workflowId = uuidv4();
+                const priority = (customForm.urgency || 'normal').toUpperCase();
+
+                // Insert into WorkflowOrder
+                await db.execute(
+                    `INSERT INTO "WorkflowOrder" (id, "teamId", "userId", "templateId", "workflowName", status, amount, "stripeSessionId", "workflowId", "orderType", "orderSubType", plan, priority, "assignedTo")
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+                    [
+                        orderId,
+                        teamId,
+                        userId,
+                        null,
+                        customForm.name,
+                        'PAYMENT_RECEIVED',
+                        0,
+                        'custom_request_' + Date.now(),
+                        workflowId,
+                        'Custom Request',
+                        'Custom Build',
+                        'Custom',
+                        priority,
+                        'System Auto'
+                    ]
+                );
+
+                // Insert into Workflow
+                await db.execute(
+                    `INSERT INTO "Workflow" (id, "teamId", "userId", name, sector, status, performance, "tasksCount", inputs, "requestedBy", progress)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+                    [
+                        workflowId,
+                        teamId,
+                        userId,
+                        customForm.name,
+                        customForm.category || 'General',
+                        'PAYMENT_RECEIVED',
+                        "0",
+                        0,
+                        "{}",
+                        userId,
+                        10,
+                    ]
+                );
+
+                // Insert initial log
+                const initialLog = [{ message: "Custom workflow request submitted.", level: "info", at: new Date().toISOString() }];
+                await db.execute(
+                    `UPDATE "WorkflowOrder" SET logs = $1 WHERE id = $2`,
+                    [JSON.stringify(initialLog), orderId]
+                );
+
+                await db.execute(
+                    `INSERT INTO "OrderEvent" (id, "orderId", message, level) VALUES ($1, $2, $3, $4)`,
+                    [uuidv4(), orderId, "Custom workflow request submitted.", "info"]
+                );
+
+                // Insert Notification
+                await db.execute(
+                    'INSERT INTO "Notification" (id, "teamId", title, message) VALUES ($1, $2, $3, $4)',
+                    [uuidv4(), teamId, "Custom request received", `Your request for "${customForm.name}" has been received and queued.`]
+                );
+
+                // Trigger provisioning asynchronously
+                runOrderProvisioning(orderId).catch(console.error);
+            }
         }
 
         await logAudit(user.id, 'ticket_created', `Support Ticket: ${subject || 'Support Request'}`, { ticketId: newTicketId });
