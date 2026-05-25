@@ -49,13 +49,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         };
     }, []);
 
-    const [user, setUser] = useState({
-        name: "Admin Operator",
-        role: "Operator",
-        email: "admin@blonk.ai",
-    });
+    const [user, setUser] = useState<{ name: string; role: string; email: string } | null>(null);
 
-    const isSuperAdmin = user.role.toUpperCase() === "SUPERADMIN" || user.role.toUpperCase() === "SUPER ADMIN" || user.role.toUpperCase() === "ROOT";
+    const isSuperAdmin = user
+        ? user.role.toUpperCase() === "SUPERADMIN" || user.role.toUpperCase() === "SUPER ADMIN" || user.role.toUpperCase() === "ROOT"
+        : false;
 
     // Validate admin_token on every admin route (except /admin/login itself)
     useEffect(() => {
@@ -75,12 +73,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 }
                 const data = await res.json();
                 if (data.user) {
-                    const role = data.user.role || "SuperAdmin";
                     setUser({
-                        name: data.user.name || "Admin Operator",
-                        role: role,
-                        email: data.user.email || "admin@blonk.ai",
+                        name: data.user.name || data.user.email?.split('@')[0] || "Admin",
+                        role: data.user.role || "SuperAdmin",
+                        email: data.user.email || "",
                     });
+                } else {
+                    router.replace("/admin/login");
+                    return;
                 }
                 setIsAuthChecked(true);
             } catch {
@@ -346,19 +346,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                     style={{ display: "flex", alignItems: "center", gap: "14px", background: "var(--muted)", padding: "6px 6px 6px 16px", borderRadius: "16px", border: "1px solid var(--border)", cursor: "pointer" }}
                                 >
                                     <div style={{ textAlign: "right" }}>
-                                        <div style={{ fontSize: "0.85rem", fontWeight: 950, color: "var(--foreground)" }}>{user.name}</div>
-                                        <div style={{ fontSize: "0.65rem", fontWeight: 800, color: "var(--muted-foreground)", textTransform: "uppercase" }}>{user.role}</div>
+                                        <div style={{ fontSize: "0.85rem", fontWeight: 950, color: "var(--foreground)" }}>{user?.name ?? "—"}</div>
+                                        <div style={{ fontSize: "0.65rem", fontWeight: 800, color: "var(--muted-foreground)", textTransform: "uppercase" }}>{user?.role ?? "—"}</div>
                                     </div>
                                     <div style={{ width: "36px", height: "36px", background: "var(--foreground)", color: "var(--background)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 950 }}>
-                                        {user.name.charAt(0)}
+                                        {user?.name?.charAt(0) ?? "?"}
                                     </div>
                                 </button>
 
                                 {showUserMenu && (
                                     <div style={{ position: "absolute", top: "calc(100% + 12px)", right: 0, width: "280px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: "24px", boxShadow: "var(--shadow-premium)", padding: "12px", zIndex: 1000 }}>
                                         <div style={{ padding: "16px", borderBottom: "1px solid var(--border)", marginBottom: "8px" }}>
-                                            <div style={{ fontWeight: 950, color: "var(--foreground)" }}>{user.name}</div>
-                                            <div style={{ fontSize: "0.8rem", color: "var(--muted-foreground)" }}>{user.email}</div>
+                                            <div style={{ fontWeight: 950, color: "var(--foreground)" }}>{user?.name ?? "—"}</div>
+                                            <div style={{ fontSize: "0.8rem", color: "var(--muted-foreground)" }}>{user?.email ?? "—"}</div>
                                         </div>
                                         <button
                                             type="button"
