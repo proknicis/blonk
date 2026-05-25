@@ -115,6 +115,9 @@ export async function DELETE(request: Request) {
 
         if (!id) return NextResponse.json({ error: 'Missing ID' }, { status: 400 });
 
+        // Unlink from orders to prevent foreign key constraint violations
+        await db.execute('UPDATE "WorkflowOrder" SET "workflowId" = NULL WHERE "workflowId" = $1', [id]);
+
         await db.execute('DELETE FROM "Workflow" WHERE id = $1', [id]);
 
         return NextResponse.json({ success: true });

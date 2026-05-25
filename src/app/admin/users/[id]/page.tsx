@@ -62,8 +62,30 @@ export default function UserDetailPage() {
     const monthlyPrice = hasActiveSubscription ? "€49.00 / month" : "Free";
     const invoices = hasActiveSubscription ? [{ id: 'INV-2026-04', date: '05/05/2026', amount: '€49.00', status: 'PAID' }] : [];
     
-    const workflowsUsed = user.workflowsUsed || 0;
-    const assignedWorkflows = workflowsUsed > 0 ? [{ name: 'Invoice processing', role: 'Admin', status: 'ACTIVE', lastRun: '12m ago (100% success)' }] : [];
+    const userWorkflows = Array.isArray(user.workflowsUsed) ? user.workflowsUsed : [];
+    const workflowsUsedCount = userWorkflows.length;
+    const activeWorkflowsCount = userWorkflows.filter((w: any) => w.status === 'Ready' || w.status === 'Active' || w.status === 'Live').length;
+
+    const handleDeleteWorkflow = async (workflowId: string) => {
+        if (!confirm("Are you sure you want to delete this workflow? This action is permanent and cannot be undone.")) return;
+        try {
+            const res = await fetch(`/api/admin/workflows?id=${workflowId}`, {
+                method: 'DELETE'
+            });
+            if (res.ok) {
+                // Refresh User Data
+                const userRes = await fetch('/api/admin/users');
+                const userData = await userRes.json();
+                const foundUser = userData.find((u: any) => u.id === userId);
+                setUser(foundUser);
+            } else {
+                alert("Failed to delete workflow");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Network error occurred while trying to delete workflow");
+        }
+    };
 
     const getUserStatus = (u: any) => {
         if (u.status === 'Suspended' || u.status === 'Blocked') return 'Suspended';
@@ -160,10 +182,10 @@ export default function UserDetailPage() {
 
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
                                 {[
-                                    { label: "ASSIGNED WORKFLOWS", value: workflowsUsed.toString(), icon: <Activity size={16} /> },
-                                    { label: "ACTIVE WORKFLOWS", value: assignedWorkflows.length.toString(), icon: <Zap size={16} /> },
-                                    { label: "LAST WORKFLOW ACTION", value: assignedWorkflows.length > 0 ? "12m ago" : "Never", icon: <Clock size={16} /> },
-                                    { label: "ASSIGNED N8N INSTANCE", value: workflowsUsed > 0 ? "n8n Instance A" : "None", icon: <Building2 size={16} /> }
+                                    { label: "ASSIGNED WORKFLOWS", value: workflowsUsedCount.toString(), icon: <Activity size={16} /> },
+                                    { label: "ACTIVE WORKFLOWS", value: activeWorkflowsCount.toString(), icon: <Zap size={16} /> },
+                                    { label: "LAST WORKFLOW ACTION", value: userWorkflows.some((w: any) => w.lastRun) ? "Recently" : "Never", icon: <Clock size={16} /> },
+                                    { label: "ASSIGNED N8N INSTANCE", value: workflowsUsedCount > 0 ? "n8n Instance A" : "None", icon: <Building2 size={16} /> }
                                 ].map((item, i) => (
                                     <div key={i} style={{ background: i === 0 ? '#F0FDF4' : '#FAFAFA', padding: '24px', borderRadius: '24px', border: i === 0 ? '1px solid #BBF7D0' : 'none' }}>
                                         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', color: i === 0 ? '#166534' : '#6B7280', marginBottom: '16px' }}>
@@ -177,29 +199,35 @@ export default function UserDetailPage() {
 
                             <div>
                                 <h3 style={{ fontSize: '1.1rem', fontWeight: 950, marginBottom: '24px', textTransform: 'uppercase' }}>ASSIGNED WORKFLOWS</h3>
-                                {assignedWorkflows.length > 0 ? (
+                                {userWorkflows.length > 0 ? (
                                     <div style={{ background: '#FFFFFF', borderRadius: '24px', border: '1px solid #F3F4F6', overflow: 'hidden' }}>
                                         <table className={adminStyles.registryTable} style={{ margin: 0 }}>
                                             <thead>
                                                 <tr>
                                                     <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>WORKFLOW</th>
-                                                    <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>PERMISSION</th>
+                                                    <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>TASKS COUNT</th>
                                                     <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>STATUS</th>
                                                     <th className={adminStyles.registryTH} style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.05em' }}>LAST RUN</th>
-                                                    <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}></th>
+                                                    <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>ACTIONS</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {assignedWorkflows.map((flow, i) => (
-                                                    <tr key={i} className={adminStyles.registryRow} style={{ height: '72px' }}>
-                                                        <td style={{ fontWeight: 950, color: '#0F172A' }}>{flow.name}</td>
-                                                        <td style={{ fontSize: '0.85rem', color: '#6B7280' }}>{flow.role}</td>
-                                                        <td><span style={{ padding: '6px 12px', background: '#F0FDF4', color: '#16A34A', borderRadius: '100px', fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase' }}>{flow.status}</span></td>
-                                                        <td style={{ fontSize: '0.85rem', color: '#6B7280' }}>{flow.lastRun}</td>
+                                                {userWorkflows.map((flow: any, i: number) => (
+                                                    <tr key={flow.id || i} className={adminStyles.registryRow} style={{ height: '72px' }}>
+                                                        <td style={{ fontWeight: 950, color: '#0F172A' }}>{flow.name || 'Unnamed Workflow'}</td>
+                                                        <td style={{ fontSize: '0.85rem', color: '#6B7280' }}>{flow.tasksCount ?? 0} tasks</td>
+                                                        <td><span style={{ padding: '6px 12px', background: flow.status === 'Ready' || flow.status === 'Active' || flow.status === 'Live' ? '#F0FDF4' : '#FFF7ED', color: flow.status === 'Ready' || flow.status === 'Active' || flow.status === 'Live' ? '#16A34A' : '#EA580C', borderRadius: '100px', fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase' }}>{flow.status?.replace(/_/g, ' ') || 'UNKNOWN'}</span></td>
+                                                        <td style={{ fontSize: '0.85rem', color: '#6B7280' }}>{flow.lastRun ? new Date(flow.lastRun).toLocaleString() : 'Never'}</td>
                                                         <td style={{ textAlign: 'right' }}>
-                                                            <button style={{ width: '40px', height: '40px', borderRadius: '12px', border: '1px solid #F3F4F6', background: '#FAFAFA', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280', cursor: 'pointer' }}>
-                                                                <Search size={16} />
-                                                            </button>
+                                                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                                <button 
+                                                                    onClick={() => handleDeleteWorkflow(flow.id)}
+                                                                    style={{ width: '40px', height: '40px', borderRadius: '12px', border: '1px solid #FEE2E2', background: '#FEF2F2', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#EF4444', cursor: 'pointer' }}
+                                                                    title="Delete Workflow Instance"
+                                                                >
+                                                                    <Trash2 size={16} />
+                                                                </button>
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 ))}
@@ -301,7 +329,7 @@ export default function UserDetailPage() {
                                 {[
                                     { label: "TOTAL USER EVENTS", value: auditLogs.length.toString(), icon: <Activity size={16} /> },
                                     { label: "LAST LOGIN", value: user.lastActive ? new Date(user.lastActive).toLocaleDateString() : 'Today', icon: <Key size={16} /> },
-                                    { label: "LAST WORKFLOW ACTION", value: workflowsUsed > 0 ? "12m ago" : "Never", icon: <Zap size={16} /> },
+                                    { label: "LAST WORKFLOW ACTION", value: workflowsUsedCount > 0 ? "12m ago" : "Never", icon: <Zap size={16} /> },
                                     { label: "FAILED LOGIN ATTEMPTS", value: failedLoginCount.toString(), icon: <ShieldAlert size={16} color="#EF4444" /> }
                                 ].map((item, i) => (
                                     <div key={i} style={{ background: '#FAFAFA', padding: '24px', borderRadius: '24px', border: 'none' }}>

@@ -45,6 +45,33 @@ export function NodeActions({ nodeId, nodeUrl, nodeName, nodeIndex }: NodeAction
         }
     };
 
+    const handleDeleteWorkflow = async (workflowId: string, name: string) => {
+        if (!confirm(`Are you sure you want to delete the workflow "${name}"? This action is permanent and cannot be undone.`)) return;
+        try {
+            const res = await fetch(`/api/admin/workflows?id=${workflowId}`, {
+                method: 'DELETE'
+            });
+            if (res.ok) {
+                // Re-fetch diagnostics to update UI
+                const diagRes = await fetch(`/api/admin/nodes/${nodeId}/diagnostics`);
+                const json = await diagRes.json();
+                setDiagnostics(json);
+                if (typeof window !== 'undefined' && (window as any).showToast) {
+                    (window as any).showToast(`Workflow "${name}" deleted successfully`, "success");
+                }
+            } else {
+                if (typeof window !== 'undefined' && (window as any).showToast) {
+                    (window as any).showToast(`Failed to delete workflow "${name}"`, "error");
+                }
+            }
+        } catch (e) {
+            console.error(e);
+            if (typeof window !== 'undefined' && (window as any).showToast) {
+                (window as any).showToast("Network error trying to delete workflow", "error");
+            }
+        }
+    };
+
     const handleRestart = async () => {
         if (!confirm(`Are you sure you want to restart the n8n service on ${nodeName}?`)) return;
         setLoading(true);
@@ -209,6 +236,13 @@ export function NodeActions({ nodeId, nodeUrl, nodeName, nodeIndex }: NodeAction
                                                         <span style={{ fontSize: '0.7rem', fontWeight: 950, padding: '6px 14px', borderRadius: '100px', background: wf.active ? '#F0FDF4' : '#F9FAFB', color: wf.active ? '#10B981' : '#6B7280', border: `1px solid ${wf.active ? '#BBF7D0' : '#F3F4F6'}` }}>
                                                             {wf.active ? 'ACTIVE' : 'IDLE'}
                                                         </span>
+                                                        <button 
+                                                            onClick={() => handleDeleteWorkflow(wf.id, wf.name)}
+                                                            style={{ background: '#FEF2F2', border: '1px solid #FEE2E2', borderRadius: '10px', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#EF4444' }}
+                                                            title="Delete Workflow Instance"
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
                                                     </div>
                                                 </div>
                                             ))}

@@ -13,7 +13,8 @@ export async function GET() {
         const orders = await getAllOrdersForAdmin();
         const users = await db.query('SELECT id, name, email FROM "User" ORDER BY name ASC') as any[];
         const teams = await db.query('SELECT id, name FROM "Team" ORDER BY name ASC') as any[];
-        return NextResponse.json({ orders, users, teams });
+        const templates = await db.query('SELECT id, name, sector, "productInfo" FROM "WorkflowTemplate" ORDER BY name ASC') as any[];
+        return NextResponse.json({ orders, users, teams, templates });
     } catch (error) {
         console.error('Error fetching admin orders:', error);
         return NextResponse.json({ error: 'Failed' }, { status: 500 });
@@ -39,7 +40,8 @@ export async function POST(request: Request) {
             priority, 
             assignedTo, 
             serverId, 
-            n8nWorkflowId 
+            n8nWorkflowId,
+            templateId
         } = body;
 
         let finalUserId = userId;
@@ -54,8 +56,8 @@ export async function POST(request: Request) {
 
         const res = await db.query(`
             INSERT INTO "WorkflowOrder" 
-            ("userId", "teamId", "workflowName", "amount", "status", "orderType", "orderSubType", "plan", "priority", "assignedTo", "serverId", "n8nWorkflowId", "logs")
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+            ("userId", "teamId", "workflowName", "amount", "status", "orderType", "orderSubType", "plan", "priority", "assignedTo", "serverId", "n8nWorkflowId", "templateId", "logs")
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
             RETURNING id
         `, [
             finalUserId, 
@@ -70,6 +72,7 @@ export async function POST(request: Request) {
             assignedTo || 'System Auto',
             serverId || null,
             n8nWorkflowId || null,
+            templateId || null,
             JSON.stringify([{ message: 'Order manually created by administrator', level: 'info', at: new Date().toISOString() }])
         ]) as any[];
 
@@ -99,7 +102,8 @@ export async function PATCH(request: Request) {
             orderSubType,
             plan,
             priority,
-            assignedTo
+            assignedTo,
+            templateId
         } = body;
 
         await updateOrderDetails(id, {
@@ -113,7 +117,8 @@ export async function PATCH(request: Request) {
             orderSubType,
             plan,
             priority,
-            assignedTo
+            assignedTo,
+            templateId
         });
         return NextResponse.json({ success: true });
     } catch (error) {

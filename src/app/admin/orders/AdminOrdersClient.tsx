@@ -77,6 +77,8 @@ export default function AdminOrdersClient() {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [rowsPerPage, setRowsPerPage] = useState<number>(10);
 
+    const [templates, setTemplates] = useState<any[]>([]);
+
     // Modals states
     const [inspectingOrder, setInspectingOrder] = useState<any | null>(null);
     const [editingDetailsOrder, setEditingDetailsOrder] = useState<any | null>(null);
@@ -90,6 +92,7 @@ export default function AdminOrdersClient() {
         plan: string;
         priority: string;
         assignedTo: string;
+        templateId: string | null;
     }>({
         workflowName: "",
         serverId: null,
@@ -99,7 +102,8 @@ export default function AdminOrdersClient() {
         orderSubType: "Workflow Purchase",
         plan: "Startup",
         priority: "MEDIUM",
-        assignedTo: "System Auto"
+        assignedTo: "System Auto",
+        templateId: null
     });
     const [isSavingDetails, setIsSavingDetails] = useState(false);
 
@@ -118,6 +122,7 @@ export default function AdminOrdersClient() {
         assignedTo: string;
         serverId: string | null;
         n8nWorkflowId: string | null;
+        templateId: string | null;
     }>({
         workflowName: "",
         userId: "",
@@ -130,7 +135,8 @@ export default function AdminOrdersClient() {
         priority: "MEDIUM",
         assignedTo: "System Auto",
         serverId: null,
-        n8nWorkflowId: null
+        n8nWorkflowId: null,
+        templateId: null
     });
     const [isCreatingOrder, setIsCreatingOrder] = useState(false);
 
@@ -168,6 +174,7 @@ export default function AdminOrdersClient() {
             setOrders(data.orders ?? []);
             setUsers(data.users ?? []);
             setTeams(data.teams ?? []);
+            setTemplates(data.templates ?? []);
         } catch (e: any) {
             setError(e.message || 'Network error');
         } finally {
@@ -191,7 +198,8 @@ export default function AdminOrdersClient() {
                 orderSubType: editingDetailsOrder.orderSubType || "Workflow Purchase",
                 plan: editingDetailsOrder.plan || "Startup",
                 priority: editingDetailsOrder.priority || "MEDIUM",
-                assignedTo: editingDetailsOrder.assignedTo || "System Auto"
+                assignedTo: editingDetailsOrder.assignedTo || "System Auto",
+                templateId: editingDetailsOrder.templateId || null
             });
         }
     }, [editingDetailsOrder]);
@@ -239,7 +247,8 @@ export default function AdminOrdersClient() {
                     orderSubType: editDetailsData.orderSubType,
                     plan: editDetailsData.plan,
                     priority: editDetailsData.priority,
-                    assignedTo: editDetailsData.assignedTo
+                    assignedTo: editDetailsData.assignedTo,
+                    templateId: editDetailsData.templateId
                 }),
             });
             if (res.ok) {
@@ -281,7 +290,8 @@ export default function AdminOrdersClient() {
                     priority: "MEDIUM",
                     assignedTo: "System Auto",
                     serverId: null,
-                    n8nWorkflowId: null
+                    n8nWorkflowId: null,
+                    templateId: null
                 });
                 await fetchOrders();
             } else {
@@ -959,8 +969,8 @@ export default function AdminOrdersClient() {
                                                         {customerInitials}
                                                     </div>
                                                     <div>
-                                                        <div style={{ fontWeight: 600, color: '#0F172A', fontSize: '0.88rem' }}>{order.userName || 'Acme Corp'}</div>
-                                                        <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '1px' }}>{order.userEmail || 'email@domain.com'}</div>
+                                                        <div style={{ fontWeight: 600, color: '#0F172A', fontSize: '0.88rem' }}>{order.userName || 'Unknown User'}</div>
+                                                        <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '1px' }}>{order.userEmail || 'no-email@blonk.ai'}</div>
                                                     </div>
                                                 </div>
                                             </td>
@@ -990,7 +1000,7 @@ export default function AdminOrdersClient() {
                                             {/* Item / Workflow */}
                                             <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
                                                 <div style={{ fontWeight: 600, color: '#0F172A', fontSize: '0.88rem' }}>{order.workflowName}</div>
-                                                <div style={{ fontSize: '0.72rem', color: '#94A3B8', marginTop: '1px' }}>v1.9.0</div>
+                                                <div style={{ fontSize: '0.72rem', color: '#94A3B8', marginTop: '1px' }}>v{order.templateVersion || '1.0.0'}</div>
                                             </td>
 
                                             {/* Plan */}
@@ -1375,6 +1385,35 @@ export default function AdminOrdersClient() {
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                             <div style={{ gridColumn: 'span 2' }}>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Link Marketplace Template</label>
+                                <select
+                                    value={createData.templateId || ""}
+                                    onChange={(e) => {
+                                        const selectedTplId = e.target.value;
+                                        if (selectedTplId) {
+                                            const tpl = templates.find(t => t.id === selectedTplId);
+                                            setCreateData({
+                                                ...createData,
+                                                templateId: selectedTplId,
+                                                workflowName: tpl ? tpl.name : createData.workflowName
+                                            });
+                                        } else {
+                                            setCreateData({
+                                                ...createData,
+                                                templateId: null
+                                            });
+                                        }
+                                    }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none', background: '#FFFFFF' }}
+                                >
+                                    <option value="">None / Custom Workflow</option>
+                                    {templates.map(t => (
+                                        <option key={t.id} value={t.id}>{t.name} (v{t.productInfo?.version || '1.0.0'})</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div style={{ gridColumn: 'span 2' }}>
                                 <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Workflow / Item Name</label>
                                 <input
                                     type="text"
@@ -1652,6 +1691,35 @@ export default function AdminOrdersClient() {
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>Link Marketplace Template</label>
+                                <select
+                                    value={editDetailsData.templateId || ""}
+                                    onChange={(e) => {
+                                        const selectedTplId = e.target.value;
+                                        if (selectedTplId) {
+                                            const tpl = templates.find(t => t.id === selectedTplId);
+                                            setEditDetailsData({
+                                                ...editDetailsData,
+                                                templateId: selectedTplId,
+                                                workflowName: tpl ? tpl.name : editDetailsData.workflowName
+                                            });
+                                        } else {
+                                            setEditDetailsData({
+                                                ...editDetailsData,
+                                                templateId: null
+                                            });
+                                        }
+                                    }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.88rem', outline: 'none', background: '#FFFFFF' }}
+                                >
+                                    <option value="">None / Custom Workflow</option>
+                                    {templates.map(t => (
+                                        <option key={t.id} value={t.id}>{t.name} (v{t.productInfo?.version || '1.0.0'})</option>
+                                    ))}
+                                </select>
+                            </div>
+
                             <div>
                                 <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>Workflow Name</label>
                                 <input 

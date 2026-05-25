@@ -47,19 +47,34 @@ export async function GET(request: Request) {
 
         const rows = await db.query(`
             SELECT 
-                id, 
-                name, 
-                email, 
-                "firmName", 
-                plan as role,
-                tier,
-                "totalSpend",
-                "lastActive",
-                status,
-                "workflowsUsed",
-                "updatedAt" as "createdAt" 
-            FROM "User" 
-            ORDER BY "updatedAt" DESC
+                u.id, 
+                u.name, 
+                u.email, 
+                u."firmName", 
+                u.plan as role,
+                u.tier,
+                u."totalSpend",
+                u."lastActive",
+                u.status,
+                u."teamId",
+                COALESCE(
+                    (
+                        SELECT json_agg(json_build_object(
+                            'id', w.id,
+                            'name', w.name,
+                            'status', w.status,
+                            'progress', w.progress,
+                            'tasksCount', w.tasksCount,
+                            'lastRun', w.lastRun
+                        ))
+                        FROM "Workflow" w
+                        WHERE w."teamId" = u."teamId"
+                    ),
+                    '[]'::json
+                ) as "workflowsUsed",
+                u."updatedAt" as "createdAt" 
+            FROM "User" u
+            ORDER BY u."updatedAt" DESC
         `);
         return NextResponse.json(rows);
     } catch (error) {

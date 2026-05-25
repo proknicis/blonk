@@ -428,20 +428,25 @@ export async function getTeamOrders(teamId: string) {
     await ensureOrderSchema();
     return db.query(
         `SELECT o.*, 
-                COALESCE(u.name, tu.name) as "userName", 
-                COALESCE(u.email, tu.email) as "userEmail", 
+                COALESCE(u.name, tu.name, t_owner.name, (SELECT name FROM "User" ORDER BY role = 'SuperAdmin' ASC, id ASC LIMIT 1)) as "userName", 
+                COALESCE(u.email, tu.email, t_owner.email, (SELECT email FROM "User" ORDER BY role = 'SuperAdmin' ASC, id ASC LIMIT 1)) as "userEmail", 
                 cn.name as "serverName", 
-                cn.status as "serverStatus"
+                cn.status as "serverStatus",
+                wt.name as "templateName",
+                wt."productInfo"->>'version' as "templateVersion"
          FROM "WorkflowOrder" o
          LEFT JOIN "User" u ON u.id = o."userId" AND u.id != '00000000-0000-0000-0000-000000000000'
+         LEFT JOIN "Team" t ON t.id = o."teamId"
+         LEFT JOIN "User" t_owner ON t_owner.id = t."ownerId"
          LEFT JOIN LATERAL (
              SELECT name, email 
              FROM "User" 
              WHERE "teamId" = o."teamId" 
-             ORDER BY role = 'Owner' DESC, id ASC 
+             ORDER BY LOWER(role) = 'owner' DESC, id ASC 
              LIMIT 1
          ) tu ON TRUE
          LEFT JOIN "ClusterNode" cn ON cn.id = o."serverId"
+         LEFT JOIN "WorkflowTemplate" wt ON wt.id = o."templateId"
          WHERE o."teamId" = $1
          ORDER BY o."createdAt" DESC`,
         [teamId]
@@ -452,22 +457,26 @@ export async function getAllOrdersForAdmin() {
     await ensureOrderSchema();
     return db.query(
         `SELECT o.*, 
-                COALESCE(u.name, tu.name) as "userName", 
-                COALESCE(u.email, tu.email) as "userEmail", 
+                COALESCE(u.name, tu.name, t_owner.name, (SELECT name FROM "User" ORDER BY role = 'SuperAdmin' ASC, id ASC LIMIT 1)) as "userName", 
+                COALESCE(u.email, tu.email, t_owner.email, (SELECT email FROM "User" ORDER BY role = 'SuperAdmin' ASC, id ASC LIMIT 1)) as "userEmail", 
                 t.name as "teamName",
                 cn.name as "serverName", 
-                cn.status as "serverStatus"
+                cn.status as "serverStatus",
+                wt.name as "templateName",
+                wt."productInfo"->>'version' as "templateVersion"
          FROM "WorkflowOrder" o
          LEFT JOIN "User" u ON u.id = o."userId" AND u.id != '00000000-0000-0000-0000-000000000000'
          LEFT JOIN "Team" t ON t.id = o."teamId"
+         LEFT JOIN "User" t_owner ON t_owner.id = t."ownerId"
          LEFT JOIN LATERAL (
              SELECT name, email 
              FROM "User" 
              WHERE "teamId" = o."teamId" 
-             ORDER BY role = 'Owner' DESC, id ASC 
+             ORDER BY LOWER(role) = 'owner' DESC, id ASC 
              LIMIT 1
          ) tu ON TRUE
          LEFT JOIN "ClusterNode" cn ON cn.id = o."serverId"
+         LEFT JOIN "WorkflowTemplate" wt ON wt.id = o."templateId"
          ORDER BY o."createdAt" DESC`
     ) as Promise<any[]>;
 }
@@ -484,6 +493,7 @@ export async function updateOrderDetails(orderId: string, details: {
     plan?: string;
     priority?: string;
     assignedTo?: string;
+    templateId?: string | null;
 }) {
     await ensureOrderSchema();
     const [order] = await db.query('SELECT * FROM "WorkflowOrder" WHERE id = $1', [orderId]) as any[];
@@ -508,6 +518,10 @@ export async function updateOrderDetails(orderId: string, details: {
     if (details.n8nWorkflowId !== undefined) {
         sets.push(`"n8nWorkflowId" = $${idx++}`);
         params.push(details.n8nWorkflowId);
+    }
+    if (details.templateId !== undefined) {
+        sets.push(`"templateId" = $${idx++}`);
+        params.push(details.templateId);
     }
     if (details.orderType !== undefined) {
         sets.push(`"orderType" = $${idx++}`);
