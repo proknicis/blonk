@@ -14,8 +14,23 @@ import {
     AlertCircle,
     Terminal,
     X,
+    Search,
     SlidersHorizontal,
-    TrendingUp
+    Download,
+    Plus,
+    ChevronDown,
+    ChevronLeft,
+    ChevronRight,
+    Eye,
+    MoreHorizontal,
+    Sparkles,
+    CreditCard,
+    Undo,
+    Calendar,
+    ArrowUpDown,
+    CheckCircle,
+    AlertTriangle,
+    Info
 } from "lucide-react";
 import adminStyles from "../admin.module.css";
 
@@ -33,51 +48,90 @@ const STATUS_ORDER = [
     'FAILED',
 ];
 
-const STATUS_COLORS: Record<string, { bg: string; color: string; border: string }> = {
-    PAYMENT_RECEIVED:    { bg: 'rgba(59, 130, 246, 0.08)', color: '#3B82F6', border: 'rgba(59, 130, 246, 0.2)' },
-    PROVISIONING:        { bg: 'rgba(249, 115, 22, 0.08)', color: '#F97316', border: 'rgba(249, 115, 22, 0.2)' },
-    INSTALLING_N8N:      { bg: 'rgba(249, 115, 22, 0.08)', color: '#F97316', border: 'rgba(249, 115, 22, 0.2)' },
-    SERVER_READY:        { bg: 'rgba(34, 197, 94, 0.08)', color: '#22C55E', border: 'rgba(34, 197, 94, 0.2)' },
-    WORKFLOW_IMPORTED:   { bg: 'rgba(34, 197, 94, 0.08)', color: '#22C55E', border: 'rgba(34, 197, 94, 0.2)' },
-    WAITING_CREDENTIALS: { bg: 'rgba(245, 158, 11, 0.08)', color: '#F59E0B', border: 'rgba(245, 158, 11, 0.2)' },
-    CREDENTIALS_RECEIVED:{ bg: 'rgba(245, 158, 11, 0.08)', color: '#F59E0B', border: 'rgba(245, 158, 11, 0.2)' },
-    ADMIN_SETUP:         { bg: 'rgba(168, 85, 247, 0.08)', color: '#A855F7', border: 'rgba(168, 85, 247, 0.2)' },
-    TESTING:             { bg: 'rgba(168, 85, 247, 0.08)', color: '#A855F7', border: 'rgba(168, 85, 247, 0.2)' },
-    COMPLETED:           { bg: 'rgba(22, 163, 74, 0.08)',  color: '#16A34A', border: 'rgba(22, 163, 74, 0.2)' },
-    FAILED:              { bg: 'rgba(239, 68, 68, 0.08)',  color: '#EF4444', border: 'rgba(239, 68, 68, 0.2)' },
-};
-
-// Friendly button labels for the next pipeline transition
-const NEXT_STEP_LABELS: Record<string, string> = {
-    PAYMENT_RECEIVED:    'Start Provisioning',
-    PROVISIONING:        'Install n8n',
-    INSTALLING_N8N:      'Confirm Server Ready',
-    SERVER_READY:        'Import Workflow JSON',
-    WORKFLOW_IMPORTED:   'Request Credentials',
-    WAITING_CREDENTIALS: 'Force Sync Credentials',
-    CREDENTIALS_RECEIVED:'Begin Admin Setup',
-    ADMIN_SETUP:         'Trigger Testing Suite',
-    TESTING:             'Promote to Live',
+const PRIORITY_COLORS: Record<string, { color: string; bg: string; border: string }> = {
+    HIGH: { color: '#EF4444', bg: '#FEF2F2', border: '#FEE2E2' },
+    MEDIUM: { color: '#D97706', bg: '#FFFBEB', border: '#FEF3C7' },
+    LOW: { color: '#2563EB', bg: '#EFF6FF', border: '#DBEAF8' },
 };
 
 export default function AdminOrdersClient() {
     const [orders, setOrders] = useState<any[]>([]);
+    const [users, setUsers] = useState<any[]>([]);
+    const [teams, setTeams] = useState<any[]>([]);
+    const [nodes, setNodes] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [updatingId, setUpdatingId] = useState<string | null>(null);
+    const [activeStatusDropdown, setActiveStatusDropdown] = useState<string | null>(null);
 
-    // Advanced UI state variables
-    const [activeTab, setActiveTab] = useState<string>("ALL");
+    // Filter, Search, Tab, and Pagination states
+    const [activeTab, setActiveTab] = useState<string>("ALL"); // ALL, Marketplace, Custom Requests, Subscriptions, Refunds
+    const [searchText, setSearchText] = useState<string>("");
+    const [statusFilter, setStatusFilter] = useState<string>("ALL");
+    const [priorityFilter, setPriorityFilter] = useState<string>("ALL");
+    const [clientFilter, setClientFilter] = useState<string>("ALL");
+    const [dateRangeFilter, setDateRangeFilter] = useState<string>("");
+    const [showAdvancedFilters, setShowAdvancedFilters] = useState<boolean>(false);
+    
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [rowsPerPage, setRowsPerPage] = useState<number>(10);
+
+    // Modals states
     const [inspectingOrder, setInspectingOrder] = useState<any | null>(null);
     const [editingDetailsOrder, setEditingDetailsOrder] = useState<any | null>(null);
-    const [editDetailsData, setEditDetailsData] = useState<{ workflowName: string; serverId: string | null; n8nWorkflowId: string | null; amount: number }>({
+    const [editDetailsData, setEditDetailsData] = useState<{ 
+        workflowName: string; 
+        serverId: string | null; 
+        n8nWorkflowId: string | null; 
+        amount: number;
+        orderType: string;
+        orderSubType: string;
+        plan: string;
+        priority: string;
+        assignedTo: string;
+    }>({
         workflowName: "",
         serverId: null,
         n8nWorkflowId: null,
-        amount: 0
+        amount: 0,
+        orderType: "Marketplace",
+        orderSubType: "Workflow Purchase",
+        plan: "Startup",
+        priority: "MEDIUM",
+        assignedTo: "System Auto"
     });
     const [isSavingDetails, setIsSavingDetails] = useState(false);
-    const [nodes, setNodes] = useState<any[]>([]);
+
+    // Create Order Modal state
+    const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
+    const [createData, setCreateData] = useState<{
+        workflowName: string;
+        userId: string;
+        teamId: string;
+        amount: number;
+        status: string;
+        orderType: string;
+        orderSubType: string;
+        plan: string;
+        priority: string;
+        assignedTo: string;
+        serverId: string | null;
+        n8nWorkflowId: string | null;
+    }>({
+        workflowName: "",
+        userId: "",
+        teamId: "",
+        amount: 0,
+        status: "PAYMENT_RECEIVED",
+        orderType: "Marketplace",
+        orderSubType: "Workflow Purchase",
+        plan: "Startup",
+        priority: "MEDIUM",
+        assignedTo: "System Auto",
+        serverId: null,
+        n8nWorkflowId: null
+    });
+    const [isCreatingOrder, setIsCreatingOrder] = useState(false);
 
     const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
         if (typeof window !== 'undefined' && (window as any).showToast) {
@@ -111,6 +165,8 @@ export default function AdminOrdersClient() {
             }
             const data = await res.json();
             setOrders(data.orders ?? []);
+            setUsers(data.users ?? []);
+            setTeams(data.teams ?? []);
         } catch (e: any) {
             setError(e.message || 'Network error');
         } finally {
@@ -123,19 +179,22 @@ export default function AdminOrdersClient() {
         fetchNodes();
     }, [fetchOrders, fetchNodes]);
 
-    // Handle updating edit modal values when an order is selected
     useEffect(() => {
         if (editingDetailsOrder) {
             setEditDetailsData({
                 workflowName: editingDetailsOrder.workflowName || "",
                 serverId: editingDetailsOrder.serverId || null,
                 n8nWorkflowId: editingDetailsOrder.n8nWorkflowId || null,
-                amount: editingDetailsOrder.amount ? Number(editingDetailsOrder.amount) : 0
+                amount: editingDetailsOrder.amount ? Number(editingDetailsOrder.amount) : 0,
+                orderType: editingDetailsOrder.orderType || "Marketplace",
+                orderSubType: editingDetailsOrder.orderSubType || "Workflow Purchase",
+                plan: editingDetailsOrder.plan || "Startup",
+                priority: editingDetailsOrder.priority || "MEDIUM",
+                assignedTo: editingDetailsOrder.assignedTo || "System Auto"
             });
         }
     }, [editingDetailsOrder]);
 
-    // Sync inspection order when orders list updates (to show live log updates)
     useEffect(() => {
         if (inspectingOrder) {
             const current = orders.find(o => o.id === inspectingOrder.id);
@@ -174,7 +233,12 @@ export default function AdminOrdersClient() {
                     workflowName: editDetailsData.workflowName,
                     serverId: editDetailsData.serverId,
                     n8nWorkflowId: editDetailsData.n8nWorkflowId,
-                    amount: editDetailsData.amount
+                    amount: editDetailsData.amount,
+                    orderType: editDetailsData.orderType,
+                    orderSubType: editDetailsData.orderSubType,
+                    plan: editDetailsData.plan,
+                    priority: editDetailsData.priority,
+                    assignedTo: editDetailsData.assignedTo
                 }),
             });
             if (res.ok) {
@@ -189,6 +253,44 @@ export default function AdminOrdersClient() {
             showToast("Network error", "error");
         } finally {
             setIsSavingDetails(false);
+        }
+    };
+
+    const handleCreateOrder = async () => {
+        setIsCreatingOrder(true);
+        try {
+            const res = await fetch('/api/admin/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(createData),
+            });
+            if (res.ok) {
+                showToast("Order manually created successfully", "success");
+                setShowCreateModal(false);
+                // Reset form
+                setCreateData({
+                    workflowName: "",
+                    userId: "",
+                    teamId: "",
+                    amount: 0,
+                    status: "PAYMENT_RECEIVED",
+                    orderType: "Marketplace",
+                    orderSubType: "Workflow Purchase",
+                    plan: "Startup",
+                    priority: "MEDIUM",
+                    assignedTo: "System Auto",
+                    serverId: null,
+                    n8nWorkflowId: null
+                });
+                await fetchOrders();
+            } else {
+                showToast("Failed to create order", "error");
+            }
+        } catch (e) {
+            console.error(e);
+            showToast("Network error", "error");
+        } finally {
+            setIsCreatingOrder(false);
         }
     };
 
@@ -216,16 +318,106 @@ export default function AdminOrdersClient() {
 
     const fmt = (dateStr: string) => {
         if (!dateStr) return '—';
-        return new Date(dateStr).toLocaleString('en-GB', {
-            day: '2-digit', month: 'short', year: 'numeric',
-            hour: '2-digit', minute: '2-digit',
+        return new Date(dateStr).toLocaleString('en-US', {
+            month: 'short', day: 'numeric', year: 'numeric',
+            hour: '2-digit', minute: '2-digit', hour12: true
         });
     };
 
+    const getStatusTextAndStyle = (dbStatus: string, orderType?: string) => {
+        if (orderType === 'Refund' || dbStatus === 'REFUNDED' || dbStatus === 'REFUND') {
+            return { label: 'REFUNDED', bg: '#F3E8FF', color: '#A855F7', dot: '#8B5CF6', border: '#E9D5FF' };
+        }
+        // Map database status string to design spec friendly name and color
+        switch (dbStatus) {
+            case 'PAYMENT_RECEIVED':
+                return { label: 'PENDING', bg: '#FFFBEB', color: '#D97706', dot: '#F59E0B', border: '#FEF3C7' };
+            case 'WAITING_CREDENTIALS':
+                return { label: 'AWAITING CLIENT', bg: '#FFFBEB', color: '#D97706', dot: '#F59E0B', border: '#FEF3C7' };
+            case 'COMPLETED':
+                return { label: 'ACTIVE', bg: '#DCFCE7', color: '#16A34A', dot: '#10B981', border: '#BBF7D0' };
+            case 'FAILED':
+                return { label: 'CANCELLED', bg: '#FEF2F2', color: '#EF4444', dot: '#EF4444', border: '#FEE2E2' };
+            default:
+                // Intermediate states are provisioning stages -> IN PROGRESS
+                return { label: 'IN PROGRESS', bg: '#EFF6FF', color: '#2563EB', dot: '#3B82F6', border: '#DBEAF8' };
+        }
+    };
+
+    // Calculate metrics based on current order status
+    const totalCount = orders.length;
+    const pendingCount = orders.filter(o => o.status === 'PAYMENT_RECEIVED' || o.status === 'WAITING_CREDENTIALS').length;
+    const inProgressCount = orders.filter(o => !['PAYMENT_RECEIVED', 'WAITING_CREDENTIALS', 'COMPLETED', 'FAILED'].includes(o.status)).length;
+    const completedCount = orders.filter(o => o.status === 'COMPLETED').length;
+    const refundedCount = orders.filter(o => o.orderType === 'Refund').length;
+
+    // Filter logic
+    const filteredOrders = orders.filter(order => {
+        // Tab type filter
+        if (activeTab === "Marketplace" && order.orderType !== "Marketplace") return false;
+        if (activeTab === "Custom Requests" && order.orderType !== "Custom Request") return false;
+        if (activeTab === "Subscriptions" && order.orderType !== "Subscription") return false;
+        if (activeTab === "Refunds" && order.orderType !== "Refund") return false;
+
+        // Search text matching OrderID, customer name/email, workflow name, plan
+        if (searchText) {
+            const query = searchText.toLowerCase();
+            const orderIdStr = `ORD-${new Date(order.createdAt).getFullYear()}-${String(order.orderNumber).padStart(4, '0')}`.toLowerCase();
+            const uuidStr = `#${order.id?.slice(0, 10).toUpperCase()}`.toLowerCase();
+            const customerName = (order.userName || "").toLowerCase();
+            const customerEmail = (order.userEmail || "").toLowerCase();
+            const workflowName = (order.workflowName || "").toLowerCase();
+            const planName = (order.plan || "").toLowerCase();
+
+            if (!orderIdStr.includes(query) && 
+                !uuidStr.includes(query) &&
+                !customerName.includes(query) && 
+                !customerEmail.includes(query) && 
+                !workflowName.includes(query) &&
+                !planName.includes(query)) {
+                return false;
+            }
+        }
+
+        // Status select filter
+        if (statusFilter !== "ALL") {
+            const friendlyStatus = getStatusTextAndStyle(order.status, order.orderType).label;
+            if (friendlyStatus !== statusFilter) return false;
+        }
+
+        // Priority filter
+        if (priorityFilter !== "ALL" && order.priority !== priorityFilter) return false;
+
+        // Client filter (domain/email match)
+        if (clientFilter !== "ALL") {
+            const domain = order.userEmail?.split('@')[1] || "";
+            if (!domain.includes(clientFilter) && !order.userEmail?.includes(clientFilter)) return false;
+        }
+
+        // Date Range filter (check year/month/date match if entered)
+        if (dateRangeFilter) {
+            const createdDate = new Date(order.createdAt).toDateString().toLowerCase();
+            if (!createdDate.includes(dateRangeFilter.toLowerCase())) return false;
+        }
+
+        return true;
+    });
+
+    // Pagination slice
+    const totalFiltered = filteredOrders.length;
+    const totalPages = Math.ceil(totalFiltered / rowsPerPage) || 1;
+    const displayedOrders = filteredOrders.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
+    // Quick counts for tab badges
+    const mktCount = orders.filter(o => o.orderType === 'Marketplace').length;
+    const custCount = orders.filter(o => o.orderType === 'Custom Request').length;
+    const subCount = orders.filter(o => o.orderType === 'Subscription').length;
+    const refCount = orders.filter(o => o.orderType === 'Refund').length;
+
     if (isLoading) return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '300px', gap: 16, color: 'var(--muted-foreground)' }}>
-            <Loader2 size={36} className={adminStyles.spinning} />
-            <span style={{ fontWeight: 800, letterSpacing: '-0.02em', fontSize: '1rem' }}>Synchronizing Order Pipeline…</span>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '400px', gap: 16, color: 'var(--muted-foreground)' }}>
+            <Loader2 size={36} className={adminStyles.spinning} style={{ color: '#10B981' }} />
+            <span style={{ fontWeight: 800, letterSpacing: '-0.02em', fontSize: '1rem', color: '#64748B' }}>Synchronizing Order Pipeline…</span>
         </div>
     );
 
@@ -248,360 +440,1115 @@ export default function AdminOrdersClient() {
     );
 
     return (
-        <div className={adminStyles.dashboard}>
-            {/* Header / Mission Control Status */}
-            <div className={adminStyles.integrityPanel}>
-                <div className={adminStyles.integrityHub}>
-                    <div className={adminStyles.statusIndicatorHealthy}>
-                        <div className={adminStyles.beaconPulseActive} />
+        <div style={{ background: '#FCFCFC', minHeight: '100vh', padding: '16px 24px', fontFamily: 'Inter, system-ui, sans-serif' }}>
+            
+            {/* 1. ORDER SUMMARY METRIC HEADER CARD */}
+            <div style={{ 
+                background: '#FFFFFF', 
+                border: '1px solid #E2E8F0', 
+                borderRadius: '16px', 
+                padding: '24px 32px', 
+                marginBottom: '24px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'space-between', 
+                flexWrap: 'wrap',
+                gap: '24px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: '1 1 300px' }}>
+                    <div style={{ 
+                        width: '52px', 
+                        height: '52px', 
+                        borderRadius: '12px', 
+                        background: 'rgba(52, 209, 134, 0.08)', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        color: '#10B981' 
+                    }}>
+                        <ShoppingCart size={24} />
                     </div>
                     <div>
-                        <h1 className={adminStyles.panelTitle}>Orders Mission Control</h1>
-                        <p className={adminStyles.panelSubtitle}>End-to-end client workspace provisioning pipeline</p>
+                        <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>ORDER MANAGEMENT</h1>
+                        <p style={{ fontSize: '0.88rem', color: '#64748B', margin: '4px 0 0', fontWeight: 500 }}>
+                            Track, manage and fulfill marketplace orders and custom requests.
+                        </p>
                     </div>
                 </div>
+
+                {/* Metrics boxes */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10B981' }} />
+                                <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.05em' }}>TOTAL ORDERS</span>
+                            </div>
+                            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0F172A', marginTop: '4px' }}>{totalCount}</div>
+                        </div>
+                        <div style={{ width: '1px', height: '36px', background: '#E2E8F0', marginLeft: '12px' }} />
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#F59E0B' }} />
+                                <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.05em' }}>PENDING</span>
+                            </div>
+                            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0F172A', marginTop: '4px' }}>{pendingCount}</div>
+                        </div>
+                        <div style={{ width: '1px', height: '36px', background: '#E2E8F0', marginLeft: '12px' }} />
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#3B82F6' }} />
+                                <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.05em' }}>IN PROGRESS</span>
+                            </div>
+                            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0F172A', marginTop: '4px' }}>{inProgressCount}</div>
+                        </div>
+                        <div style={{ width: '1px', height: '36px', background: '#E2E8F0', marginLeft: '12px' }} />
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10B981' }} />
+                                <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.05em' }}>COMPLETED</span>
+                            </div>
+                            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0F172A', marginTop: '4px' }}>{completedCount}</div>
+                        </div>
+                        <div style={{ width: '1px', height: '36px', background: '#E2E8F0', marginLeft: '12px' }} />
+                    </div>
+
+                    <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#8B5CF6' }} />
+                            <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.05em' }}>REFUNDED</span>
+                        </div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0F172A', marginTop: '4px' }}>{refundedCount}</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* 2. ORDER TYPE FILTER TABS */}
+            <div style={{ 
+                display: 'flex', 
+                borderBottom: '1px solid #E2E8F0', 
+                marginBottom: '20px', 
+                gap: '8px',
+                overflowX: 'auto',
+                paddingBottom: '2px'
+            }}>
+                {[
+                    { id: "ALL", label: "All Orders", count: totalCount },
+                    { id: "Marketplace", label: "Marketplace", count: mktCount },
+                    { id: "Custom Requests", label: "Custom Requests", count: custCount },
+                    { id: "Subscriptions", label: "Subscriptions", count: subCount },
+                    { id: "Refunds", label: "Refunds", count: refCount }
+                ].map(tab => (
+                    <button
+                        key={tab.id}
+                        onClick={() => {
+                            setActiveTab(tab.id);
+                            setCurrentPage(1);
+                        }}
+                        style={{
+                            padding: '12px 16px',
+                            background: 'transparent',
+                            border: 'none',
+                            borderBottom: activeTab === tab.id ? '2px solid #0F172A' : '2px solid transparent',
+                            color: activeTab === tab.id ? '#0F172A' : '#64748B',
+                            fontWeight: activeTab === tab.id ? 700 : 500,
+                            fontSize: '0.9rem',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            transition: 'all 0.15s ease',
+                            whiteSpace: 'nowrap'
+                        }}
+                    >
+                        {tab.label}
+                        <span style={{ 
+                            fontSize: '0.72rem',
+                            padding: '2px 8px',
+                            borderRadius: '100px',
+                            background: activeTab === tab.id ? '#F1F5F9' : '#F8FAFC',
+                            border: '1px solid #E2E8F0',
+                            color: activeTab === tab.id ? '#0F172A' : '#64748B',
+                            fontWeight: 700
+                        }}>
+                            {tab.count}
+                        </span>
+                    </button>
+                ))}
+            </div>
+
+            {/* 3. CONTROL TOOLBAR (Search, Selectors, Export, Create) */}
+            <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                flexWrap: 'wrap', 
+                gap: '12px',
+                marginBottom: '20px'
+            }}>
                 
-                <div className={adminStyles.hubMetrics}>
-                    <div className={adminStyles.hubItem}>
-                        <div>
-                            <span className={adminStyles.hubLabel}>Active Orders</span>
-                            <div className={adminStyles.hubValue}>{orders.filter(o => o.status !== 'COMPLETED' && o.status !== 'FAILED').length}</div>
-                        </div>
+                {/* Left filter inputs */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', flexGrow: 1 }}>
+                    
+                    {/* Search Field */}
+                    <div style={{ position: 'relative', width: '280px' }}>
+                        <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+                        <input
+                            type="text"
+                            placeholder="Search by order ID, customer, workflow..."
+                            value={searchText}
+                            onChange={(e) => {
+                                setSearchText(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                            style={{
+                                width: '100%',
+                                height: '40px',
+                                background: '#FFFFFF',
+                                border: '1px solid #E2E8F0',
+                                borderRadius: '8px',
+                                paddingLeft: '36px',
+                                paddingRight: '12px',
+                                fontSize: '0.88rem',
+                                color: '#0F172A',
+                                outline: 'none'
+                            }}
+                        />
                     </div>
-                    <div className={adminStyles.hubItem}>
-                        <div>
-                            <span className={adminStyles.hubLabel}>Total Processed</span>
-                            <div className={adminStyles.hubValue}>{orders.length}</div>
-                        </div>
+
+                    {/* Status filter select */}
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => {
+                            setStatusFilter(e.target.value);
+                            setCurrentPage(1);
+                        }}
+                        style={{
+                            height: '40px',
+                            background: '#FFFFFF',
+                            border: '1px solid #E2E8F0',
+                            borderRadius: '8px',
+                            padding: '0 12px',
+                            fontSize: '0.88rem',
+                            color: '#64748B',
+                            outline: 'none',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        <option value="ALL">All Statuses</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="IN PROGRESS">In Progress</option>
+                        <option value="AWAITING CLIENT">Awaiting Client</option>
+                        <option value="ACTIVE">Active / Completed</option>
+                        <option value="CANCELLED">Cancelled / Failed</option>
+                    </select>
+
+                    {/* Priority select */}
+                    <select
+                        value={priorityFilter}
+                        onChange={(e) => {
+                            setPriorityFilter(e.target.value);
+                            setCurrentPage(1);
+                        }}
+                        style={{
+                            height: '40px',
+                            background: '#FFFFFF',
+                            border: '1px solid #E2E8F0',
+                            borderRadius: '8px',
+                            padding: '0 12px',
+                            fontSize: '0.88rem',
+                            color: '#64748B',
+                            outline: 'none',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        <option value="ALL">All Priorities</option>
+                        <option value="HIGH">High Priority</option>
+                        <option value="MEDIUM">Medium Priority</option>
+                        <option value="LOW">Low Priority</option>
+                    </select>
+
+                    {/* Client select */}
+                    <select
+                        value={clientFilter}
+                        onChange={(e) => {
+                            setClientFilter(e.target.value);
+                            setCurrentPage(1);
+                        }}
+                        style={{
+                            height: '40px',
+                            background: '#FFFFFF',
+                            border: '1px solid #E2E8F0',
+                            borderRadius: '8px',
+                            padding: '0 12px',
+                            fontSize: '0.88rem',
+                            color: '#64748B',
+                            outline: 'none',
+                            cursor: 'pointer',
+                            maxWidth: '160px'
+                        }}
+                    >
+                        <option value="ALL">All Clients</option>
+                        {Array.from(new Set(orders.map(o => o.userEmail?.split('@')[1] || "").filter(Boolean))).map(domain => (
+                            <option key={domain} value={domain}>{domain}</option>
+                        ))}
+                    </select>
+
+                    {/* Date filter field */}
+                    <div style={{ position: 'relative' }}>
+                        <Calendar size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+                        <input
+                            type="text"
+                            placeholder="Date Range"
+                            value={dateRangeFilter}
+                            onChange={(e) => {
+                                setDateRangeFilter(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                            style={{
+                                width: '130px',
+                                height: '40px',
+                                background: '#FFFFFF',
+                                border: '1px solid #E2E8F0',
+                                borderRadius: '8px',
+                                paddingLeft: '32px',
+                                paddingRight: '12px',
+                                fontSize: '0.88rem',
+                                color: '#64748B',
+                                outline: 'none'
+                            }}
+                        />
                     </div>
-                    <button onClick={fetchOrders} className={adminStyles.refreshBtn} style={{ marginLeft: 16 }}>
-                        <RefreshCw size={18} />
+
+                    {/* Toggle filters */}
+                    <button
+                        onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                        style={{
+                            height: '40px',
+                            background: showAdvancedFilters ? '#F1F5F9' : '#FFFFFF',
+                            border: '1px solid #E2E8F0',
+                            borderRadius: '8px',
+                            padding: '0 16px',
+                            fontSize: '0.88rem',
+                            fontWeight: 600,
+                            color: '#0F172A',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                        }}
+                    >
+                        <SlidersHorizontal size={14} />
+                        Filters
+                    </button>
+                </div>
+
+                {/* Right actions */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <button
+                        onClick={() => {
+                            // Quick CSV exporter
+                            const headers = ["Order ID", "Customer", "Email", "Type", "Plan", "Status", "Priority", "Created At", "Amount"];
+                            const rows = orders.map(o => [
+                                `ORD-${new Date(o.createdAt).getFullYear()}-${o.orderNumber}`,
+                                o.userName || "",
+                                o.userEmail || "",
+                                o.orderType || "",
+                                o.plan || "",
+                                getStatusTextAndStyle(o.status, o.orderType).label,
+                                o.priority || "",
+                                o.createdAt,
+                                o.amount || 0
+                            ]);
+                            const csvContent = "data:text/csv;charset=utf-8," 
+                                + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+                            const encodedUri = encodeURI(csvContent);
+                            const link = document.createElement("a");
+                            link.setAttribute("href", encodedUri);
+                            link.setAttribute("download", `blonk_workflow_orders_${new Date().toISOString().slice(0,10)}.csv`);
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            showToast("Order records exported to CSV", "success");
+                        }}
+                        style={{
+                            height: '40px',
+                            background: '#FFFFFF',
+                            border: '1px solid #E2E8F0',
+                            borderRadius: '8px',
+                            padding: '0 16px',
+                            fontSize: '0.88rem',
+                            fontWeight: 600,
+                            color: '#0F172A',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                        }}
+                    >
+                        <Download size={14} />
+                        Export
+                    </button>
+
+                    <button
+                        onClick={() => setShowCreateModal(true)}
+                        style={{
+                            height: '40px',
+                            background: '#0F172A',
+                            border: 'none',
+                            borderRadius: '8px',
+                            padding: '0 18px',
+                            fontSize: '0.88rem',
+                            fontWeight: 600,
+                            color: '#FFFFFF',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                        }}
+                    >
+                        <Plus size={16} />
+                        Create Order
+                        <ChevronDown size={14} />
                     </button>
                 </div>
             </div>
 
-            {/* Main Orders Table */}
-            <div className={adminStyles.registryCard}>
-                <div className={adminStyles.registryHeader}>
-                    <div>
-                        <h2 className={adminStyles.registryTitle}>Provisioning Queue</h2>
-                        <p className={adminStyles.registrySubtitle}>Review user requests, servers, and advance deployment stages</p>
-                    </div>
+            {/* 4. MAIN REGISTRY DATA TABLE */}
+            <div style={{ 
+                background: '#FFFFFF', 
+                border: '1px solid #E2E8F0', 
+                borderRadius: '12px', 
+                overflow: 'hidden',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.01)'
+            }}>
+                <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '1000px' }}>
+                        <thead>
+                            <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                                        ORDER ID <ArrowUpDown size={12} />
+                                    </div>
+                                </th>
+                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>CUSTOMER</th>
+                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>ORDER TYPE</th>
+                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>ITEM / WORKFLOW</th>
+                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>PLAN</th>
+                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>STATUS</th>
+                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>PRIORITY</th>
+                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>CREATED AT</th>
+                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>VALUE</th>
+                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>ASSIGNED TO</th>
+                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'right' }}>ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {displayedOrders.length === 0 ? (
+                                <tr>
+                                    <td colSpan={11} style={{ textAlign: 'center', padding: '64px', color: '#64748B', fontWeight: 600 }}>
+                                        <ShoppingCart size={32} style={{ margin: '0 auto 12px', color: '#94A3B8' }} />
+                                        No workflow orders match the selected filters.
+                                    </td>
+                                </tr>
+                            ) : (
+                                displayedOrders.map((order) => {
+                                    const statusStyle = getStatusTextAndStyle(order.status, order.orderType);
+                                    const priorityStyle = PRIORITY_COLORS[order.priority] || { color: '#64748B', bg: '#F1F5F9', border: '#E2E8F0' };
+                                    
+                                    // Make ID format ORD-2024-0517-0011
+                                    const orderDate = new Date(order.createdAt);
+                                    const year = orderDate.getFullYear();
+                                    const month = String(orderDate.getMonth() + 1).padStart(2, '0');
+                                    const day = String(orderDate.getDate()).padStart(2, '0');
+                                    const orderIdDisplay = `ORD-${year}-${month}${day}-${String(order.orderNumber || 0).padStart(4, '0')}`;
+                                    const hashDisplay = `#${order.id?.slice(0, 10).toUpperCase()}`;
+
+                                    // Extract initials for avatars
+                                    const customerInitials = (order.userName || order.userEmail || "C").slice(0, 2).toUpperCase();
+                                    const operatorInitials = (order.assignedTo || "S").slice(0, 2).toUpperCase();
+
+                                    // Render order type badges & subtext
+                                    let typeIcon = <ShoppingCart size={14} />;
+                                    let typeColor = '#10B981';
+                                    let typeBg = '#E6F4EA';
+                                    
+                                    if (order.orderType === "Custom Request") {
+                                        typeIcon = <Sparkles size={14} />;
+                                        typeColor = '#A855F7';
+                                        typeBg = '#F3E8FF';
+                                    } else if (order.orderType === "Subscription") {
+                                        typeIcon = <CreditCard size={14} />;
+                                        typeColor = '#3B82F6';
+                                        typeBg = '#EFF6FF';
+                                    } else if (order.orderType === "Refund") {
+                                        typeIcon = <Undo size={14} />;
+                                        typeColor = '#EF4444';
+                                        typeBg = '#FEF2F2';
+                                    }
+
+                                    // Render amount text: negative for refunds, monthly for subscriptions
+                                    let amountText = `€${Number(order.amount || 0).toLocaleString()}`;
+                                    let amountStyle: React.CSSProperties = { fontWeight: 700, color: '#0F172A' };
+
+                                    if (order.orderType === "Refund") {
+                                        amountText = `-€${Number(order.amount || 0).toLocaleString()}`;
+                                        amountStyle = { fontWeight: 700, color: '#EF4444' };
+                                    } else if (order.orderType === "Subscription") {
+                                        amountText = `€${Number(order.amount || 0).toLocaleString()}/mo`;
+                                    }
+
+                                    return (
+                                        <tr key={order.id} style={{ borderBottom: '1px solid #F1F5F9', transition: 'background 0.15s ease' }} className={adminStyles.registryRow}>
+                                            
+                                            {/* Order ID */}
+                                            <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                                <div style={{ fontWeight: 700, color: '#0F172A', fontSize: '0.88rem' }}>{orderIdDisplay}</div>
+                                                <div style={{ fontSize: '0.72rem', color: '#94A3B8', fontFamily: 'monospace', marginTop: '2px' }}>{hashDisplay}</div>
+                                            </td>
+
+                                            {/* Customer Profile */}
+                                            <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                    <div style={{ 
+                                                        width: '28px', 
+                                                        height: '28px', 
+                                                        borderRadius: '50%', 
+                                                        background: '#0F172A', 
+                                                        color: '#FFFFFF', 
+                                                        display: 'flex', 
+                                                        alignItems: 'center', 
+                                                        justifyContent: 'center', 
+                                                        fontSize: '0.75rem', 
+                                                        fontWeight: 700 
+                                                    }}>
+                                                        {customerInitials}
+                                                    </div>
+                                                    <div>
+                                                        <div style={{ fontWeight: 600, color: '#0F172A', fontSize: '0.88rem' }}>{order.userName || 'Acme Corp'}</div>
+                                                        <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '1px' }}>{order.userEmail || 'email@domain.com'}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            {/* Order Type */}
+                                            <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <div style={{ 
+                                                        width: '24px', 
+                                                        height: '24px', 
+                                                        borderRadius: '6px', 
+                                                        background: typeBg, 
+                                                        color: typeColor, 
+                                                        display: 'flex', 
+                                                        alignItems: 'center', 
+                                                        justifyContent: 'center' 
+                                                    }}>
+                                                        {typeIcon}
+                                                    </div>
+                                                    <div>
+                                                        <div style={{ fontWeight: 600, color: '#0F172A', fontSize: '0.88rem' }}>{order.orderType || 'Marketplace'}</div>
+                                                        <div style={{ fontSize: '0.72rem', color: '#94A3B8', marginTop: '1px' }}>{order.orderSubType || 'Workflow Purchase'}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            {/* Item / Workflow */}
+                                            <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                                <div style={{ fontWeight: 600, color: '#0F172A', fontSize: '0.88rem' }}>{order.workflowName}</div>
+                                                <div style={{ fontSize: '0.72rem', color: '#94A3B8', marginTop: '1px' }}>v1.9.0</div>
+                                            </td>
+
+                                            {/* Plan */}
+                                            <td style={{ padding: '16px 20px', verticalAlign: 'middle', fontSize: '0.88rem', color: '#0F172A', fontWeight: 500 }}>
+                                                {order.plan || 'Startup'}
+                                            </td>
+
+                                            {/* Interactive Status Pill Dropdown */}
+                                            <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                                <div style={{ display: 'inline-block', position: 'relative' }}>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setActiveStatusDropdown(activeStatusDropdown === order.id ? null : order.id);
+                                                        }}
+                                                        style={{
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            gap: '6px',
+                                                            padding: '4px 10px',
+                                                            borderRadius: '100px',
+                                                            background: statusStyle.bg,
+                                                            color: statusStyle.color,
+                                                            border: `1px solid ${statusStyle.border}`,
+                                                            fontSize: '0.72rem',
+                                                            fontWeight: 700,
+                                                            letterSpacing: '0.02em',
+                                                            cursor: 'pointer',
+                                                            transition: 'all 0.15s ease'
+                                                        }}
+                                                    >
+                                                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: statusStyle.dot }} />
+                                                        {statusStyle.label}
+                                                        <ChevronDown size={12} style={{ opacity: 0.7 }} />
+                                                    </button>
+                                                    
+                                                    {activeStatusDropdown === order.id && (
+                                                        <>
+                                                            <div 
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setActiveStatusDropdown(null);
+                                                                }} 
+                                                                style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 90 }} 
+                                                            />
+                                                            <div style={{
+                                                                position: 'absolute',
+                                                                top: 'calc(100% + 4px)',
+                                                                left: 0,
+                                                                background: '#FFFFFF',
+                                                                border: '1px solid #E2E8F0',
+                                                                borderRadius: '8px',
+                                                                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                                                                zIndex: 100,
+                                                                minWidth: '150px',
+                                                                padding: '4px 0'
+                                                            }}>
+                                                                {[
+                                                                    { label: 'PENDING', value: 'PAYMENT_RECEIVED', dot: '#F59E0B' },
+                                                                    { label: 'IN PROGRESS', value: 'PROVISIONING', dot: '#3B82F6' },
+                                                                    { label: 'AWAITING CLIENT', value: 'WAITING_CREDENTIALS', dot: '#F59E0B' },
+                                                                    { label: 'ACTIVE', value: 'COMPLETED', dot: '#10B981' },
+                                                                    { label: 'CANCELLED', value: 'FAILED', dot: '#EF4444' },
+                                                                    { label: 'REFUNDED', value: 'REFUNDED', dot: '#8B5CF6' }
+                                                                ].map((st) => (
+                                                                    <button
+                                                                        key={st.value}
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            setActiveStatusDropdown(null);
+                                                                            updateStatus(order.id, st.value);
+                                                                        }}
+                                                                        style={{
+                                                                            width: '100%',
+                                                                            padding: '8px 12px',
+                                                                            background: 'transparent',
+                                                                            border: 'none',
+                                                                            textAlign: 'left',
+                                                                            fontSize: '0.72rem',
+                                                                            fontWeight: 700,
+                                                                            color: '#334155',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            gap: '8px',
+                                                                            cursor: 'pointer'
+                                                                        }}
+                                                                        onMouseEnter={(e) => e.currentTarget.style.background = '#F8FAFC'}
+                                                                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                                                                    >
+                                                                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: st.dot }} />
+                                                                        {st.label}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </td>
+
+                                            {/* Priority Badge */}
+                                            <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                                <div style={{
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    padding: '2px 8px',
+                                                    borderRadius: '4px',
+                                                    border: `1px solid ${priorityStyle.border}`,
+                                                    background: priorityStyle.bg,
+                                                    color: priorityStyle.color,
+                                                    fontSize: '0.68rem',
+                                                    fontWeight: 700,
+                                                    letterSpacing: '0.04em'
+                                                }}>
+                                                    {order.priority || 'MEDIUM'}
+                                                </div>
+                                            </td>
+
+                                            {/* Created At */}
+                                            <td style={{ padding: '16px 20px', verticalAlign: 'middle', fontSize: '0.82rem', color: '#64748B', fontWeight: 500 }}>
+                                                {fmt(order.createdAt)}
+                                            </td>
+
+                                            {/* Value */}
+                                            <td style={{ padding: '16px 20px', verticalAlign: 'middle', fontSize: '0.88rem' }}>
+                                                <span style={amountStyle}>{amountText}</span>
+                                            </td>
+
+                                            {/* Assigned To */}
+                                            <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <div style={{ 
+                                                        width: '22px', 
+                                                        height: '22px', 
+                                                        borderRadius: '50%', 
+                                                        background: '#F1F5F9', 
+                                                        border: '1px solid #CBD5E1', 
+                                                        color: '#475569', 
+                                                        display: 'flex', 
+                                                        alignItems: 'center', 
+                                                        justifyContent: 'center', 
+                                                        fontSize: '0.65rem', 
+                                                        fontWeight: 700 
+                                                    }}>
+                                                        {operatorInitials}
+                                                    </div>
+                                                    <div>
+                                                        <div style={{ fontWeight: 600, color: '#0F172A', fontSize: '0.82rem' }}>{order.assignedTo || 'System Auto'}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            {/* Actions */}
+                                            <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'right' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
+                                                    <button
+                                                        onClick={() => setInspectingOrder(order)}
+                                                        title="Inspect Logs"
+                                                        style={{
+                                                            width: '28px',
+                                                            height: '28px',
+                                                            borderRadius: '6px',
+                                                            border: '1px solid #E2E8F0',
+                                                            background: '#FFFFFF',
+                                                            color: '#64748B',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            cursor: 'pointer',
+                                                            transition: 'all 0.2s'
+                                                        }}
+                                                        onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#10B981'; e.currentTarget.style.color = '#10B981'; }}
+                                                        onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.color = '#64748B'; }}
+                                                    >
+                                                        <Eye size={14} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setEditingDetailsOrder(order)}
+                                                        title="Configure details"
+                                                        style={{
+                                                            width: '28px',
+                                                            height: '28px',
+                                                            borderRadius: '6px',
+                                                            border: '1px solid #E2E8F0',
+                                                            background: '#FFFFFF',
+                                                            color: '#64748B',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            cursor: 'pointer',
+                                                            transition: 'all 0.2s'
+                                                        }}
+                                                        onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#0F172A'; e.currentTarget.style.color = '#0F172A'; }}
+                                                        onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.color = '#64748B'; }}
+                                                    >
+                                                        <MoreHorizontal size={14} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
+                        </tbody>
+                    </table>
                 </div>
 
-                {/* Filter Tabs */}
-                <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid var(--border)', paddingBottom: '16px', marginBottom: '24px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                {/* 5. PAGINATION AND ROWS PER PAGE SELECTOR */}
+                <div style={{ 
+                    borderTop: '1px solid #E2E8F0', 
+                    padding: '16px 24px', 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    gap: '12px'
+                }}>
+                    <span style={{ fontSize: '0.88rem', color: '#64748B', fontWeight: 500 }}>
+                        Showing {totalFiltered > 0 ? (currentPage - 1) * rowsPerPage + 1 : 0} to {Math.min(currentPage * rowsPerPage, totalFiltered)} of {totalFiltered} orders
+                    </span>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                        
+                        {/* Rows per page */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <select
+                                value={rowsPerPage}
+                                onChange={(e) => {
+                                    setRowsPerPage(Number(e.target.value));
+                                    setCurrentPage(1);
+                                }}
+                                style={{
+                                    height: '36px',
+                                    background: '#FFFFFF',
+                                    border: '1px solid #E2E8F0',
+                                    borderRadius: '6px',
+                                    padding: '0 8px',
+                                    fontSize: '0.85rem',
+                                    color: '#64748B',
+                                    outline: 'none',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                <option value={10}>10 per page</option>
+                                <option value={25}>25 per page</option>
+                                <option value={50}>50 per page</option>
+                            </select>
+                        </div>
+
+                        {/* Page navigation */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <button
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                style={{
+                                    width: '32px',
+                                    height: '32px',
+                                    borderRadius: '6px',
+                                    border: '1px solid #E2E8F0',
+                                    background: '#FFFFFF',
+                                    color: currentPage === 1 ? '#CBD5E1' : '#64748B',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
+                                }}
+                            >
+                                <ChevronLeft size={16} />
+                            </button>
+
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+                                <button
+                                    key={pageNum}
+                                    onClick={() => setCurrentPage(pageNum)}
+                                    style={{
+                                        width: '32px',
+                                        height: '32px',
+                                        borderRadius: '6px',
+                                        border: pageNum === currentPage ? '1px solid #10B981' : '1px solid #E2E8F0',
+                                        background: pageNum === currentPage ? '#DCFCE7' : '#FFFFFF',
+                                        color: pageNum === currentPage ? '#16A34A' : '#64748B',
+                                        fontWeight: pageNum === currentPage ? 700 : 500,
+                                        fontSize: '0.85rem',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    {pageNum}
+                                </button>
+                            ))}
+
+                            <button
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                style={{
+                                    width: '32px',
+                                    height: '32px',
+                                    borderRadius: '6px',
+                                    border: '1px solid #E2E8F0',
+                                    background: '#FFFFFF',
+                                    color: currentPage === totalPages ? '#CBD5E1' : '#64748B',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
+                                }}
+                            >
+                                <ChevronRight size={16} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* 6. STATUS AND ORDER TYPES LEGENDS */}
+            <div style={{ 
+                display: 'flex', 
+                justifyContent: 'flex-start', 
+                alignItems: 'center', 
+                flexWrap: 'wrap', 
+                gap: '40px', 
+                marginTop: '32px', 
+                borderTop: '1px solid #E2E8F0', 
+                paddingTop: '20px' 
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Status Legend:</span>
                     {[
-                        { id: "ALL", label: "All Orders", count: orders.length },
-                        { id: "NEW", label: "New Payments", count: orders.filter(o => o.status === 'PAYMENT_RECEIVED').length },
-                        { id: "PROVISIONING", label: "Provisioning", count: orders.filter(o => ['PROVISIONING', 'INSTALLING_N8N', 'SERVER_READY', 'WORKFLOW_IMPORTED'].includes(o.status)).length },
-                        { id: "CREDENTIALS", label: "Awaiting Credentials", count: orders.filter(o => o.status === 'WAITING_CREDENTIALS').length },
-                        { id: "SETUP", label: "Setup & Testing", count: orders.filter(o => ['CREDENTIALS_RECEIVED', 'ADMIN_SETUP', 'TESTING'].includes(o.status)).length },
-                        { id: "COMPLETED", label: "Completed", count: orders.filter(o => o.status === 'COMPLETED').length },
-                        { id: "FAILED", label: "Failed", count: orders.filter(o => o.status === 'FAILED').length },
-                    ].map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            style={{
-                                padding: '10px 18px',
-                                borderRadius: '12px',
-                                border: activeTab === tab.id ? '1px solid var(--border)' : '1px solid transparent',
-                                background: activeTab === tab.id ? 'var(--muted)' : 'transparent',
-                                color: activeTab === tab.id ? 'var(--foreground)' : 'var(--muted-foreground)',
-                                fontWeight: 850,
-                                fontSize: '0.85rem',
-                                cursor: 'pointer',
-                                whiteSpace: 'nowrap',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                transition: 'all 0.2s'
-                            }}
-                        >
-                            {tab.label}
-                            <span style={{ 
-                                fontSize: '0.72rem', 
-                                padding: '2px 8px', 
-                                background: activeTab === tab.id ? 'var(--card)' : 'var(--muted)', 
-                                color: activeTab === tab.id ? 'var(--accent)' : 'var(--muted-foreground)', 
-                                borderRadius: '6px',
-                                fontWeight: 950
-                            }}>
-                                {tab.count}
-                            </span>
-                        </button>
+                        { label: 'Pending', dot: '#F59E0B' },
+                        { label: 'In Progress', dot: '#3B82F6' },
+                        { label: 'Awaiting Client', dot: '#D97706' },
+                        { label: 'Completed', dot: '#10B981' },
+                        { label: 'Active', dot: '#16A34A' },
+                        { label: 'Refunded', dot: '#8B5CF6' },
+                        { label: 'Cancelled', dot: '#EF4444' }
+                    ].map(st => (
+                        <div key={st.label} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', color: '#64748B', fontWeight: 500 }}>
+                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: st.dot }} />
+                            {st.label}
+                        </div>
                     ))}
                 </div>
 
-                {orders.length === 0 ? (
-                    <div style={{ border: '1px dashed var(--border)', borderRadius: 28, padding: '96px 40px', textAlign: 'center', background: 'var(--muted)' }}>
-                        <ShoppingCart size={56} style={{ color: 'var(--muted-foreground)', marginBottom: 20, opacity: 0.5 }} />
-                        <h3 style={{ fontSize: '1.25rem', fontWeight: 950, color: 'var(--foreground)', margin: '0 0 8px', letterSpacing: '-0.03em' }}>No Orders Registered</h3>
-                        <p style={{ color: 'var(--muted-foreground)', fontWeight: 700, fontSize: '0.95rem', margin: 0 }}>Orders will automatically appear here once users submit requests.</p>
-                    </div>
-                ) : (
-                    <div className={adminStyles.tableWrapper}>
-                        <table className={adminStyles.registryTable}>
-                            <thead>
-                                <tr>
-                                    <th className={adminStyles.registryTH}>Order #</th>
-                                    <th className={adminStyles.registryTH}>Client Profile</th>
-                                    <th className={adminStyles.registryTH}>Organization / Node</th>
-                                    <th className={adminStyles.registryTH}>Workflow Name</th>
-                                    <th className={adminStyles.registryTH}>Pipeline Status</th>
-                                    <th className={adminStyles.registryTH}>Revenue</th>
-                                    <th className={adminStyles.registryTH}>Submission</th>
-                                    <th className={adminStyles.registryTH} style={{ textAlign: 'right' }}>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {(() => {
-                                    const filteredOrders = orders.filter(order => {
-                                        if (activeTab === "ALL") return true;
-                                        if (activeTab === "NEW") return order.status === 'PAYMENT_RECEIVED';
-                                        if (activeTab === "PROVISIONING") return ['PROVISIONING', 'INSTALLING_N8N', 'SERVER_READY', 'WORKFLOW_IMPORTED'].includes(order.status);
-                                        if (activeTab === "CREDENTIALS") return order.status === 'WAITING_CREDENTIALS';
-                                        if (activeTab === "SETUP") return ['CREDENTIALS_RECEIVED', 'ADMIN_SETUP', 'TESTING'].includes(order.status);
-                                        if (activeTab === "COMPLETED") return order.status === 'COMPLETED';
-                                        if (activeTab === "FAILED") return order.status === 'FAILED';
-                                        return true;
-                                    });
-
-                                    if (filteredOrders.length === 0) {
-                                        return (
-                                            <tr>
-                                                <td colSpan={8} style={{ textAlign: 'center', padding: '64px', color: 'var(--muted-foreground)', fontWeight: 800 }}>
-                                                    No orders match the selected filter.
-                                                </td>
-                                            </tr>
-                                        );
-                                    }
-
-                                    return filteredOrders.map(order => {
-                                        const currentIndex = STATUS_ORDER.indexOf(order.status);
-                                        const nextStatus = currentIndex >= 0 && currentIndex < STATUS_ORDER.length - 1 ? STATUS_ORDER[currentIndex + 1] : null;
-                                        const col = STATUS_COLORS[order.status] ?? { bg: 'var(--muted)', color: 'var(--muted-foreground)', border: 'var(--border)' };
-                                        const isUpdating = updatingId === order.id;
-
-                                        // Professional fallback for Client name/email
-                                        const clientName = order.userName || order.userEmail?.split('@')[0] || 'Operator';
-                                        const clientEmail = order.userEmail || 'system.provision@blonk.ai';
-
-                                        // Next step friendly text
-                                        const nextStepLabel = nextStatus ? (NEXT_STEP_LABELS[order.status] || `Advance to ${nextStatus.replace(/_/g, ' ')}`) : null;
-
-                                        return (
-                                            <tr key={order.id} className={adminStyles.registryRow} style={{ opacity: isUpdating ? 0.6 : 1 }}>
-                                                {/* Order Number Monospace hash */}
-                                                <td>
-                                                    <span className={adminStyles.identityHash}>
-                                                        #{order.orderNumber ? String(order.orderNumber).padStart(4, '0') : order.id?.slice(0, 8).toUpperCase()}
-                                                    </span>
-                                                </td>
-
-                                                {/* Client Profile */}
-                                                <td>
-                                                    <div className={adminStyles.requesterInfo}>
-                                                        <div className={adminStyles.requesterAvatar} style={{ background: 'var(--primary)' }}>
-                                                            <User size={14} />
-                                                        </div>
-                                                        <div>
-                                                            <div className={adminStyles.requesterName} style={{ color: 'var(--foreground)' }}>
-                                                                {clientName}
-                                                            </div>
-                                                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>
-                                                                {clientEmail}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-
-                                                {/* Team and Server Status */}
-                                                <td>
-                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 800, color: 'var(--foreground)', fontSize: '0.85rem' }}>
-                                                            <Users size={14} style={{ color: 'var(--muted-foreground)' }} />
-                                                            {order.teamName || 'Standalone Tier'}
-                                                        </div>
-                                                        {order.serverName ? (
-                                                            <div style={{ fontSize: '0.75rem', color: 'var(--accent)', fontWeight: 850, display: 'flex', alignItems: 'center', gap: 4 }}>
-                                                                <Cpu size={12} /> {order.serverName} ({order.serverStatus || 'Active'})
-                                                            </div>
-                                                        ) : (
-                                                            <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontStyle: 'italic' }}>No Node Assigned</span>
-                                                        )}
-                                                    </div>
-                                                </td>
-
-                                                {/* Workflow Name */}
-                                                <td>
-                                                    <div style={{ fontWeight: 800, color: 'var(--foreground)', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                        <Terminal size={14} style={{ color: 'var(--muted-foreground)' }} />
-                                                        {order.workflowName || 'Legacy Integration'}
-                                                    </div>
-                                                </td>
-
-                                                {/* Status Dropdown */}
-                                                <td>
-                                                    <div style={{ position: 'relative', display: 'inline-block' }}>
-                                                        <select
-                                                            value={order.status}
-                                                            disabled={isUpdating}
-                                                            onChange={e => updateStatus(order.id, e.target.value)}
-                                                            style={{ 
-                                                                padding: '8px 16px', 
-                                                                borderRadius: '12px', 
-                                                                border: `1px solid ${col.border}`, 
-                                                                fontSize: '0.78rem', 
-                                                                fontWeight: 900, 
-                                                                background: col.bg, 
-                                                                color: col.color, 
-                                                                cursor: 'pointer',
-                                                                outline: 'none',
-                                                                appearance: 'none',
-                                                                WebkitAppearance: 'none',
-                                                                paddingRight: '32px',
-                                                                letterSpacing: '0.04em',
-                                                                textTransform: 'uppercase',
-                                                                transition: 'all 0.2s'
-                                                            }}
-                                                        >
-                                                            {STATUS_ORDER.map(s => (
-                                                                <option key={s} value={s} style={{ background: 'var(--card)', color: 'var(--foreground)' }}>
-                                                                    {s.replace(/_/g, ' ')}
-                                                                </option>
-                                                            ))}
-                                                        </select>
-                                                        <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: col.color, display: 'flex', alignItems: 'center' }}>
-                                                            <Loader2 size={12} className={isUpdating ? adminStyles.spinning : ''} style={{ display: isUpdating ? 'block' : 'none' }} />
-                                                            <span style={{ display: isUpdating ? 'none' : 'block', fontSize: '8px' }}>▼</span>
-                                                        </div>
-                                                    </div>
-                                                </td>
-
-                                                {/* Amount formatted */}
-                                                <td>
-                                                    <div style={{ fontWeight: 950, color: 'var(--foreground)', fontSize: '0.9rem' }}>
-                                                        {order.amount && Number(order.amount) > 0 ? (
-                                                            `€${Number(order.amount).toFixed(2)}`
-                                                        ) : (
-                                                            <span style={{ color: 'var(--accent)', fontWeight: 900, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Free Setup</span>
-                                                        )}
-                                                    </div>
-                                                </td>
-
-                                                {/* Submission Date */}
-                                                <td>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>
-                                                        <Clock size={13} />
-                                                        {fmt(order.createdAt)}
-                                                    </div>
-                                                </td>
-
-                                                {/* Actions block */}
-                                                <td style={{ textAlign: 'right' }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
-                                                        {/* View logs btn */}
-                                                        <button
-                                                            onClick={() => setInspectingOrder(order)}
-                                                            title="View Provisioning Logs"
-                                                            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '38px', height: '38px', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--card)', color: 'var(--muted-foreground)', cursor: 'pointer', transition: 'all 0.2s' }}
-                                                            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--foreground)'; }}
-                                                            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--muted-foreground)'; }}
-                                                        >
-                                                            <Terminal size={14} />
-                                                        </button>
-
-                                                        {/* Edit details btn */}
-                                                        <button
-                                                            onClick={() => setEditingDetailsOrder(order)}
-                                                            title="Edit Order Details"
-                                                            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '38px', height: '38px', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--card)', color: 'var(--muted-foreground)', cursor: 'pointer', transition: 'all 0.2s' }}
-                                                            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--foreground)'; }}
-                                                            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--muted-foreground)'; }}
-                                                        >
-                                                            <Cpu size={14} />
-                                                        </button>
-
-                                                        {/* Next status btn */}
-                                                        {nextStepLabel && order.status !== 'FAILED' ? (
-                                                            <button
-                                                                disabled={isUpdating}
-                                                                onClick={() => nextStatus && updateStatus(order.id, nextStatus)}
-                                                                className={adminStyles.primaryBtn}
-                                                                style={{ 
-                                                                    display: 'inline-flex', 
-                                                                    alignItems: 'center', 
-                                                                    gap: 8, 
-                                                                    height: '38px', 
-                                                                    padding: '0 16px', 
-                                                                    borderRadius: '12px', 
-                                                                    fontSize: '0.78rem', 
-                                                                    fontWeight: 950, 
-                                                                    cursor: 'pointer',
-                                                                    background: 'var(--foreground)',
-                                                                    color: 'var(--background)',
-                                                                    border: 'none',
-                                                                    whiteSpace: 'nowrap',
-                                                                    transition: 'all 0.25s'
-                                                                }}
-                                                            >
-                                                                {isUpdating ? (
-                                                                    <Loader2 size={13} className={adminStyles.spinning} />
-                                                                ) : (
-                                                                    <>
-                                                                        {nextStepLabel}
-                                                                        <ArrowRight size={13} />
-                                                                    </>
-                                                                )}
-                                                            </button>
-                                                        ) : (
-                                                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.78rem', color: order.status === 'COMPLETED' ? 'var(--accent)' : 'var(--destructive)', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', height: '38px', padding: '0 12px' }}>
-                                                                {order.status === 'COMPLETED' ? (
-                                                                    <>
-                                                                        <CheckCircle2 size={14} /> Active
-                                                                    </>
-                                                                ) : (
-                                                                    <>
-                                                                        <AlertCircle size={14} /> Failed
-                                                                    </>
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    });
-                                })()}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Order Types:</span>
+                    {[
+                        { label: 'Marketplace', icon: <ShoppingCart size={12} />, color: '#10B981', bg: '#E6F4EA' },
+                        { label: 'Custom Request', icon: <Sparkles size={12} />, color: '#A855F7', bg: '#F3E8FF' },
+                        { label: 'Subscription', icon: <CreditCard size={12} />, color: '#3B82F6', bg: '#EFF6FF' },
+                        { label: 'Refund', icon: <Undo size={12} />, color: '#EF4444', bg: '#FEF2F2' }
+                    ].map(ot => (
+                        <div key={ot.label} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', color: '#64748B', fontWeight: 500 }}>
+                            <div style={{ 
+                                width: '20px', 
+                                height: '20px', 
+                                borderRadius: '4px', 
+                                background: ot.bg, 
+                                color: ot.color, 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'center' 
+                            }}>
+                                {ot.icon}
+                            </div>
+                            {ot.label}
+                        </div>
+                    ))}
+                </div>
             </div>
 
-            {/* INSPECT LOGS MODAL */}
-            {inspectingOrder && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-                    <div style={{ background: '#FFFFFF', borderRadius: '24px', padding: '40px', maxWidth: '650px', width: '90%', maxHeight: '85vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '24px', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)' }}>
+            {/* 7. MANUAL CREATE ORDER MODAL */}
+            {showCreateModal && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                    <div style={{ background: '#FFFFFF', borderRadius: '16px', padding: '32px', maxWidth: '550px', width: '90%', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
-                                <h2 style={{ fontSize: '1.25rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>Provisioning Log Stream</h2>
-                                <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0', fontWeight: 700 }}>
+                                <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>Create Manual Workflow Order</h2>
+                                <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0' }}>Provision workflow environments manually from the command core.</p>
+                            </div>
+                            <button onClick={() => setShowCreateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}>
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                            <div style={{ gridColumn: 'span 2' }}>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Workflow / Item Name</label>
+                                <input
+                                    type="text"
+                                    placeholder="Invoice Automator, Lead Enrichment Flow, etc."
+                                    value={createData.workflowName}
+                                    onChange={(e) => setCreateData({ ...createData, workflowName: e.target.value })}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 12px', fontSize: '0.9rem', outline: 'none' }}
+                                />
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Link User Profile</label>
+                                <select
+                                    value={createData.userId}
+                                    onChange={(e) => setCreateData({ ...createData, userId: e.target.value })}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none' }}
+                                >
+                                    <option value="">Select User Profile</option>
+                                    {users.map(u => (
+                                        <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Link Team/Org</label>
+                                <select
+                                    value={createData.teamId}
+                                    onChange={(e) => setCreateData({ ...createData, teamId: e.target.value })}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none' }}
+                                >
+                                    <option value="">Select Team/Organization</option>
+                                    {teams.map(t => (
+                                        <option key={t.id} value={t.id}>{t.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Order Type</label>
+                                <select
+                                    value={createData.orderType}
+                                    onChange={(e) => setCreateData({ ...createData, orderType: e.target.value })}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none' }}
+                                >
+                                    <option value="Marketplace">Marketplace</option>
+                                    <option value="Custom Request">Custom Request</option>
+                                    <option value="Subscription">Subscription</option>
+                                    <option value="Refund">Refund</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Order Subtype</label>
+                                <input
+                                    type="text"
+                                    placeholder="Workflow Purchase, Monthly Plan..."
+                                    value={createData.orderSubType}
+                                    onChange={(e) => setCreateData({ ...createData, orderSubType: e.target.value })}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 12px', fontSize: '0.9rem', outline: 'none' }}
+                                />
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Plan Name</label>
+                                <select
+                                    value={createData.plan}
+                                    onChange={(e) => setCreateData({ ...createData, plan: e.target.value })}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none' }}
+                                >
+                                    <option value="Startup">Startup</option>
+                                    <option value="Professional">Professional</option>
+                                    <option value="Growth">Growth</option>
+                                    <option value="Enterprise">Enterprise</option>
+                                    <option value="Starter">Starter</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Revenue Value (€)</label>
+                                <input
+                                    type="number"
+                                    value={createData.amount}
+                                    onChange={(e) => setCreateData({ ...createData, amount: Number(e.target.value) })}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 12px', fontSize: '0.9rem', outline: 'none' }}
+                                />
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Priority</label>
+                                <select
+                                    value={createData.priority}
+                                    onChange={(e) => setCreateData({ ...createData, priority: e.target.value })}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none' }}
+                                >
+                                    <option value="LOW">LOW</option>
+                                    <option value="MEDIUM">MEDIUM</option>
+                                    <option value="HIGH">HIGH</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Assigned Operator</label>
+                                <input
+                                    type="text"
+                                    placeholder="John Carter Admin, etc."
+                                    value={createData.assignedTo}
+                                    onChange={(e) => setCreateData({ ...createData, assignedTo: e.target.value })}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 12px', fontSize: '0.9rem', outline: 'none' }}
+                                />
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Initial Status</label>
+                                <select
+                                    value={createData.status}
+                                    onChange={(e) => setCreateData({ ...createData, status: e.target.value })}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none' }}
+                                >
+                                    {STATUS_ORDER.map(st => (
+                                        <option key={st} value={st}>{st.replace(/_/g, ' ')}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Assign VPS Server</label>
+                                <select
+                                    value={createData.serverId || ""}
+                                    onChange={(e) => setCreateData({ ...createData, serverId: e.target.value || null })}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none' }}
+                                >
+                                    <option value="">None Linked</option>
+                                    {nodes.map(n => (
+                                        <option key={n.id} value={n.id}>{n.name} ({n.url})</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                            <button
+                                onClick={handleCreateOrder}
+                                disabled={isCreatingOrder}
+                                style={{
+                                    flex: 1,
+                                    height: '48px',
+                                    background: '#0F172A',
+                                    color: '#FFFFFF',
+                                    borderRadius: '8px',
+                                    border: 'none',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
+                            >
+                                {isCreatingOrder ? 'Creating Order...' : 'Submit Order'}
+                            </button>
+                            <button
+                                onClick={() => setShowCreateModal(false)}
+                                style={{
+                                    flex: 1,
+                                    height: '48px',
+                                    background: 'transparent',
+                                    border: '1px solid #E2E8F0',
+                                    borderRadius: '8px',
+                                    color: '#64748B',
+                                    fontWeight: 700,
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* 8. INSPECT LOGS MODAL */}
+            {inspectingOrder && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                    <div style={{ background: '#FFFFFF', borderRadius: '16px', padding: '32px', maxWidth: '650px', width: '90%', maxHeight: '85vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                                <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>Provisioning Log Stream</h2>
+                                <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0', fontWeight: 600 }}>
                                     Order #{inspectingOrder.orderNumber ? String(inspectingOrder.orderNumber).padStart(4, '0') : inspectingOrder.id?.slice(0, 8).toUpperCase()} for {inspectingOrder.userName || inspectingOrder.userEmail}
                                 </p>
                             </div>
-                            <button 
-                                onClick={() => setInspectingOrder(null)}
-                                style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#F8FAFC', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-                            >
-                                <X size={16} />
+                            <button onClick={() => setInspectingOrder(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}>
+                                <X size={20} />
                             </button>
                         </div>
 
                         {/* Logs Stream */}
-                        <div style={{ flex: 1, overflowY: 'auto', background: '#0F172A', borderRadius: '16px', padding: '24px', maxHeight: '400px', display: 'flex', flexDirection: 'column', gap: '12px', fontFamily: 'monospace', fontSize: '0.82rem', color: '#E2E8F0' }}>
+                        <div style={{ flex: 1, overflowY: 'auto', background: '#0F172A', borderRadius: '12px', padding: '20px', maxHeight: '360px', display: 'flex', flexDirection: 'column', gap: '8px', fontFamily: 'monospace', fontSize: '0.8rem', color: '#E2E8F0' }}>
                             {(!inspectingOrder.logs || inspectingOrder.logs.length === 0) ? (
                                 <div style={{ color: '#64748B', fontStyle: 'italic', textAlign: 'center', padding: '40px 0' }}>No log entries recorded.</div>
                             ) : (
@@ -611,7 +1558,7 @@ export default function AdminOrdersClient() {
                                     if (log.level === 'warning') levelColor = '#F59E0B';
 
                                     return (
-                                        <div key={idx} style={{ display: 'flex', gap: '12px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '8px' }}>
+                                        <div key={idx} style={{ display: 'flex', gap: '10px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '6px' }}>
                                             <span style={{ color: '#64748B' }}>[{log.at ? new Date(log.at).toLocaleTimeString() : '—'}]</span>
                                             <span style={{ color: levelColor, fontWeight: 'bold' }}>{log.level?.toUpperCase() || 'INFO'}</span>
                                             <span style={{ color: '#FFFFFF' }}>{log.message}</span>
@@ -623,8 +1570,8 @@ export default function AdminOrdersClient() {
 
                         {/* Add Log Entry Form */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <label style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B' }}>Add Manual Log Entry</label>
-                            <div style={{ display: 'flex', gap: '12px' }}>
+                            <label style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B' }}>Add Manual Log Entry</label>
+                            <div style={{ display: 'flex', gap: '8px' }}>
                                 <input 
                                     type="text"
                                     placeholder="Enter operator note or update..."
@@ -638,7 +1585,7 @@ export default function AdminOrdersClient() {
                                             }
                                         }
                                     }}
-                                    style={{ flex: 1, height: '48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                    style={{ flex: 1, height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 12px', fontSize: '0.88rem', outline: 'none' }}
                                 />
                                 <button 
                                     onClick={async () => {
@@ -648,18 +1595,15 @@ export default function AdminOrdersClient() {
                                             input.value = '';
                                         }
                                     }}
-                                    style={{ height: '48px', padding: '0 20px', background: '#0F172A', color: '#FFFFFF', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer' }}
+                                    style={{ height: '40px', padding: '0 16px', background: '#0F172A', color: '#FFFFFF', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '0.88rem', cursor: 'pointer' }}
                                 >
                                     Add
                                 </button>
                             </div>
                         </div>
 
-                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                            <button 
-                                onClick={() => setInspectingOrder(null)}
-                                style={{ height: '48px', padding: '0 24px', background: 'transparent', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: '12px', fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer' }}
-                            >
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
+                            <button onClick={() => setInspectingOrder(null)} style={{ height: '40px', padding: '0 20px', background: 'transparent', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: '8px', fontWeight: 600, fontSize: '0.88rem', cursor: 'pointer' }}>
                                 Close
                             </button>
                         </div>
@@ -667,42 +1611,101 @@ export default function AdminOrdersClient() {
                 </div>
             )}
 
-            {/* EDIT DETAILS MODAL */}
+            {/* 9. EDIT CONFIGURATION DETAILS MODAL */}
             {editingDetailsOrder && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-                    <div style={{ background: '#FFFFFF', borderRadius: '24px', padding: '40px', maxWidth: '500px', width: '90%', display: 'flex', flexDirection: 'column', gap: '24px', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)' }}>
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                    <div style={{ background: '#FFFFFF', borderRadius: '16px', padding: '32px', maxWidth: '500px', width: '90%', display: 'flex', flexDirection: 'column', gap: '20px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
-                                <h2 style={{ fontSize: '1.25rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>Configure Order Details</h2>
-                                <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0', fontWeight: 700 }}>
+                                <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>Configure Order Details</h2>
+                                <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0', fontWeight: 500 }}>
                                     Modify attributes for Order #{editingDetailsOrder.orderNumber ? String(editingDetailsOrder.orderNumber).padStart(4, '0') : editingDetailsOrder.id?.slice(0, 8).toUpperCase()}
                                 </p>
                             </div>
-                            <button 
-                                onClick={() => setEditingDetailsOrder(null)}
-                                style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#F8FAFC', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-                            >
-                                <X size={16} />
+                            <button onClick={() => setEditingDetailsOrder(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}>
+                                <X size={20} />
                             </button>
                         </div>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '6px' }}>Workflow Name</label>
+                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>Workflow Name</label>
                                 <input 
                                     type="text"
                                     value={editDetailsData.workflowName}
                                     onChange={(e) => setEditDetailsData({ ...editDetailsData, workflowName: e.target.value })}
-                                    style={{ width: '100%', height: '48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 12px', fontSize: '0.88rem', outline: 'none' }}
                                 />
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '6px' }}>Assign Server / Node</label>
+                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>Order Type</label>
+                                <select
+                                    value={editDetailsData.orderType}
+                                    onChange={(e) => setEditDetailsData({ ...editDetailsData, orderType: e.target.value })}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.88rem', outline: 'none' }}
+                                >
+                                    <option value="Marketplace">Marketplace</option>
+                                    <option value="Custom Request">Custom Request</option>
+                                    <option value="Subscription">Subscription</option>
+                                    <option value="Refund">Refund</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>Order Subtype</label>
+                                <input 
+                                    type="text"
+                                    value={editDetailsData.orderSubType}
+                                    onChange={(e) => setEditDetailsData({ ...editDetailsData, orderSubType: e.target.value })}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 12px', fontSize: '0.88rem', outline: 'none' }}
+                                />
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>Plan Name</label>
+                                <select
+                                    value={editDetailsData.plan}
+                                    onChange={(e) => setEditDetailsData({ ...editDetailsData, plan: e.target.value })}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.88rem', outline: 'none' }}
+                                >
+                                    <option value="Startup">Startup</option>
+                                    <option value="Professional">Professional</option>
+                                    <option value="Growth">Growth</option>
+                                    <option value="Enterprise">Enterprise</option>
+                                    <option value="Starter">Starter</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>Priority</label>
+                                <select
+                                    value={editDetailsData.priority}
+                                    onChange={(e) => setEditDetailsData({ ...editDetailsData, priority: e.target.value })}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.88rem', outline: 'none' }}
+                                >
+                                    <option value="LOW">LOW</option>
+                                    <option value="MEDIUM">MEDIUM</option>
+                                    <option value="HIGH">HIGH</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>Assigned Operator</label>
+                                <input 
+                                    type="text"
+                                    value={editDetailsData.assignedTo}
+                                    onChange={(e) => setEditDetailsData({ ...editDetailsData, assignedTo: e.target.value })}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 12px', fontSize: '0.88rem', outline: 'none' }}
+                                />
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>Assign VPS Server / Node</label>
                                 <select 
                                     value={editDetailsData.serverId || ""}
                                     onChange={(e) => setEditDetailsData({ ...editDetailsData, serverId: e.target.value || null })}
-                                    style={{ width: '100%', height: '48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.88rem', outline: 'none' }}
                                 >
                                     <option value="">No Server Linked</option>
                                     {nodes.map(n => (
@@ -712,38 +1715,54 @@ export default function AdminOrdersClient() {
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '6px' }}>n8n Workflow ID</label>
+                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>n8n Workflow ID</label>
                                 <input 
                                     type="text"
                                     value={editDetailsData.n8nWorkflowId || ""}
                                     onChange={(e) => setEditDetailsData({ ...editDetailsData, n8nWorkflowId: e.target.value || null })}
                                     placeholder="Enter instance workflow ID..."
-                                    style={{ width: '100%', height: '48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 12px', fontSize: '0.88rem', outline: 'none' }}
                                 />
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '6px' }}>Revenue Amount (€)</label>
+                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>Revenue Amount (€)</label>
                                 <input 
                                     type="number"
                                     value={editDetailsData.amount}
                                     onChange={(e) => setEditDetailsData({ ...editDetailsData, amount: parseFloat(e.target.value) || 0 })}
-                                    style={{ width: '100%', height: '48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 12px', fontSize: '0.88rem', outline: 'none' }}
                                 />
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>Advance Status Stage</label>
+                                <select
+                                    value={editingDetailsOrder.status}
+                                    disabled={updatingId === editingDetailsOrder.id}
+                                    onChange={e => updateStatus(editingDetailsOrder.id, e.target.value)}
+                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.88rem', outline: 'none' }}
+                                >
+                                    {STATUS_ORDER.map(s => (
+                                        <option key={s} value={s}>
+                                            {s.replace(/_/g, ' ')}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 
-                        <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                        <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
                             <button 
                                 onClick={handleSaveDetails}
                                 disabled={isSavingDetails}
-                                style={{ flex: 1, height: '52px', background: '#0F172A', color: '#FFFFFF', border: 'none', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: isSavingDetails ? 'not-allowed' : 'pointer' }}
+                                style={{ flex: 1, height: '48px', background: '#0F172A', color: '#FFFFFF', border: 'none', borderRadius: '8px', fontSize: '0.88rem', fontWeight: 700, cursor: isSavingDetails ? 'not-allowed' : 'pointer' }}
                             >
                                 {isSavingDetails ? 'Saving...' : 'Save Configuration'}
                             </button>
                             <button 
                                 onClick={() => setEditingDetailsOrder(null)}
-                                style={{ flex: 1, height: '52px', background: 'transparent', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: 'pointer' }}
+                                style={{ flex: 1, height: '48px', background: 'transparent', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '0.88rem', fontWeight: 700, cursor: 'pointer' }}
                             >
                                 Cancel
                             </button>

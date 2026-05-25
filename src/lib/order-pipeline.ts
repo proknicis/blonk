@@ -34,6 +34,13 @@ export async function ensureOrderSchema() {
         )
     `);
 
+    // Ensure columns exist for advanced metrics and styling sync
+    await db.execute(`ALTER TABLE "WorkflowOrder" ADD COLUMN IF NOT EXISTS "orderType" VARCHAR(50) DEFAULT 'Marketplace'`).catch(() => {});
+    await db.execute(`ALTER TABLE "WorkflowOrder" ADD COLUMN IF NOT EXISTS "orderSubType" VARCHAR(100) DEFAULT 'Workflow Purchase'`).catch(() => {});
+    await db.execute(`ALTER TABLE "WorkflowOrder" ADD COLUMN IF NOT EXISTS "plan" VARCHAR(50) DEFAULT 'Startup'`).catch(() => {});
+    await db.execute(`ALTER TABLE "WorkflowOrder" ADD COLUMN IF NOT EXISTS "priority" VARCHAR(50) DEFAULT 'MEDIUM'`).catch(() => {});
+    await db.execute(`ALTER TABLE "WorkflowOrder" ADD COLUMN IF NOT EXISTS "assignedTo" VARCHAR(100) DEFAULT 'System Auto'`).catch(() => {});
+
     // Ensure Workflow table has the columns needed by the order pipeline
     await db.execute(`ALTER TABLE "Workflow" ADD COLUMN IF NOT EXISTS "templateId" UUID`).catch(() => {});
     await db.execute(`ALTER TABLE "Workflow" ADD COLUMN IF NOT EXISTS "serverId" UUID`).catch(() => {});
@@ -450,6 +457,11 @@ export async function updateOrderDetails(orderId: string, details: {
     serverId?: string | null;
     n8nWorkflowId?: string | null;
     addLogMessage?: string;
+    orderType?: string;
+    orderSubType?: string;
+    plan?: string;
+    priority?: string;
+    assignedTo?: string;
 }) {
     await ensureOrderSchema();
     const [order] = await db.query('SELECT * FROM "WorkflowOrder" WHERE id = $1', [orderId]) as any[];
@@ -474,6 +486,26 @@ export async function updateOrderDetails(orderId: string, details: {
     if (details.n8nWorkflowId !== undefined) {
         sets.push(`"n8nWorkflowId" = $${idx++}`);
         params.push(details.n8nWorkflowId);
+    }
+    if (details.orderType !== undefined) {
+        sets.push(`"orderType" = $${idx++}`);
+        params.push(details.orderType);
+    }
+    if (details.orderSubType !== undefined) {
+        sets.push(`"orderSubType" = $${idx++}`);
+        params.push(details.orderSubType);
+    }
+    if (details.plan !== undefined) {
+        sets.push(`"plan" = $${idx++}`);
+        params.push(details.plan);
+    }
+    if (details.priority !== undefined) {
+        sets.push(`"priority" = $${idx++}`);
+        params.push(details.priority);
+    }
+    if (details.assignedTo !== undefined) {
+        sets.push(`"assignedTo" = $${idx++}`);
+        params.push(details.assignedTo);
     }
     params.push(orderId);
 

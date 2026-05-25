@@ -153,6 +153,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         if (path.startsWith("/admin/marketplace")) return "MARKETPLACE MANAGEMENT";
         if (path.startsWith("/admin/support")) return "SUPPORT INBOX";
         if (path.startsWith("/admin/audit")) return "AUDIT TRAIL";
+        if (path === "/admin/orders") return "ORDERS";
         return "ADMIN CONTROL PANEL";
     };
 
@@ -302,10 +303,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         <h2 style={{ fontSize: "1.25rem", fontWeight: 950, color: "var(--foreground)", letterSpacing: "-0.02em", margin: 0 }}>
                             {getModuleTitle(pathname)}
                         </h2>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 12px", background: "rgba(52,209,134,0.08)", borderRadius: "100px", border: "1px solid rgba(52,209,134,0.15)" }}>
-                            <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--accent)", boxShadow: "0 0 8px var(--accent)" }} />
-                            <span style={{ fontSize: "0.65rem", fontWeight: 950, color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.12em" }}>System Nominal</span>
-                        </div>
+                        {pathname === "/admin/orders" ? (
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 12px", background: "rgba(52,209,134,0.08)", borderRadius: "100px", border: "1px solid rgba(52,209,134,0.15)" }}>
+                                <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--accent)", boxShadow: "0 0 8px var(--accent)" }} />
+                                <span style={{ fontSize: "0.65rem", fontWeight: 950, color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.12em" }}>NODE CLUSTER: GLOBAL_ALPHA</span>
+                            </div>
+                        ) : (
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 12px", background: "rgba(52,209,134,0.08)", borderRadius: "100px", border: "1px solid rgba(52,209,134,0.15)" }}>
+                                <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--accent)", boxShadow: "0 0 8px var(--accent)" }} />
+                                <span style={{ fontSize: "0.65rem", fontWeight: 950, color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.12em" }}>System Nominal</span>
+                            </div>
+                        )}
                     </div>
 
                     <div style={{ display: "flex", gap: "24px", alignItems: "center" }}>
@@ -313,7 +321,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             <Search style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "var(--muted-foreground)", pointerEvents: "none" }} size={18} />
                             <input
                                 type="text"
-                                placeholder="Search administrative records..."
+                                placeholder={pathname === "/admin/orders" ? "Search orders..." : "Search administrative records..."}
                                 style={{ width: "320px", height: "48px", background: "var(--muted)", border: "1px solid var(--border)", borderRadius: "16px", padding: "0 48px", fontSize: "0.9rem", fontWeight: 700, color: "var(--foreground)", outline: "none" }}
                             />
                         </div>
