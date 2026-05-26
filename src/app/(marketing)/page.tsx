@@ -4,7 +4,7 @@ import React from "react";
 import HeroVideo from "./HeroVideo";
 
 const IconArrow = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         <line x1="5" y1="12" x2="19" y2="12" />
         <polyline points="12 5 19 12 12 19" />
     </svg>
@@ -16,78 +16,150 @@ const IconCheck = () => (
     </svg>
 );
 
+const IconMail = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="4" width="20" height="16" rx="2" />
+        <path d="M22 7l-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+    </svg>
+);
+
+const IconBilling = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+        <line x1="1" y1="10" x2="23" y2="10" />
+    </svg>
+);
+
+const IconUsers = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+);
+
+const IconCpu = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="4" y="4" width="16" height="16" rx="2" />
+        <rect x="9" y="9" width="6" height="6" />
+        <line x1="9" y1="1" x2="9" y2="4" />
+        <line x1="15" y1="1" x2="15" y2="4" />
+        <line x1="9" y1="20" x2="9" y2="23" />
+        <line x1="15" y1="20" x2="15" y2="23" />
+        <line x1="20" y1="9" x2="23" y2="9" />
+        <line x1="20" y1="15" x2="23" y2="15" />
+        <line x1="1" y1="9" x2="4" y2="9" />
+        <line x1="1" y1="15" x2="4" y2="15" />
+    </svg>
+);
+
+const IconShield = () => (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    </svg>
+);
+
+const IconUnlock = () => (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+        <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+    </svg>
+);
+
+const IconTrending = () => (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+        <polyline points="17 6 23 6 23 12" />
+    </svg>
+);
+
+const IconSliders = () => (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="4" y1="21" x2="4" y2="14" />
+        <line x1="4" y1="10" x2="4" y2="3" />
+        <line x1="12" y1="21" x2="12" y2="12" />
+        <line x1="12" y1="8" x2="12" y2="3" />
+        <line x1="20" y1="21" x2="20" y2="16" />
+        <line x1="20" y1="12" x2="20" y2="3" />
+        <line x1="2" y1="14" x2="6" y2="14" />
+        <line x1="10" y1="8" x2="14" y2="8" />
+        <line x1="18" y1="16" x2="22" y2="16" />
+    </svg>
+);
+
 const workflows = [
     {
         title: "Intake Triage & AI Draft",
         price: "$149",
-        desc: "Monitors your inbox, uses AI to categorize intent, extracts client details, updates your CRM, and stages a custom follow-up reply.",
+        desc: "Ingests incoming emails, classifies intent, extracts key entity details, updates CRM systems, and schedules follow-up drafts.",
         apps: ["Gmail", "HubSpot", "OpenAI"],
-        icon: "🧲",
-        color: "#EFF6FF",
+        Icon: IconMail,
+        color: "#f8fafc",
     },
     {
         title: "Invoice Auto-Chaser",
         price: "$199",
-        desc: "Checks payment ledger daily, cross-references bank deposits, and automatically sends polite follow-ups from your address.",
+        desc: "Automates daily collections monitoring. Scans unpaid ledger balances, matches Stripe bank receipts, and dispatches reminders.",
         apps: ["QuickBooks", "Stripe", "Gmail"],
-        icon: "🧾",
-        color: "#F0FDFA",
+        Icon: IconBilling,
+        color: "#f8fafc",
     },
     {
         title: "Client Onboarding Flow",
         price: "$149",
-        desc: "Triggered on signed contract. Automatically creates shared Google Drive folders, provisions Slack channels, and schedules kickoff meetings.",
+        desc: "Executed upon signature. Creates secure Google Drive directories, provisions Slack channels, and schedules kickoff tasks.",
         apps: ["DocuSign", "Drive", "Slack"],
-        icon: "🤝",
-        color: "#FFFBEB",
+        Icon: IconUsers,
+        color: "#f8fafc",
     },
     {
         title: "AI Invoice OCR Extractor",
         price: "$249",
-        desc: "Extracts line items, totals, and tax info from incoming invoice PDFs using GPT-Vision and logs them directly to your ledger.",
+        desc: "Extracts line items, totals, and invoice metadata from raw documents using GPT-Vision, syncing findings directly to your ledger.",
         apps: ["Gmail", "GPT-4o", "Sheets"],
-        icon: "🧠",
-        color: "#FDF2F8",
+        Icon: IconCpu,
+        color: "#f8fafc",
     }
 ];
 
 const sovereigntyFeatures = [
     {
-        title: "No Vendor Lock-In",
-        desc: "You buy the n8n JSON file. It is yours forever. Run it on your local server, cloud, or VPS with no monthly license restrictions.",
-        icon: "🔓",
+        title: "Decoupled Architecture",
+        desc: "You purchase the n8n execution files. Run them on local, cloud, or hybrid instances with no downstream vendor lock-in.",
+        Icon: IconUnlock,
     },
     {
         title: "100% Data Sovereignty",
-        desc: "Your data stays in your network. It never touches our servers. Perfect for firms with strict GRC and SOC-2 policies.",
-        icon: "🛡️",
+        desc: "Your data routes strictly through your corporate nodes. Zero external middleman processing. SOC-2 and HIPAA compliant by default.",
+        Icon: IconShield,
     },
     {
-        title: "Zero API Cost Markups",
-        desc: "Pay directly to OpenAI, HubSpot, and Google. No middleware margins or markup fees on your data executions.",
-        icon: "💸",
+        title: "Direct API Execution",
+        desc: "Execute queries directly with OpenAI and Google. Pay zero gateway markups, platform premiums, or usage overhead.",
+        Icon: IconTrending,
     },
     {
-        title: "Drag & Drop Canvas",
-        desc: "Want to change the email template or add a Slack notification? Edit the nodes on the n8n visual builder in seconds.",
-        icon: "🎨",
+        title: "Modifiable Logical Canvas",
+        desc: "Full code ownership allows internal GRC and IT teams to extend, modify, or pivot the workflow logic on n8n drag-and-drop grids.",
+        Icon: IconSliders,
     }
 ];
 
 const standardItems = [
-    'Fully customizable n8n JSON file',
-    'Lifetime updates & bug fixes',
-    'Standard configuration guide',
-    '100% self-hosted or Cloud',
-    'Community support access',
+    'Sovereign n8n JSON file license',
+    'Lifetime blueprint updates & patches',
+    'Technical setup & deployment guide',
+    'Local VPS or Cloud deploy ready',
+    'Documentation & community support',
 ];
 
 const bundleItems = [
-    'Lifetime access to all workflows',
-    'Full system & database setup',
-    '3 hours of custom integration help',
-    'Dedicated engineer support',
-    'Sovereign infrastructure blueprint',
+    'Lifetime access to full workflow catalog',
+    'Full system & database provisioning',
+    '3 hours of custom engineering support',
+    'Priority deployment updates',
+    'GRC compliance architecture guide',
 ];
 
 export default function HomePage() {
@@ -107,32 +179,32 @@ export default function HomePage() {
                     </div>
                 </section>
 
-                {/* ── SECTION 1: HOW IT WORKS (n8n Engine Simulator) ── */}
+                {/* ── SECTION 1: EXECUTION ENGINE (n8n Trace Visualizer) ── */}
                 <section className={styles.section} style={{ background: '#fafafa' }}>
                     <div className={styles.sectionInner}>
                         <div className={styles.sectionHeader}>
-                            <span className={styles.eyebrow}>How it works</span>
-                            <h2 className={styles.sectionTitle}>Visual, Auditable, and Fast.</h2>
+                            <span className={styles.eyebrow}>Execution Engine</span>
+                            <h2 className={styles.sectionTitle}>Visual. Auditable. Reliable.</h2>
                             <p className={styles.sectionSub}>
-                                Blonk workflows execute visually inside n8n. No black-box code. You can see, test, and audit every node execution in real-time.
+                                Blonk designs run on a clean, visual canvas. Zero hidden microservices. Monitor database updates and logic jumps in real-time.
                             </p>
                         </div>
 
-                        {/* Interactive n8n Visualizer Mockup */}
+                        {/* Professional Node Visualizer Mockup */}
                         <div className={styles.n8nContainer}>
-                            <div className={styles.n8nNodeCard} data-status="success">
+                            <div className={styles.n8nNodeCard}>
                                 <div className={styles.n8nHeader}>
-                                    <span className={styles.n8nIcon}>✉️</span>
+                                    <span className={styles.n8nIcon} style={{ color: '#0f172a' }}><IconMail /></span>
                                     <span className={styles.n8nTitle}>1. Email Trigger</span>
                                     <span className={styles.n8nStatus}>success</span>
                                 </div>
                                 <div className={styles.n8nBody}>
-                                    <div className={styles.n8nJsonTitle}>Parsed Payload:</div>
+                                    <div className={styles.n8nJsonTitle}>Payload Metadata:</div>
                                     <pre className={styles.n8nJson}>
 {`{
-  "from": "john@acme.com",
-  "subject": "Need Tax Audit Help",
-  "body": "Hi, we need to audit our..."
+  "sender": "partner@firm.com",
+  "category": "legal_inquiry",
+  "priority": "high"
 }`}
                                     </pre>
                                 </div>
@@ -140,19 +212,19 @@ export default function HomePage() {
 
                             <div className={styles.n8nLine} />
 
-                            <div className={styles.n8nNodeCard} data-status="success">
+                            <div className={styles.n8nNodeCard}>
                                 <div className={styles.n8nHeader}>
-                                    <span className={styles.n8nIcon}>🧠</span>
-                                    <span className={styles.n8nTitle}>2. OpenAI Parser</span>
+                                    <span className={styles.n8nIcon} style={{ color: '#0f172a' }}><IconCpu /></span>
+                                    <span className={styles.n8nTitle}>2. Parser Engine</span>
                                     <span className={styles.n8nStatus}>success</span>
                                 </div>
                                 <div className={styles.n8nBody}>
-                                    <div className={styles.n8nJsonTitle}>AI Classification:</div>
+                                    <div className={styles.n8nJsonTitle}>Token Output:</div>
                                     <pre className={styles.n8nJson}>
 {`{
-  "intent": "corporate_tax_audit",
-  "urgency": "high",
-  "name": "John Smith"
+  "entity": "Acme Partners",
+  "intent": "grc_reconciliation",
+  "confidence": 0.99
 }`}
                                     </pre>
                                 </div>
@@ -160,19 +232,19 @@ export default function HomePage() {
 
                             <div className={styles.n8nLine} />
 
-                            <div className={styles.n8nNodeCard} data-status="success">
+                            <div className={styles.n8nNodeCard}>
                                 <div className={styles.n8nHeader}>
-                                    <span className={styles.n8nIcon}>💼</span>
-                                    <span className={styles.n8nTitle}>3. HubSpot CRM</span>
+                                    <span className={styles.n8nIcon} style={{ color: '#0f172a' }}><IconUsers /></span>
+                                    <span className={styles.n8nTitle}>3. CRM Sync</span>
                                     <span className={styles.n8nStatus}>success</span>
                                 </div>
                                 <div className={styles.n8nBody}>
-                                    <div className={styles.n8nJsonTitle}>CRM Result:</div>
+                                    <div className={styles.n8nJsonTitle}>Transaction logs:</div>
                                     <pre className={styles.n8nJson}>
 {`{
-  "leadCreated": true,
-  "leadId": "998271",
-  "status": "Assigned"
+  "syncSuccess": true,
+  "databaseId": "usr_9921b",
+  "recordsUpdated": 1
 }`}
                                     </pre>
                                 </div>
@@ -181,39 +253,42 @@ export default function HomePage() {
                     </div>
                 </section>
 
-                {/* ── SECTION 2: WORKFLOW LIBRARY (Our Products) ── */}
+                {/* ── SECTION 2: WORKFLOW LIBRARY (Corporate Catalog) ── */}
                 <section className={styles.section} style={{ background: '#ffffff' }}>
                     <div className={styles.sectionInner}>
                         <div className={styles.sectionHeader}>
-                            <span className={styles.eyebrow}>Workflow Library</span>
-                            <h2 className={styles.sectionTitle}>Buy once. Deploy in minutes.</h2>
+                            <span className={styles.eyebrow}>Enterprise Catalog</span>
+                            <h2 className={styles.sectionTitle}>Sovereign Automations.</h2>
                             <p className={styles.sectionSub}>
-                                Choose from our collection of pre-tested, production-ready n8n workflow files. Import them instantly into your setup.
+                                Access a portfolio of pre-packaged, production-tested enterprise workflows. Deploy instantly to your firm's local cluster.
                             </p>
                         </div>
 
                         <div className={styles.catalogGrid}>
-                            {workflows.map((wf, idx) => (
-                                <div key={idx} className={styles.catalogCard}>
-                                    <div className={styles.catalogHeader}>
-                                        <div className={styles.catalogIconWrapper} style={{ backgroundColor: wf.color }}>
-                                            <span className={styles.catalogIcon}>{wf.icon}</span>
+                            {workflows.map((wf, idx) => {
+                                const CardIcon = wf.Icon;
+                                return (
+                                    <div key={idx} className={styles.catalogCard}>
+                                        <div className={styles.catalogHeader}>
+                                            <div className={styles.catalogIconWrapper} style={{ backgroundColor: '#f1f5f9', color: '#0f172a' }}>
+                                                <CardIcon />
+                                            </div>
+                                            <div className={styles.catalogPrice}>{wf.price}</div>
                                         </div>
-                                        <div className={styles.catalogPrice}>{wf.price}</div>
-                                    </div>
-                                    <h3 className={styles.catalogTitle}>{wf.title}</h3>
-                                    <p className={styles.catalogDesc}>{wf.desc}</p>
-                                    <div className={styles.catalogDivider} />
-                                    <div className={styles.catalogFooter}>
-                                        <div className={styles.catalogApps}>
-                                            {wf.apps.map(app => (
-                                                <span key={app} className={styles.appTag}>{app}</span>
-                                            ))}
+                                        <h3 className={styles.catalogTitle}>{wf.title}</h3>
+                                        <p className={styles.catalogDesc}>{wf.desc}</p>
+                                        <div className={styles.catalogDivider} />
+                                        <div className={styles.catalogFooter}>
+                                            <div className={styles.catalogApps}>
+                                                {wf.apps.map(app => (
+                                                    <span key={app} className={styles.appTag}>{app}</span>
+                                                ))}
+                                            </div>
+                                            <Link href="/login" className={styles.catalogBuyBtn}>Buy License</Link>
                                         </div>
-                                        <Link href="/login" className={styles.catalogBuyBtn}>Buy Code</Link>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 </section>
@@ -222,23 +297,26 @@ export default function HomePage() {
                 <section className={styles.section} style={{ background: '#09090b' }}>
                     <div className={styles.sectionInner}>
                         <div className={styles.sectionHeader}>
-                            <span className={styles.eyebrow} style={{ color: 'var(--accent)', borderColor: 'rgba(52,209,134,0.3)', background: 'rgba(52,209,134,0.06)' }}>Sovereign Infrastructure</span>
-                            <h2 className={styles.sectionTitle} style={{ color: '#fff' }}>No subscription lock-in.<br />Run it in your own environment.</h2>
+                            <span className={styles.eyebrow} style={{ color: 'var(--accent)', borderColor: 'rgba(52,209,134,0.3)', background: 'rgba(52,209,134,0.06)' }}>Compliance & Governance</span>
+                            <h2 className={styles.sectionTitle} style={{ color: '#fff' }}>Sovereign Infrastructure.</h2>
                             <p className={styles.sectionSub} style={{ color: '#a1a1aa' }}>
-                                Unlike typical SaaS platforms that charge monthly fees to hold your data hostage, Blonk sells you the workflow logic itself.
+                                Unlike standard SaaS platforms that route your proprietary logic and data through third-party servers, Blonk keeps your execution local.
                             </p>
                         </div>
 
                         <div className={styles.sovGrid}>
-                            {sovereigntyFeatures.map((f, i) => (
-                                <div key={i} className={styles.sovCard}>
-                                    <div className={styles.sovIconWrapper}>
-                                        <span>{f.icon}</span>
+                            {sovereigntyFeatures.map((f, i) => {
+                                const FeatureIcon = f.Icon;
+                                return (
+                                    <div key={i} className={styles.sovCard}>
+                                        <div className={styles.sovIconWrapper} style={{ color: 'var(--accent)' }}>
+                                            <FeatureIcon />
+                                        </div>
+                                        <h3 className={styles.sovTitle}>{f.title}</h3>
+                                        <p className={styles.sovDesc}>{f.desc}</p>
                                     </div>
-                                    <h3 className={styles.sovTitle}>{f.title}</h3>
-                                    <p className={styles.sovDesc}>{f.desc}</p>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 </section>
@@ -248,9 +326,9 @@ export default function HomePage() {
                     <div className={styles.sectionInner}>
                         <div className={styles.sectionHeader}>
                             <span className={styles.eyebrow}>Pricing Plans</span>
-                            <h2 className={styles.sectionTitle}>Simple Licensing. Own it forever.</h2>
+                            <h2 className={styles.sectionTitle}>One-Time Purchases. No Subscriptions.</h2>
                             <p className={styles.sectionSub}>
-                                Choose individual templates or unlock our entire catalog with support. No recurring billing cycles.
+                                Own the logical architecture of your operations. Deploy individual templates or secure the full catalog.
                             </p>
                         </div>
 
@@ -260,7 +338,7 @@ export default function HomePage() {
                                 <div className={styles.pricingTier}>Single License</div>
                                 <div className={styles.pricingAmount}>From $99<span className={styles.pricingPer}>/workflow</span></div>
                                 <p className={styles.pricingDesc}>
-                                    Buy any individual workflow template from our library. Perfect for solving a specific task.
+                                    A lifetime blueprint license for any single pre-configured workflow template in our catalog.
                                 </p>
                                 <div className={styles.pricingDivider} />
                                 <ul className={styles.pricingList}>
@@ -276,11 +354,11 @@ export default function HomePage() {
 
                             {/* Institutional Bundle */}
                             <div className={styles.pricingCardDark}>
-                                <div className={styles.pricingBadge}>Best Value</div>
-                                <div className={styles.pricingTier} style={{ color: 'rgba(255,255,255,0.4)' }}>Unlimited Bundle</div>
+                                <div className={styles.pricingBadge}>Enterprise</div>
+                                <div className={styles.pricingTier} style={{ color: 'rgba(255,255,255,0.4)' }}>Institutional Pack</div>
                                 <div className={styles.pricingAmount} style={{ color: '#fff' }}>$1,499<span className={styles.pricingPer} style={{ color: 'rgba(255,255,255,0.3)' }}>/one-time</span></div>
                                 <p className={styles.pricingDesc} style={{ color: 'rgba(255,255,255,0.55)' }}>
-                                    Unlock our entire catalog of pre-built templates, future template releases, and custom setup engineering.
+                                    Full catalog unlock with custom setup assistance, future blueprint releases, and database provisioning support.
                                 </p>
                                 <div className={styles.pricingDivider} style={{ background: 'rgba(255,255,255,0.08)' }} />
                                 <ul className={styles.pricingList}>
@@ -300,10 +378,10 @@ export default function HomePage() {
                 {/* ── SECTION 5: FINAL CTA ── */}
                 <section className={styles.ctaSection}>
                     <div className={styles.ctaSectionInner}>
-                        <h2 className={styles.ctaTitle}>Stop paying monthly for what<br />you can automate once.</h2>
-                        <p className={styles.ctaSub}>Get the n8n templates today and deploy them to your own cloud infrastructure instantly.</p>
+                        <h2 className={styles.ctaTitle}>Own the automations that<br />drive your operations.</h2>
+                        <p className={styles.ctaSub}>Establish a decoupled workflow execution layer. Deploy Blonk blueprints to your local stack today.</p>
                         <Link href="/login" className={styles.ctaMainBtn}>
-                            Start automating today
+                            Deploy automations now
                             <IconArrow />
                         </Link>
                     </div>
