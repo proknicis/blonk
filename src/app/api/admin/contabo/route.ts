@@ -13,6 +13,9 @@ const CONTABO_API_BASE = "https://api.contabo.com/v1/compute";
 async function ensureSchema() {
     await db.execute(`
         ALTER TABLE "ClusterNode" 
+        ADD COLUMN IF NOT EXISTS url TEXT,
+        ADD COLUMN IF NOT EXISTS api_key TEXT,
+        ADD COLUMN IF NOT EXISTS max_workflows INTEGER DEFAULT 100,
         ADD COLUMN IF NOT EXISTS "customerId" TEXT,
         ADD COLUMN IF NOT EXISTS "customerName" TEXT,
         ADD COLUMN IF NOT EXISTS "customerEmail" TEXT,

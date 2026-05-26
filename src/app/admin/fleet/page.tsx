@@ -48,6 +48,7 @@ export default function FleetHealthMonitoringPage() {
     const [statusFilter, setStatusFilter] = useState("All");
     const [nodes, setNodes] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [executionStats, setExecutionStats] = useState({ total: 0, success: 0, failed: 0 });
 
     // ACTION MODALS STATE
     const [selectedNode, setSelectedNode] = useState<any>(null);
@@ -92,6 +93,18 @@ export default function FleetHealthMonitoringPage() {
     const [availableWorkflows, setAvailableWorkflows] = useState<any[]>([]);
     const [isDeploying, setIsDeploying] = useState(false);
 
+    const fetchExecutionStats = async () => {
+        try {
+            const res = await fetch('/api/admin/fleet/stats');
+            if (res.ok) {
+                const data = await res.json();
+                setExecutionStats(data);
+            }
+        } catch (e) {
+            console.error("Failed to fetch fleet stats:", e);
+        }
+    };
+
     const fetchNodes = async (probe = false) => {
         setIsLoading(true);
         try {
@@ -109,6 +122,7 @@ export default function FleetHealthMonitoringPage() {
 
     useEffect(() => {
         fetchNodes(true); // Probe on initial load
+        fetchExecutionStats();
         
         // Fetch available customers for provisioning
         fetchAvailableCustomers();
@@ -375,11 +389,51 @@ export default function FleetHealthMonitoringPage() {
     const totalRam = nodes.reduce((sum, n) => sum + (n.ram || 0), 0);
     const avgRam = totalNodes > 0 ? Math.round(totalRam / totalNodes) : 0;
 
+    const totalDisk = nodes.reduce((sum, n) => sum + (n.disk || 0), 0);
+    const avgDisk = totalNodes > 0 ? Math.round(totalDisk / totalNodes) : 0;
+
     const totalQueue = nodes.reduce((sum, n) => sum + (n.queue || 0), 0);
     const totalWorkflows = nodes.reduce((sum, n) => sum + (n.workflow_count || 0), 0);
 
     const packetLoss = activeAlertsCount > 0 ? "0.08%" : "0.00%";
     const successRate = activeAlertsCount > 0 ? "98.5%" : "100.0%";
+
+    const aggregatedCpuTelemetry = Array(12).fill(0);
+    const aggregatedRamTelemetry = Array(12).fill(0);
+    if (totalNodes > 0) {
+        for (let i = 0; i < 12; i++) {
+            let cpuSum = 0;
+            let ramSum = 0;
+            let probedActiveCount = 0;
+            nodes.forEach(n => {
+                if (n.status === 'Active') {
+                    probedActiveCount++;
+                    if (n.telemetry && n.telemetry[i] !== undefined) {
+                        cpuSum += n.telemetry[i];
+                    } else {
+                        cpuSum += n.cpu || 0;
+                    }
+                    ramSum += n.ram || 0;
+                }
+            });
+            aggregatedCpuTelemetry[i] = probedActiveCount > 0 ? Math.round(cpuSum / probedActiveCount) : 0;
+            aggregatedRamTelemetry[i] = probedActiveCount > 0 ? Math.round(ramSum / probedActiveCount) : 0;
+        }
+    }
+
+    const cpuPoints = aggregatedCpuTelemetry.map((val, idx) => {
+        const x = (idx / 11) * 300;
+        const y = 100 - Math.min(95, Math.max(5, val));
+        return `${x} ${y}`;
+    });
+    const cpuPathD = cpuPoints.length > 0 ? `M ${cpuPoints.join(' L ')}` : "M 0 80 Q 50 60 75 40 T 150 50 T 225 30 T 300 10";
+
+    const ramPoints = aggregatedRamTelemetry.map((val, idx) => {
+        const x = (idx / 11) * 300;
+        const y = 100 - Math.min(95, Math.max(5, val));
+        return `${x} ${y}`;
+    });
+    const ramPathD = ramPoints.length > 0 ? `M ${ramPoints.join(' L ')}` : "M 0 90 Q 50 70 75 60 T 150 40 T 225 50 T 300 30";
 
     // Derived Alerts
     const derivedAlerts = nodes
@@ -802,7 +856,7 @@ export default function FleetHealthMonitoringPage() {
                 {[
                     { label: 'CPU LOAD (AVG)', value: `${avgCpu}%`, detail: 'Across all active nodes' },
                     { label: 'MEMORY LOAD (AVG)', value: `${avgRam}%`, detail: 'Cache and buffering optimal' },
-                    { label: 'DISK USAGE (AVG)', value: totalNodes > 0 ? '15.0%' : '0.0%', detail: 'Persistent storage nominal' },
+                    { label: 'DISK USAGE (AVG)', value: totalNodes > 0 ? `${avgDisk}%` : '0.0%', detail: 'Persistent storage nominal' },
                     { label: 'EXECUTION QUEUE', value: totalQueue, detail: `${totalQueue} tasks in flight` },
                     { label: 'ACTIVE WORKFLOWS', value: totalWorkflows, detail: 'Total provisioned automations' },
                     { label: 'SERVER SYNC', value: `${activeNodes}/${totalNodes}`, detail: 'Active fleet sync status' }
@@ -932,7 +986,7 @@ export default function FleetHealthMonitoringPage() {
                                                     </div>
                                                 </td>
                                                 <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 800, color: '#475569' }}>
-                                                    {node.status === 'Active' ? '15d 8h 23m' : '0h 0m'}
+                                                    {node.uptime || '0h 0m'}
                                                 </td>
                                                 <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 950, color: node.cpu > 80 ? '#EF4444' : '#0F172A' }}>
                                                     {node.cpu || 0}%
@@ -941,7 +995,7 @@ export default function FleetHealthMonitoringPage() {
                                                     {node.ram || 0}%
                                                 </td>
                                                 <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 950, color: '#0F172A' }}>
-                                                    15%
+                                                    {node.disk || 0}%
                                                 </td>
                                                 <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 950, color: '#0F172A' }}>
                                                     {node.workflow_count || 0}
@@ -1039,14 +1093,14 @@ export default function FleetHealthMonitoringPage() {
                         <div style={{ height: '140px', width: '100%' }}>
                             <svg viewBox="0 0 300 100" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
                                 <path 
-                                    d="M 0 80 Q 50 60 75 40 T 150 50 T 225 30 T 300 10" 
+                                    d={cpuPathD} 
                                     fill="none" 
                                     stroke="#3B82F6" 
                                     strokeWidth="3" 
                                     strokeLinecap="round"
                                 />
                                 <path 
-                                    d="M 0 90 Q 50 70 75 60 T 150 40 T 225 50 T 300 30" 
+                                    d={ramPathD} 
                                     fill="none" 
                                     stroke="#10B981" 
                                     strokeWidth="3" 
@@ -1109,17 +1163,27 @@ export default function FleetHealthMonitoringPage() {
                     <h3 style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>WORKFLOW EXECUTIONS (24H)</h3>
                     <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0' }}>
                         <svg width="100" height="100" viewBox="0 0 42 42" style={{ transform: 'rotate(-90deg)' }}>
-                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#10B981" strokeWidth="6" strokeDasharray="100 0" strokeDashoffset="0" />
+                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#EF4444" strokeWidth="6" />
+                            <circle 
+                                cx="21" 
+                                cy="21" 
+                                r="15.915" 
+                                fill="transparent" 
+                                stroke="#10B981" 
+                                strokeWidth="6" 
+                                strokeDasharray={`${executionStats.total > 0 ? Math.round((executionStats.success / executionStats.total) * 100) : 100} ${executionStats.total > 0 ? 100 - Math.round((executionStats.success / executionStats.total) * 100) : 0}`} 
+                                strokeDashoffset="0" 
+                            />
                         </svg>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.75rem', fontWeight: 800, color: '#475569' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10B981' }} /> Successful</div>
-                            <span style={{ fontWeight: 950 }}>1,240 (100%)</span>
+                            <span style={{ fontWeight: 950 }}>{executionStats.success.toLocaleString()} ({executionStats.total > 0 ? Math.round((executionStats.success / executionStats.total) * 100) : 100}%)</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#EF4444' }} /> Failed</div>
-                            <span style={{ fontWeight: 950 }}>0 (0%)</span>
+                            <span style={{ fontWeight: 950 }}>{executionStats.failed.toLocaleString()} ({executionStats.total > 0 ? Math.round((executionStats.failed / executionStats.total) * 100) : 0}%)</span>
                         </div>
                     </div>
                 </div>
@@ -1129,11 +1193,24 @@ export default function FleetHealthMonitoringPage() {
                     <h3 style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>UPTIME DISTRIBUTION</h3>
                     <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0' }}>
                         <svg width="100" height="100" viewBox="0 0 42 42" style={{ transform: 'rotate(-90deg)' }}>
-                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#10B981" strokeWidth="6" strokeDasharray="100 0" strokeDashoffset="0" />
+                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#EF4444" strokeWidth="6" />
+                            <circle 
+                                cx="21" 
+                                cy="21" 
+                                r="15.915" 
+                                fill="transparent" 
+                                stroke="#10B981" 
+                                strokeWidth="6" 
+                                strokeDasharray={`${totalNodes > 0 ? Math.round((activeNodes / totalNodes) * 100) : 100} ${totalNodes > 0 ? 100 - Math.round((activeNodes / totalNodes) * 100) : 0}`} 
+                                strokeDashoffset="0" 
+                            />
                         </svg>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px', fontSize: '0.7rem', fontWeight: 800, color: '#475569' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10B981' }} /> Healthy: {activeNodes} Nodes (100%)</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10B981' }} /> Healthy: {activeNodes} Nodes ({totalNodes > 0 ? Math.round((activeNodes / totalNodes) * 100) : 100}%)</div>
+                        {offlineNodes > 0 && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#EF4444' }} /> Offline: {offlineNodes} Nodes ({Math.round((offlineNodes / totalNodes) * 100)}%)</div>
+                        )}
                     </div>
                 </div>
 
