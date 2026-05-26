@@ -127,50 +127,20 @@ export default function HomePage() {
         <div className={styles.container}>
             <div className={styles.mainContent}>
 
-                {/* ── HERO — Premium Video Overlay ── */}
+                {/* ── HERO — Video Only ── */}
                 <section className={styles.heroVideo}>
                     <HeroVideo speed={1} />
-                    <div className={styles.heroDarkOverlay} />
-                    
-                    <div className={styles.heroContent}>
-                        <div className={styles.heroLabel}>
-                            <span className={styles.heroLabelDot} />
-                            n8n Workflow Marketplace
-                        </div>
-                        
-                        <h1 className={styles.heroTitle}>
-                            Automate your firm.<br />
-                            <span className={styles.gradientText}>Buy once. Own forever.</span>
-                        </h1>
-                        
-                        <p className={styles.heroSub}>
-                            Deploy production-ready workflows for legal, accounting, and operations instantly. No monthly subscriptions. Run on your own server or our secure cloud.
-                        </p>
-                        
-                        <div className={styles.heroActions}>
-                            <a href="#what-it-does" className={styles.heroPrimaryBtn}>
-                                Explore Workflow Library
-                                <IconArrow />
-                            </a>
-                            <Link href="/login" className={styles.heroSecondaryBtn}>
-                                Deploy Instantly
-                            </Link>
-                        </div>
-                        
-                        <div className={styles.heroBenefits}>
-                            <span className={styles.benefitItem}>✓ One-Time Purchase</span>
-                            <span className={styles.benefitDivider}>·</span>
-                            <span className={styles.benefitItem}>✓ 100% Data Sovereignty</span>
-                            <span className={styles.benefitDivider}>·</span>
-                            <span className={styles.benefitItem}>✓ Lifetime Ownership</span>
-                        </div>
-                    </div>
-                    
                     <div className={styles.heroFade} />
+                    <div className={styles.heroCta}>
+                        <Link href="/login" className={styles.heroCtaBtn}>
+                            Start saving time
+                            <IconArrow />
+                        </Link>
+                    </div>
                 </section>
 
                 {/* ── DASHBOARD PREVIEW ── */}
-                <section id="what-it-does" className={styles.section} style={{ background: '#fafafa' }}>
+                <section className={styles.section} style={{ background: '#fafafa' }}>
                     <div className={styles.sectionInner}>
                         <div className={styles.sectionHeader}>
                             <span className={styles.eyebrow}>What your team sees</span>
