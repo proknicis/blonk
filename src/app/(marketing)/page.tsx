@@ -3,123 +3,91 @@ import styles from "./home.module.css";
 import React from "react";
 import HeroVideo from "./HeroVideo";
 
-const IconUser = () => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-        <circle cx="12" cy="7" r="4" />
-    </svg>
-);
-const IconBilling = () => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-        <line x1="1" y1="10" x2="23" y2="10" />
-    </svg>
-);
-const IconChart = () => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="18" y1="20" x2="18" y2="10" />
-        <line x1="12" y1="20" x2="12" y2="4" />
-        <line x1="6" y1="20" x2="6" y2="14" />
-    </svg>
-);
-const IconDoc = () => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-        <polyline points="14 2 14 8 20 8" />
-        <line x1="16" y1="13" x2="8" y2="13" />
-        <line x1="16" y1="17" x2="8" y2="17" />
-    </svg>
-);
-const IconAudit = () => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M9 11l3 3L22 4" />
-        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-    </svg>
-);
-const IconAlert = () => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-    </svg>
-);
-const IconLock = () => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-    </svg>
-);
-const IconEye = () => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-        <circle cx="12" cy="12" r="3" />
-    </svg>
-);
 const IconArrow = () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         <line x1="5" y1="12" x2="19" y2="12" />
         <polyline points="12 5 19 12 12 19" />
     </svg>
 );
+
 const IconCheck = () => (
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="20 6 9 17 4 12" />
     </svg>
 );
-const IconWarning = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-        <line x1="12" y1="9" x2="12" y2="13" />
-        <line x1="12" y1="17" x2="12.01" y2="17" />
-    </svg>
-);
 
-const results = [
+const workflows = [
     {
-        hours: "12h", badge: "Client Onboarding",
-        task: "Stop manually entering client data into your CRM.",
-        description: "Blonk pulls client information from intake forms and pushes it to your CRM, billing system, and document folder — the moment a client signs.",
-        Icon: IconUser,
+        title: "Intake Triage & AI Draft",
+        price: "$149",
+        desc: "Monitors your inbox, uses AI to categorize intent, extracts client details, updates your CRM, and stages a custom follow-up reply.",
+        apps: ["Gmail", "HubSpot", "OpenAI"],
+        icon: "🧲",
+        color: "#EFF6FF",
     },
     {
-        hours: "8h", badge: "Billing & Collections",
-        task: "Stop chasing overdue invoices by hand.",
-        description: "Blonk monitors your billing daily. When an invoice goes 7 days overdue, it sends a polite reminder — from your email address, in your tone.",
-        Icon: IconBilling,
+        title: "Invoice Auto-Chaser",
+        price: "$199",
+        desc: "Checks payment ledger daily, cross-references bank deposits, and automatically sends polite follow-ups from your address.",
+        apps: ["QuickBooks", "Stripe", "Gmail"],
+        icon: "🧾",
+        color: "#F0FDFA",
     },
     {
-        hours: "6h", badge: "Financial Reconciliation",
-        task: "Stop copy-pasting data between spreadsheets.",
-        description: "Blonk connects your accounting software, payroll system, and bank — reconciling records automatically every morning before your team starts work.",
-        Icon: IconChart,
+        title: "Client Onboarding Flow",
+        price: "$149",
+        desc: "Triggered on signed contract. Automatically creates shared Google Drive folders, provisions Slack channels, and schedules kickoff meetings.",
+        apps: ["DocuSign", "Drive", "Slack"],
+        icon: "🤝",
+        color: "#FFFBEB",
     },
     {
-        hours: "4h", badge: "Document Generation",
-        task: "Stop manually preparing standard documents.",
-        description: "Blonk generates NDAs, engagement letters, and status reports from templates — pre-filled with client data — ready for review in seconds.",
-        Icon: IconDoc,
-    },
+        title: "AI Invoice OCR Extractor",
+        price: "$249",
+        desc: "Extracts line items, totals, and tax info from incoming invoice PDFs using GPT-Vision and logs them directly to your ledger.",
+        apps: ["Gmail", "GPT-4o", "Sheets"],
+        icon: "🧠",
+        color: "#FDF2F8",
+    }
 ];
 
-const governance = [
-    { title: "Full Audit Trail", description: "Every action is logged with a timestamp, source, and outcome. Ready for compliance review at any time.", Icon: IconAudit },
-    { title: "Instant Error Alerts", description: "If any step fails, your team is notified by email or Slack within 60 seconds — not discovered days later.", Icon: IconAlert },
-    { title: "Your Data, Isolated", description: "Your firm runs on its own private infrastructure. No data is shared between clients or stored outside your control.", Icon: IconLock },
-    { title: "Simple Status View", description: "See today's results in one glance: tasks ran, what succeeded, what needs attention — no technical knowledge required.", Icon: IconEye },
+const sovereigntyFeatures = [
+    {
+        title: "No Vendor Lock-In",
+        desc: "You buy the n8n JSON file. It is yours forever. Run it on your local server, cloud, or VPS with no monthly license restrictions.",
+        icon: "🔓",
+    },
+    {
+        title: "100% Data Sovereignty",
+        desc: "Your data stays in your network. It never touches our servers. Perfect for firms with strict GRC and SOC-2 policies.",
+        icon: "🛡️",
+    },
+    {
+        title: "Zero API Cost Markups",
+        desc: "Pay directly to OpenAI, HubSpot, and Google. No middleware margins or markup fees on your data executions.",
+        icon: "💸",
+    },
+    {
+        title: "Drag & Drop Canvas",
+        desc: "Want to change the email template or add a Slack notification? Edit the nodes on the n8n visual builder in seconds.",
+        icon: "🎨",
+    }
 ];
 
 const standardItems = [
-    '1 production-ready workflow',
+    'Fully customizable n8n JSON file',
     'Lifetime updates & bug fixes',
     'Standard configuration guide',
-    'Community support access',
     '100% self-hosted or Cloud',
+    'Community support access',
 ];
-const customItems = [
-    'Up to 5 premium workflows',
-    'Tailored customization by our team',
-    'Full database & system setup',
-    'Dedicated integration support',
-    'Compliance-ready auditing setup',
+
+const bundleItems = [
+    'Lifetime access to all workflows',
+    'Full system & database setup',
+    '3 hours of custom integration help',
+    'Dedicated engineer support',
+    'Sovereign infrastructure blueprint',
 ];
 
 export default function HomePage() {
@@ -139,90 +107,110 @@ export default function HomePage() {
                     </div>
                 </section>
 
-                {/* ── DASHBOARD PREVIEW ── */}
+                {/* ── SECTION 1: HOW IT WORKS (n8n Engine Simulator) ── */}
                 <section className={styles.section} style={{ background: '#fafafa' }}>
                     <div className={styles.sectionInner}>
                         <div className={styles.sectionHeader}>
-                            <span className={styles.eyebrow}>What your team sees</span>
-                            <h2 className={styles.sectionTitle}>No code. No complexity.<br />Just results.</h2>
+                            <span className={styles.eyebrow}>How it works</span>
+                            <h2 className={styles.sectionTitle}>Visual, Auditable, and Fast.</h2>
                             <p className={styles.sectionSub}>
-                                Your lawyers and accountants never see a single line of code. They see a clean dashboard — and a number that tells them how much work Blonk did today.
+                                Blonk workflows execute visually inside n8n. No black-box code. You can see, test, and audit every node execution in real-time.
                             </p>
                         </div>
 
-                        <div className={styles.dashPanel}>
-                            <div className={styles.dashHeader}>
-                                <div className={styles.dashPulse}>
-                                    <span className={styles.dashPulseDot} />
-                                    <span className={styles.dashPulseLabel}>Today — Monday, April 14</span>
+                        {/* Interactive n8n Visualizer Mockup */}
+                        <div className={styles.n8nContainer}>
+                            <div className={styles.n8nNodeCard} data-status="success">
+                                <div className={styles.n8nHeader}>
+                                    <span className={styles.n8nIcon}>✉️</span>
+                                    <span className={styles.n8nTitle}>1. Email Trigger</span>
+                                    <span className={styles.n8nStatus}>success</span>
                                 </div>
-                                <span className={styles.dashBadgeGreen}>All systems running</span>
+                                <div className={styles.n8nBody}>
+                                    <div className={styles.n8nJsonTitle}>Parsed Payload:</div>
+                                    <pre className={styles.n8nJson}>
+{`{
+  "from": "john@acme.com",
+  "subject": "Need Tax Audit Help",
+  "body": "Hi, we need to audit our..."
+}`}
+                                    </pre>
+                                </div>
                             </div>
 
-                            <div className={styles.dashStats}>
-                                {[
-                                    { value: '150', label: 'Tasks completed today', accent: false },
-                                    { value: '0', label: 'Errors or failures', accent: true },
-                                    { value: '26h', label: 'Staff time saved today', accent: false },
-                                ].map((s, i) => (
-                                    <div key={i} className={styles.dashStat} style={{ borderRight: i < 2 ? '1px solid #f0f0f0' : 'none' }}>
-                                        <div className={styles.dashStatValue} style={{ color: s.accent ? '#34D186' : '#111' }}>{s.value}</div>
-                                        <div className={styles.dashStatLabel}>{s.label}</div>
-                                    </div>
-                                ))}
+                            <div className={styles.n8nLine} />
+
+                            <div className={styles.n8nNodeCard} data-status="success">
+                                <div className={styles.n8nHeader}>
+                                    <span className={styles.n8nIcon}>🧠</span>
+                                    <span className={styles.n8nTitle}>2. OpenAI Parser</span>
+                                    <span className={styles.n8nStatus}>success</span>
+                                </div>
+                                <div className={styles.n8nBody}>
+                                    <div className={styles.n8nJsonTitle}>AI Classification:</div>
+                                    <pre className={styles.n8nJson}>
+{`{
+  "intent": "corporate_tax_audit",
+  "urgency": "high",
+  "name": "John Smith"
+}`}
+                                    </pre>
+                                </div>
                             </div>
 
-                            <div className={styles.dashLog}>
-                                <div className={styles.dashLogHeading}>Recent activity</div>
-                                {[
-                                    { time: '09:02', action: 'Client onboarding — Merged & Co.', detail: 'Contract sent, CRM updated, folder created' },
-                                    { time: '09:15', action: 'Invoice reminder — 3 overdue accounts', detail: 'Reminders sent from anna@yourfirm.com' },
-                                    { time: '10:30', action: 'Payroll reconciliation — April 2026', detail: 'Matched 94/94 entries automatically' },
-                                    { time: '11:45', action: 'NDA generated — Goldstein Partners', detail: 'Document ready in your shared folder' },
-                                ].map((row, i, arr) => (
-                                    <div key={i} className={styles.dashRow} style={{ borderBottom: i < arr.length - 1 ? '1px solid #f5f5f5' : 'none' }}>
-                                        <div className={styles.dashRowLeft}>
-                                            <span className={styles.dashRowTime}>{row.time}</span>
-                                            <div>
-                                                <div className={styles.dashRowAction}>{row.action}</div>
-                                                <div className={styles.dashRowDetail}>{row.detail}</div>
-                                            </div>
-                                        </div>
-                                        <span className={styles.dashBadgeGreen}>Done</span>
-                                    </div>
-                                ))}
+                            <div className={styles.n8nLine} />
+
+                            <div className={styles.n8nNodeCard} data-status="success">
+                                <div className={styles.n8nHeader}>
+                                    <span className={styles.n8nIcon}>💼</span>
+                                    <span className={styles.n8nTitle}>3. HubSpot CRM</span>
+                                    <span className={styles.n8nStatus}>success</span>
+                                </div>
+                                <div className={styles.n8nBody}>
+                                    <div className={styles.n8nJsonTitle}>CRM Result:</div>
+                                    <pre className={styles.n8nJson}>
+{`{
+  "leadCreated": true,
+  "leadId": "998271",
+  "status": "Assigned"
+}`}
+                                    </pre>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                {/* ── RESULTS ── */}
-                <section className={styles.section} style={{ background: '#fff' }}>
+                {/* ── SECTION 2: WORKFLOW LIBRARY (Our Products) ── */}
+                <section className={styles.section} style={{ background: '#ffffff' }}>
                     <div className={styles.sectionInner}>
                         <div className={styles.sectionHeader}>
-                            <span className={styles.eyebrow}>Business results</span>
-                            <h2 className={styles.sectionTitle}>What Blonk actually does<br />for your firm.</h2>
+                            <span className={styles.eyebrow}>Workflow Library</span>
+                            <h2 className={styles.sectionTitle}>Buy once. Deploy in minutes.</h2>
                             <p className={styles.sectionSub}>
-                                Each of these runs automatically, every day — without anyone on your team lifting a finger.
+                                Choose from our collection of pre-tested, production-ready n8n workflow files. Import them instantly into your setup.
                             </p>
                         </div>
 
-                        <div className={styles.resultsGrid}>
-                            {results.map((r, i) => (
-                                <div key={i} className={styles.resultCard}>
-                                    <div className={styles.resultCardTop}>
-                                        <div>
-                                            <div className={styles.eyebrow} style={{ marginBottom: 10 }}>{r.badge}</div>
-                                            <div className={styles.resultTask}>{r.task}</div>
+                        <div className={styles.catalogGrid}>
+                            {workflows.map((wf, idx) => (
+                                <div key={idx} className={styles.catalogCard}>
+                                    <div className={styles.catalogHeader}>
+                                        <div className={styles.catalogIconWrapper} style={{ backgroundColor: wf.color }}>
+                                            <span className={styles.catalogIcon}>{wf.icon}</span>
                                         </div>
-                                        <div className={styles.resultIcon}>
-                                            <r.Icon />
-                                        </div>
+                                        <div className={styles.catalogPrice}>{wf.price}</div>
                                     </div>
-                                    <p className={styles.resultDesc}>{r.description}</p>
-                                    <div className={styles.resultMetric}>
-                                        <span className={styles.resultHours}>{r.hours}</span>
-                                        <span className={styles.resultHoursLabel}>saved per week, per assistant</span>
+                                    <h3 className={styles.catalogTitle}>{wf.title}</h3>
+                                    <p className={styles.catalogDesc}>{wf.desc}</p>
+                                    <div className={styles.catalogDivider} />
+                                    <div className={styles.catalogFooter}>
+                                        <div className={styles.catalogApps}>
+                                            {wf.apps.map(app => (
+                                                <span key={app} className={styles.appTag}>{app}</span>
+                                            ))}
+                                        </div>
+                                        <Link href="/login" className={styles.catalogBuyBtn}>Buy Code</Link>
                                     </div>
                                 </div>
                             ))}
@@ -230,68 +218,49 @@ export default function HomePage() {
                     </div>
                 </section>
 
-                {/* ── GOVERNANCE ── */}
-                <section className={styles.section} style={{ background: '#0d0d0d' }}>
+                {/* ── SECTION 3: SOVEREIGN EXECUTION ── */}
+                <section className={styles.section} style={{ background: '#09090b' }}>
                     <div className={styles.sectionInner}>
                         <div className={styles.sectionHeader}>
-                            <span className={styles.eyebrow}>Built for regulated industries</span>
-                            <h2 className={styles.sectionTitle} style={{ color: '#fff' }}>You are in control.<br />We just do the work.</h2>
-                            <p className={styles.sectionSub} style={{ color: 'rgba(255,255,255,0.45)' }}>
-                                Designed for firms where a missed step or a data leak has real consequences.
+                            <span className={styles.eyebrow} style={{ color: 'var(--accent)', borderColor: 'rgba(52,209,134,0.3)', background: 'rgba(52,209,134,0.06)' }}>Sovereign Infrastructure</span>
+                            <h2 className={styles.sectionTitle} style={{ color: '#fff' }}>No subscription lock-in.<br />Run it in your own environment.</h2>
+                            <p className={styles.sectionSub} style={{ color: '#a1a1aa' }}>
+                                Unlike typical SaaS platforms that charge monthly fees to hold your data hostage, Blonk sells you the workflow logic itself.
                             </p>
                         </div>
 
-                        <div className={styles.govGrid}>
-                            {governance.map((g, i) => (
-                                <div key={i} className={styles.govCard}>
-                                    <div className={styles.govIcon}>
-                                        <g.Icon />
+                        <div className={styles.sovGrid}>
+                            {sovereigntyFeatures.map((f, i) => (
+                                <div key={i} className={styles.sovCard}>
+                                    <div className={styles.sovIconWrapper}>
+                                        <span>{f.icon}</span>
                                     </div>
-                                    <div className={styles.govTitle}>{g.title}</div>
-                                    <p className={styles.govDesc}>{g.description}</p>
+                                    <h3 className={styles.sovTitle}>{f.title}</h3>
+                                    <p className={styles.sovDesc}>{f.desc}</p>
                                 </div>
                             ))}
-                        </div>
-
-                        {/* Error alert example */}
-                        <div className={styles.alertBox}>
-                            <div className={styles.alertBoxLabel}>Example — what an error notification looks like</div>
-                            <div className={styles.alertCard}>
-                                <div className={styles.alertIcon}>
-                                    <IconWarning />
-                                </div>
-                                <div className={styles.alertBody}>
-                                    <div className={styles.alertTitle}>Invoice sync failed — Goldstein Partners</div>
-                                    <div className={styles.alertMeta}>Today at 09:32 · Step 2 of 4 · Could not connect to billing portal (timeout)</div>
-                                    <div className={styles.alertActions}>
-                                        <span className={styles.alertTagGreen}>Retry in 15 min</span>
-                                        <span className={styles.alertTagMuted}>View full log</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <p className={styles.alertFooter}>Your team receives this within 60 seconds. Not 3 days later when a client calls.</p>
                         </div>
                     </div>
                 </section>
 
-                {/* ── PRICING ── */}
+                {/* ── SECTION 4: PRICING ── */}
                 <section className={styles.section} style={{ background: '#fafafa' }}>
                     <div className={styles.sectionInner}>
                         <div className={styles.sectionHeader}>
-                            <span className={styles.eyebrow}>Pricing</span>
-                            <h2 className={styles.sectionTitle}>One-time purchase. Infinite scale.</h2>
+                            <span className={styles.eyebrow}>Pricing Plans</span>
+                            <h2 className={styles.sectionTitle}>Simple Licensing. Own it forever.</h2>
                             <p className={styles.sectionSub}>
-                                No monthly subscriptions or recurring fees. Buy a workflow, own the code, and run it forever on your own terms.
+                                Choose individual templates or unlock our entire catalog with support. No recurring billing cycles.
                             </p>
                         </div>
 
                         <div className={styles.pricingGrid}>
                             {/* Standard Workflow */}
                             <div className={styles.pricingCard}>
-                                <div className={styles.pricingTier}>Individual Workflows</div>
-                                <div className={styles.pricingAmount} style={{ fontSize: '2.8rem' }}>From $99<span className={styles.pricingPer}>/workflow</span></div>
+                                <div className={styles.pricingTier}>Single License</div>
+                                <div className={styles.pricingAmount}>From $99<span className={styles.pricingPer}>/workflow</span></div>
                                 <p className={styles.pricingDesc}>
-                                    Each pre-built workflow has its own individual price. Pay once for what you need, own the code, and run it forever.
+                                    Buy any individual workflow template from our library. Perfect for solving a specific task.
                                 </p>
                                 <div className={styles.pricingDivider} />
                                 <ul className={styles.pricingList}>
@@ -302,39 +271,39 @@ export default function HomePage() {
                                         </li>
                                     ))}
                                 </ul>
-                                <Link href="/login" className={styles.pricingCta}>Buy Workflow <IconArrow /></Link>
+                                <Link href="/login" className={styles.pricingCta}>Browse Workflows <IconArrow /></Link>
                             </div>
 
                             {/* Institutional Bundle */}
                             <div className={styles.pricingCardDark}>
-                                <div className={styles.pricingBadge}>Most Popular</div>
-                                <div className={styles.pricingTier} style={{ color: 'rgba(255,255,255,0.4)' }}>Institutional Pack</div>
-                                <div className={styles.pricingAmount} style={{ color: '#fff' }}>$1,499<span className={styles.pricingPer} style={{ color: 'rgba(255,255,255,0.3)' }}>/bundle</span></div>
+                                <div className={styles.pricingBadge}>Best Value</div>
+                                <div className={styles.pricingTier} style={{ color: 'rgba(255,255,255,0.4)' }}>Unlimited Bundle</div>
+                                <div className={styles.pricingAmount} style={{ color: '#fff' }}>$1,499<span className={styles.pricingPer} style={{ color: 'rgba(255,255,255,0.3)' }}>/one-time</span></div>
                                 <p className={styles.pricingDesc} style={{ color: 'rgba(255,255,255,0.55)' }}>
-                                    For professional firms needing complete operational setups. Includes full onboarding and tailored customizations.
+                                    Unlock our entire catalog of pre-built templates, future template releases, and custom setup engineering.
                                 </p>
                                 <div className={styles.pricingDivider} style={{ background: 'rgba(255,255,255,0.08)' }} />
                                 <ul className={styles.pricingList}>
-                                    {customItems.map(f => (
+                                    {bundleItems.map(f => (
                                         <li key={f} className={styles.pricingItem} style={{ color: 'rgba(255,255,255,0.8)' }}>
                                             <span className={styles.pricingCheck}><IconCheck /></span>
                                             {f}
                                         </li>
                                     ))}
                                 </ul>
-                                <Link href="/login" className={styles.pricingCtaGreen}>Buy Automations <IconArrow /></Link>
+                                <Link href="/login" className={styles.pricingCtaGreen}>Buy Automations Bundle <IconArrow /></Link>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                {/* ── FINAL CTA ── */}
+                {/* ── SECTION 5: FINAL CTA ── */}
                 <section className={styles.ctaSection}>
                     <div className={styles.ctaSectionInner}>
-                        <h2 className={styles.ctaTitle}>Your team is doing work<br />a computer should handle.</h2>
-                        <p className={styles.ctaSub}>Let Blonk take the repetitive admin off their plate — permanently.</p>
+                        <h2 className={styles.ctaTitle}>Stop paying monthly for what<br />you can automate once.</h2>
+                        <p className={styles.ctaSub}>Get the n8n templates today and deploy them to your own cloud infrastructure instantly.</p>
                         <Link href="/login" className={styles.ctaMainBtn}>
-                            Start saving time this week
+                            Start automating today
                             <IconArrow />
                         </Link>
                     </div>
