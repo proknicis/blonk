@@ -107,19 +107,19 @@ const governance = [
     { title: "Simple Status View", description: "See today's results in one glance: tasks ran, what succeeded, what needs attention — no technical knowledge required.", Icon: IconEye },
 ];
 
-const featureItems = [
-    'Up to 5 automated processes',
-    '5 team member seats',
-    'Full audit trail & error alerts',
-    'Slack + email notifications',
-    'Setup & onboarding included',
+const standardItems = [
+    '1 production-ready workflow',
+    'Lifetime updates & bug fixes',
+    'Standard configuration guide',
+    'Community support access',
+    '100% self-hosted or Cloud',
 ];
-const enterpriseItems = [
-    'Unlimited automated processes',
-    'Unlimited team seats',
-    'Private, isolated infrastructure',
-    'Dedicated account manager',
-    'Custom compliance reporting',
+const customItems = [
+    'Up to 5 premium workflows',
+    'Tailored customization by our team',
+    'Full database & system setup',
+    'Dedicated integration support',
+    'Compliance-ready auditing setup',
 ];
 
 export default function HomePage() {
@@ -127,20 +127,50 @@ export default function HomePage() {
         <div className={styles.container}>
             <div className={styles.mainContent}>
 
-                {/* ── HERO — Video Only ── */}
+                {/* ── HERO — Premium Video Overlay ── */}
                 <section className={styles.heroVideo}>
                     <HeroVideo speed={1} />
-                    <div className={styles.heroFade} />
-                    <div className={styles.heroCta}>
-                        <Link href="/login" className={styles.heroCtaBtn}>
-                            Start saving time
-                            <IconArrow />
-                        </Link>
+                    <div className={styles.heroDarkOverlay} />
+                    
+                    <div className={styles.heroContent}>
+                        <div className={styles.heroLabel}>
+                            <span className={styles.heroLabelDot} />
+                            n8n Workflow Marketplace
+                        </div>
+                        
+                        <h1 className={styles.heroTitle}>
+                            Automate your firm.<br />
+                            <span className={styles.gradientText}>Buy once. Own forever.</span>
+                        </h1>
+                        
+                        <p className={styles.heroSub}>
+                            Deploy production-ready workflows for legal, accounting, and operations instantly. No monthly subscriptions. Run on your own server or our secure cloud.
+                        </p>
+                        
+                        <div className={styles.heroActions}>
+                            <a href="#what-it-does" className={styles.heroPrimaryBtn}>
+                                Explore Workflow Library
+                                <IconArrow />
+                            </a>
+                            <Link href="/login" className={styles.heroSecondaryBtn}>
+                                Deploy Instantly
+                            </Link>
+                        </div>
+                        
+                        <div className={styles.heroBenefits}>
+                            <span className={styles.benefitItem}>✓ One-Time Purchase</span>
+                            <span className={styles.benefitDivider}>·</span>
+                            <span className={styles.benefitItem}>✓ 100% Data Sovereignty</span>
+                            <span className={styles.benefitDivider}>·</span>
+                            <span className={styles.benefitItem}>✓ Lifetime Ownership</span>
+                        </div>
                     </div>
+                    
+                    <div className={styles.heroFade} />
                 </section>
 
                 {/* ── DASHBOARD PREVIEW ── */}
-                <section className={styles.section} style={{ background: '#fafafa' }}>
+                <section id="what-it-does" className={styles.section} style={{ background: '#fafafa' }}>
                     <div className={styles.sectionInner}>
                         <div className={styles.sectionHeader}>
                             <span className={styles.eyebrow}>What your team sees</span>
@@ -279,50 +309,50 @@ export default function HomePage() {
                     <div className={styles.sectionInner}>
                         <div className={styles.sectionHeader}>
                             <span className={styles.eyebrow}>Pricing</span>
-                            <h2 className={styles.sectionTitle}>Pays for itself in week one.</h2>
+                            <h2 className={styles.sectionTitle}>One-time purchase. Infinite scale.</h2>
                             <p className={styles.sectionSub}>
-                                30 hours saved a week × $80/hr = $9,600/month recovered. Before you even factor in client experience.
+                                No monthly subscriptions or recurring fees. Buy a workflow, own the code, and run it forever on your own terms.
                             </p>
                         </div>
 
                         <div className={styles.pricingGrid}>
-                            {/* Professional */}
+                            {/* Standard Workflow */}
                             <div className={styles.pricingCard}>
-                                <div className={styles.pricingTier}>Professional</div>
-                                <div className={styles.pricingAmount}>$833<span className={styles.pricingPer}>/mo</span></div>
+                                <div className={styles.pricingTier}>Individual Workflows</div>
+                                <div className={styles.pricingAmount} style={{ fontSize: '2.8rem' }}>From $99<span className={styles.pricingPer}>/workflow</span></div>
                                 <p className={styles.pricingDesc}>
-                                    For firms with 5–20 staff. Covers your top 5 most time-consuming admin processes. Full setup included.
+                                    Each pre-built workflow has its own individual price. Pay once for what you need, own the code, and run it forever.
                                 </p>
                                 <div className={styles.pricingDivider} />
                                 <ul className={styles.pricingList}>
-                                    {featureItems.map(f => (
+                                    {standardItems.map(f => (
                                         <li key={f} className={styles.pricingItem}>
                                             <span className={styles.pricingCheck}><IconCheck /></span>
                                             {f}
                                         </li>
                                     ))}
                                 </ul>
-                                <Link href="/login" className={styles.pricingCta}>Get started <IconArrow /></Link>
+                                <Link href="/login" className={styles.pricingCta}>Buy Workflow <IconArrow /></Link>
                             </div>
 
-                            {/* Enterprise */}
+                            {/* Institutional Bundle */}
                             <div className={styles.pricingCardDark}>
                                 <div className={styles.pricingBadge}>Most Popular</div>
-                                <div className={styles.pricingTier} style={{ color: 'rgba(255,255,255,0.4)' }}>Enterprise</div>
-                                <div className={styles.pricingAmount} style={{ color: '#fff' }}>Custom<span className={styles.pricingPer} style={{ color: 'rgba(255,255,255,0.3)' }}>/usage</span></div>
+                                <div className={styles.pricingTier} style={{ color: 'rgba(255,255,255,0.4)' }}>Institutional Pack</div>
+                                <div className={styles.pricingAmount} style={{ color: '#fff' }}>$1,499<span className={styles.pricingPer} style={{ color: 'rgba(255,255,255,0.3)' }}>/bundle</span></div>
                                 <p className={styles.pricingDesc} style={{ color: 'rgba(255,255,255,0.55)' }}>
-                                    For firms with 20+ staff. Unlimited processes, unlimited seats, private infrastructure.
+                                    For professional firms needing complete operational setups. Includes full onboarding and tailored customizations.
                                 </p>
                                 <div className={styles.pricingDivider} style={{ background: 'rgba(255,255,255,0.08)' }} />
                                 <ul className={styles.pricingList}>
-                                    {enterpriseItems.map(f => (
+                                    {customItems.map(f => (
                                         <li key={f} className={styles.pricingItem} style={{ color: 'rgba(255,255,255,0.8)' }}>
                                             <span className={styles.pricingCheck}><IconCheck /></span>
                                             {f}
                                         </li>
                                     ))}
                                 </ul>
-                                <Link href="/login" className={styles.pricingCtaGreen}>Book a demo <IconArrow /></Link>
+                                <Link href="/login" className={styles.pricingCtaGreen}>Buy Automations <IconArrow /></Link>
                             </div>
                         </div>
                     </div>

@@ -103,7 +103,8 @@ export async function PATCH(request: Request) {
             plan,
             priority,
             assignedTo,
-            templateId
+            templateId,
+            adminNotes
         } = body;
 
         await updateOrderDetails(id, {
@@ -118,7 +119,8 @@ export async function PATCH(request: Request) {
             plan,
             priority,
             assignedTo,
-            templateId
+            templateId,
+            adminNotes
         });
         return NextResponse.json({ success: true });
     } catch (error) {

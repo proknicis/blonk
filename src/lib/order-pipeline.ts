@@ -41,6 +41,7 @@ export async function ensureOrderSchema() {
     await db.execute(`ALTER TABLE "WorkflowOrder" ADD COLUMN IF NOT EXISTS "priority" VARCHAR(50) DEFAULT 'MEDIUM'`).catch(() => {});
     await db.execute(`ALTER TABLE "WorkflowOrder" ADD COLUMN IF NOT EXISTS "assignedTo" VARCHAR(100) DEFAULT 'System Auto'`).catch(() => {});
     await db.execute(`ALTER TABLE "WorkflowOrder" ADD COLUMN IF NOT EXISTS "customDetails" JSONB`).catch(() => {});
+    await db.execute(`ALTER TABLE "WorkflowOrder" ADD COLUMN IF NOT EXISTS "adminNotes" JSONB DEFAULT '{}'`).catch(() => {});
 
     // Ensure Workflow table has the columns needed by the order pipeline
     await db.execute(`ALTER TABLE "Workflow" ADD COLUMN IF NOT EXISTS "templateId" UUID`).catch(() => {});
@@ -496,6 +497,7 @@ export async function updateOrderDetails(orderId: string, details: {
     priority?: string;
     assignedTo?: string;
     templateId?: string | null;
+    adminNotes?: Record<string, any>;
 }) {
     await ensureOrderSchema();
     const [order] = await db.query('SELECT * FROM "WorkflowOrder" WHERE id = $1', [orderId]) as any[];
@@ -544,6 +546,10 @@ export async function updateOrderDetails(orderId: string, details: {
     if (details.assignedTo !== undefined) {
         sets.push(`"assignedTo" = $${idx++}`);
         params.push(details.assignedTo);
+    }
+    if (details.adminNotes !== undefined) {
+        sets.push(`"adminNotes" = $${idx++}`);
+        params.push(JSON.stringify(details.adminNotes));
     }
     params.push(orderId);
 
