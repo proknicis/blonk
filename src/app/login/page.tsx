@@ -7,12 +7,46 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import styles from "./login.module.css";
 import React from "react";
 
+// Inline Icons for Visual Polish
+const IconShield = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    </svg>
+);
+
+const IconFileCheck = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+        <polyline points="14 2 14 8 20 8" />
+        <polyline points="9 15 11 17 15 13" />
+    </svg>
+);
+
+const IconZap = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </svg>
+);
+
+const IconEye = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+        <circle cx="12" cy="12" r="3" />
+    </svg>
+);
+
+const IconEyeOff = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+        <line x1="1" y1="1" x2="23" y2="23" />
+    </svg>
+);
+
 function AuthContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { data: session, status } = useSession();
     
-    // "register", "login", "mfa"
     const [mode, setMode] = useState<"login" | "register" | "mfa">("login");
     const [previousMode, setPreviousMode] = useState<"login" | "register">("login");
 
@@ -22,9 +56,11 @@ function AuthContent() {
     const [warning, setWarning] = useState("");
     const [isMounted, setIsMounted] = useState(false);
     
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
     useEffect(() => {
         setIsMounted(true);
-        console.log(">>> BLONK AUTH TERMINAL v3.2 [ACTIVE]");
     }, []);
     
     const [formData, setFormData] = useState({
@@ -37,17 +73,10 @@ function AuthContent() {
     const [mfaCode, setMfaCode] = useState("");
     const [expectedCode, setExpectedCode] = useState("");
 
-    // Redirection Guard: Removed automatic redirect to allow user choice as per request
-    // useEffect(() => {
-    //     if (status === "authenticated") {
-    //         router.push("/dashboard");
-    //     }
-    // }, [status, router]);
-
     useEffect(() => {
         const errorType = searchParams.get("error");
         if (errorType === "CredentialsSignin") {
-            setError("Identity verification failed. Please check your credentials.");
+            setError("Authentication failed. Please verify your credentials and try again.");
         }
     }, [searchParams]);
 
@@ -57,25 +86,22 @@ function AuthContent() {
         
         const lower = val.toLowerCase();
         if (lower.includes("@gmail.com") || lower.includes("@yahoo.com") || lower.includes("@hotmail.com")) {
-            setWarning("Institutional access requires a corporate domain, but we'll accept this for the demo.");
+            setWarning("Enterprise access recommended. Corporate domain suggested.");
         } else {
             setWarning("");
         }
-    }
+    };
 
     const simulateLoadingSteps = async () => {
         setIsLoading(true);
-        setLoadingStage("Encrypting Identity...");
-        await new Promise(r => setTimeout(r, 800));
-        setLoadingStage("Provisioning Fleet...");
-        await new Promise(r => setTimeout(r, 800));
-        setLoadingStage("Access Granted.");
-        await new Promise(r => setTimeout(r, 400));
-    }
+        setLoadingStage("Verifying credentials...");
+        await new Promise(r => setTimeout(r, 600));
+        setLoadingStage("Establishing session...");
+        await new Promise(r => setTimeout(r, 600));
+    };
 
     const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log(">>> AUTH HANDSHAKE INITIATED...");
         setError("");
         
         if (mode !== "mfa") {
@@ -83,12 +109,13 @@ function AuthContent() {
                 setError("Passwords do not match.");
                 return;
             }
-            // Proceed to MFA step
+            
+            // Proceed to Verification (OTP) step
             const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
             setExpectedCode(generatedCode);
             
             setIsLoading(true);
-            setLoadingStage("Dispatching verification email...");
+            setLoadingStage("Sending verification code...");
 
             try {
                 const res = await fetch("/api/auth/otp", {
@@ -100,23 +127,20 @@ function AuthContent() {
                 const data = await res.json();
 
                 if (!res.ok) {
-                    console.error("[SMTP FAILURE]:", data.error, data.details || "");
-                    throw new Error(data.error || "Failed to deliver security code.");
+                    throw new Error(data.error || "Failed to deliver security verification code.");
                 }
 
-                console.log("[SMTP SUCCESS]: Verification email sent successfully to", formData.email);
                 setPreviousMode(mode);
                 setMode("mfa");
             } catch (err: any) {
-                console.error("[AUTH ERROR]:", err.message);
                 setError(err.message);
             } finally {
                 setIsLoading(false);
             }
         } else {
-            // Processing MFA -> Finalize Auth
+            // Finalize authentication
             if (mfaCode !== expectedCode) {
-                setError("Invalid MFA code. Please check the console output.");
+                setError("Verification code is incorrect. Please recheck your email inbox.");
                 return;
             }
             
@@ -130,7 +154,7 @@ function AuthContent() {
                         redirect: false,
                     });
 
-                    if (result?.error) throw new Error("Invalid credentials. Access denied.");
+                    if (result?.error) throw new Error("Incorrect login email or password.");
                     router.push("/dashboard");
                 } else {
                     // Registration
@@ -140,12 +164,12 @@ function AuthContent() {
                         body: JSON.stringify({
                             email: formData.email,
                             password: formData.password,
-                            name: formData.name || "Institutional Operator"
+                            name: formData.name || "Enterprise Member"
                         }),
                     });
 
                     const data = await res.json();
-                    if (!res.ok) throw new Error(data.error || "Establishment failure.");
+                    if (!res.ok) throw new Error(data.error || "Failed to establish workspace registry.");
 
                     await signIn("credentials", {
                         email: formData.email,
@@ -161,42 +185,86 @@ function AuthContent() {
         }
     };
 
+    // Live Validation Rules
+    const hasMinLength = formData.password.length >= 8;
+    const hasNumber = /\d/.test(formData.password);
+    const passwordsMatch = formData.password === formData.confirmPassword;
+
     return (
         <div className={styles.pageWrapper}>
-            <div style={{ position: 'absolute', top: '10%', right: '10%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(52, 209, 134, 0.08) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none', zIndex: 1 }}></div>
-            <div style={{ position: 'absolute', bottom: '5%', left: '30%', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(0, 0, 0, 0.02) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none', zIndex: 1 }}></div>
+            {/* Visual background details */}
+            <div style={{ position: 'absolute', top: '10%', right: '10%', width: '350px', height: '350px', background: 'radial-gradient(circle, rgba(52, 209, 134, 0.04) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none', zIndex: 1 }}></div>
+            <div style={{ position: 'absolute', bottom: '5%', left: '30%', width: '450px', height: '450px', background: 'radial-gradient(circle, rgba(0, 0, 0, 0.01) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none', zIndex: 1 }}></div>
 
+            {/* Left Sidebar - Product & Trust Panel */}
             <div className={styles.leftSidebar}>
                 <Link href="/" className={styles.logo}>
                     <div className={styles.logo_dot}></div>
                     BLONK
                 </Link>
+                
                 <div className={styles.sidebarContent}>
-                    <h1 className={styles.sidebarTitle}>Command<br />Terminal.</h1>
-                    <p className={styles.sidebarText}>Establish your institutional identity and access high-stakes autonomous infrastructure for your firm.</p>
+                    <span className={styles.sidebarEyebrow}>Sovereign Workflow Gateway</span>
+                    <h1 className={styles.sidebarTitle}>Secure operational execution.</h1>
+                    <p className={styles.sidebarText}>
+                        Access the BLONK dashboard to provision dedicated VPS nodes, deploy audited automation blueprints, and manage your ledger transactions.
+                    </p>
+
+                    <div className={styles.trustList}>
+                        <div className={styles.trustItem}>
+                            <div className={styles.trustIconWrapper}>
+                                <IconShield />
+                            </div>
+                            <div className={styles.trustText}>
+                                <h4 className={styles.trustTitle}>100% Data Sovereignty</h4>
+                                <p className={styles.trustDesc}>All workflows execute in isolated tenant nodes within your private boundary.</p>
+                            </div>
+                        </div>
+
+                        <div className={styles.trustItem}>
+                            <div className={styles.trustIconWrapper}>
+                                <IconFileCheck />
+                            </div>
+                            <div className={styles.trustText}>
+                                <h4 className={styles.trustTitle}>SOC-2 & GRC Audited</h4>
+                                <p className={styles.trustDesc}>Built-in immutable transaction logs and automated threat telemetry.</p>
+                            </div>
+                        </div>
+
+                        <div className={styles.trustItem}>
+                            <div className={styles.trustIconWrapper}>
+                                <IconZap />
+                            </div>
+                            <div className={styles.trustText}>
+                                <h4 className={styles.trustTitle}>Direct Endpoint Routing</h4>
+                                <p className={styles.trustDesc}>Connect straight to LLMs and SQL ledgers with zero middleman markups.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
-                <div style={{ marginTop: 'auto', zIndex: 10 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-                        <div style={{ width: '40px', height: '1px', background: 'var(--border)' }}></div>
-                        <div style={{ fontSize: '0.7rem', fontWeight: 900, color: 'var(--accent)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>System Active</div>
+                <div className={styles.sidebarFooter}>
+                    <div className={styles.statusPulse}>
+                        <span className={styles.pulseDot}></span>
+                        <span className={styles.statusLabel}>All Nodes Operational</span>
                     </div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 900, color: 'var(--muted-foreground)', opacity: 0.4, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
-                        Sovereign Fleet v3.1 / Secure
-                    </div>
+                    <span className={styles.versionLabel}>Fleet Version v3.2</span>
                 </div>
             </div>
 
+            {/* Right Side Content - Expanded Balanced Auth Card */}
             <div className={styles.rightContent}>
                 <div className={styles.container}>
                     {mode !== "mfa" ? (
                         <>
                             <div className={styles.header}>
-                                <h2 className={styles.title}>{status === "authenticated" ? "Session Detected." : (mode === "login" ? "Identity." : "Integrate.")}</h2>
+                                <h2 className={styles.title}>
+                                    {status === "authenticated" ? "Session Detected" : (mode === "login" ? "Welcome back" : "Create account")}
+                                </h2>
                                 <p className={styles.subtitle}>
                                     {status === "authenticated" 
                                         ? `You are currently authenticated as ${session?.user?.email}.`
-                                        : (mode === "login" ? "Enter your safe-credentials to reach your dashboard." : "Create your institutional profile to start automating.")}
+                                        : (mode === "login" ? "Enter your credentials to access your active workspace." : "Register your institutional profile to start automating.")}
                                 </p>
                             </div>
 
@@ -219,9 +287,9 @@ function AuthContent() {
                         </>
                     ) : (
                         <div className={styles.header}>
-                            <h2 className={styles.title}>MFA Required.</h2>
+                            <h2 className={styles.title}>Verify your email</h2>
                             <p className={styles.subtitle}>
-                                Please enter the verification code from your authenticator app or email.
+                                Enter the 6-digit security code sent to your email address to authenticate.
                             </p>
                         </div>
                     )}
@@ -236,7 +304,7 @@ function AuthContent() {
                     )}
 
                     {warning && mode === "register" && (
-                        <div style={{ padding: '12px 16px', background: 'rgba(245, 158, 11, 0.1)', color: '#D97706', borderRadius: '12px', border: '1px solid rgba(245, 158, 11, 0.2)', fontSize: '0.8rem', fontWeight: 700, marginBottom: 24 }}>
+                        <div className={styles.warningBox}>
                             {warning}
                         </div>
                     )}
@@ -259,7 +327,7 @@ function AuthContent() {
                                         )}
                                     </div>
                                     <div className={styles.profileInfo}>
-                                        <div className={styles.profileName}>{session?.user?.name || "Institutional Operator"}</div>
+                                        <div className={styles.profileName}>{session?.user?.name || "Enterprise Member"}</div>
                                         <div className={styles.profileEmail}>{session?.user?.email}</div>
                                     </div>
                                 </div>
@@ -269,25 +337,25 @@ function AuthContent() {
                                     className={styles.submitBtn}
                                     style={{ marginTop: 0 }}
                                 >
-                                    Continue to Command Center
+                                    Go to Dashboard
                                 </button>
                                 
                                 <button
                                     onClick={() => signOut({ redirect: false })}
                                     className={styles.secondaryBtn}
                                 >
-                                    Switch Account
+                                    Sign Out
                                 </button>
                             </div>
                         ) : (
                             <form className={styles.form} onSubmit={handleAuth}>
                                 {mode === "register" && (
                                     <div className={styles.formGroup}>
-                                        <label className={styles.modernLabel}>Full Name</label>
+                                        <label className={styles.modernLabel}>Full name</label>
                                         <input
                                             type="text"
                                             className={styles.modernInput}
-                                            placeholder="Institutional Operator"
+                                            placeholder="Jane Doe"
                                             required
                                             suppressHydrationWarning
                                             value={formData.name}
@@ -299,47 +367,95 @@ function AuthContent() {
                                 {mode !== "mfa" ? (
                                     <>
                                         <div className={styles.formGroup}>
-                                            <label className={styles.modernLabel}>Fleet Email</label>
+                                            <label className={styles.modernLabel}>Email address</label>
                                             <input
                                                 type="email"
                                                 className={styles.modernInput}
-                                                placeholder="name@firm.ai"
+                                                placeholder="name@firm.com"
                                                 required
                                                 suppressHydrationWarning
                                                 value={formData.email}
                                                 onChange={handleEmailChange}
                                             />
                                         </div>
+                                        
                                         <div className={styles.formGroup}>
-                                            <label className={styles.modernLabel}>Safe-Password</label>
-                                            <input
-                                                type="password"
-                                                className={styles.modernInput}
-                                                placeholder="••••••••"
-                                                required
-                                                suppressHydrationWarning
-                                                value={formData.password}
-                                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                            />
-                                        </div>
-                                        {mode === "register" && (
-                                            <div className={styles.formGroup}>
-                                                <label className={styles.modernLabel}>Verify Password</label>
+                                            <label className={styles.modernLabel}>Password</label>
+                                            <div className={styles.passwordWrapper}>
                                                 <input
-                                                    type="password"
-                                                    className={styles.modernInput}
+                                                    type={showPassword ? "text" : "password"}
+                                                    className={styles.passwordInput}
                                                     placeholder="••••••••"
                                                     required
                                                     suppressHydrationWarning
-                                                    value={formData.confirmPassword}
-                                                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                                                    value={formData.password}
+                                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                                 />
+                                                <button
+                                                    type="button"
+                                                    className={styles.togglePasswordBtn}
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    tabIndex={-1}
+                                                >
+                                                    {showPassword ? <IconEyeOff /> : <IconEye />}
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {mode === "register" && (
+                                            <div className={styles.formGroup}>
+                                                <label className={styles.modernLabel}>Confirm Password</label>
+                                                <div className={styles.passwordWrapper}>
+                                                    <input
+                                                        type={showConfirmPassword ? "text" : "password"}
+                                                        className={styles.passwordInput}
+                                                        placeholder="••••••••"
+                                                        required
+                                                        suppressHydrationWarning
+                                                        value={formData.confirmPassword}
+                                                        onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        className={styles.togglePasswordBtn}
+                                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                        tabIndex={-1}
+                                                    >
+                                                        {showConfirmPassword ? <IconEyeOff /> : <IconEye />}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {mode === "register" && formData.password.length > 0 && (
+                                            <div className={styles.checklist}>
+                                                <div className={`${styles.checkItem} ${hasMinLength ? styles.checkSuccess : styles.checkMuted}`}>
+                                                    <span className={styles.checkBullet}>•</span> At least 8 characters
+                                                </div>
+                                                <div className={`${styles.checkItem} ${hasNumber ? styles.checkSuccess : styles.checkMuted}`}>
+                                                    <span className={styles.checkBullet}>•</span> At least one number
+                                                </div>
+                                                <div className={`${styles.checkItem} ${passwordsMatch && formData.confirmPassword.length > 0 ? styles.checkSuccess : styles.checkMuted}`}>
+                                                    <span className={styles.checkBullet}>•</span> Passwords match
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {mode === "login" && (
+                                            <div className={styles.formRow}>
+                                                <label className={styles.rememberMe}>
+                                                    <input type="checkbox" className={styles.checkbox} />
+                                                    <span>Remember me</span>
+                                                </label>
+                                                <Link href="/forgot-password" className={styles.forgotLink}>
+                                                    Forgot password?
+                                                </Link>
                                             </div>
                                         )}
                                     </>
                                 ) : (
                                     <div className={styles.formGroup}>
-                                        <label className={styles.modernLabel}>6-Digit Code</label>
+                                        <label className={styles.modernLabel}>Verification Code</label>
                                         <input
                                             type="text"
                                             className={styles.modernInput}
@@ -357,10 +473,10 @@ function AuthContent() {
                                 <button
                                     type="submit"
                                     className={styles.submitBtn}
-                                    disabled={isLoading}
+                                    disabled={isLoading || (mode === "register" && (!hasMinLength || !hasNumber || !passwordsMatch))}
                                     suppressHydrationWarning
                                 >
-                                    {isLoading ? loadingStage : mode === "mfa" ? "Verify Identity" : mode === "login" ? "Initialize Session" : "Establish Integration"}
+                                    {isLoading ? loadingStage : mode === "mfa" ? "Verify Identity" : mode === "login" ? "Sign In" : "Create Account"}
                                 </button>
                             </form>
                         )
@@ -370,7 +486,7 @@ function AuthContent() {
                         <>
                             <div className={styles.divider}>
                                 <div className={styles.dividerLine}></div>
-                                <span>AUTONOMOUS AUTH</span>
+                                <span>OR</span>
                                 <div className={styles.dividerLine}></div>
                             </div>
 
@@ -381,13 +497,13 @@ function AuthContent() {
                                     <path d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.83z" fill="#FBBC05"/>
                                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.83c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
                                 </svg>
-                                Google Sync Handshake
+                                Continue with Google
                             </button>
                         </>
                     )}
 
-                    <div style={{ marginTop: 40, textAlign: 'center', fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>
-                        By establishing access, you agree to the <Link href="/terms" style={{ color: 'var(--foreground)', textDecoration: 'none', fontWeight: 700 }}>Institutional Protocols</Link>.
+                    <div className={styles.termsNote}>
+                        By establishing access, you agree to our <Link href="/terms" className={styles.termsLink}>Institutional Protocols</Link> and <Link href="/privacy" className={styles.termsLink}>Privacy Policy</Link>.
                     </div>
                 </div>
             </div>
