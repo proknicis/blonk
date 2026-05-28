@@ -88,6 +88,37 @@ const IconSliders = () => (
     </svg>
 );
 
+const IconRepeat = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 1l4 4-4 4" />
+        <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+        <path d="M7 23l-4-4 4-4" />
+        <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+    </svg>
+);
+
+const IconFileCheck = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+        <polyline points="14 2 14 8 20 8" />
+        <polyline points="9 15 11 17 15 13" />
+    </svg>
+);
+
+const IconZap = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </svg>
+);
+
+const IconLink = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+    </svg>
+);
+
+
 const workflows = [
     {
         title: "Intake Triage & AI Draft",
@@ -179,75 +210,104 @@ export default function HomePage() {
                     </div>
                 </section>
 
-                {/* ── SECTION 1: EXECUTION ENGINE (n8n Trace Visualizer) ── */}
-                <section className={styles.section} style={{ background: '#fafafa' }}>
-                    <div className={styles.sectionInner}>
+                {/* ── SECTION 1: REDESIGNED OPERATIONAL FLOW ── */}
+                <section className={styles.flowSection}>
+                    <div className={styles.flowInner}>
                         <div className={styles.sectionHeader}>
-                            <span className={styles.eyebrow}>Execution Engine</span>
-                            <h2 className={styles.sectionTitle}>Visual. Auditable. Reliable.</h2>
+                            <span className={styles.eyebrow}>OPERATIONAL FLOW</span>
+                            <h2 className={styles.sectionTitle}>From incoming data to structured output</h2>
                             <p className={styles.sectionSub}>
-                                Blonk designs run on a clean, visual canvas. Zero hidden microservices. Monitor database updates and logic jumps in real-time.
+                                BLONK standardizes spreadsheet-driven operations by routing fragmented inputs through a clean, repeatable execution layer.
                             </p>
                         </div>
 
-                        {/* Professional Node Visualizer Mockup */}
-                        <div className={styles.n8nContainer}>
-                            <div className={styles.n8nNodeCard}>
-                                <div className={styles.n8nHeader}>
-                                    <span className={styles.n8nIcon} style={{ color: '#0f172a' }}><IconMail /></span>
-                                    <span className={styles.n8nTitle}>1. Email Trigger</span>
-                                    <span className={styles.n8nStatus}>success</span>
+                        {/* Horizontal / Grid-based process explanation */}
+                        <div className={styles.flowGrid}>
+                            <div className={styles.flowStep}>
+                                <div className={styles.flowStepHeader}>
+                                    <span className={styles.flowStepNum}>01 / CAPTURE</span>
+                                    <span className={styles.flowNodeDot} />
                                 </div>
-                                <div className={styles.n8nBody}>
-                                    <div className={styles.n8nJsonTitle}>Payload Metadata:</div>
-                                    <pre className={styles.n8nJson}>
-{`{
-  "sender": "partner@firm.com",
-  "category": "legal_inquiry",
-  "priority": "high"
-}`}
-                                    </pre>
-                                </div>
+                                <h3 className={styles.flowStepTitle}>Ingest raw inputs</h3>
+                                <p className={styles.flowStepDesc}>
+                                    Automatically monitor inbox submissions, API payloads, or spreadsheet uploads as they arrive. No manual downloads or CSV shuffling required.
+                                </p>
                             </div>
 
-                            <div className={styles.n8nLine} />
-
-                            <div className={styles.n8nNodeCard}>
-                                <div className={styles.n8nHeader}>
-                                    <span className={styles.n8nIcon} style={{ color: '#0f172a' }}><IconCpu /></span>
-                                    <span className={styles.n8nTitle}>2. Parser Engine</span>
-                                    <span className={styles.n8nStatus}>success</span>
+                            <div className={styles.flowStep}>
+                                <div className={styles.flowStepHeader}>
+                                    <span className={styles.flowStepNum}>02 / STRUCTURE</span>
+                                    <span className={styles.flowNodeDot} />
                                 </div>
-                                <div className={styles.n8nBody}>
-                                    <div className={styles.n8nJsonTitle}>Token Output:</div>
-                                    <pre className={styles.n8nJson}>
-{`{
-  "entity": "Acme Partners",
-  "intent": "grc_reconciliation",
-  "confidence": 0.99
-}`}
-                                    </pre>
-                                </div>
+                                <h3 className={styles.flowStepTitle}>Parse and validate</h3>
+                                <p className={styles.flowStepDesc}>
+                                    Standardize messy formats, resolve structural anomalies, and validate rows against custom corporate business rules in real-time.
+                                </p>
                             </div>
 
-                            <div className={styles.n8nLine} />
+                            <div className={styles.flowStep}>
+                                <div className={styles.flowStepHeader}>
+                                    <span className={styles.flowStepNum}>03 / DISPATCH</span>
+                                    <span className={styles.flowNodeDot} />
+                                </div>
+                                <h3 className={styles.flowStepTitle}>Write to target ledger</h3>
+                                <p className={styles.flowStepDesc}>
+                                    Route cleaned and formatted records directly into your core systems, CRMs, databases, or ERPs through secure, direct API integrations.
+                                </p>
+                            </div>
 
-                            <div className={styles.n8nNodeCard}>
-                                <div className={styles.n8nHeader}>
-                                    <span className={styles.n8nIcon} style={{ color: '#0f172a' }}><IconUsers /></span>
-                                    <span className={styles.n8nTitle}>3. CRM Sync</span>
-                                    <span className={styles.n8nStatus}>success</span>
+                            <div className={styles.flowStep}>
+                                <div className={styles.flowStepHeader}>
+                                    <span className={styles.flowStepNum}>04 / GRC AUDIT</span>
+                                    <span className={styles.flowNodeDot} />
                                 </div>
-                                <div className={styles.n8nBody}>
-                                    <div className={styles.n8nJsonTitle}>Transaction logs:</div>
-                                    <pre className={styles.n8nJson}>
-{`{
-  "syncSuccess": true,
-  "databaseId": "usr_9921b",
-  "recordsUpdated": 1
-}`}
-                                    </pre>
+                                <h3 className={styles.flowStepTitle}>Monitor & log exceptions</h3>
+                                <p className={styles.flowStepDesc}>
+                                    Track performance stats, download immutable audit trails, and manage edge-case exceptions through a single visual interface.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Secondary Proof Strip */}
+                        <div className={styles.trustStrip}>
+                            <div className={styles.trustItem}>
+                                <div className={styles.trustLabel}>
+                                    <IconRepeat />
+                                    Built for Scale
                                 </div>
+                                <p className={styles.trustDesc}>
+                                    Processes millions of rows without memory degradation or server lag.
+                                </p>
+                            </div>
+
+                            <div className={styles.trustItem}>
+                                <div className={styles.trustLabel}>
+                                    <IconFileCheck />
+                                    Auditable Ledger
+                                </div>
+                                <p className={styles.trustDesc}>
+                                    Every database transaction is permanently logged with an immutable execution history.
+                                </p>
+                            </div>
+
+                            <div className={styles.trustItem}>
+                                <div className={styles.trustLabel}>
+                                    <IconZap />
+                                    Sovereign Execution
+                                </div>
+                                <p className={styles.trustDesc}>
+                                    Zero middleman routing. Your proprietary data never leaves your environment.
+                                </p>
+                            </div>
+
+                            <div className={styles.trustItem}>
+                                <div className={styles.trustLabel}>
+                                    <IconLink />
+                                    Enterprise Integrations
+                                </div>
+                                <p className={styles.trustDesc}>
+                                    Connects across Postgres, Stripe, HubSpot, Slack, and your existing custom toolset.
+                                </p>
                             </div>
                         </div>
                     </div>
