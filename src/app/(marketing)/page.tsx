@@ -194,15 +194,128 @@ export default function HomePage() {
         <div className={styles.container}>
             <div className={styles.mainContent}>
 
-                {/* ── HERO — Video Only ── */}
-                <section className={styles.heroVideo}>
-                    <HeroVideo speed={1} />
-                    <div className={styles.heroFade} />
-                    <div className={styles.heroCta}>
-                        <Link href="/login" className={styles.heroCtaBtn}>
-                            Start saving time
-                            <IconArrow />
-                        </Link>
+                {/* ── REDESIGNED SOVEREIGN HERO SECTION ── */}
+                <section className={styles.heroSection}>
+                    {/* Background Grid Lines */}
+                    <div className={styles.gridOverlay} />
+                    
+                    {/* Top System Status Signals */}
+                    <div className={styles.statusTelemetry}>
+                        <span className={styles.statusDot} />
+                        <span className={styles.statusText}>SYSTEM ACTIVE: SECURE VPS ISOLATED NODE</span>
+                        <span className={styles.telemetryDivider}>|</span>
+                        <span className={styles.statusText}>LATENCY: 120MS</span>
+                        <span className={styles.telemetryDivider}>|</span>
+                        <span className={styles.statusText}>COMPLIANCE: SOC-2 / HIPAA READY</span>
+                    </div>
+
+                    <div className={styles.heroHeader}>
+                        <span className={styles.heroEyebrow}>DECOUPLED OPERATIONAL ENGINE</span>
+                        <h1 className={styles.heroTitle}>
+                            Sovereign execution<br />for critical workflows.
+                        </h1>
+                        <p className={styles.heroSub}>
+                            Run production-ready automation pipelines on your own private infrastructure. Own the logical code, secure your proprietary data, and eliminate vendor seat-taxes permanently.
+                        </p>
+                        
+                        <div className={styles.heroActions}>
+                            <Link href="/login" className={styles.heroPrimaryBtn}>
+                                Start saving time
+                                <IconArrow />
+                            </Link>
+                            <Link href="/process" className={styles.heroSecondaryBtn}>
+                                Read Architecture
+                            </Link>
+                        </div>
+                    </div>
+
+                    {/* The Active Spreadsheet & Pipeline Visual */}
+                    <div className={styles.canvasContainer}>
+                        {/* The main spreadsheet card */}
+                        <div className={styles.spreadsheetCard}>
+                            <div className={styles.sheetHeader}>
+                                <div className={styles.sheetTabs}>
+                                    <span className={`${styles.sheetTab} ${styles.sheetTabActive}`}>raw_inputs.csv</span>
+                                    <span className={styles.sheetTab}>validated_leads</span>
+                                    <span className={styles.sheetTab}>billing_sync</span>
+                                </div>
+                                <div className={styles.sheetControls}>
+                                    <span className={styles.sheetStatus}>● Active Syncing</span>
+                                </div>
+                            </div>
+                            
+                            {/* Spreadsheet Grid */}
+                            <div className={styles.sheetGrid}>
+                                <div className={styles.sheetRowHeader}>
+                                    <div></div>
+                                    <div>A: TIMESTAMP</div>
+                                    <div>B: SOURCE</div>
+                                    <div>C: PAYLOAD</div>
+                                    <div>D: STATUS</div>
+                                </div>
+                                <div className={styles.sheetRow}>
+                                    <div className={styles.rowNumber}>1</div>
+                                    <div>22:15:32</div>
+                                    <div>inbox@firm.com</div>
+                                    <div>{`{"type": "invoice", "id": 1092, "amount": 1490.00}`}</div>
+                                    <div><span className={styles.statusBadgeGreen}>Processed</span></div>
+                                </div>
+                                <div className={styles.sheetRow}>
+                                    <div className={styles.rowNumber}>2</div>
+                                    <div>22:15:34</div>
+                                    <div>stripe_webhook</div>
+                                    <div>{`{"event": "charge.succeeded", "invoice": "in_923a"}`}</div>
+                                    <div><span className={styles.statusBadgeGreen}>Processed</span></div>
+                                </div>
+                                <div className={styles.sheetRow}>
+                                    <div className={styles.rowNumber}>3</div>
+                                    <div>22:15:40</div>
+                                    <div>portal_upload</div>
+                                    <div>{`{"file": "client_ledger_q2.xlsx", "rows": 890}`}</div>
+                                    <div><span className={styles.statusBadgeGreen}>Processed</span></div>
+                                </div>
+                                <div className={styles.sheetRow}>
+                                    <div className={styles.rowNumber}>4</div>
+                                    <div>22:16:01</div>
+                                    <div>api_gateway</div>
+                                    <div>{`{"query": "sync_crm_contacts", "team_id": "usr_99"}`}</div>
+                                    <div><span className={styles.statusBadgeGreen}>Processed</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Asymmetric Supporting UI: Floating Terminal Overlay */}
+                        <div className={styles.floatingTerminal}>
+                            <div className={styles.terminalHeader}>
+                                <div className={styles.terminalControls}>
+                                    <span className={styles.termRed}></span>
+                                    <span className={styles.termYellow}></span>
+                                    <span className={styles.termGreen}></span>
+                                </div>
+                                <span className={styles.terminalTitle}>blonk-node-telemetry</span>
+                            </div>
+                            <div className={styles.terminalBody}>
+                                <div className={styles.termLine}>$ blonk start-engine --sovereign</div>
+                                <div className={styles.termLineSuccess}>✓ Isolated core container initialized</div>
+                                <div className={styles.termLine}>✓ Decrypted local vault credentials</div>
+                                <div className={styles.termLineSuccess}>✓ Connected to OpenAI model API (Direct Key)</div>
+                                <div className={styles.termLine}>● Syncing database ledger records...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Trust Strip under the hero */}
+                    <div className={styles.heroTrustStrip}>
+                        <span className={styles.trustTitle}>TRUSTED FOR SECURE OPERATIONS</span>
+                        <div className={styles.trustLogos}>
+                            <span>AUDITED GRC BLUEPRINTS</span>
+                            <span className={styles.trustDot}>•</span>
+                            <span>SOC-2 READINESS</span>
+                            <span className={styles.trustDot}>•</span>
+                            <span>AES-256 VAULT ENCRYPTION</span>
+                            <span className={styles.trustDot}>•</span>
+                            <span>100% DATA SOVEREIGNTY</span>
+                        </div>
                     </div>
                 </section>
 
