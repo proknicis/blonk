@@ -2,7 +2,7 @@
     display: flex;
     min-height: 100vh;
     background: #ffffff;
-    color: var(--fg);
+    color: var(--foreground);
     font-family: var(--font-sans);
     position: relative;
     overflow: hidden;
@@ -51,7 +51,7 @@
     font-size: 1.4rem;
     font-weight: 950;
     letter-spacing: -0.06em;
-    color: var(--fg);
+    color: var(--foreground);
     text-decoration: none;
     display: flex;
     align-items: center;
@@ -91,7 +91,7 @@
     font-weight: 950;
     letter-spacing: -0.05em;
     margin: 0 0 24px 0;
-    color: var(--fg);
+    color: var(--foreground);
 }
 
 .sidebarText {
@@ -138,7 +138,7 @@
 .trustTitle {
     font-size: 0.92rem;
     font-weight: 850;
-    color: var(--fg);
+    color: var(--foreground);
     margin: 0;
     letter-spacing: -0.01em;
 }
@@ -239,7 +239,7 @@
     font-weight: 950;
     margin-bottom: 10px;
     letter-spacing: -0.04em;
-    color: var(--fg);
+    color: var(--foreground);
 }
 
 .subtitle {
@@ -275,7 +275,7 @@
 
 .activeTab {
     background: #ffffff;
-    color: var(--fg);
+    color: var(--foreground);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), 0 0 1px rgba(0, 0, 0, 0.04);
 }
 
@@ -306,7 +306,7 @@
     border: 1px solid var(--border);
     padding: 16px 18px;
     border-radius: 14px;
-    color: var(--fg);
+    color: var(--foreground);
     font-size: 0.95rem;
     font-weight: 500;
     transition: all 0.25s ease;
@@ -337,7 +337,7 @@
     border: 1px solid var(--border);
     padding: 16px 52px 16px 18px;
     border-radius: 14px;
-    color: var(--fg);
+    color: var(--foreground);
     font-size: 0.95rem;
     font-weight: 500;
     transition: all 0.25s ease;
@@ -368,7 +368,7 @@
 }
 
 .togglePasswordBtn:hover {
-    color: var(--fg);
+    color: var(--foreground);
 }
 
 /* Checklist validations */
@@ -433,7 +433,7 @@
 }
 
 .forgotLink {
-    color: var(--fg);
+    color: var(--foreground);
     text-decoration: none;
     font-weight: 750;
     transition: opacity 0.2s;
@@ -445,7 +445,7 @@
 
 /* Submit and Action Buttons */
 .submitBtn {
-    background: var(--fg);
+    background: var(--foreground);
     color: #ffffff;
     border: none;
     padding: 16px;
@@ -498,7 +498,7 @@
     gap: 12px;
     background: #ffffff;
     border: 1px solid var(--border);
-    color: var(--fg);
+    color: var(--foreground);
     padding: 16px;
     border-radius: 14px;
     font-size: 0.95rem;
@@ -595,7 +595,7 @@
 .profileName {
     font-size: 1rem;
     font-weight: 850;
-    color: var(--fg);
+    color: var(--foreground);
 }
 
 .profileEmail {
@@ -618,8 +618,8 @@
 
 .secondaryBtn:hover {
     background: #fafafa;
-    color: var(--fg);
-    border-color: var(--fg);
+    color: var(--foreground);
+    border-color: var(--foreground);
 }
 
 .termsNote {
@@ -632,7 +632,7 @@
 }
 
 .termsLink {
-    color: var(--fg);
+    color: var(--foreground);
     text-decoration: none;
     font-weight: 750;
     transition: opacity 0.2s;
