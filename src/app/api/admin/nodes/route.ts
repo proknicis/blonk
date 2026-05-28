@@ -167,7 +167,7 @@ export async function GET(request: Request) {
                        (SELECT COUNT(*) FROM "Workflow" w WHERE w."serverId" = n.id) as workflow_count
                 FROM "ClusterNode" n
                 LEFT JOIN "Team" t ON n."teamId" = t.id
-                LEFT JOIN "User" u ON n."customerId" = u.id
+                LEFT JOIN "User" u ON n."customerId" = u.id::text
                 ORDER BY n."createdAt" DESC
             `) as any[];
             console.log(`[Fleet API] Found ${nodes.length} nodes in database.`);
