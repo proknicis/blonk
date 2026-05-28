@@ -17,6 +17,8 @@ async function ensureSchema() {
         ADD COLUMN IF NOT EXISTS "ipAddress" TEXT,
         ADD COLUMN IF NOT EXISTS "sshKeyId" TEXT
     `);
+    // Self-healing: Any manually edited node stuck in Pending should be set to Active
+    await db.execute(`UPDATE "ClusterNode" SET status = 'Active' WHERE status = 'Pending'`).catch(() => {});
 }
 
 const fetchWithTimeout = async (url: string, options: any = {}, timeoutMs: number = 5000) => {
@@ -313,7 +315,7 @@ export async function PUT(req: Request) {
 
         const res = await db.execute(
             'UPDATE "ClusterNode" SET name = $1, url = $2, api_key = $3, max_workflows = $4, "teamId" = $5, status = $6 WHERE id = $7 RETURNING *',
-            [updatedName, updatedUrl, updatedApiKey, updatedMaxWorkflows, updatedTeamId, 'Pending', id]
+            [updatedName, updatedUrl, updatedApiKey, updatedMaxWorkflows, updatedTeamId, 'Active', id]
         );
 
         // Clear cache for this node

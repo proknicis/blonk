@@ -22,6 +22,8 @@ async function ensureSchema() {
             CONSTRAINT unique_user_provider UNIQUE ("user_id", provider)
         )
     `);
+    // Heal nodes stuck in Pending status
+    await db.execute(`UPDATE "ClusterNode" SET status = 'Active' WHERE status = 'Pending'`).catch(() => {});
 }
 
 export async function GET() {
