@@ -59,7 +59,7 @@ interface ServiceDef {
     isOAuth?: boolean;
 }
 
-export default function CredentialsClient() {
+export default function CredentialsClient({ requiredServices = [] }: { requiredServices?: string[] }) {
     const [records, setRecords] = useState<CredentialRecord[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [search, setSearch] = useState("");
@@ -373,21 +373,43 @@ export default function CredentialsClient() {
     // Filters
     const filteredServices = useMemo(() => {
         const query = search.toLowerCase().trim();
-        if (!query) return services;
-        return services.filter(s => 
+        
+        // Filter by relevance (either required by user's workflows OR already connected)
+        const relevantServices = services.filter(s => {
+            const isRequired = requiredServices.some(req => {
+                const normalizedReq = req.toLowerCase().replace(/[^a-z0-9]+/g, "");
+                const normalizedServiceId = s.id.toLowerCase().replace(/[^a-z0-9]+/g, "");
+                return normalizedReq === normalizedServiceId || normalizedReq.includes(normalizedServiceId) || normalizedServiceId.includes(normalizedReq);
+            });
+            const isConnected = !!getRecord(s.id);
+            return isRequired || isConnected;
+        });
+
+        if (!query) return relevantServices;
+        return relevantServices.filter(s => 
             s.name.toLowerCase().includes(query) || 
             s.category.toLowerCase().includes(query) ||
             s.description.toLowerCase().includes(query)
         );
-    }, [search, services]);
+    }, [search, services, requiredServices, records]);
 
     const stats = useMemo(() => {
-        const total = services.length;
-        const connected = records.filter(r => r.status === "Connected").length;
-        const errors = records.filter(r => r.status === "Error").length;
+        const relevant = services.filter(s => {
+            const isRequired = requiredServices.some(req => {
+                const normalizedReq = req.toLowerCase().replace(/[^a-z0-9]+/g, "");
+                const normalizedServiceId = s.id.toLowerCase().replace(/[^a-z0-9]+/g, "");
+                return normalizedReq === normalizedServiceId || normalizedReq.includes(normalizedServiceId) || normalizedServiceId.includes(normalizedReq);
+            });
+            const isConnected = !!getRecord(s.id);
+            return isRequired || isConnected;
+        });
+
+        const total = relevant.length;
+        const connected = relevant.filter(s => getRecord(s.id)?.status === "Connected").length;
+        const errors = relevant.filter(s => getRecord(s.id)?.status === "Error").length;
         const missing = total - connected - errors;
         return { total, connected, errors, missing };
-    }, [records, services]);
+    }, [records, services, requiredServices]);
 
     return (
         <div className={styles.container}>

@@ -44,6 +44,99 @@ const STEPS = [
     { id: 5, name: "Launch Sequence", description: "Final Distribution", icon: <Globe size={18} /> },
 ];
 
+const PRESETS = [
+    {
+        id: "openai",
+        service: "OpenAI",
+        name: "OPENAI_API_KEY",
+        type: "password",
+        label: "OpenAI API Key",
+        placeholder: "sk-proj-...",
+        description: "Access GPT-4o, GPT-4, and embeddings for advanced agentic workflow tasks."
+    },
+    {
+        id: "telegram",
+        service: "Telegram",
+        name: "TELEGRAM_BOT_TOKEN",
+        type: "password",
+        label: "Telegram Bot Token",
+        placeholder: "123456789:ABCdef...",
+        description: "Trigger workflows from chat messages or send status reports to channels."
+    },
+    {
+        id: "discord",
+        service: "Discord",
+        name: "DISCORD_TOKEN_OR_WEBHOOK",
+        type: "password",
+        label: "Discord Token / Webhook",
+        placeholder: "Token or Webhook URL",
+        description: "Connect Discord webhooks or bot tokens to synchronize operational chatrooms."
+    },
+    {
+        id: "slack",
+        service: "Slack",
+        name: "SLACK_BOT_TOKEN",
+        type: "password",
+        label: "Slack Bot Token",
+        placeholder: "xoxb-...",
+        description: "Post messages, receive files, and run commands on your corporate Slack workspace."
+    },
+    {
+        id: "stripe",
+        service: "Stripe",
+        name: "STRIPE_SECRET_KEY",
+        type: "password",
+        label: "Stripe Secret Key",
+        placeholder: "sk_live_...",
+        description: "Automate processing of invoices, customers, payments, and subscriptions."
+    },
+    {
+        id: "gmail",
+        service: "Gmail",
+        name: "GMAIL_OAUTH",
+        type: "google_sheets",
+        label: "Gmail OAuth",
+        placeholder: "OAuth Connection",
+        description: "Automate receiving, scanning, drafting, and dispatching workspace emails."
+    },
+    {
+        id: "google-sheets",
+        service: "Google Sheets",
+        name: "GOOGLE_SHEETS_OAUTH",
+        type: "google_sheets",
+        label: "Google Sheets OAuth",
+        placeholder: "OAuth Connection",
+        description: "Extract data, append logs, and read target values from custom spreadsheet files."
+    },
+    {
+        id: "github",
+        service: "GitHub",
+        name: "GITHUB_ACCESS_TOKEN",
+        type: "password",
+        label: "GitHub Access Token",
+        placeholder: "ghp_...",
+        description: "Automate issue tracking, repository management, and deployment triggers."
+    },
+    {
+        id: "openrouter",
+        service: "OpenRouter",
+        name: "OPENROUTER_API_KEY",
+        type: "password",
+        label: "OpenRouter API Key",
+        placeholder: "sk-or-v1-...",
+        description: "Access dozens of open-source LLMs (Claude 3, Llama 3, etc.) through unified endpoints."
+    },
+    {
+        id: "twilio",
+        service: "Twilio",
+        name: "TWILIO_CREDENTIALS",
+        type: "password",
+        label: "Twilio Credentials",
+        placeholder: "Account SID / Auth Token",
+        description: "Send/receive SMS, configure interactive voice calls, and trigger alerts."
+    }
+];
+
 function BuilderContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -448,6 +541,41 @@ function BuilderContent() {
                                                 </button>
                                             </div>
 
+                                            {/* Auto-Fill Presets Row */}
+                                            <div style={{ marginBottom: '24px', paddingBottom: '20px', borderBottom: '1px dashed var(--border)' }}>
+                                                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted-foreground)', textTransform: 'uppercase', display: 'block', marginBottom: '10px' }}>Auto-Fill Service Presets</span>
+                                                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                                    {PRESETS.map(preset => (
+                                                        <button
+                                                            key={preset.id}
+                                                            type="button"
+                                                            onClick={() => updateInput(input.id, {
+                                                                name: preset.name,
+                                                                type: preset.type,
+                                                                service: preset.service,
+                                                                label: preset.label,
+                                                                placeholder: preset.placeholder,
+                                                                description: preset.description
+                                                            })}
+                                                            style={{
+                                                                padding: '6px 12px',
+                                                                borderRadius: '8px',
+                                                                border: '1px solid var(--border)',
+                                                                background: input.service === preset.service ? 'rgba(52, 209, 134, 0.08)' : 'var(--card)',
+                                                                color: input.service === preset.service ? 'var(--accent)' : 'var(--foreground)',
+                                                                borderColor: input.service === preset.service ? 'var(--accent)' : 'var(--border)',
+                                                                fontSize: '0.75rem',
+                                                                fontWeight: 750,
+                                                                cursor: 'pointer',
+                                                                transition: 'all 0.15s ease'
+                                                            }}
+                                                        >
+                                                            {preset.service}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+
                                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                                                 <div className={styles.formGroup}>
                                                     <label className={styles.label}>Internal Identifier (Variable Name)</label>
@@ -472,7 +600,7 @@ function BuilderContent() {
                                                         <select 
                                                             className={styles.select} 
                                                             style={{ height: '52px', borderRadius: '12px', flex: 1 }} 
-                                                            value={['Stripe', 'Gmail', 'Google Sheets', 'Telegram', 'OpenAI'].includes(input.service) ? input.service : (input.service ? 'custom' : '')} 
+                                                            value={['OpenAI', 'Telegram', 'Discord', 'Slack', 'Stripe', 'Gmail', 'Google Sheets', 'GitHub', 'OpenRouter', 'Twilio'].includes(input.service) ? input.service : (input.service ? 'custom' : '')} 
                                                             onChange={e => {
                                                                 const val = e.target.value;
                                                                 if (val === 'custom') {
@@ -483,14 +611,19 @@ function BuilderContent() {
                                                             }}
                                                         >
                                                             <option value="">None / Custom API Key</option>
+                                                            <option value="OpenAI">OpenAI</option>
+                                                            <option value="Telegram">Telegram</option>
+                                                            <option value="Discord">Discord</option>
+                                                            <option value="Slack">Slack</option>
                                                             <option value="Stripe">Stripe</option>
                                                             <option value="Gmail">Gmail</option>
                                                             <option value="Google Sheets">Google Sheets</option>
-                                                            <option value="Telegram">Telegram</option>
-                                                            <option value="OpenAI">OpenAI</option>
+                                                            <option value="GitHub">GitHub</option>
+                                                            <option value="OpenRouter">OpenRouter</option>
+                                                            <option value="Twilio">Twilio</option>
                                                             <option value="custom">Custom Service...</option>
                                                         </select>
-                                                        {(!['Stripe', 'Gmail', 'Google Sheets', 'Telegram', 'OpenAI', ''].includes(input.service) || input.service === 'Custom') && (
+                                                        {(!['OpenAI', 'Telegram', 'Discord', 'Slack', 'Stripe', 'Gmail', 'Google Sheets', 'GitHub', 'OpenRouter', 'Twilio', ''].includes(input.service) || input.service === 'Custom') && (
                                                             <input 
                                                                 className={styles.input} 
                                                                 style={{ height: '52px', borderRadius: '12px', flex: 1 }} 
