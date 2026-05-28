@@ -156,24 +156,19 @@ const workflows = [
 
 const sovereigntyFeatures = [
     {
-        title: "Decoupled Architecture",
-        desc: "You purchase the n8n execution files. Run them on local, cloud, or hybrid instances with no downstream vendor lock-in.",
-        Icon: IconUnlock,
-    },
-    {
         title: "100% Data Sovereignty",
-        desc: "Your data routes strictly through your corporate nodes. Zero external middleman processing. SOC-2 and HIPAA compliant by default.",
+        desc: "All workflows execute within your firewalls. Zero external caching, zero middleman data storage, and compliance by default.",
         Icon: IconShield,
     },
     {
-        title: "Direct API Execution",
-        desc: "Execute queries directly with OpenAI and Google. Pay zero gateway markups, platform premiums, or usage overhead.",
+        title: "Zero API Markups",
+        desc: "Communicate directly with OpenAI, Anthropic, or database endpoints. Pay the raw resource costs without platform markups.",
         Icon: IconTrending,
     },
     {
-        title: "Modifiable Logical Canvas",
-        desc: "Full code ownership allows internal GRC and IT teams to extend, modify, or pivot the workflow logic on n8n drag-and-drop grids.",
-        Icon: IconSliders,
+        title: "Logical Ownership",
+        desc: "Every blueprint is licensed as open-standard JSON. Export, copy, fork, or run your logic on local containers without lock-in.",
+        Icon: IconUnlock,
     }
 ];
 
@@ -182,16 +177,17 @@ const standardItems = [
     'Lifetime blueprint updates & patches',
     'Technical setup & deployment guide',
     'Local VPS or Cloud deploy ready',
-    'Documentation & community support',
+    'Email documentation support',
 ];
 
 const bundleItems = [
     'Lifetime access to full workflow catalog',
     'Full system & database provisioning',
-    '3 hours of custom engineering support',
+    '3 hours of direct engineering support',
     'Priority deployment updates',
     'GRC compliance architecture guide',
 ];
+
 
 export default function HomePage() {
     return (
@@ -364,19 +360,53 @@ export default function HomePage() {
                             </p>
                         </div>
 
-                        <div className={styles.sovGrid}>
-                            {sovereigntyFeatures.map((f, i) => {
-                                const FeatureIcon = f.Icon;
-                                return (
-                                    <div key={i} className={styles.sovCard}>
-                                        <div className={styles.sovIconWrapper} style={{ color: 'var(--accent)' }}>
-                                            <FeatureIcon />
-                                        </div>
-                                        <h3 className={styles.sovTitle}>{f.title}</h3>
-                                        <p className={styles.sovDesc}>{f.desc}</p>
+                        <div className={styles.sovLayout}>
+                            <div className={styles.sovContent}>
+                                <div className={styles.sovFeaturesList}>
+                                    {sovereigntyFeatures.map((f, i) => {
+                                        const FeatureIcon = f.Icon;
+                                        return (
+                                            <div key={i} className={styles.sovFeatureItem}>
+                                                <div className={styles.sovIconWrapper}>
+                                                    <FeatureIcon />
+                                                </div>
+                                                <div className={styles.sovFeatureText}>
+                                                    <h3 className={styles.sovTitle}>{f.title}</h3>
+                                                    <p className={styles.sovDesc}>{f.desc}</p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Right Side Visual Terminal */}
+                            <div className={styles.sovVisual}>
+                                <div className={styles.sovVisualHeader}>
+                                    <span className={styles.sovVisualDot} />
+                                    <span className={styles.sovVisualTitle}>Private Node Telemetry</span>
+                                </div>
+                                <div className={styles.sovVisualBody}>
+                                    <div className={styles.sovTelemetryRow}>
+                                        <span>Status</span>
+                                        <span className={styles.sovTelemetryStatus}>Active & Sovereign</span>
                                     </div>
-                                );
-                            })}
+                                    <div className={styles.sovTelemetryRow}>
+                                        <span>Data Routing</span>
+                                        <span className={styles.sovTelemetryValue}>Local Loopback Only</span>
+                                    </div>
+                                    <div className={styles.sovTelemetryRow}>
+                                        <span>Compliance GRC</span>
+                                        <span className={styles.sovTelemetryBadge}>SOC-2 Ready</span>
+                                    </div>
+                                    <div className={styles.sovTelemetryConsole}>
+                                        <div className={styles.telemetryLine}>$ blonk-node start --sovereign</div>
+                                        <div className={styles.telemetryLine} style={{ color: 'var(--accent)' }}>✓ Isolated core container initialized</div>
+                                        <div className={styles.telemetryLine}>✓ Local database handshake verified</div>
+                                        <div className={styles.telemetryLine}>✓ Zero-leak proxy listening on :443</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -396,7 +426,7 @@ export default function HomePage() {
                             {/* Standard Workflow */}
                             <div className={styles.pricingCard}>
                                 <div className={styles.pricingTier}>Single License</div>
-                                <div className={styles.pricingAmount}>From $99<span className={styles.pricingPer}>/workflow</span></div>
+                                <div className={styles.pricingAmount}>$149<span className={styles.pricingPer}>/blueprint</span></div>
                                 <p className={styles.pricingDesc}>
                                     A lifetime blueprint license for any single pre-configured workflow template in our catalog.
                                 </p>
@@ -449,20 +479,53 @@ export default function HomePage() {
             </div>
 
             <footer className={styles.footer}>
-                <div className={styles.footerInner}>
-                    <div className={styles.footerLogo}>
-                        BLONK<span className={styles.footerLogoDot} />
+                <div className={styles.footerGrid}>
+                    <div className={styles.footerBrandCol}>
+                        <div className={styles.footerLogo}>
+                            BLONK<span className={styles.footerLogoDot} />
+                        </div>
+                        <p className={styles.footerBrandDesc}>
+                            Decoupled workflow execution. Designed for security-critical, data-intensive professional services.
+                        </p>
                     </div>
-                    <div className={styles.footerLinks}>
-                        <Link href="/privacy" className={styles.footerLink}>Privacy Policy</Link>
-                        <Link href="/terms" className={styles.footerLink}>Terms of Service</Link>
+
+                    <div className={styles.footerCol}>
+                        <h4 className={styles.footerColTitle}>Blueprints</h4>
+                        <div className={styles.footerColLinks}>
+                            <Link href="/login" className={styles.footerLink}>Intake Triage</Link>
+                            <Link href="/login" className={styles.footerLink}>Invoice Chaser</Link>
+                            <Link href="/login" className={styles.footerLink}>Onboarding Flow</Link>
+                            <Link href="/login" className={styles.footerLink}>AI OCR Extractor</Link>
+                        </div>
+                    </div>
+
+                    <div className={styles.footerCol}>
+                        <h4 className={styles.footerColTitle}>Platform</h4>
+                        <div className={styles.footerColLinks}>
+                            <Link href="/services" className={styles.footerLink}>Sovereignty</Link>
+                            <Link href="/showcase" className={styles.footerLink}>Integrations</Link>
+                            <Link href="/pricing" className={styles.footerLink}>Pricing</Link>
+                            <Link href="/sandbox" className={styles.footerLink}>Sandbox</Link>
+                        </div>
+                    </div>
+
+                    <div className={styles.footerCol}>
+                        <h4 className={styles.footerColTitle}>Compliance</h4>
+                        <div className={styles.footerColLinks}>
+                            <Link href="/privacy" className={styles.footerLink}>Privacy Policy</Link>
+                            <Link href="/terms" className={styles.footerLink}>Terms of Service</Link>
+                            <Link href="/process" className={styles.footerLink}>SOC-2 Overview</Link>
+                            <Link href="/about" className={styles.footerLink}>About Us</Link>
+                        </div>
                     </div>
                 </div>
+
                 <div className={styles.footerBottom}>
-                    <span>© 2026 BLONK ASSETS LLC.</span>
+                    <span>© 2026 BLONK ASSETS LLC. All rights reserved.</span>
                     <span>Built for professional services firms.</span>
                 </div>
             </footer>
         </div>
     );
 }
+

@@ -810,22 +810,178 @@
     box-shadow: 0 15px 50px rgba(52, 209, 134, 0.5);
 }
 
+/* ── SOVEREIGN EXECUTION SPLIT GRID ── */
+.sovLayout {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 80px;
+    align-items: center;
+    text-align: left;
+    margin-top: 60px;
+}
+
+.sovContent {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.sovFeaturesList {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.sovFeatureItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+}
+
+.sovFeatureItem .sovIconWrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(52, 209, 134, 0.08);
+    border: 1px solid rgba(52, 209, 134, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+.sovFeatureText {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sovFeatureText .sovTitle {
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: #ffffff;
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.sovFeatureText .sovDesc {
+    font-size: 0.92rem;
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.7;
+    margin: 0;
+}
+
+.sovVisual {
+    background: #0d0d0e;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 24px;
+    padding: 36px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.02);
+    font-family: monospace;
+    color: #e4e4e7;
+    position: relative;
+    overflow: hidden;
+}
+
+.sovVisualHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+}
+
+.sovVisualDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+}
+
+.sovVisualTitle {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #a1a1aa;
+    text-transform: uppercase;
+}
+
+.sovVisualBody {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sovTelemetryRow {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.sovTelemetryStatus {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.sovTelemetryValue {
+    color: #ffffff;
+}
+
+.sovTelemetryBadge {
+    background: rgba(52, 209, 134, 0.15);
+    color: var(--accent);
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border: 1px solid rgba(52, 209, 134, 0.25);
+}
+
+.sovTelemetryConsole {
+    background: #050506;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 24px;
+    text-align: left;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    color: #88888b;
+}
+
+.telemetryLine {
+    margin-bottom: 6px;
+    white-space: nowrap;
+}
+
 /* ── FOOTER ── */
 .footer {
     width: 100%;
-    max-width: 1400px;
     margin: 0 auto;
-    padding: 72px 24px 44px;
+    padding: 0;
     border-top: 1px solid rgba(0, 0, 0, 0.05);
+    background: #fafafa;
 }
 
-.footerInner {
+.footerGrid {
+    display: grid;
+    grid-template-columns: 1.5fr repeat(3, 1fr);
+    gap: 48px;
+    padding: 80px 24px 60px;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.footerBrandCol {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 24px;
-    margin-bottom: 44px;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .footerLogo {
@@ -848,15 +1004,37 @@
     margin-bottom: 4px;
 }
 
-.footerLinks {
+.footerBrandDesc {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 240px;
+}
+
+.footerCol {
     display: flex;
-    gap: 40px;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.footerColTitle {
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--fg);
+}
+
+.footerColLinks {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .footerLink {
     color: #777777;
     text-decoration: none;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     font-weight: 600;
     transition: color 0.2s;
 }
@@ -871,9 +1049,12 @@
     color: #999;
     font-size: 0.8rem;
     font-weight: 600;
-    padding-top: 28px;
+    padding: 28px 24px;
+    max-width: 1200px;
+    margin: 0 auto;
     border-top: 1px solid rgba(0, 0, 0, 0.04);
 }
+
 
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
