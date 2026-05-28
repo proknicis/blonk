@@ -4,6 +4,27 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { decrypt } from "@/lib/encryption";
 
+async function ensureSchema() {
+    try {
+        await db.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
+    } catch (e) {
+        console.warn("Could not create uuid-ossp extension:", e);
+    }
+    await db.execute(`
+        CREATE TABLE IF NOT EXISTS "credentials" (
+            id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+            "user_id" UUID NOT NULL REFERENCES "User"(id) ON DELETE CASCADE,
+            provider VARCHAR(50) NOT NULL,
+            "encrypted_data" TEXT NOT NULL,
+            status VARCHAR(50) DEFAULT 'Connected',
+            "n8n_credential_id" VARCHAR(255),
+            "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT unique_user_provider UNIQUE ("user_id", provider)
+        )
+    `);
+}
+
 // Validation helper (identical to connect route validator)
 async function validateCredentials(provider: string, data: any): Promise<void> {
     const p = provider.toLowerCase();
@@ -134,6 +155,7 @@ async function validateCredentials(provider: string, data: any): Promise<void> {
 
 export async function POST(request: Request) {
     try {
+        await ensureSchema();
         const session = await getServerSession(authOptions);
         if (!session?.user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
