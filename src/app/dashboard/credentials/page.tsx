@@ -52,7 +52,14 @@ export default async function CredentialsPage() {
         workflowRows.forEach(row => {
             normalizeRequirements(row.requirements).forEach(req => {
                 const app = getRequirementName(req).toLowerCase().trim();
-                if (app) servicesSet.add(app);
+                if (app) {
+                    if (app.includes('google_auth') || app.includes('google_creds') || app.includes('google-auth') || app.includes('google-creds') || app === 'google') {
+                        servicesSet.add('gmail');
+                        servicesSet.add('google-sheets');
+                    } else {
+                        servicesSet.add(app);
+                    }
+                }
             });
         });
         requiredServices = Array.from(servicesSet);

@@ -99,6 +99,11 @@ export function mapProviderToN8nSchema(provider: string, rawData: any): { type: 
                 data: { apiKey: rawData.secretKey || rawData.apiKey || rawData.token }
             };
         case 'gmail':
+        case 'google':
+        case 'google_auth':
+        case 'google-auth':
+        case 'google_creds':
+        case 'google-creds':
             return {
                 type: 'gmailOAuth2Api',
                 data: {
@@ -151,8 +156,84 @@ export function mapProviderToN8nSchema(provider: string, rawData: any): { type: 
 }
 
 /**
- * Synchronizes credential connection data to the team's n8n server.
- * Creates a new credential or updates an existing one if n8nCredentialId is provided.
+ * Fetches all active n8n ClusterNodes for a specific team,
+ * including servers assigned to their workflows or orders.
+ */
+export async function getN8nNodesForTeam(teamId: string): Promise<Array<{ id: string; name: string; url: string; apiKey: string }>> {
+    const resolvedNodes: Array<{ id: string; name: string; url: string; apiKey: string }> = [];
+    
+    try {
+        // Query distinct servers from Workflow, WorkflowOrder, and direct Team assignment
+        const dbNodes = await db.query(
+            `SELECT DISTINCT cn.id, cn.name, cn.url, cn.api_key 
+             FROM "ClusterNode" cn
+             WHERE cn.status = 'Active' AND (
+                 cn."teamId" = $1 OR 
+                 cn.id IN (SELECT DISTINCT "serverId" FROM "Workflow" WHERE "teamId" = $1 AND "serverId" IS NOT NULL) OR
+                 cn.id IN (SELECT DISTINCT "serverId" FROM "WorkflowOrder" WHERE "teamId" = $1 AND "serverId" IS NOT NULL)
+             )`,
+            [teamId]
+        ) as any[];
+
+        for (const node of dbNodes) {
+            resolvedNodes.push({
+                id: node.id,
+                name: node.name || 'Sovereign Node',
+                url: node.url.replace(/\/+$/, ''),
+                apiKey: node.api_key || node.apiKey || ''
+            });
+        }
+    } catch (e) {
+        console.error("[N8N_NODE_RESOLVER] Error finding nodes for team:", e);
+    }
+
+    // Fallback: Check if there's any active node at all in DB first (so DB changes override env)
+    if (resolvedNodes.length === 0) {
+        try {
+            const defaultNodes = await db.query(
+                'SELECT * FROM "ClusterNode" WHERE status = \'Active\' ORDER BY "createdAt" ASC LIMIT 1'
+            ) as any[];
+            if (defaultNodes.length > 0) {
+                resolvedNodes.push({
+                    id: defaultNodes[0].id,
+                    name: defaultNodes[0].name || 'Sovereign Node',
+                    url: defaultNodes[0].url.replace(/\/+$/, ''),
+                    apiKey: defaultNodes[0].api_key || defaultNodes[0].apiKey || ''
+                });
+            }
+        } catch (err) {
+            console.error("[N8N_NODE_RESOLVER] Fallback database nodes fetch failed:", err);
+        }
+    }
+
+    // Secondary Fallback: If still no active nodes resolved from DB, check environment N8N_API_KEY
+    if (resolvedNodes.length === 0) {
+        if (process.env.N8N_API_KEY) {
+            resolvedNodes.push({
+                id: 'env-default',
+                name: 'Environment Default Node',
+                url: (process.env.N8N_URL || 'https://n8n.manadavana.lv').replace(/\/+$/, ''),
+                apiKey: process.env.N8N_API_KEY
+            });
+        }
+    }
+
+    // Absolute fallback to localhost if entirely missing
+    if (resolvedNodes.length === 0) {
+        resolvedNodes.push({
+            id: 'localhost',
+            name: 'Localhost Fallback',
+            url: 'http://localhost:5678',
+            apiKey: ''
+        });
+    }
+
+    return resolvedNodes;
+}
+
+/**
+ * Synchronizes credential connection data to the team's n8n servers.
+ * Creates a new credential or updates an existing one on all servers.
  */
 export async function syncCredentialToN8n(
     teamId: string,
@@ -160,77 +241,148 @@ export async function syncCredentialToN8n(
     rawData: any,
     n8nCredentialId?: string | null
 ): Promise<string> {
-    const node = await getN8nNodeForTeam(teamId);
-    if (!node.apiKey) {
-        throw new Error(`Sovereign n8n node not configured with an API key.`);
+    const nodes = await getN8nNodesForTeam(teamId);
+    if (nodes.length === 0) {
+        throw new Error("No active server nodes are assigned to your team. Please assign a server to your workflows before connecting integrations.");
     }
+    let lastCredentialId = '';
+    const syncedIds: string[] = [];
 
     const { type, data } = mapProviderToN8nSchema(provider, rawData);
     const credentialName = `BLONK_${provider.toUpperCase()}_CREDENTIAL`;
 
-    let url = `${node.url}/api/v1/credentials`;
-    let method = 'POST';
-    
-    const body: any = {
-        name: credentialName,
-        type: type,
-        data: data
-    };
+    for (const node of nodes) {
+        if (!node.apiKey) {
+            console.warn(`[n8n-sync] Node ${node.name} has no API key configured. Skipping.`);
+            continue;
+        }
 
-    if (n8nCredentialId) {
-        url = `${node.url}/api/v1/credentials/${n8nCredentialId}`;
-        method = 'PUT';
-        // Remove type on PUT updates if n8n API complains, but typically name and data are standard
-        delete body.type;
+        try {
+            // 1. Check if credential already exists by name on this server
+            let existingId: string | null = null;
+            const listUrl = `${node.url}/api/v1/credentials`;
+            
+            const listRes = await fetch(listUrl, {
+                headers: {
+                    'X-N8N-API-KEY': node.apiKey
+                },
+                cache: 'no-store'
+            });
+
+            if (listRes.ok) {
+                const listData = await listRes.json();
+                const creds = listData.data || listData || [];
+                const found = creds.find((c: any) => c.name === credentialName && c.type === type);
+                if (found) {
+                    existingId = found.id;
+                }
+            }
+
+            // 2. Determine URL and Method
+            let url = `${node.url}/api/v1/credentials`;
+            let method = 'POST';
+            const body: any = {
+                name: credentialName,
+                type: type,
+                data: data
+            };
+
+            if (existingId) {
+                url = `${node.url}/api/v1/credentials/${existingId}`;
+                method = 'PUT';
+                delete body.type; // PUT in n8n does not take type
+            }
+
+            console.log(`[n8n-sync] Syncing to node ${node.name} (${node.url}) using ${method}...`);
+
+            const res = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-N8N-API-KEY': node.apiKey
+                },
+                body: JSON.stringify(body),
+                cache: 'no-store'
+            });
+
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(`Node ${node.name} failed: HTTP ${res.status} - ${errText}`);
+            }
+
+            const resData = await res.json();
+            const returnedId = resData.id || existingId;
+            if (returnedId) {
+                syncedIds.push(returnedId);
+                lastCredentialId = returnedId;
+            }
+        } catch (err: any) {
+            console.error(`[n8n-sync] Failed to sync to node ${node.name}:`, err.message);
+            // If there's only one node, we throw. If there are multiple, we log and continue
+            if (nodes.length === 1) {
+                throw err;
+            }
+        }
     }
 
-    console.log(`[n8n-sync] Sending ${method} request to n8n node at ${url}...`);
-
-    const res = await fetch(url, {
-        method,
-        headers: {
-            'Content-Type': 'application/json',
-            'X-N8N-API-KEY': node.apiKey
-        },
-        body: JSON.stringify(body),
-        cache: 'no-store'
-    });
-
-    if (!res.ok) {
-        const errorText = await res.text();
-        console.error(`[n8n-sync] n8n responded with error:`, errorText);
-        throw new Error(`n8n synchronization failed: HTTP ${res.status} - ${errorText}`);
+    if (syncedIds.length === 0 && nodes.length > 0) {
+        throw new Error(`Failed to sync to any n8n server node.`);
     }
 
-    const responseData = await res.json();
-    return responseData.id;
+    return lastCredentialId;
 }
 
 /**
- * Deletes a credential from the team's n8n server.
+ * Deletes a credential from the team's n8n servers.
  */
-export async function deleteCredentialFromN8n(teamId: string, n8nCredentialId: string): Promise<void> {
-    const node = await getN8nNodeForTeam(teamId);
-    if (!node.apiKey || !n8nCredentialId) return;
+export async function deleteCredentialFromN8n(teamId: string, n8nCredentialId: string, provider?: string): Promise<void> {
+    const nodes = await getN8nNodesForTeam(teamId);
+    const credentialName = provider ? `BLONK_${provider.toUpperCase()}_CREDENTIAL` : null;
 
-    const url = `${node.url}/api/v1/credentials/${n8nCredentialId}`;
-    
-    console.log(`[n8n-sync] Deleting credential ${n8nCredentialId} from n8n node...`);
-    
-    try {
-        const res = await fetch(url, {
-            method: 'DELETE',
-            headers: {
-                'X-N8N-API-KEY': node.apiKey
-            },
-            cache: 'no-store'
-        });
+    for (const node of nodes) {
+        if (!node.apiKey) continue;
 
-        if (!res.ok && res.status !== 404) {
-            const errText = await res.text();
-            console.warn(`[n8n-sync] Delete warning from n8n:`, errText);
+        try {
+            let targetId: string | null = n8nCredentialId;
+
+            // If we have a provider, look up the server-specific ID by name
+            if (credentialName) {
+                const listUrl = `${node.url}/api/v1/credentials`;
+                const listRes = await fetch(listUrl, {
+                    headers: { 'X-N8N-API-KEY': node.apiKey },
+                    cache: 'no-store'
+                });
+
+                if (listRes.ok) {
+                    const listData = await listRes.json();
+                    const creds = listData.data || listData || [];
+                    const found = creds.find((c: any) => c.name === credentialName);
+                    if (found) {
+                        targetId = found.id;
+                    } else {
+                        targetId = null; // not found on this server
+                    }
+                }
+            }
+
+            if (targetId) {
+                const url = `${node.url}/api/v1/credentials/${targetId}`;
+                console.log(`[n8n-sync] Deleting credential ${targetId} from node ${node.name}...`);
+                const res = await fetch(url, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-N8N-API-KEY': node.apiKey
+                    },
+                    cache: 'no-store'
+                });
+
+                if (!res.ok && res.status !== 404) {
+                    const errText = await res.text();
+                    console.warn(`[n8n-sync] Delete warning from n8n node ${node.name}:`, errText);
+                }
+            }
+        } catch (e: any) {
+            console.error(`[n8n-sync] Connection error deleting credential from n8n node ${node.name}:`, e.message);
         }
-    } catch (e) {
-        console.error(`[n8n-sync] Connection error deleting credential from n8n:`, e);
     }
 }

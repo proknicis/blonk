@@ -69,6 +69,14 @@ export async function getTeamCredentialServices(teamId: string): Promise<Set<str
                 // Handle naming variation aliases
                 if (name === 'google-sheets') services.add('googlesheets');
                 if (name === 'googlesheets') services.add('google-sheets');
+                if (name === 'gmail' || name === 'google-sheets' || name === 'googlesheets' || name === 'google') {
+                    services.add('google');
+                    services.add('google_auth');
+                    services.add('google-auth');
+                    services.add('google_creds');
+                    services.add('google-creds');
+                    services.add('gmail');
+                }
             }
         }
     } catch (e) {
@@ -90,6 +98,14 @@ export async function getTeamCredentialServices(teamId: string): Promise<Set<str
                     services.add(name);
                     if (name === 'google-sheets') services.add('googlesheets');
                     if (name === 'googlesheets') services.add('google-sheets');
+                    if (name === 'gmail' || name === 'google-sheets' || name === 'googlesheets' || name === 'google') {
+                        services.add('google');
+                        services.add('google_auth');
+                        services.add('google-auth');
+                        services.add('google_creds');
+                        services.add('google-creds');
+                        services.add('gmail');
+                    }
                 }
             } catch {
                 /* ignore */

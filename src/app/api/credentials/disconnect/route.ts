@@ -66,7 +66,7 @@ export async function POST(request: Request) {
         // Delete from n8n instance if mapped
         if (n8nCredentialId) {
             try {
-                await deleteCredentialFromN8n(teamId, n8nCredentialId);
+                await deleteCredentialFromN8n(teamId, n8nCredentialId, provider);
             } catch (n8nErr: any) {
                 console.warn(`[API_CREDENTIALS_DISCONNECT] Failed to delete from n8n server, continuing database delete:`, n8nErr.message);
             }
