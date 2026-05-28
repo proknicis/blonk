@@ -75,7 +75,8 @@ async function migrate() {
             'CREATE TABLE IF NOT EXISTS "Report" (id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), name VARCHAR(255), type VARCHAR(100), date VARCHAR(100), size VARCHAR(100), content TEXT, "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP)',
             'CREATE TABLE IF NOT EXISTS "ChartData" (id SERIAL PRIMARY KEY, day VARCHAR(50) UNIQUE, revenue DECIMAL(15,2) DEFAULT 0.00, expenses DECIMAL(15,2) DEFAULT 0.00, profit DECIMAL(15,2) DEFAULT 0.00, sequence INTEGER)',
             'CREATE TABLE IF NOT EXISTS "Kpi" (label VARCHAR(100) PRIMARY KEY, value VARCHAR(100), "change" VARCHAR(50), positive BOOLEAN DEFAULT TRUE)',
-            'CREATE TABLE IF NOT EXISTS "Transaction" ("trxId" VARCHAR(100) PRIMARY KEY, date VARCHAR(100), category VARCHAR(100), status VARCHAR(50) DEFAULT \'Pending\', amount VARCHAR(100), "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP)'
+            'CREATE TABLE IF NOT EXISTS "Transaction" ("trxId" VARCHAR(100) PRIMARY KEY, date VARCHAR(100), category VARCHAR(100), status VARCHAR(50) DEFAULT \'Pending\', amount VARCHAR(100), "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP)',
+            'CREATE TABLE IF NOT EXISTS "credentials" (id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), "user_id" UUID NOT NULL REFERENCES "User"(id) ON DELETE CASCADE, provider VARCHAR(50) NOT NULL, "encrypted_data" TEXT NOT NULL, status VARCHAR(50) DEFAULT \'Connected\', "n8n_credential_id" VARCHAR(255), "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, CONSTRAINT unique_user_provider UNIQUE ("user_id", provider))'
         ];
 
         for (const ddl of tables) {

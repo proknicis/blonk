@@ -466,7 +466,7 @@ export default function OfficeClient({
                                                             <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#92400E' }}>Configuration Required</span>
                                                         </div>
                                                         <button 
-                                                            onClick={() => router.push('/dashboard/integrations')}
+                                                            onClick={() => router.push('/dashboard/credentials')}
                                                             style={{ 
                                                                 width: '100%',
                                                                 padding: '8px',

@@ -50,21 +50,55 @@ export async function bindNodeToTeam(nodeId: string, teamId: string) {
 }
 
 export async function getTeamCredentialServices(teamId: string): Promise<Set<string>> {
-    const settings = await db.query(
-        'SELECT value FROM "OperationalSetting" WHERE ("teamId" = $1 OR "teamId" IS NULL) AND key LIKE \'apikey_%\'',
-        [teamId]
-    ) as any[];
-
     const services = new Set<string>();
-    for (const row of settings) {
-        try {
-            const parsed = JSON.parse(row.value);
-            const name = String(parsed.service || parsed.label || "").trim().toLowerCase();
-            if (name) services.add(name);
-        } catch {
-            /* ignore */
+
+    // 1. Fetch from new credentials table for all users in the team
+    try {
+        const credRows = await db.query(
+            `SELECT c.provider 
+             FROM "credentials" c
+             JOIN "User" u ON u.id = c."user_id"
+             WHERE u."teamId" = $1`,
+            [teamId]
+        ) as any[];
+
+        for (const row of credRows) {
+            const name = String(row.provider || "").trim().toLowerCase();
+            if (name) {
+                services.add(name);
+                // Handle naming variation aliases
+                if (name === 'google-sheets') services.add('googlesheets');
+                if (name === 'googlesheets') services.add('google-sheets');
+            }
         }
+    } catch (e) {
+        console.error("[getTeamCredentialServices] Error querying credentials table:", e);
     }
+
+    // 2. Fetch from legacy OperationalSetting for backward compatibility
+    try {
+        const settings = await db.query(
+            'SELECT value FROM "OperationalSetting" WHERE ("teamId" = $1 OR "teamId" IS NULL) AND key LIKE \'apikey_%\'',
+            [teamId]
+        ) as any[];
+
+        for (const row of settings) {
+            try {
+                const parsed = JSON.parse(row.value);
+                const name = String(parsed.service || parsed.label || "").trim().toLowerCase();
+                if (name) {
+                    services.add(name);
+                    if (name === 'google-sheets') services.add('googlesheets');
+                    if (name === 'googlesheets') services.add('google-sheets');
+                }
+            } catch {
+                /* ignore */
+            }
+        }
+    } catch (e) {
+        console.error("[getTeamCredentialServices] Error querying OperationalSetting:", e);
+    }
+
     return services;
 }
 

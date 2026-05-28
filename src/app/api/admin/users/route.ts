@@ -3,8 +3,23 @@ import { db } from "@/lib/db";
 import { logAudit } from "@/lib/audit";
 import bcrypt from "bcryptjs";
 
+async function ensureSchema() {
+    await db.execute(`
+        ALTER TABLE "User" 
+        ADD COLUMN IF NOT EXISTS plan VARCHAR(50) DEFAULT 'Starter',
+        ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'MEMBER',
+        ADD COLUMN IF NOT EXISTS "teamId" UUID,
+        ADD COLUMN IF NOT EXISTS tier VARCHAR(50) DEFAULT 'Free',
+        ADD COLUMN IF NOT EXISTS "totalSpend" DECIMAL(15,2) DEFAULT 0.00,
+        ADD COLUMN IF NOT EXISTS "lastActive" TIMESTAMP,
+        ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'Active',
+        ADD COLUMN IF NOT EXISTS "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    `);
+}
+
 export async function GET(request: Request) {
     try {
+        await ensureSchema();
         const { searchParams } = new URL(request.url);
         const userId = searchParams.get('id');
         const fetchActivity = searchParams.get('activity') === 'true';
@@ -85,6 +100,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
     try {
+        await ensureSchema();
         const body = await request.json();
         const { id, role, tier, status, totalSpend, action, subject, title, message, newPassword } = body;
 
@@ -150,6 +166,7 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
     try {
+        await ensureSchema();
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
 

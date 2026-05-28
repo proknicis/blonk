@@ -129,6 +129,7 @@ export default function DashboardLayout({
         if (path === '/dashboard/settings') return 'System Control';
         if (path === '/dashboard/help') return 'Support Hub';
         if (path === '/dashboard/integrations') return 'Connections';
+        if (path === '/dashboard/credentials') return 'Credentials Vault';
         return 'Command Console';
     };
 
@@ -166,8 +167,8 @@ export default function DashboardLayout({
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard/integrations" className={`${styles.navLink} ${pathname === '/dashboard/integrations' ? styles.navLinkActive : ''}`}>
-                                    <Link2 size={20} /> Integrations
+                                <Link href="/dashboard/credentials" className={`${styles.navLink} ${pathname === '/dashboard/credentials' ? styles.navLinkActive : ''}`}>
+                                    <Link2 size={20} /> Credentials
                                 </Link>
                             </li>
                         </ul>
