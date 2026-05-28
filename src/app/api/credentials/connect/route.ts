@@ -211,12 +211,15 @@ export async function POST(request: Request) {
         const n8nCredentialId = existingCred?.n8n_credential_id || null;
 
         // 4. Sync to n8n server
-        let finalN8nCredentialId: string;
+        let finalN8nCredentialId: string | null = null;
+        let syncStatus = 'Connected';
+        let syncErrorMessage: string | null = null;
         try {
             finalN8nCredentialId = await syncCredentialToN8n(teamId, provider, data, n8nCredentialId);
         } catch (n8nErr: any) {
             console.error(`[API_CREDENTIALS_CONNECT] n8n sync failed:`, n8nErr);
-            return NextResponse.json({ error: `Failed to sync credentials to automation server: ${n8nErr.message}` }, { status: 502 });
+            syncStatus = 'Error';
+            syncErrorMessage = n8nErr.message;
         }
 
         // 5. Store/Update in Database
@@ -229,8 +232,17 @@ export async function POST(request: Request) {
                  status = EXCLUDED.status,
                  "n8n_credential_id" = EXCLUDED.n8n_credential_id,
                  "updated_at" = NOW()`,
-            [userId, provider, encryptedText, 'Connected', finalN8nCredentialId]
+            [userId, provider, encryptedText, syncStatus, finalN8nCredentialId]
         );
+
+        if (syncStatus === 'Error') {
+            return NextResponse.json({ 
+                success: false, 
+                provider, 
+                status: 'Error', 
+                error: `Saved locally, but failed to sync to n8n server: ${syncErrorMessage}`
+            });
+        }
 
         return NextResponse.json({ 
             success: true, 

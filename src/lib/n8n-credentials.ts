@@ -11,19 +11,34 @@ interface N8nNodeConfig {
  */
 export async function getN8nNodeForTeam(teamId: string): Promise<N8nNodeConfig> {
     try {
-        const nodes = await db.query(
-            'SELECT * FROM "ClusterNode" WHERE "teamId" = $1 AND status = \'Active\' LIMIT 1',
-            [teamId]
-        ) as any[];
-        
-        if (nodes.length > 0) {
-            return {
-                url: nodes[0].url.replace(/\/+$/, ''),
-                apiKey: nodes[0].api_key || nodes[0].apiKey || ''
-            };
+        // 1. If teamId is specified, check if there's a custom active node for this team
+        if (teamId) {
+            const nodes = await db.query(
+                'SELECT * FROM "ClusterNode" WHERE "teamId" = $1 AND status = \'Active\' LIMIT 1',
+                [teamId]
+            ) as any[];
+            
+            if (nodes.length > 0) {
+                return {
+                    url: nodes[0].url.replace(/\/+$/, ''),
+                    apiKey: nodes[0].api_key || nodes[0].apiKey || ''
+                };
+            }
         }
-        
-        // Fallback: get the oldest active node
+    } catch (e) {
+        console.error("[N8N_NODE_RESOLVER] Error finding team node in DB:", e);
+    }
+
+    // 2. If N8N_API_KEY is configured in the environment, prioritize it as the default fallback
+    if (process.env.N8N_API_KEY) {
+        return {
+            url: (process.env.N8N_URL || 'https://n8n.manadavana.lv').replace(/\/+$/, ''),
+            apiKey: process.env.N8N_API_KEY
+        };
+    }
+
+    // 3. Fallback: get the oldest active node from the database
+    try {
         const defaultNodes = await db.query(
             'SELECT * FROM "ClusterNode" WHERE status = \'Active\' ORDER BY "createdAt" ASC LIMIT 1'
         ) as any[];
@@ -35,13 +50,13 @@ export async function getN8nNodeForTeam(teamId: string): Promise<N8nNodeConfig> 
             };
         }
     } catch (e) {
-        console.error("[N8N_NODE_RESOLVER] Error finding node in DB:", e);
+        console.error("[N8N_NODE_RESOLVER] Error finding default node in DB:", e);
     }
 
-    // Process fallback
+    // 4. Absolute fallback
     return {
-        url: (process.env.N8N_URL || 'http://localhost:5678').replace(/\/+$/, ''),
-        apiKey: process.env.N8N_API_KEY || ''
+        url: 'http://localhost:5678',
+        apiKey: ''
     };
 }
 

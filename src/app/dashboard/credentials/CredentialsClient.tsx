@@ -233,6 +233,10 @@ export default function CredentialsClient({ requiredServices = [] }: { requiredS
                         return;
                     }
 
+                    if (responseData.success === false) {
+                        alert(`Warning: ${responseData.error || 'Saved locally, but failed to sync to n8n server.'}`);
+                    }
+
                     // Refresh list
                     fetchCredentials();
                 } catch (err: any) {
@@ -302,6 +306,10 @@ export default function CredentialsClient({ requiredServices = [] }: { requiredS
 
             if (!res.ok) {
                 throw new Error(data.error || "Failed to connect credentials");
+            }
+
+            if (data.success === false) {
+                throw new Error(data.error || "Failed to sync credentials");
             }
 
             // Success, close modal and refresh
