@@ -29,15 +29,7 @@ export async function getN8nNodeForTeam(teamId: string): Promise<N8nNodeConfig> 
         console.error("[N8N_NODE_RESOLVER] Error finding team node in DB:", e);
     }
 
-    // 2. If N8N_API_KEY is configured in the environment, prioritize it as the default fallback
-    if (process.env.N8N_API_KEY) {
-        return {
-            url: (process.env.N8N_URL || 'https://n8n.manadavana.lv').replace(/\/+$/, ''),
-            apiKey: process.env.N8N_API_KEY
-        };
-    }
-
-    // 3. Fallback: get the oldest active node from the database
+    // 2. Fallback: get the oldest active node from the database
     try {
         const defaultNodes = await db.query(
             'SELECT * FROM "ClusterNode" WHERE status = \'Active\' ORDER BY "createdAt" ASC LIMIT 1'
@@ -53,10 +45,10 @@ export async function getN8nNodeForTeam(teamId: string): Promise<N8nNodeConfig> 
         console.error("[N8N_NODE_RESOLVER] Error finding default node in DB:", e);
     }
 
-    // 4. Absolute fallback
+    // 3. Absolute fallback: use env variables
     return {
-        url: 'http://localhost:5678',
-        apiKey: ''
+        url: (process.env.N8N_URL || 'http://localhost:5678').replace(/\/+$/, ''),
+        apiKey: process.env.N8N_API_KEY || ''
     };
 }
 
