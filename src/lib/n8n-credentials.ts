@@ -100,9 +100,15 @@ export function mapProviderToN8nSchema(provider: string, rawData: any): { type: 
             return {
                 type: 'gmailOAuth2',
                 data: {
-                    clientId: rawData.clientId,
-                    clientSecret: rawData.clientSecret,
-                    refreshToken: rawData.refreshToken
+                    // n8n gmailOAuth2 schema: clientId, clientSecret, oauthTokenData
+                    clientId: rawData.clientId || process.env.N8N_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || '',
+                    clientSecret: rawData.clientSecret || process.env.N8N_GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET || '',
+                    oauthTokenData: {
+                        access_token: rawData.accessToken || rawData.access_token || '',
+                        refresh_token: rawData.refreshToken || rawData.refresh_token || '',
+                        token_type: rawData.tokenType || rawData.token_type || 'Bearer',
+                        expiry_date: rawData.expiry_date || rawData.expiry || (Date.now() + 3600000)
+                    }
                 }
             };
         case 'google-sheets':
@@ -110,9 +116,15 @@ export function mapProviderToN8nSchema(provider: string, rawData: any): { type: 
             return {
                 type: 'googleSheetsOAuth2Api',
                 data: {
-                    clientId: rawData.clientId,
-                    clientSecret: rawData.clientSecret,
-                    refreshToken: rawData.refreshToken
+                    // n8n googleSheetsOAuth2Api schema: clientId, clientSecret, oauthTokenData
+                    clientId: rawData.clientId || process.env.N8N_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || '',
+                    clientSecret: rawData.clientSecret || process.env.N8N_GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET || '',
+                    oauthTokenData: {
+                        access_token: rawData.accessToken || rawData.access_token || '',
+                        refresh_token: rawData.refreshToken || rawData.refresh_token || '',
+                        token_type: rawData.tokenType || rawData.token_type || 'Bearer',
+                        expiry_date: rawData.expiry_date || rawData.expiry || (Date.now() + 3600000)
+                    }
                 }
             };
         case 'github':

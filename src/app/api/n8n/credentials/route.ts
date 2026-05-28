@@ -33,30 +33,65 @@ export async function POST(request: Request) {
         }
 
         // Auto-inject Google Client ID/Secret if it's an OAuth2 credential
-        // Map to exact n8n schema
+        // Map Google credential types to their EXACT n8n node credential schemas
+        // Do NOT use the generic 'googleOAuth2Api' — it requires serverUrl, authUrl, scope, etc.
+        // Use the specific node credential types instead.
         let finalData: any = { ...incomingData };
-        if (type === 'gmailOAuth2Api' || type === 'googleSheetsOAuth2Api' || type === 'googleOAuth2Api' || type === 'gmailOAuth2') {
-            type = 'googleOAuth2Api'; // Always use the core type that n8n respects
-            
-            finalData = {
-                serverUrl: "", // Required by n8n schema validator
-                clientId: process.env.N8N_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID,
-                clientSecret: process.env.N8N_GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET,
-                scope: incomingData.scope || "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/drive.file",
-                sendAdditionalBodyProperties: false, // Required by n8n schema
-                additionalBodyProperties: {}, // Required by n8n schema
-                oauthTokenData: {
-                    access_token: incomingData.accessToken || incomingData.access_token,
-                    refresh_token: incomingData.refreshToken || incomingData.refresh_token,
-                    token_type: incomingData.tokenType || incomingData.token_type || "Bearer",
-                    expiry_date: incomingData.expiry || incomingData.expiry_date || Date.now() + 3600000 // Ensure valid expiry
-                }
-            };
-            
-            if (!finalData.clientId || !finalData.clientSecret) {
+        if (type === 'gmailOAuth2Api' || type === 'gmailOAuth2') {
+            type = 'gmailOAuth2'; // exact credential type for Gmail node
+            const clientId = process.env.N8N_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
+            const clientSecret = process.env.N8N_GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET;
+            if (!clientId || !clientSecret) {
                 console.error("[PROVISIONER] Critical Error: Google Client ID/Secret missing in .env");
                 return NextResponse.json({ error: 'Server Configuration Error: Google secrets missing' }, { status: 500 });
             }
+            finalData = {
+                clientId,
+                clientSecret,
+                oauthTokenData: {
+                    access_token: incomingData.accessToken || incomingData.access_token || '',
+                    refresh_token: incomingData.refreshToken || incomingData.refresh_token || '',
+                    token_type: incomingData.tokenType || incomingData.token_type || 'Bearer',
+                    expiry_date: incomingData.expiry_date || incomingData.expiry || (Date.now() + 3600000)
+                }
+            };
+        } else if (type === 'googleSheetsOAuth2Api') {
+            // exact credential type for Google Sheets node
+            const clientId = process.env.N8N_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
+            const clientSecret = process.env.N8N_GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET;
+            if (!clientId || !clientSecret) {
+                console.error("[PROVISIONER] Critical Error: Google Client ID/Secret missing in .env");
+                return NextResponse.json({ error: 'Server Configuration Error: Google secrets missing' }, { status: 500 });
+            }
+            finalData = {
+                clientId,
+                clientSecret,
+                oauthTokenData: {
+                    access_token: incomingData.accessToken || incomingData.access_token || '',
+                    refresh_token: incomingData.refreshToken || incomingData.refresh_token || '',
+                    token_type: incomingData.tokenType || incomingData.token_type || 'Bearer',
+                    expiry_date: incomingData.expiry_date || incomingData.expiry || (Date.now() + 3600000)
+                }
+            };
+        } else if (type === 'googleOAuth2Api') {
+            // Fallback: caller sent the generic type — redirect to gmailOAuth2 by default
+            console.warn("[PROVISIONER] Received generic 'googleOAuth2Api' type — defaulting to gmailOAuth2.");
+            type = 'gmailOAuth2';
+            const clientId = process.env.N8N_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
+            const clientSecret = process.env.N8N_GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET;
+            if (!clientId || !clientSecret) {
+                return NextResponse.json({ error: 'Server Configuration Error: Google secrets missing' }, { status: 500 });
+            }
+            finalData = {
+                clientId,
+                clientSecret,
+                oauthTokenData: {
+                    access_token: incomingData.accessToken || incomingData.access_token || '',
+                    refresh_token: incomingData.refreshToken || incomingData.refresh_token || '',
+                    token_type: 'Bearer',
+                    expiry_date: incomingData.expiry_date || (Date.now() + 3600000)
+                }
+            };
         }
 
         // 2. Fetch Node Details
