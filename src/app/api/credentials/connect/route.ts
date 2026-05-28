@@ -237,6 +237,17 @@ export async function POST(request: Request) {
             [userId, provider, encryptedText, syncStatus, finalN8nCredentialId]
         );
 
+        // 6. Always try to advance workflows that were waiting for credentials
+        //    (even if n8n sync failed, the cred is saved locally so workflow can progress)
+        if (teamId) {
+            try {
+                const { advanceWorkflowsAwaitingCredentials } = await import('@/lib/workflow-provision');
+                await advanceWorkflowsAwaitingCredentials(teamId);
+            } catch (e) {
+                console.warn('[API_CREDENTIALS_CONNECT] Non-fatal: Could not advance workflows:', e);
+            }
+        }
+
         if (syncStatus === 'Error') {
             return NextResponse.json({ 
                 success: false, 

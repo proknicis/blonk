@@ -82,16 +82,9 @@ export function mapProviderToN8nSchema(provider: string, rawData: any): { type: 
                 data: { token: rawData.botToken || rawData.token }
             };
         case 'slack':
-            if (rawData.accessToken) {
-                // OAuth credentials
-                return {
-                    type: 'slackOAuth2Api',
-                    data: { oauthToken: rawData.accessToken }
-                };
-            }
             return {
-                type: 'slackApi',
-                data: { token: rawData.botToken || rawData.token || rawData.appToken }
+                type: 'slackOAuth2Api',
+                data: { oauthToken: rawData.accessToken || rawData.botToken || rawData.token || rawData.appToken }
             };
         case 'stripe':
             return {
@@ -105,7 +98,7 @@ export function mapProviderToN8nSchema(provider: string, rawData: any): { type: 
         case 'google_creds':
         case 'google-creds':
             return {
-                type: 'gmailOAuth2Api',
+                type: 'gmailOAuth2',
                 data: {
                     clientId: rawData.clientId,
                     clientSecret: rawData.clientSecret,
@@ -123,19 +116,16 @@ export function mapProviderToN8nSchema(provider: string, rawData: any): { type: 
                 }
             };
         case 'github':
-            if (rawData.accessToken) {
-                return {
-                    type: 'githubOAuth2Api',
-                    data: { oauthToken: rawData.accessToken }
-                };
-            }
             return {
                 type: 'githubApi',
-                data: { accessToken: rawData.token || rawData.personalAccessToken }
+                data: { 
+                    accessToken: rawData.accessToken || rawData.token || rawData.personalAccessToken,
+                    user: rawData.user || rawData.username || ""
+                }
             };
         case 'openrouter':
             return {
-                type: 'openRouterApi',
+                type: 'openAiApi',
                 data: { apiKey: rawData.apiKey || rawData.api_key }
             };
         case 'twilio':

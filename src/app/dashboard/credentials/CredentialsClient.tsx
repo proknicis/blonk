@@ -70,6 +70,9 @@ export default function CredentialsClient({ requiredServices = [] }: { requiredS
     const [discordType, setDiscordType] = useState<"bot" | "webhook">("bot"); // discord specific
     const [modalError, setModalError] = useState<string | null>(null);
     
+    // Global warning toast (soft n8n sync failure)
+    const [globalWarning, setGlobalWarning] = useState<string | null>(null);
+    
     // Action loading states
     const [isConnecting, setIsConnecting] = useState(false);
     const [testingId, setTestingId] = useState<string | null>(null);
@@ -229,18 +232,19 @@ export default function CredentialsClient({ requiredServices = [] }: { requiredS
 
                     const responseData = await res.json();
                     if (!res.ok) {
-                        alert(`Connection failed: ${responseData.error}`);
+                        setGlobalWarning(`Connection failed: ${responseData.error}`);
                         return;
                     }
 
+                    // Soft n8n sync failure: credential saved locally, show warning but don't block
                     if (responseData.success === false) {
-                        alert(`Warning: ${responseData.error || 'Saved locally, but failed to sync to n8n server.'}`);
+                        setGlobalWarning(`Warning: Saved locally, but failed to sync to n8n server: ${responseData.error || 'n8n synchronization failed'}`);
                     }
 
-                    // Refresh list
+                    // Refresh list regardless
                     fetchCredentials();
                 } catch (err: any) {
-                    alert(`Error connecting service: ${err.message}`);
+                    setGlobalWarning(`Error connecting service: ${err.message}`);
                 }
             }
         };
@@ -305,16 +309,18 @@ export default function CredentialsClient({ requiredServices = [] }: { requiredS
             const data = await res.json();
 
             if (!res.ok) {
+                // Hard error (bad key, validation failed etc.) — keep modal open
                 throw new Error(data.error || "Failed to connect credentials");
             }
 
-            if (data.success === false) {
-                throw new Error(data.error || "Failed to sync credentials");
-            }
-
-            // Success, close modal and refresh
+            // Close modal first
             setActiveService(null);
             fetchCredentials();
+
+            // Soft n8n sync failure — show global warning but credential was saved locally
+            if (data.success === false) {
+                setGlobalWarning(`Warning: Saved locally, but failed to sync to n8n server: ${data.error || 'n8n synchronization failed'}`);
+            }
         } catch (err: any) {
             setModalError(err.message || "An unexpected error occurred");
         } finally {
@@ -421,6 +427,21 @@ export default function CredentialsClient({ requiredServices = [] }: { requiredS
 
     return (
         <div className={styles.container}>
+            {/* Global warning toast for soft n8n failures */}
+            {globalWarning && (
+                <div className={styles.globalWarning}>
+                    <AlertCircle size={16} style={{ flexShrink: 0 }} />
+                    <span style={{ flex: 1 }}>{globalWarning}</span>
+                    <button 
+                        onClick={() => setGlobalWarning(null)} 
+                        className={styles.warningClose}
+                        aria-label="Dismiss warning"
+                    >
+                        <X size={14} />
+                    </button>
+                </div>
+            )}
+
             {/* Header */}
             <div className={styles.header}>
                 <h1 className={styles.headerTitle}>Credentials Vault</h1>

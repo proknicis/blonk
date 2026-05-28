@@ -35,7 +35,7 @@ export async function POST(request: Request) {
         // Auto-inject Google Client ID/Secret if it's an OAuth2 credential
         // Map to exact n8n schema
         let finalData: any = { ...incomingData };
-        if (type === 'gmailOAuth2Api' || type === 'googleSheetsOAuth2Api' || type === 'googleOAuth2Api') {
+        if (type === 'gmailOAuth2Api' || type === 'googleSheetsOAuth2Api' || type === 'googleOAuth2Api' || type === 'gmailOAuth2') {
             type = 'googleOAuth2Api'; // Always use the core type that n8n respects
             
             finalData = {
