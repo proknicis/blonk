@@ -24,7 +24,7 @@ export const ActionRequiredEmail = ({
   userName = 'Client',
   workflowName = 'Intake Automation',
   actionMessage = 'A document requires your counter-signature before the workflow can proceed.',
-  actionUrl = 'https://manadavana.lv/dashboard',
+  actionUrl = 'http://localhost:3000/dashboard',
 }: ActionRequiredEmailProps) => {
   return (
     <Html>

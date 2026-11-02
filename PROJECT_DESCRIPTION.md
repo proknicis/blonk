@@ -1,168 +1,258 @@
 # BLONK | Project Documentation & System Architecture
 
-Welcome to **BLONK**, a sovereign, decoupled workflow execution platform built specifically for professional services firms. Unlike traditional SaaS automation tools that route proprietary business logic and client data through external servers, BLONK is designed to let organizations own and run their automations locally or on private cloud instances, achieving 100% data sovereignty.
+Welcome to the master architectural guide for **BLONK**, a sovereign, decoupled workflow execution platform built specifically for professional services firms. This document details the system design, codebase maps, core services, database schemas, and integration engines that power the platform.
 
 ---
 
 ## 📖 Table of Contents
-1. [Core Philosophy & Value Prop](#-core-philosophy--value-prop)
+1. [Core Philosophy & Architecture](#-core-philosophy--architecture)
 2. [Key Features & Modules](#-key-features--modules)
 3. [Technology Stack](#-technology-stack)
-4. [Database Schema & Architecture](#-database-schema--architecture)
-5. [Directory Structure Walkthrough](#-directory-structure-walkthrough)
-6. [Operational Workflows & Provisioning Engine](#-operational-workflows--provisioning-engine)
-7. [Scripts & Utility Tools](#-scripts--utility-tools)
-8. [Security & Compliance](#-security--compliance)
+4. [Directory Map](#-directory-map)
+5. [Database Schema Definition](#-database-schema-definition)
+6. [Sovereign Infrastructure & n8n Sync](#-sovereign-infrastructure--n8n-sync)
+7. [Credentials & Provider Registry](#-credentials--provider-registry)
+8. [Human-in-the-Loop Approvals Engine](#-human-in-the-loop-approvals-engine)
+9. [Framer Motion Design System](#-framer-motion-design-system)
+10. [Local Development & Operations Runbook](#-local-development--operations-runbook)
 
 ---
 
-## 🎯 Core Philosophy & Value Prop
+## 🎯 Core Philosophy & Architecture
 
-BLONK empowers enterprise customers to decouple their automated workflows from vendor-locked SaaS ecosystems. Its key architectural principles are:
+BLONK is modeled as an **A.I. Operating System (Business OS)** for modern enterprises. The core architectural principle is:
 
-*   **Decoupled Architecture**: Customers license and download standardized execution blueprints (n8n JSON config files) and run them on their own private servers, nodes, or hybrid clusters.
-*   **100% Data Sovereignty**: All data processes route directly through customer-owned environments. This provides built-in alignment with stringent regulatory frameworks like HIPAA, SOC-2, and GDPR.
-*   **Zero Markup Execution**: By executing workflows directly on their own instances, organizations communicate with AI systems (e.g., OpenAI, Google Gemini) and external tools directly, bypassing third-party platform markups.
-*   **Modifiable Logical Canvas**: Blueprints are fully editable on n8n's visual node grids, allowing internal IT and GRC (Governance, Risk, and Compliance) teams to audit or customize logic.
+> **Company Brain is the company's operating system and source of truth. AI Employees are hired from the Marketplace, receive their permissions, knowledge, and credentials from Company Brain, and execute their work through n8n. The user never interacts with workflows—only with AI Employees that perform business tasks on their behalf.**
+
+The codebase is designed around three pillars:
+
+*   **Sovereign Intelligence (Company Brain)**: The central source of truth storing organizational credentials, custom rules, memory patterns, and department vectors. It dictates exactly what each digital worker knows and what operations they are authorized to perform.
+*   **Invisible Execution (n8n Engine)**: n8n functions strictly as a background execution engine. All workflow setups, webhook triggers, node graphs, and raw API responses are kept completely invisible to the client, who only interacts with active "AI Employees".
+*   **Decoupled Permissions**: AI Employees query the Company Brain dynamically to fetch credentials (like Gmail or Stripe tokens) or retrieve policies (like refund structures). The Brain controls access, rejecting permission if an employee queries unauthorized files.
 
 ---
 
 ## ⚙️ Key Features & Modules
 
-### 1. Marketing & Showcase Layouts
-*   **Dynamic Landing Page**: Showcases the value proposition, live node visualizer simulation, catalog of standard workflows, and pricing tiers.
-*   **No-Subscription Model**: Focuses on one-time payments for lifetime blueprint licenses (Single Licenses or the Institutional Pack).
-*   **Service & Sector Insights**: Detailed pages highlighting how sovereign automation applies to sectors like finance, legal, operations, and healthcare.
+The application contains three isolated workspace layers:
 
-### 2. Member & Team Dashboards
-*   **Dedicated Cluster Nodes**: Users can monitor their assigned dedicated n8n VPS servers.
-*   **Connections & Credentials Management**: Secure storage settings for integration keys (e.g., Google, Slack, Stripe, OpenAI).
-*   **Workflow Operations**: Track the setup progress, execution metrics, logs, and performance statistics of active automations.
-*   **Notification Center**: Real-time high-stakes alerts on node deployments, connection requests, and system health status.
-*   **Incident Logging & Support**: Built-in support ticketing and operational health metrics.
+### 1. Marketing & Showcase Platform (`/src/app/(marketing)`)
+*   **Sovereign Showcases**: Landing layouts illustrating automated solutions for Finance, Legal, Health, and Operations.
+*   **Live Simulation Canvas**: Graphical dashboard visualizers simulating workflow triggers, node activity, and system logs.
+*   **Stripe License Checkout**: Secure invoice generation and lifetime license payments processed via the Stripe API.
 
-### 3. Administration Dashboard (Sovereign Operations)
+### 2. Workspace Client Dashboard (`/src/app/dashboard`)
+*   **Overview Panel**: Real-time stats showing active nodes, average latency, and recent actions.
+*   **Drafts & Launcher**: View configurations awaiting connections or confirmation, with launch controls to trigger runs.
+*   **Connected Apps**: Centralized console for linking and authenticating third-party services.
+*   **Team & Access**: Administration tab for managing operators, assigning roles, and viewing recent audit logs.
+
+### 3. Sovereign Administrator Center (`/src/app/admin`)
 *   **Fleet Control (Cluster Nodes)**: Admin overview of active, provisioning, and unassigned servers in the infrastructure.
 *   **Order Pipeline**: Direct view of customers purchasing licenses, allowing admin provisioning confirmation.
-*   **Audit Logging**: Full audit trail of database operations, login attempts, configuration changes, and incident triggers.
-*   **User Management**: Role and permissions configuration (Admin, Owner, Member) and onboarding state controls.
-*   **System Diagnostics**: Live dashboard reporting system uptime, average response latency, CPU loads, and active integrations.
+*   **Audit timeline**: Immutable log trace records tracking administrator decisions, security events, and diagnostic reports.
 
 ---
 
 ## 🛠️ Technology Stack
 
-BLONK is built as a modern full-stack web application leveraging:
-
-| Component | Technology | Description |
+| Layer | Technology | Role & Integration |
 | :--- | :--- | :--- |
-| **Framework** | Next.js 16 (App Router) | React 19 framework handling client-side views and API route endpoints. |
-| **Language** | TypeScript | Strong typing for route parameters, lifecycle hooks, and database models. |
-| **Database** | PostgreSQL | Relational transactional database accessed via the raw `pg` pool connector. |
-| **Authentication** | NextAuth.js | Credentials-based login (bcrypt hashed passwords) and Google OAuth provider. |
-| **Styling** | Tailwind CSS & CSS Modules | Unified UI elements backed by modular, scoped layout sheets. |
-| **AI Integration** | Vercel AI SDK | Native integrations with OpenAI and other LLM services. |
-| **Payments** | Stripe API | Checkout sessions and webhook validation for licenses and system bundles. |
-| **Emails** | React Email & Nodemailer | Transactional emails formatted as React elements and dispatched via SMTP. |
+| **Frontend Framework** | Next.js 16 (App Router) | Client rendering, React Server Components (RSC), and serverless API endpoints. |
+| **Logic & Types** | React 19 & TypeScript | Strong types for connection parameters, roles, and schema models. |
+| **Database Connector** | PostgreSQL (`pg`) | Relational database, transactional queries, and connection pooling. |
+| **Authentication** | NextAuth.js | Credentials-based secure login (bcrypt hashing) and session token validation. |
+| **Styling** | Vanilla CSS Modules | Modular sheets scoping responsive layouts, tables, and dashboards. |
+| **Animation Engine** | Framer Motion (`motion`) | Tactile micro-animations, active sidebar slides, counts, and modals. |
+| **Billing Integration** | Stripe API | Checkout sessions, subscription webhook processing, and license ledgers. |
+| **SMTP Delivery** | React Email & Nodemailer | HTML formatted email dispatching for user invitations and invoices. |
 
 ---
 
-## 🗄️ Database Schema & Architecture
-
-The database runs on PostgreSQL and is initialized via `scripts/schema.sql`. It relies on several key tables:
-
-*   `User`: Institutional user profiles, password hashes, roles (`ADMIN`, `OWNER`, `MEMBER`), team bindings, and onboarding statuses.
-*   `Event`: Analytics tracking system recording actions (e.g., page views, checkouts, logins) for attribution.
-*   `Payment`: Ledger recording checkout amounts, status, and linked Stripe session identifiers.
-*   `MarketingSpend`: Administrative entries for tracking Customer Acquisition Cost (CAC).
-*   `Workflow`: The core execution records. Links a customer's workspace to a designated VPS, tracking provisioning status (`Ordered`, `Provisioning`, `Awaiting_Credentials`, `Ready`, `Error`).
-*   `WorkflowTemplate`: The blueprints library details containing description, setup guides, and third-party integration requirements.
-*   `WorkflowLog`: Historical execution records reporting n8n job outcomes.
-*   `ClusterNode`: The list of VPS servers (assigned to specific teams or open for allocation).
-*   `Notification`: System notifications pushing updates to members.
-*   `Report` & `Transaction`: Financial snapshots and transactions ledger.
-*   `OperationalSetting`: System settings and API configurations.
-
----
-
-## 📁 Directory Structure Walkthrough
-
-Below is a breakdown of the key files and directories:
+## 📁 Directory Map
 
 ```text
 blonk/
-├── .env                       # Environment credentials (DB URL, Stripe keys, Auth secrets)
-├── Dockerfile                 # Containerization template for building next-app
-├── docker-compose.yml         # Dev/Production container setup orchestration
-├── components.json            # Configuration configuration for shadcn UI components
-├── scripts/                   # System operations, database seeds, and migrations
-│   ├── schema.sql             # Full database initialization DDL
-│   ├── init-db.js             # Automated database validation and baseline seeding
-│   ├── db-harden.js           # Password hardening and GRC security config script
-│   ├── setup-orders.js        # Provisioning setups for new product pipelines
-│   └── *_migrate.js           # Version-control migrations for workflows and VPS assets
+├── .env                       # Local secret configurations (Database, Stripe, Auth tokens)
+├── Dockerfile                 # Multi-stage production container configuration
+├── docker-compose.yml         # Container orchestration configuration
+├── components.json            # Configuration mappings for custom shared UI structures
+├── scripts/                   # Seeding, migration, and hardening tools
+│   ├── schema.sql             # SQL database schema declarations
+│   ├── init-db.js             # Table setup and mock data seed script
+│   ├── db-harden.js           # Password structure validation tool
+│   └── migrate.js             # DB schema modifications and additions
 ├── src/
-│   ├── app/                   # Next.js App Router root
-│   │   ├── (marketing)/       # SEO-optimized landing, pricing, sector, and showcase routes
+│   ├── app/                   # Next.js 16 app pages and server actions
+│   │   ├── (marketing)/       # Landing page, showcases, sectors, and checkout pages
 │   │   ├── admin/             # Operations dashboard for administrators
-│   │   ├── api/               # Serverless API routes (auth, billing, nodes, telemetry, workflows)
-│   │   ├── dashboard/         # Client workspace control panel
-│   │   ├── layout.tsx         # Global provider initialization (auth, styling)
-│   │   └── globals.css        # Main stylesheet defining design variables and colors
-│   ├── components/            # Shared UI layout files
-│   │   ├── bundui/            # Visual graph interfaces and canvas charts
-│   │   ├── reui/              # Institutional form elements
-│   │   └── ui/                # Core interactive elements (buttons, tables, cards)
-│   ├── emails/                # React components for transactional email templates
+│   │   ├── api/               # Serverless API routes (connect endpoints, telemetry, webhooks)
+│   │   ├── dashboard/         # Client operations console (Drafts, Team, Connections)
+│   │   ├── layout.tsx         # Global provider wrapping (Auth, Theme variables)
+│   │   └── globals.css        # Core style declarations and design tokens
+│   ├── components/            # UI building blocks
+│   │   ├── ui/                # Scoped inputs, tables, buttons, and badges
+│   │   └── ModalPortal.tsx    # Portal wrapper rendering overlays outside active containers
+│   ├── emails/                # Transactional email templates defined in React
 │   └── lib/                   # Internal backend services and logic
-│       ├── db.ts              # PostgreSQL connection pool and query engine wrapper
-│       ├── auth.ts            # NextAuth providers configuration and JWT session hooks
-│       ├── workflow-provision.ts # Server allocation and credential validation logic
-│       ├── workflow-lifecycle.ts # Transitions state machine for automating setups
-│       └── order-pipeline.ts  # Purchase validation and Stripe checkout integration
+│       ├── db.ts              # PostgreSQL database connection client pool
+│       ├── auth.ts            # NextAuth providers list and JWT session wrappers
+│       ├── encryption.ts      # AES-256-GCM credentials encryption helpers
+│       ├── n8n-credentials.ts # Sync handlers deploying keys directly to n8n servers
+│       ├── provider-registry.ts # Structured list of all Connected App metadata definitions
+│       └── workflow-provision.ts # Server capacity mapping and setup logic
 ```
 
 ---
 
-## ⚙️ Operational Workflows & Provisioning Engine
+## 🗄️ Database Schema Definition
 
-The platform manages the automatic setup of VPS nodes for clients who purchase workflow licenses:
+BLONK stores client data and execution telemetry using a relational PostgreSQL schema:
 
 ```mermaid
-graph TD
-    A[User purchases blueprint] --> B[Stripe completes checkout webhook]
-    B --> C[Create Workflow record, status: ordered]
-    C --> D[Allocate ClusterNode server]
-    D -->|Node Assigned| E[Status: awaiting credentials]
-    D -->|No Available Nodes| F[Status: provisioning, awaiting admin VPS]
-    E --> G[User inputs required API credentials]
-    G --> H[Status: ready for admin deployment check]
-    H --> I[Admin tests connection & deploys n8n blueprint]
-    I --> J[Status: active/ready]
+erDiagram
+    User ||--o{ credentials : "creates"
+    User ||--o{ Notification : "receives"
+    User }|--|| Team : "belongs to"
+    Team ||--o{ Workflow : "owns"
+    Workflow }|--|| ClusterNode : "runs on"
+    WorkflowTemplate ||--o{ Workflow : "blueprints"
+    Workflow ||--o{ WorkflowLog : "records"
+    Payment }|--|| User : "paid by"
 ```
 
-This lifecycle is governed by:
-*   [workflow-provision.ts](file:///c:/Users/prokn/Desktop/blonk/src/lib/workflow-provision.ts): Handles checking available server capacity (`ClusterNode` table) and binding servers to a client's team workspace.
-*   [workflow-lifecycle.ts](file:///c:/Users/prokn/Desktop/blonk/src/lib/workflow-lifecycle.ts): Controls the state machine transitions and checks if the client has fulfilled all credentials requested by a template.
-*   [order-pipeline.ts](file:///c:/Users/prokn/Desktop/blonk/src/lib/order-pipeline.ts): Resolves transactions, creates users if they are new, and provisions default environments.
+### Core Tables Summary
+1.  **`User`**: Account profiles containing email, hashed passwords, roles (`OWNER`, `ADMIN`, `MEMBER`), onboarding statuses, and linked `teamId`.
+2.  **`Team`**: Organizational boundaries dividing multi-tenant user bases.
+3.  **`credentials`**: Encrypted integrations access store. Has unique constraints on `(user_id, provider)` to enforce upserts and prevent orphaned credentials.
+4.  **`ClusterNode`**: Sovereign VM inventory pool. Tracks server status (`Active`, `Offline`, `Pending`), URL, and verification API keys.
+5.  **`Workflow`**: Client deployments matching templates to assigned `ClusterNode` servers, logging deployment states (`Ordered`, `Provisioning`, `Awaiting_Credentials`, `Ready`, `Error`).
+6.  **`WorkflowTemplate`**: Catalog of blueprint metadata, detailed setup markdown, and required provider arrays.
+7.  **`Event`**: User activity and attribution log mapping (e.g. workspace setups, connection events).
 
 ---
 
-## 💻 Scripts & Utility Tools
+## 🚀 Sovereign Infrastructure & n8n Sync
 
-The `scripts` directory provides commands to setup and manage the app's backend:
+When a client updates or registers their integration credentials (e.g., Slack, OpenAI, Stripe), BLONK automatically synchronizes these changes to the client's dedicated n8n VPS server:
 
-*   **`node scripts/init-db.js`**: Connects to the database using `DATABASE_URL`, builds the tables defined in `schema.sql`, and seeds initial KPI and chart metric objects.
-*   **`node scripts/db-harden.js`**: Runs administrative security operations on the users database, ensuring that passwords meet robust structural checks.
-*   **Migrations**:
-    *   `migrate.js`: Creates the necessary columns for tracking deployment states.
-    *   `migrate-workflows-to-orders.js`: Transforms workflow records into order-centric trackers matching the updated order engine.
-    *   `vps-migrate.js`: Sets up baseline `ClusterNode` infrastructure rows.
+```text
+Dashboard Connect UI
+      │
+      ▼
+POST /api/credentials/connect
+      │
+      ├──► Encrypt credentials locally using AES-256-GCM
+      │
+      └──► Trigger syncCredentialToN8n(teamId, provider, rawData)
+                 │
+                 ▼
+          Lookup Active ClusterNode for Team
+                 │
+                 ├──► GET /api/v1/credentials (Check if credential exists by name)
+                 │
+                 ├──► If exists: PUT /api/v1/credentials/{id} (Update Key)
+                 │
+                 └──► If new: POST /api/v1/credentials (Create Key)
+```
+
+This architecture is orchestrated in [n8n-credentials.ts](file:///c:/Users/prokn/Desktop/blonk/src/lib/n8n-credentials.ts). It ensures that:
+*   Credentials in the n8n container are kept up to date without manually opening the n8n GUI.
+*   Workflows are matched to server nodes dynamically based on server load and capacity.
+*   Existing n8n credentials are updated via `PUT` instead of recreating them, preventing database clutter and orphaned configurations.
 
 ---
 
-## 🔒 Security & Compliance
+## 🔑 Credentials & Provider Registry
 
-*   **Role-Based Access Control (RBAC)**: Enforced via NextAuth and route checks. `ADMIN` roles have access to `/admin` telemetry and config pages, while `OWNER` and `MEMBER` roles can only view and mutate their own workspace configuration within `/dashboard`.
-*   **Credentials Encapsulation**: Integration keys are stored locally on the tenant's database schema, remaining entirely within their boundary instead of public shared tables.
-*   **Data Minimization**: The platform strictly tracks metrics and logs required for system health, avoiding any inspection of the payloads processing inside the client's n8n containers.
+The credentials system uses a unified metadata template mapping defined in [provider-registry.ts](file:///c:/Users/prokn/Desktop/blonk/src/lib/provider-registry.ts):
+
+*   **Provider Entries**: Define authentication structures (e.g., `oauth2`, `bearerToken`, `apiKey`, `basicAuth`) and list the input forms required from users.
+*   **Dynamic UI Construction**: The client connection modal maps over these field lists, rendering input boxes, show/hide eye-toggles, link referrals, and custom labels dynamically.
+*   **Twenty CRM Integration**: Features a custom CRM provider mapping that supports Instance URL inputs for cloud and self-hosted instances.
+
+### Connection Route (`/api/credentials/connect`)
+1.  **URL Normalization**: Strips accidental path suffixes (like `/rest` or `/graphql`) and prefixes missing protocols.
+2.  **API Verification**: Triggers an endpoint request (`GET {instanceUrl}/rest/people?limit=1`) to confirm connectivity and key authorization.
+3.  **Error Propagation**: Captures failures and returns user-friendly explanations.
+4.  **Local Encryption**: Encrypts credentials with [encryption.ts](file:///c:/Users/prokn/Desktop/blonk/src/lib/encryption.ts) using `AES-256-GCM` before database insertion.
+
+---
+
+## 🛡️ Human-in-the-Loop Approvals Engine
+
+High-risk actions (e.g. executing large wire transfers, bulk database purges, or broadcast mailouts) require human confirmation before execution. This process is governed by the **Approvals Queue**:
+
+```text
+           n8n Automation Execution
+                      │
+                      ▼
+        Post Event Details to BLONK REST
+                      │
+                      ▼
+           Table: ApprovalEvidence
+         Status: PENDING (Gate Blocked)
+                      │
+                      ▼
+    Operator inspects payload on Dashboard
+                      │
+           ┌──────────┴──────────┐
+           ▼                     ▼
+      [Approve]              [Dismiss/Reject]
+           │                     │
+           ▼                     ▼
+   Dispatches webhook      Dispatches webhook
+   triggering n8n loop     cancelling n8n run
+```
+
+*   **Review Queue Grid**: Displays incoming approval items on card stack decks showing the source customer, target employee, snippet previews, and time-stamps.
+*   **Payload Inspector**: Allows developers and admins to inspect execution payloads, review variable states, and edit data inputs.
+*   **Approval Dispatching**: Dispatching confirm decisions triggers webhook callbacks that tell the client's n8n workflow engine to continue the execution loop.
+
+---
+
+## 🎨 Framer Motion Design System
+
+BLONK integrates **Motion** (`motion.dev` / Framer Motion v12) to provide fast, tactile micro-animations that improve the user experience:
+
+1.  **Sidebar active state**: An active nav link highlight wrapped in `<motion.div layoutId="sidebar-active">` that slides between menu items as users navigate.
+2.  **Route transitions**: The content container in `DashboardLayoutClient.tsx` uses route paths as animation keys, executing a subtle upward fade (`initial: { opacity: 0, y: 8 }` $\rightarrow$ `animate: { opacity: 1, y: 0 }`) on route changes.
+3.  **KPI Stat Cards**: KPI numbers count up from 0 on page load using `useMotionValue` and `animate()`. Hover actions use `whileHover={{ scale: 1.02 }}` for feedback.
+4.  **Empty states**: Smooth scale-in animations for empty lists and data tables.
+5.  **List item deletions**: Approved or deleted items use `AnimatePresence` to fade and collapse (`height: 0`, `overflow: "hidden"`) for smooth list updates.
+6.  **Spring dialogs**: Portalled modal windows scale and transition with spring dampening (`stiffness: 300, damping: 30`).
+
+---
+
+## 💻 Local Development & Operations Runbook
+
+### 1. Requirements & Setup
+Configure local settings in a root `.env` file:
+```bash
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/blonk
+NEXTAUTH_SECRET=my-super-secret-auth-key
+STRIPE_SECRET_KEY=sk_test_...
+```
+
+### 2. Database Initialization
+Create tables and populate initial metrics:
+```bash
+node scripts/init-db.js
+```
+
+### 3. Password Security Verification
+Run check scripts to audit user password complexity:
+```bash
+node scripts/db-harden.js
+```
+
+### 4. Running the App
+Start the Next.js development server:
+```bash
+npm run dev
+```
+
+Run typescript type checks:
+```bash
+npx tsc --noEmit
+```

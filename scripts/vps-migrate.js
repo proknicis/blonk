@@ -65,6 +65,10 @@ async function migrate() {
                 "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+            ALTER TABLE "Team" ADD COLUMN IF NOT EXISTS "serverId" UUID;
+            ALTER TABLE "Team" ADD COLUMN IF NOT EXISTS "provisioningStatus" VARCHAR(50) DEFAULT 'NOT_STARTED';
+            ALTER TABLE "Team" ADD COLUMN IF NOT EXISTS "assignedAt" TIMESTAMP;
+            ALTER TABLE "ClusterNode" ADD COLUMN IF NOT EXISTS "is_assignable" BOOLEAN DEFAULT TRUE;
         `);
 
         console.log('--- DATABASE HARDENING COMPLETE ---');

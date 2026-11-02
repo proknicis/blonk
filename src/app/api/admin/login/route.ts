@@ -8,7 +8,7 @@ export async function POST(request: Request) {
 
         // 1. Fetch administrative user from PostgreSQL
         const rows = await db.query(
-            'SELECT id, name, plan, password FROM "User" WHERE email = $1 AND plan = \'SuperAdmin\' LIMIT 1',
+            'SELECT id, name, plan, password FROM "User" WHERE email = $1 AND plan IN (\'SuperAdmin\', \'SupportStaff\') LIMIT 1',
             [email]
         ) as any[];
 

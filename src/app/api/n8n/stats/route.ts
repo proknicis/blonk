@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
     try {
-        const n8nBaseUrl = process.env.N8N_BASE_URL || 'https://n8n.manadavana.lv';
+        const n8nBaseUrl = process.env.N8N_BASE_URL || 'http://localhost:3000';
         const url = `${n8nBaseUrl}/webhook/stats`;
 
         console.log(`[STATS_BRIDGE] Synchronizing with n8n Core: ${url}`);

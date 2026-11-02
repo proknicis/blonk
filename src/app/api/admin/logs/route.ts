@@ -1,38 +1,35 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { db } from "@/lib/db";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
 
 export async function GET(request: Request) {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        const cookieStore = await cookies();
+        const token = cookieStore.get('admin_token')?.value;
 
-        const { searchParams } = new URL(request.url);
-        const workflowId = searchParams.get('workflowId');
-        const emailRef = session.user.email.toLowerCase();
-
-        let query = `
-            SELECT l.*, l."createdAt" as "executedAt" 
-            FROM "WorkflowLog" l 
-            LEFT JOIN "Workflow" w ON l."workflowId" = w.id 
-            WHERE (LOWER(w."requestedBy") = LOWER($1) 
-               OR (l."workflowId" IS NULL AND l."workflowName" IN (SELECT name FROM "Workflow" WHERE LOWER("requestedBy") = LOWER($1))))
-              AND l."createdAt" >= NOW() - INTERVAL '48 hours'
-        `;
-        const params: any[] = [emailRef];
-
-        if (workflowId) {
-            query += ` AND (l."workflowId" = $2 OR w.id = $2)`;
-            params.push(workflowId);
+        if (!token || !token.startsWith('admin_')) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        query += ` ORDER BY l."createdAt" DESC LIMIT 100`;
+        const adminId = token.split('_')[1];
+        const [user] = await db.query('SELECT plan FROM "User" WHERE id = $1 LIMIT 1', [adminId]) as any[];
+        
+        const isAdmin = user && user.plan === 'SuperAdmin';
+        if (!isAdmin) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
 
-        const rows = await db.query(query, params);
+        // Fetch logs
+        const rows = await db.query(`
+            SELECT l.id, l."workflowName", l.status, l.result, l."createdAt" as "executedAt", l."workflowId", l."teamId"
+            FROM "WorkflowLog" l
+            ORDER BY l."createdAt" DESC
+            LIMIT 100
+        `);
+
         return NextResponse.json(rows);
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error fetching logs:', error);
-        return NextResponse.json({ error: 'Failed' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed', details: error.message }, { status: 500 });
     }
 }

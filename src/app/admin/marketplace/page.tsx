@@ -38,7 +38,7 @@ import adminStyles from "../admin.module.css";
 
 // High‑fidelity skeleton for marketplace table rows
 const SkeletonRow = () => (
-  <tr style={{ background: '#F8FAFC', borderRadius: '16px' }}>
+  <tr style={{ background: 'var(--muted)', borderRadius: '16px' }}>
     {/* Icon placeholder */}
     <td style={{ padding: '16px', borderTopLeftRadius: '16px', borderBottomLeftRadius: '16px' }}>
       <Skeleton width="40px" height="40px" />
@@ -230,17 +230,17 @@ export default function MarketplaceManagementPage() {
             {/* SUB-HEADER SECTION */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '-12px' }}>
                 <div>
-                    <h1 style={{ fontSize: '1.75rem', fontWeight: 950, margin: 0, textTransform: 'uppercase', letterSpacing: '-0.02em', color: '#0F172A' }}>Marketplace Management</h1>
+                    <h1 style={{ fontSize: '1.75rem', fontWeight: 950, margin: 0, textTransform: 'uppercase', letterSpacing: '-0.02em', color: 'var(--foreground)' }}>Marketplace Management</h1>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
                         <div style={{ width: '64px', height: '1px', background: '#E2E8F0', marginRight: '4px' }} />
                         <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10B981' }} />
-                        <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', color: '#64748B', letterSpacing: '0.05em' }}>Node Cluster: Global_Alpha</span>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', color: 'var(--muted-foreground)', letterSpacing: '0.05em' }}>Node Cluster: Global_Alpha</span>
                     </div>
                 </div>
             </div>
 
             {/* DEEP SLATE BANNER */}
-            <div style={{ background: '#0F172A', color: '#FFFFFF', border: 'none', padding: '40px 48px', borderRadius: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 20px 40px rgba(15, 23, 42, 0.08)' }}>
+            <div style={{ background: 'var(--primary)', color: '#FFFFFF', border: 'none', padding: '40px 48px', borderRadius: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 20px 40px rgba(15, 23, 42, 0.08)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
                     <div style={{ position: 'relative' }}>
                         <div style={{ width: '64px', height: '64px', background: 'rgba(255,255,255,0.08)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -251,10 +251,10 @@ export default function MarketplaceManagementPage() {
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
                             <span style={{ padding: '3px 8px', background: 'rgba(16, 185, 129, 0.15)', color: '#10B981', borderRadius: '6px', fontSize: '0.6rem', fontWeight: 950, letterSpacing: '0.1em' }}>SOVEREIGN LIBRARY</span>
-                            <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.2em', color: '#94A3B8' }}>PROTOCOL DISTRIBUTION</span>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--muted-foreground)' }}>PROTOCOL DISTRIBUTION</span>
                         </div>
                         <h2 style={{ color: '#FFFFFF', fontSize: '2rem', fontWeight: 950, letterSpacing: '-0.04em', margin: 0 }}>Marketplace Distribution</h2>
-                        <p style={{ color: '#94A3B8', fontSize: '0.95rem', fontWeight: 700, margin: '6px 0 0' }}>Manage, publish, and analyze all marketplace workflows and protocols.</p>
+                        <p style={{ color: 'var(--muted-foreground)', fontSize: '0.95rem', fontWeight: 700, margin: '6px 0 0' }}>Manage, publish, and analyze all marketplace workflows and protocols.</p>
                     </div>
                 </div>
                 <div style={{ display: 'flex', gap: '16px' }}>
@@ -266,7 +266,7 @@ export default function MarketplaceManagementPage() {
                     </button>
                     <button 
                         onClick={() => router.push("/admin/marketplace/builder")}
-                        style={{ background: '#10B981', color: '#0F172A', height: '56px', padding: '0 28px', borderRadius: '16px', border: 'none', fontWeight: 950, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 10px 20px rgba(16, 185, 129, 0.2)' }}
+                        style={{ background: '#10B981', color: 'var(--foreground)', height: '56px', padding: '0 28px', borderRadius: '16px', border: 'none', fontWeight: 950, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 10px 20px rgba(16, 185, 129, 0.2)' }}
                     >
                         <Plus size={18} /> Provision New Workflow
                     </button>
@@ -284,13 +284,13 @@ export default function MarketplaceManagementPage() {
                     { label: 'CONVERSION RATE', value: `0.00%`, detail: 'Visitor to install', growth: null },
                     { label: 'ERROR RATE (30D)', value: `${avgErrorRate}%`, detail: 'Target <1.5%', growth: null, good: true }
                 ].map((m, i) => (
-                    <div key={i} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '24px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '140px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
+                    <div key={i} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '24px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '140px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
                         <div>
-                            <span style={{ fontSize: '0.65rem', fontWeight: 950, color: '#64748B', letterSpacing: '0.05em' }}>{m.label}</span>
-                            <div style={{ fontSize: '1.75rem', fontWeight: 950, color: '#0F172A', marginTop: '8px', letterSpacing: '-0.02em' }}>{m.value}</div>
+                            <span style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)', letterSpacing: '0.05em' }}>{m.label}</span>
+                            <div style={{ fontSize: '1.75rem', fontWeight: 950, color: 'var(--foreground)', marginTop: '8px', letterSpacing: '-0.02em' }}>{m.value}</div>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
-                            <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>{m.detail}</span>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>{m.detail}</span>
                             {m.growth && (
                                 <span style={{ fontSize: '0.75rem', fontWeight: 950, color: '#10B981', display: 'flex', alignItems: 'center', gap: '2px' }}>
                                     {m.growth.startsWith('+') ? <ArrowUp size={12} /> : <ArrowDown size={12} />}
@@ -306,14 +306,14 @@ export default function MarketplaceManagementPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1.2fr 1.2fr', gap: '32px' }}>
                 
                 {/* REVENUE OVER TIME (SVG Chart) */}
-                <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
+                <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                         <div>
-                            <h3 style={{ fontSize: '1.1rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>REVENUE OVER TIME</h3>
-                            <p style={{ fontSize: '0.85rem', color: '#64748B', margin: '4px 0 0', fontWeight: 700 }}>Aggregate platform billing metrics</p>
+                            <h3 style={{ fontSize: '1.1rem', fontWeight: 950, color: 'var(--foreground)', margin: 0 }}>REVENUE OVER TIME</h3>
+                            <p style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', margin: '4px 0 0', fontWeight: 700 }}>Aggregate platform billing metrics</p>
                         </div>
                         <div style={{ position: 'relative' }}>
-                            <select style={{ padding: '8px 16px', borderRadius: '12px', border: '1px solid #E2E8F0', fontSize: '0.8rem', fontWeight: 800, background: '#F8FAFC', outline: 'none', appearance: 'none', cursor: 'pointer', paddingRight: '32px' }}>
+                            <select style={{ padding: '8px 16px', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '0.8rem', fontWeight: 800, background: 'var(--muted)', outline: 'none', appearance: 'none', cursor: 'pointer', paddingRight: '32px' }}>
                                 <option>Last 30 Days</option>
                                 <option>Last 90 Days</option>
                             </select>
@@ -359,7 +359,7 @@ export default function MarketplaceManagementPage() {
                         </svg>
                     </div>
                     {/* X Axis Labels */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px', fontSize: '0.75rem', color: '#94A3B8', fontWeight: 800 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px', fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>
                         <span>May 01</span>
                         <span>May 07</span>
                         <span>May 14</span>
@@ -369,10 +369,10 @@ export default function MarketplaceManagementPage() {
                 </div>
 
                 {/* SALES BY CATEGORY (SVG Pie Chart) */}
-                <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <div>
-                        <h3 style={{ fontSize: '1.1rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>SALES BY CATEGORY</h3>
-                        <p style={{ fontSize: '0.85rem', color: '#64748B', margin: '4px 0 0', fontWeight: 700 }}>Segmented by operational sector</p>
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: 950, color: 'var(--foreground)', margin: 0 }}>SALES BY CATEGORY</h3>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', margin: '4px 0 0', fontWeight: 700 }}>Segmented by operational sector</p>
                     </div>
                     {/* SVG Pie Chart - Empty if zero revenue */}
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '140px', margin: '24px 0', position: 'relative' }}>
@@ -390,12 +390,12 @@ export default function MarketplaceManagementPage() {
                             )}
                         </svg>
                         <div style={{ position: 'absolute', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-                            <span style={{ fontSize: '0.65rem', fontWeight: 950, color: '#64748B' }}>TOTAL</span>
-                            <span style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A' }}>€{totalSalesAllTime.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                            <span style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)' }}>TOTAL</span>
+                            <span style={{ fontSize: '1rem', fontWeight: 950, color: 'var(--foreground)' }}>€{totalSalesAllTime.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                         </div>
                     </div>
                     {/* Legend */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.75rem', fontWeight: 800, color: '#475569' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.75rem', fontWeight: 800, color: 'var(--muted-foreground)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10B981' }} /> Operations</div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#3B82F6' }} /> Marketing</div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#8B5CF6' }} /> Finance</div>
@@ -404,28 +404,28 @@ export default function MarketplaceManagementPage() {
                 </div>
 
                 {/* TOP SELLING WORKFLOWS */}
-                <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <div>
-                        <h3 style={{ fontSize: '1.1rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>TOP SELLING WORKFLOWS</h3>
-                        <p style={{ fontSize: '0.85rem', color: '#64748B', margin: '4px 0 0', fontWeight: 700 }}>Most popular commercial protocols</p>
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: 950, color: 'var(--foreground)', margin: 0 }}>TOP SELLING WORKFLOWS</h3>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', margin: '4px 0 0', fontWeight: 700 }}>Most popular commercial protocols</p>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '24px' }}>
                         {topSellingList.length === 0 ? (
-                            <div style={{ color: '#64748B', fontSize: '0.8rem', fontWeight: 700 }}>No selling workflows.</div>
+                            <div style={{ color: 'var(--muted-foreground)', fontSize: '0.8rem', fontWeight: 700 }}>No selling workflows.</div>
                         ) : (
                             topSellingList.map((w) => (
                                 <div key={w.rank} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                     <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                        <div style={{ width: '28px', height: '28px', background: '#F1F5F9', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 950, color: '#475569' }}>
+                                        <div style={{ width: '28px', height: '28px', background: 'var(--muted)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 950, color: 'var(--muted-foreground)' }}>
                                             {w.rank}
                                         </div>
                                         <div>
-                                            <div style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0F172A', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{w.name}</div>
-                                            <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 800 }}>{w.installs} installs</div>
+                                            <div style={{ fontSize: '0.85rem', fontWeight: 950, color: 'var(--foreground)', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{w.name}</div>
+                                            <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>{w.installs} installs</div>
                                         </div>
                                     </div>
                                     <div style={{ textAlign: 'right' }}>
-                                        <div style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0F172A' }}>€{w.revenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                                        <div style={{ fontSize: '0.85rem', fontWeight: 950, color: 'var(--foreground)' }}>€{w.revenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
                                         {w.growth > 0 && (
                                             <span style={{ fontSize: '0.7rem', fontWeight: 950, color: '#10B981', display: 'flex', alignItems: 'center', gap: '2px', justifyContent: 'flex-end' }}>
                                                 +{w.growth}%
@@ -444,18 +444,18 @@ export default function MarketplaceManagementPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1.2fr', gap: '32px' }}>
                 
                 {/* LEFT WORKFLOW REGISTRY TABLE */}
-                <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
+                <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                         <div>
-                            <h3 style={{ fontSize: '1.25rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>WORKFLOW REGISTRY</h3>
-                            <p style={{ fontSize: '0.85rem', color: '#64748B', margin: '4px 0 0', fontWeight: 700 }}>Library inventory of commercial flows</p>
+                            <h3 style={{ fontSize: '1.25rem', fontWeight: 950, color: 'var(--foreground)', margin: 0 }}>WORKFLOW REGISTRY</h3>
+                            <p style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', margin: '4px 0 0', fontWeight: 700 }}>Library inventory of commercial flows</p>
                         </div>
                         <div style={{ display: 'flex', gap: '12px' }}>
                             <div style={{ position: 'relative' }}>
                                 <select 
                                     value={categoryFilter} 
                                     onChange={e => setCategoryFilter(e.target.value)}
-                                    style={{ padding: '8px 16px', borderRadius: '12px', border: '1px solid #E2E8F0', fontSize: '0.8rem', fontWeight: 800, background: '#F8FAFC', outline: 'none', cursor: 'pointer' }}
+                                    style={{ padding: '8px 16px', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '0.8rem', fontWeight: 800, background: 'var(--muted)', outline: 'none', cursor: 'pointer' }}
                                 >
                                     <option value="All">All Categories</option>
                                     <option value="Operations">Operations</option>
@@ -470,7 +470,7 @@ export default function MarketplaceManagementPage() {
                                 <select 
                                     value={statusFilter} 
                                     onChange={e => setStatusFilter(e.target.value)}
-                                    style={{ padding: '8px 16px', borderRadius: '12px', border: '1px solid #E2E8F0', fontSize: '0.8rem', fontWeight: 800, background: '#F8FAFC', outline: 'none', cursor: 'pointer' }}
+                                    style={{ padding: '8px 16px', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '0.8rem', fontWeight: 800, background: 'var(--muted)', outline: 'none', cursor: 'pointer' }}
                                 >
                                     <option value="All">All Statuses</option>
                                     <option value="Published">Published</option>
@@ -478,11 +478,11 @@ export default function MarketplaceManagementPage() {
                                 </select>
                             </div>
                             <div style={{ position: 'relative', width: '220px' }}>
-                                <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+                                <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} />
                                 <input 
                                     type="text" 
                                     placeholder="Filter protocols..." 
-                                    style={{ width: '100%', height: '36px', borderRadius: '12px', border: '1px solid #E2E8F0', paddingLeft: '36px', fontSize: '0.8rem', fontWeight: 750, outline: 'none' }}
+                                    style={{ width: '100%', height: '36px', borderRadius: '12px', border: '1px solid var(--border)', paddingLeft: '36px', fontSize: '0.8rem', fontWeight: 750, outline: 'none' }}
                                     value={searchTerm}
                                     onChange={e => setSearchTerm(e.target.value)}
                                 />
@@ -494,14 +494,14 @@ export default function MarketplaceManagementPage() {
                         <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 8px' }}>
                             <thead>
                                 <tr>
-                                    <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Workflow</th>
-                                    <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Category</th>
-                                    <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Price</th>
-                                    <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Installs</th>
-                                    <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Revenue</th>
-                                    <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Error Rate</th>
-                                    <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Status</th>
-                                    <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9', textAlign: 'right' }}>Controls</th>
+                                    <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Workflow</th>
+                                    <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Category</th>
+                                    <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Price</th>
+                                    <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Installs</th>
+                                    <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Revenue</th>
+                                    <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Error Rate</th>
+                                    <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Status</th>
+                                    <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9', textAlign: 'right' }}>Controls</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -518,19 +518,19 @@ export default function MarketplaceManagementPage() {
                                         const isEditing = editingPriceId === t.id;
 
                                         return (
-                                            <tr key={t.id} style={{ background: '#F8FAFC', borderRadius: '16px', transition: 'all 0.2s' }}>
+                                            <tr key={t.id} style={{ background: 'var(--muted)', borderRadius: '16px', transition: 'all 0.2s' }}>
                                                 <td style={{ padding: '16px', borderTopLeftRadius: '16px', borderBottomLeftRadius: '16px' }}>
                                                     <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                                        <div style={{ width: '40px', height: '40px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0F172A' }}>
+                                                        <div style={{ width: '40px', height: '40px', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--foreground)' }}>
                                                             {t.icon === 'Zap' ? <Zap size={18} /> : <Layers size={18} />}
                                                         </div>
                                                         <div>
-                                                            <div style={{ fontSize: '0.9rem', fontWeight: 950, color: '#0F172A' }}>{t.name}</div>
-                                                            <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 800 }}>v{t.productInfo?.version || "1.0.0"}</div>
+                                                            <div style={{ fontSize: '0.9rem', fontWeight: 950, color: 'var(--foreground)' }}>{t.name}</div>
+                                                            <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>v{t.productInfo?.version || "1.0.0"}</div>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 800, color: '#475569' }}>
+                                                <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 800, color: 'var(--muted-foreground)' }}>
                                                     {t.sector || "General"}
                                                 </td>
                                                 <td style={{ padding: '16px' }}>
@@ -540,13 +540,13 @@ export default function MarketplaceManagementPage() {
                                                                 type="text" 
                                                                 value={tempPrice} 
                                                                 onChange={e => setTempPrice(e.target.value)} 
-                                                                style={{ width: '60px', height: '28px', border: '1px solid #E2E8F0', borderRadius: '6px', padding: '0 8px', fontSize: '0.8rem', fontWeight: 800 }}
+                                                                style={{ width: '60px', height: '28px', border: '1px solid var(--border)', borderRadius: '6px', padding: '0 8px', fontSize: '0.8rem', fontWeight: 800 }}
                                                             />
                                                             <button onClick={() => handleSavePrice(t.id)} style={{ background: '#10B981', color: '#FFFFFF', padding: '4px 8px', borderRadius: '6px', fontSize: '0.7rem', border: 'none', cursor: 'pointer', fontWeight: 900 }}>Save</button>
                                                         </div>
                                                     ) : (
                                                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                            <span style={{ fontSize: '0.9rem', fontWeight: 950, color: '#0F172A' }}>€{price.toFixed(2)}</span>
+                                                            <span style={{ fontSize: '0.9rem', fontWeight: 950, color: 'var(--foreground)' }}>€{price.toFixed(2)}</span>
                                                             <button 
                                                                 onClick={() => { setEditingPriceId(t.id); setTempPrice(price.toString()); }}
                                                                 style={{ background: 'none', border: 'none', color: '#3B82F6', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 850, padding: 0 }}
@@ -556,10 +556,10 @@ export default function MarketplaceManagementPage() {
                                                         </div>
                                                     )}
                                                 </td>
-                                                <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 800, color: '#475569' }}>
+                                                <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 800, color: 'var(--muted-foreground)' }}>
                                                     {installs}
                                                 </td>
-                                                <td style={{ padding: '16px', fontSize: '0.9rem', fontWeight: 950, color: '#0F172A' }}>
+                                                <td style={{ padding: '16px', fontSize: '0.9rem', fontWeight: 950, color: 'var(--foreground)' }}>
                                                     €{revenue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                                                 </td>
                                                 <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 800, color: parseFloat(errorRate) > 0 ? '#EF4444' : '#10B981' }}>
@@ -575,21 +575,21 @@ export default function MarketplaceManagementPage() {
                                                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                                                         <button 
                                                             onClick={() => handlePreview(t)} 
-                                                            style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#FFFFFF', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: '0.2s', color: '#64748B' }}
+                                                            style={{ width: '36px', height: '36px', border: '1px solid var(--border)', background: 'var(--card)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: '0.2s', color: 'var(--muted-foreground)' }}
                                                             title="Preview Protocol"
                                                         >
                                                             <Eye size={16} />
                                                         </button>
                                                         <button 
                                                             onClick={() => router.push(`/admin/marketplace/builder?id=${t.id}`)}
-                                                            style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#FFFFFF', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: '0.2s', color: '#3B82F6' }}
+                                                            style={{ width: '36px', height: '36px', border: '1px solid var(--border)', background: 'var(--card)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: '0.2s', color: '#3B82F6' }}
                                                             title="Edit Configuration"
                                                         >
                                                             <Edit3 size={16} />
                                                         </button>
                                                         <button 
                                                             onClick={() => deleteTemplate(t.id)} 
-                                                            style={{ width: '36px', height: '36px', border: '1px solid #FEE2E2', background: '#FFFFFF', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: '0.2s', color: '#EF4444' }}
+                                                            style={{ width: '36px', height: '36px', border: '1px solid #FEE2E2', background: 'var(--card)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: '0.2s', color: '#EF4444' }}
                                                             title="Decommission Protocol"
                                                         >
                                                             <Trash2 size={16} />
@@ -601,7 +601,7 @@ export default function MarketplaceManagementPage() {
                                     })
                                 ) : (
                                     <tr>
-                                        <td colSpan={8} style={{ padding: '40px', textAlign: 'center', color: '#94A3B8', fontWeight: 800 }}>
+                                        <td colSpan={8} style={{ padding: '40px', textAlign: 'center', color: 'var(--muted-foreground)', fontWeight: 800 }}>
                                             No protocols registered. Provision your first using the builder.
                                         </td>
                                     </tr>
@@ -615,8 +615,8 @@ export default function MarketplaceManagementPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                     
                     {/* WORKFLOW HEALTH OVERVIEW (30D) */}
-                    <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
-                        <h3 style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A', margin: '0 0 24px' }}>HEALTH OVERVIEW (30D)</h3>
+                    <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 950, color: 'var(--foreground)', margin: '0 0 24px' }}>HEALTH OVERVIEW (30D)</h3>
                         <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
                             <div style={{ position: 'relative', width: '100px', height: '50px', overflow: 'hidden' }}>
                                 {/* Semi-circle Gauge */}
@@ -625,30 +625,30 @@ export default function MarketplaceManagementPage() {
                                     <circle cx="50" cy="50" r="40" fill="none" stroke="#10B981" strokeWidth="8" strokeDasharray="125.6 125.6" strokeDashoffset="-2" />
                                 </svg>
                                 <div style={{ position: 'absolute', bottom: '0', width: '100%', textAlign: 'center', left: '0' }}>
-                                    <span style={{ fontSize: '1.25rem', fontWeight: 950, color: '#0F172A' }}>99.1%</span>
+                                    <span style={{ fontSize: '1.25rem', fontWeight: 950, color: 'var(--foreground)' }}>99.1%</span>
                                 </div>
                             </div>
                             <div>
-                                <div style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0F172A' }}>Healthy Workflows</div>
-                                <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700, marginTop: '4px' }}>Healthy: {totalWorkflows} | Warning: 0 | Critical: 0</div>
+                                <div style={{ fontSize: '0.85rem', fontWeight: 950, color: 'var(--foreground)' }}>Healthy Workflows</div>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 700, marginTop: '4px' }}>Healthy: {totalWorkflows} | Warning: 0 | Critical: 0</div>
                             </div>
                         </div>
                     </div>
 
                     {/* MOST ERRORS (30D) */}
-                    <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
-                        <h3 style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A', margin: '0 0 20px' }}>MOST ERRORS (30D)</h3>
+                    <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 950, color: 'var(--foreground)', margin: '0 0 20px' }}>MOST ERRORS (30D)</h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             {errorList.length === 0 ? (
-                                <div style={{ color: '#64748B', fontSize: '0.85rem', fontWeight: 700, textAlign: 'center' }}>
+                                <div style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', fontWeight: 700, textAlign: 'center' }}>
                                     No protocol errors registered.
                                 </div>
                             ) : (
                                 errorList.map((err, i) => (
                                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <div>
-                                            <div style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0F172A', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{err.name}</div>
-                                            <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 800 }}>Error rate: {err.rate}%</div>
+                                            <div style={{ fontSize: '0.85rem', fontWeight: 950, color: 'var(--foreground)', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{err.name}</div>
+                                            <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>Error rate: {err.rate}%</div>
                                         </div>
                                         <span style={{ background: '#FEE2E2', color: '#EF4444', padding: '4px 10px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 950 }}>
                                             {err.errors} failures
@@ -660,11 +660,11 @@ export default function MarketplaceManagementPage() {
                     </div>
 
                     {/* RECENT ACTIVITY */}
-                    <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
-                        <h3 style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A', margin: '0 0 20px' }}>RECENT REGISTRY ACTIVITY</h3>
+                    <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 950, color: 'var(--foreground)', margin: '0 0 20px' }}>RECENT REGISTRY ACTIVITY</h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             {activityList.length === 0 ? (
-                                <div style={{ color: '#64748B', fontSize: '0.85rem', fontWeight: 700, textAlign: 'center' }}>
+                                <div style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', fontWeight: 700, textAlign: 'center' }}>
                                     No recent activity.
                                 </div>
                             ) : (
@@ -672,8 +672,8 @@ export default function MarketplaceManagementPage() {
                                     <div key={i} style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
                                         <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: act.type === 'publish' ? '#10B981' : (act.type === 'install' ? '#3B82F6' : '#8B5CF6'), marginTop: '5px' }} />
                                         <div>
-                                            <div style={{ fontSize: '0.85rem', fontWeight: 850, color: '#475569' }}>{act.message}</div>
-                                            <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 800, marginTop: '2px' }}>{act.time}</div>
+                                            <div style={{ fontSize: '0.85rem', fontWeight: 850, color: 'var(--muted-foreground)' }}>{act.message}</div>
+                                            <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800, marginTop: '2px' }}>{act.time}</div>
                                         </div>
                                     </div>
                                 ))
@@ -688,65 +688,65 @@ export default function MarketplaceManagementPage() {
             {/* PROTOCOL PREVIEW MODAL */}
             {previewingTemplate && (
                 <div className={adminStyles.modalOverlay} style={{ backdropFilter: 'blur(16px)', background: 'rgba(250, 250, 250, 0.4)' }} onClick={() => setPreviewingTemplate(null)}>
-                    <div className={adminStyles.modal} style={{ maxWidth: '1100px', border: '1px solid #E2E8F0', boxShadow: '0 40px 80px -20px rgba(0, 0, 0, 0.12)' }} onClick={e => e.stopPropagation()}>
+                    <div className={adminStyles.modal} style={{ maxWidth: '1100px', border: '1px solid var(--border)', boxShadow: '0 40px 80px -20px rgba(0, 0, 0, 0.12)' }} onClick={e => e.stopPropagation()}>
                         <div className={adminStyles.modalHeader} style={{ padding: '40px 48px', borderBottom: '1px solid #E2E8F0', background: 'linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%)' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px' }}>
-                                        <div style={{ background: '#10B981', color: '#0F172A', padding: '4px 10px', borderRadius: '6px', fontSize: '0.6rem', fontWeight: 950, letterSpacing: '0.15em' }}>LIVE PREVIEW</div>
-                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.2em', color: '#64748B' }}>PROTOCOL VISUALIZATION</span>
+                                        <div style={{ background: '#10B981', color: 'var(--foreground)', padding: '4px 10px', borderRadius: '6px', fontSize: '0.6rem', fontWeight: 950, letterSpacing: '0.15em' }}>LIVE PREVIEW</div>
+                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--muted-foreground)' }}>PROTOCOL VISUALIZATION</span>
                                     </div>
-                                    <h3 style={{ margin: 0, fontSize: '2.25rem', fontWeight: 950, letterSpacing: '-0.04em', color: '#0F172A' }}>{previewingTemplate.name}</h3>
-                                    <p style={{ margin: '8px 0 0', fontSize: '1rem', color: '#64748B', fontWeight: 750 }}>Sovereign Orchestration Logic for <span style={{ color: '#0F172A' }}>{previewingTemplate.sector || "General"}</span> operations.</p>
+                                    <h3 style={{ margin: 0, fontSize: '2.25rem', fontWeight: 950, letterSpacing: '-0.04em', color: 'var(--foreground)' }}>{previewingTemplate.name}</h3>
+                                    <p style={{ margin: '8px 0 0', fontSize: '1rem', color: 'var(--muted-foreground)', fontWeight: 750 }}>Sovereign Orchestration Logic for <span style={{ color: 'var(--foreground)' }}>{previewingTemplate.sector || "General"}</span> operations.</p>
                                 </div>
-                                <button className={adminStyles.modalClose} style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#F1F5F9', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} onClick={() => setPreviewingTemplate(null)}>
+                                <button className={adminStyles.modalClose} style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'var(--muted)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} onClick={() => setPreviewingTemplate(null)}>
                                     <X size={20} />
                                 </button>
                             </div>
                         </div>
 
-                        <div className={adminStyles.modalBody} style={{ padding: '0', position: 'relative', height: '540px', background: '#F8FAFC' }}>
+                        <div className={adminStyles.modalBody} style={{ padding: '0', position: 'relative', height: '540px', background: 'var(--muted)' }}>
                             {isPreviewLoading ? (
-                                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC', zIndex: 10 }}>
+                                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--muted)', zIndex: 10 }}>
                                     <RefreshCcw size={48} className={adminStyles.spinning} color="#10B981" />
-                                    <p style={{ marginTop: '24px', fontWeight: 950, color: '#0F172A', letterSpacing: '-0.02em', textTransform: 'uppercase', fontSize: '0.8rem' }}>Initializing Visualization Engine...</p>
+                                    <p style={{ marginTop: '24px', fontWeight: 950, color: 'var(--foreground)', letterSpacing: '-0.02em', textTransform: 'uppercase', fontSize: '0.8rem' }}>Initializing Visualization Engine...</p>
                                 </div>
                             ) : (
                                 <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     {/* Custom Visual Nodes Representation of the Protocol Workflow */}
                                     <div style={{ display: 'flex', gap: '48px', alignItems: 'center' }}>
-                                        <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', padding: '24px 32px', borderRadius: '24px', textAlign: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.02)' }}>
+                                        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', padding: '24px 32px', borderRadius: '24px', textAlign: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.02)' }}>
                                             <div style={{ width: '48px', height: '48px', background: '#E8FDF0', color: '#10B981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
                                                 <Play size={20} />
                                             </div>
                                             <div style={{ fontSize: '0.9rem', fontWeight: 950 }}>1. Trigger Node</div>
-                                            <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '4px' }}>Onboarding Webhook</div>
+                                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginTop: '4px' }}>Onboarding Webhook</div>
                                         </div>
                                         <div style={{ fontSize: '2rem', color: '#CBD5E1' }}>→</div>
-                                        <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', padding: '24px 32px', borderRadius: '24px', textAlign: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.02)' }}>
+                                        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', padding: '24px 32px', borderRadius: '24px', textAlign: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.02)' }}>
                                             <div style={{ width: '48px', height: '48px', background: '#EEF2FF', color: '#3B82F6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
                                                 <Settings size={20} />
                                             </div>
                                             <div style={{ fontSize: '0.9rem', fontWeight: 950 }}>2. Orchestration Code</div>
-                                            <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '4px' }}>Execute Protocol Logic</div>
+                                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginTop: '4px' }}>Execute Protocol Logic</div>
                                         </div>
                                         <div style={{ fontSize: '2rem', color: '#CBD5E1' }}>→</div>
-                                        <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', padding: '24px 32px', borderRadius: '24px', textAlign: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.02)' }}>
+                                        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', padding: '24px 32px', borderRadius: '24px', textAlign: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.02)' }}>
                                             <div style={{ width: '48px', height: '48px', background: '#F5F3FF', color: '#8B5CF6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
                                                 <Database size={20} />
                                             </div>
                                             <div style={{ fontSize: '0.9rem', fontWeight: 950 }}>3. Database Sync</div>
-                                            <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '4px' }}>Secure Storage Operations</div>
+                                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginTop: '4px' }}>Secure Storage Operations</div>
                                         </div>
                                     </div>
                                 </div>
                             )}
                         </div>
                         
-                        <div className={adminStyles.modalFooter} style={{ padding: '32px 48px', background: '#F8FAFC', borderTop: '1px solid #E2E8F0' }}>
+                        <div className={adminStyles.modalFooter} style={{ padding: '32px 48px', background: 'var(--muted)', borderTop: '1px solid #E2E8F0' }}>
                              <button 
                                 className={adminStyles.primaryBtn} 
-                                style={{ height: '56px', padding: '0 40px', borderRadius: '16px', background: '#0F172A', color: '#FFFFFF', border: 'none', cursor: 'pointer', fontWeight: 950 }} 
+                                style={{ height: '56px', padding: '0 40px', borderRadius: '16px', background: 'var(--primary)', color: '#FFFFFF', border: 'none', cursor: 'pointer', fontWeight: 950 }} 
                                 onClick={() => router.push(`/admin/marketplace/builder?id=${previewingTemplate.id}`)}
                             >
                                 Edit Protocol Configuration

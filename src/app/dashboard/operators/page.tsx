@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import styles from "./team.module.css";
 import ModalPortal from "@/app/components/ModalPortal";
 import { Skeleton } from "@/app/components/Skeleton";
 import { 
     User, Shield, Briefcase, Clock, Search, Filter, X, Check, 
     Trash2, UserPlus, Zap, Settings, Link2, ShieldCheck, 
-    ChevronRight, MoreHorizontal, MessageSquare, Play, Globe,
+    ChevronRight, ChevronDown, MoreHorizontal, MessageSquare, Play, Globe,
     Activity, Users, Workflow, Mail, Info, MousePointer2,
     TrendingUp, TrendingDown, ArrowUpRight
 } from "lucide-react";
@@ -41,6 +42,38 @@ export default function TeamPage() {
     const [creationLoading, setCreationLoading] = useState(false);
     const [creationFirm, setCreationFirm] = useState("");
     const [creationNode, setCreationNode] = useState("");
+
+    // Collapsible Sidebar Section
+    const [permissionsOpen, setPermissionsOpen] = useState(false);
+
+    const getFriendlyActivityText = (a: any) => {
+        const actor = a.userName || "A team member";
+        const type = a.eventType;
+        let meta: any = {};
+        try {
+            meta = typeof a.metadata === "string" ? JSON.parse(a.metadata) : (a.metadata || {});
+        } catch (e) {
+            meta = {};
+        }
+
+        if (type === "member_invite" || type === "invite" || type === "invite_sent") {
+            return `${actor} invited ${meta.email || a.targetEmail || "new member"} as ${meta.role || a.targetRole || "Viewer"}`;
+        }
+        if (type === "role_change" || type === "role_update" || type === "role_edit") {
+            return `${actor} changed role: ${meta.targetName || a.targetName || "Member"} → ${meta.newRole || a.newRole || "Editor"}`;
+        }
+        if (type === "member_removed" || type === "member_delete") {
+            return `${actor} removed access for ${meta.targetName || a.targetName || "Member"}`;
+        }
+        if (type === "login") {
+            return `${actor} logged in`;
+        }
+        if (type === "workflow_start") {
+            return `${actor} triggered automation: ${meta.workflowName || "Active workflow"}`;
+        }
+
+        return `${actor} performed action: ${type.replace(/_/g, " ")}`;
+    };
 
     useEffect(() => {
         fetchTeamData();
@@ -110,7 +143,10 @@ export default function TeamPage() {
                 setMembers(enriched);
             }
             if (data.activity) {
-                setActivity(data.activity);
+                const cleanActivities = (data.activity || []).filter(
+                    (a: any) => a.eventType !== "page_visit" && a.eventType !== "page_view"
+                );
+                setActivity(cleanActivities);
             }
         } catch (error) {
             console.error("Team fetch failure", error);
@@ -264,12 +300,17 @@ export default function TeamPage() {
             {/* HEADER */}
             <div className={styles.headerSection}>
                 <div className={styles.headerLeft}>
-                    <h1>Operators</h1>
-                    <p>Manage personnel, roles, and access control across your autonomous firm.</p>
+                    <h1>Team Members</h1>
+                    <p>Manage team members, roles, and access control across your autonomous workspace.</p>
                 </div>
-                <button className={styles.btnPrimary} onClick={() => setShowInviteModal(true)}>
-                    <UserPlus size={18} /> Invite Operator
-                </button>
+                <motion.button 
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    className={styles.btnPrimary} 
+                    onClick={() => setShowInviteModal(true)}
+                >
+                    <UserPlus size={18} /> Invite Team Member
+                </motion.button>
             </div>
 
             {/* METRICS */}
@@ -278,7 +319,7 @@ export default function TeamPage() {
                     <div className={styles.statIconBox} style={{ background: '#ECFDF5', color: '#10B981' }}><Users size={24} /></div>
                     <div className={styles.statInfo}>
                         <span className={styles.statValue}>{members.length}</span>
-                        <span className={styles.statLabel}>Total Operators</span>
+                        <span className={styles.statLabel}>Team Members</span>
                     </div>
                 </div>
                 <div className={styles.statCard}>
@@ -288,11 +329,14 @@ export default function TeamPage() {
                         <span className={styles.statLabel}>Active Today</span>
                     </div>
                 </div>
-                <div className={styles.statCard}>
+                <div className={styles.statCard} title="The number of automations explicitly assigned to be monitored/run by team members.">
                     <div className={styles.statIconBox} style={{ background: '#FEF3C7', color: '#F59E0B' }}><Workflow size={24} /></div>
                     <div className={styles.statInfo}>
                         <span className={styles.statValue}>{totalWorkflowsAssigned}</span>
-                        <span className={styles.statLabel}>Assigned Workflows</span>
+                        <span className={styles.statLabel} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            Assigned Automations
+                            <Info size={12} style={{ color: '#94A3B8', cursor: 'help' }} />
+                        </span>
                     </div>
                 </div>
                 <div className={styles.statCard}>
@@ -304,36 +348,6 @@ export default function TeamPage() {
                 </div>
             </div>
 
-            {/* OWNER CARD */}
-            {owner && (
-                <div className={styles.ownerCard}>
-                    <div className={styles.ownerLeft}>
-                        <div className={styles.ownerAvatar}>
-                            <ShieldCheck size={32} color="#10B981" />
-                        </div>
-                        <div className={styles.ownerInfo}>
-                            <div className={styles.ownerNameRow}>
-                                <span className={styles.ownerName}>{owner.name}</span>
-                                <div className={styles.ownerBadge}>OWNER</div>
-                            </div>
-                            <span className={styles.ownerEmail}>{owner.email}</span>
-                            <div className={styles.ownerMeta}>
-                                <span className={styles.ownerMetaItem}><Clock size={14} /> Last active {owner.lastSeenFormatted || 'recently'}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className={styles.accessPanel}>
-                        <span className={styles.accessLabel}>Full System Access</span>
-                        <div className={styles.accessChips}>
-                            <div className={styles.accessChip}><Zap size={14} /> All Workflows</div>
-                            <div className={styles.accessChip}><Users size={14} /> Team Management</div>
-                            <div className={styles.accessChip}><Settings size={14} /> Security Settings</div>
-                            <div className={styles.accessChip}><Globe size={14} /> Marketplace</div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
             {/* MAIN CONTENT + SIDEBAR */}
             <div className={styles.mainLayout}>
                 <div className={styles.contentArea}>
@@ -341,7 +355,7 @@ export default function TeamPage() {
                     <div className={styles.filtersBar}>
                         <div className={styles.searchBox}>
                             <Search size={18} color="#94A3B8" />
-                            <input type="text" placeholder="Search operators..." value={search} onChange={e => setSearch(e.target.value)} />
+                            <input type="text" placeholder="Search team members..." value={search} onChange={e => setSearch(e.target.value)} />
                         </div>
                         <div className={styles.filterGroup}>
                             <select className={styles.filterSelect} value={roleFilter} onChange={e => setRoleFilter(e.target.value)}>
@@ -350,9 +364,14 @@ export default function TeamPage() {
                                 <option value="EDITOR">Editor</option>
                                 <option value="VIEWER">Viewer</option>
                             </select>
-                            <button className={styles.clearFilters} onClick={() => { setSearch(""); setRoleFilter("ALL"); }}>
+                            <motion.button 
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.97 }}
+                                className={styles.clearFilters} 
+                                onClick={() => { setSearch(""); setRoleFilter("ALL"); }}
+                            >
                                 <X size={16} /> Reset
-                            </button>
+                            </motion.button>
                         </div>
                     </div>
 
@@ -361,7 +380,7 @@ export default function TeamPage() {
                         <table className={styles.teamTable}>
                             <thead>
                                 <tr>
-                                    <th>Operator</th>
+                                    <th>Member</th>
                                     <th>Role</th>
                                     <th>Workflows</th>
                                     <th>Status</th>
@@ -370,84 +389,131 @@ export default function TeamPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredMembers.filter(m => m.role !== 'OWNER').map((member, idx) => {
-                                    const roleColors: any = {
-                                        'ADMIN': '#3B82F6',
-                                        'EDITOR': '#8B5CF6',
-                                        'VIEWER': '#10B981',
-                                        'PAUSED': '#64748B'
-                                    };
-                                    const color = roleColors[member.role] || '#64748B';
-                                    const statusColor = member.status === 'Active' ? '#10B981' : (member.status === 'Invited' ? '#F59E0B' : '#94A3B8');
+                                {filteredMembers.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={6}>
+                                            <motion.div 
+                                                initial={{ opacity: 0, scale: 0.95 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                transition={{ duration: 0.25, ease: "easeOut" }}
+                                                className={styles.emptyTable}
+                                            >
+                                                <Users size={48} color="#94A3B8" />
+                                                <p>No team members found matching your filters</p>
+                                            </motion.div>
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    <>
+                                        {filteredMembers.map((member) => {
+                                            const isOwner = member.role === 'OWNER';
+                                            const roleColors: any = {
+                                                'OWNER': '#10B981',
+                                                'ADMIN': '#3B82F6',
+                                                'EDITOR': '#8B5CF6',
+                                                'VIEWER': '#10B981',
+                                                'PAUSED': '#64748B'
+                                            };
+                                            const color = roleColors[member.role] || '#64748B';
+                                            const statusColor = member.status === 'Active' ? '#10B981' : (member.status === 'Invited' ? '#F59E0B' : '#94A3B8');
 
-                                    return (
-                                        <tr key={member.id} className={styles.memberRow}>
-                                            <td>
-                                                <div className={styles.memberCell}>
-                                                    <div className={styles.memberAvatar} style={{ background: `${color}15`, color: color }}>
-                                                        {member.name?.charAt(0)?.toUpperCase()}
+                                            return (
+                                                <tr key={member.id} className={styles.memberRow}>
+                                                    <td>
+                                                        <div className={styles.memberCell}>
+                                                            <div className={styles.memberAvatar} style={{ background: `${color}15`, color: color }}>
+                                                                {member.name?.charAt(0)?.toUpperCase()}
+                                                            </div>
+                                                            <div className={styles.memberDetails}>
+                                                                <span className={styles.memberName}>
+                                                                    {member.name} {isOwner && <span className={styles.ownerBadge} style={{ marginLeft: "8px", display: "inline-block", fontSize: "0.65rem", padding: "2px 8px" }}>OWNER</span>}
+                                                                </span>
+                                                                <span className={styles.memberEmail}>{member.email}</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        {isOwner ? (
+                                                            <span className={styles.roleButton} style={{ background: `${color}15`, color: color, cursor: 'default', display: 'inline-block' }}>
+                                                                {member.role}
+                                                            </span>
+                                                        ) : (
+                                                            <button
+                                                                className={styles.roleButton}
+                                                                style={{ background: `${color}15`, color: color }}
+                                                                onClick={() => {
+                                                                    setSelectedMember(member);
+                                                                    setShowRoleEditModal(true);
+                                                                }}
+                                                            >
+                                                                {member.role}
+                                                            </button>
+                                                        )}
+                                                    </td>
+                                                    <td>
+                                                        {isOwner ? (
+                                                            <div className={styles.workflowCount} style={{ cursor: 'default' }} title="The owner has full system access to all automated workflows.">
+                                                                All
+                                                            </div>
+                                                        ) : (
+                                                            <div
+                                                                className={styles.workflowCount}
+                                                                onClick={() => {
+                                                                    setSelectedMember(member);
+                                                                    setShowWorkflowModal(true);
+                                                                }}
+                                                            >
+                                                                {member.workflows?.length || 0}
+                                                                <ChevronRight size={12} color="#94A3B8" />
+                                                            </div>
+                                                        )}
+                                                    </td>
+                                                    <td>
+                                                        <div className={styles.statusBadge} style={{ color: statusColor, background: `${statusColor}15` }}>
+                                                            <div className={styles.statusDot} style={{ background: statusColor }} />
+                                                            {member.status}
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <span className={styles.lastActive}>{member.lastSeenFormatted}</span>
+                                                    </td>
+                                                    <td>
+                                                        {isOwner ? (
+                                                            <div style={{ width: '36px' }} />
+                                                        ) : (
+                                                            <button
+                                                                className={styles.actionBtn}
+                                                                onClick={() => {
+                                                                    setSelectedMember(member);
+                                                                    setShowRoleEditModal(true);
+                                                                }}
+                                                            >
+                                                                <MoreHorizontal size={18} />
+                                                            </button>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                        {filteredMembers.filter(m => m.role !== 'OWNER').length === 0 && search === "" && roleFilter === "ALL" && (
+                                            <tr>
+                                                <td colSpan={6}>
+                                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', padding: '40px 24px', textAlign: 'center' }}>
+                                                        <Users size={32} style={{ color: '#94A3B8' }} />
+                                                        <p style={{ fontWeight: 800, color: '#64748B', margin: 0 }}>
+                                                            You&apos;re the only team member right now. Invite teammates to collaborate.
+                                                        </p>
+                                                        <button className={styles.btnPrimary} onClick={() => setShowInviteModal(true)} type="button">
+                                                            <UserPlus size={16} /> Invite Team Member
+                                                        </button>
                                                     </div>
-                                                    <div className={styles.memberDetails}>
-                                                        <span className={styles.memberName}>{member.name}</span>
-                                                        <span className={styles.memberEmail}>{member.email}</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <button
-                                                    className={styles.roleButton}
-                                                    style={{ background: `${color}15`, color: color }}
-                                                    onClick={() => {
-                                                        setSelectedMember(member);
-                                                        setShowRoleEditModal(true);
-                                                    }}
-                                                >
-                                                    {member.role}
-                                                </button>
-                                            </td>
-                                            <td>
-                                                <div
-                                                    className={styles.workflowCount}
-                                                    onClick={() => {
-                                                        setSelectedMember(member);
-                                                        setShowWorkflowModal(true);
-                                                    }}
-                                                >
-                                                    {member.workflows?.length || 0}
-                                                    <ChevronRight size={12} color="#94A3B8" />
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div className={styles.statusBadge} style={{ color: statusColor, background: `${statusColor}15` }}>
-                                                    <div className={styles.statusDot} style={{ background: statusColor }} />
-                                                    {member.status}
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <span className={styles.lastActive}>{member.lastSeenFormatted}</span>
-                                            </td>
-                                            <td>
-                                                <button
-                                                    className={styles.actionBtn}
-                                                    onClick={() => {
-                                                        setSelectedMember(member);
-                                                        setShowRoleEditModal(true);
-                                                    }}
-                                                >
-                                                    <MoreHorizontal size={18} />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </>
+                                )}
                             </tbody>
                         </table>
-                        {filteredMembers.filter(m => m.role !== 'OWNER').length === 0 && (
-                            <div className={styles.emptyTable}>
-                                <Users size={48} color="#94A3B8" />
-                                <p>No operators found matching your filters</p>
-                            </div>
-                        )}
                     </div>
                 </div>
 
@@ -455,27 +521,54 @@ export default function TeamPage() {
                 <div className={styles.sidebar}>
                     {/* PERMISSIONS GUIDE */}
                     <div className={styles.sidebarCard}>
-                        <div className={styles.sidebarHeader}>
-                            <h3 className={styles.sidebarTitle}>Role Permissions</h3>
-                            <span className={styles.sidebarSubtitle}>Access levels by role</span>
+                        <div 
+                            className={styles.sidebarHeader} 
+                            onClick={() => setPermissionsOpen(!permissionsOpen)}
+                            style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                        >
+                            <div>
+                                <h3 className={styles.sidebarTitle}>Role Permissions</h3>
+                                <span className={styles.sidebarSubtitle}>Access levels by role</span>
+                            </div>
+                            <ChevronDown 
+                                size={18} 
+                                style={{ 
+                                    transform: permissionsOpen ? 'rotate(180deg)' : 'rotate(0deg)', 
+                                    transition: 'transform 0.2s ease', 
+                                    color: '#64748B' 
+                                }} 
+                            />
                         </div>
-                        <div className={styles.permissionList}>
-                            {[
-                                { role: 'Admin', desc: 'Full team & workflow management', color: '#3B82F6', icon: Shield },
-                                { role: 'Editor', desc: 'Create and edit workflows', color: '#8B5CF6', icon: Workflow },
-                                { role: 'Viewer', desc: 'View and run workflows only', color: '#10B981', icon: Activity }
-                            ].map(p => (
-                                <div key={p.role} className={styles.permissionItem}>
-                                    <div className={styles.roleIconBox} style={{ background: `${p.color}15`, color: p.color }}>
-                                        <p.icon size={16} />
+                        {permissionsOpen && (
+                            <div className={styles.permissionList} style={{ marginTop: '16px', animation: 'fadeIn 0.2s ease-out' }}>
+                                {[
+                                    { role: 'Owner', desc: 'Full system ownership & billing access', color: '#10B981', icon: ShieldCheck },
+                                    { role: 'Admin', desc: 'Full team & workflow management', color: '#3B82F6', icon: Shield },
+                                    { role: 'Editor', desc: 'Create and edit workflows', color: '#8B5CF6', icon: Workflow },
+                                    { role: 'Viewer', desc: 'View and run workflows only', color: '#10B981', icon: Activity }
+                                ].map(p => (
+                                    <div key={p.role} className={styles.permissionItem}>
+                                        <div className={styles.roleIconBox} style={{ background: `${p.color}15`, color: p.color }}>
+                                            <p.icon size={16} />
+                                        </div>
+                                        <div className={styles.permissionInfo}>
+                                            <span className={styles.roleTitle}>{p.role}</span>
+                                            <span className={styles.roleDesc}>{p.desc}</span>
+                                        </div>
                                     </div>
-                                    <div className={styles.permissionInfo}>
-                                        <span className={styles.roleTitle}>{p.role}</span>
-                                        <span className={styles.roleDesc}>{p.desc}</span>
-                                    </div>
+                                ))}
+                                <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #E2E8F0' }}>
+                                    <a 
+                                        href="https://docs.blonk.co/roles" 
+                                        target="_blank" 
+                                        rel="noopener noreferrer" 
+                                        style={{ color: 'var(--accent)', textDecoration: 'underline', fontSize: '0.75rem', fontWeight: 700 }}
+                                    >
+                                        Learn more about roles →
+                                    </a>
                                 </div>
-                            ))}
-                        </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* TEAM ACTIVITY */}
@@ -502,8 +595,7 @@ export default function TeamPage() {
                                         </div>
                                         <div className={styles.activityContent}>
                                             <span className={styles.activityAction}>
-                                                <span className={styles.activityUser}>{a.userName}</span>
-                                                {' '}{a.eventType.replace('_', ' ')}
+                                                {getFriendlyActivityText(a)}
                                             </span>
                                             <span className={styles.activityTime}>{formatTimeAgo(a.createdAt)}</span>
                                         </div>
@@ -524,135 +616,185 @@ export default function TeamPage() {
             </div>
 
             {/* MODALS */}
-            {showInviteModal && (
-                <ModalPortal>
-                    <div className={styles.modalOverlay} onClick={() => setShowInviteModal(false)}>
-                        <div className={styles.modal} onClick={e => e.stopPropagation()}>
-                            <div className={styles.modalHeader}>
-                                <div className={styles.modalIconWrapper}>
-                                    <UserPlus size={24} color="#10B981" />
-                                </div>
-                                <div>
-                                    <h2 className={styles.modalTitle}>Invite Operator</h2>
-                                    <p className={styles.modalSubtitle}>Add a new team member with specific access permissions</p>
-                                </div>
-                            </div>
-                            <form onSubmit={handleInvite}>
-                                {inviteError && <div className={styles.errorMessage}>{inviteError}</div>}
-                                <div className={styles.formGroup}>
-                                    <label className={styles.formLabel}>Full Name</label>
-                                    <input type="text" required className={styles.formInput} placeholder="John Doe" value={inviteName} onChange={e => setInviteName(e.target.value)} />
-                                </div>
-                                <div className={styles.formGroup}>
-                                    <label className={styles.formLabel}>Email Address</label>
-                                    <input type="email" required className={styles.formInput} placeholder="john@company.com" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} />
-                                </div>
-                                <div className={styles.formGroup}>
-                                    <label className={styles.formLabel}>Temporary Password</label>
-                                    <input type="password" required className={styles.formInput} placeholder="••••••••" value={invitePassword} onChange={e => setInvitePassword(e.target.value)} />
-                                </div>
-                                <div className={styles.formGroup}>
-                                    <label className={styles.formLabel}>Role</label>
-                                    <div className={styles.roleSelector}>
-                                        {[
-                                            { value: 'ADMIN', label: 'Admin', desc: 'Full management access', color: '#3B82F6' },
-                                            { value: 'EDITOR', label: 'Editor', desc: 'Create & edit workflows', color: '#8B5CF6' },
-                                            { value: 'VIEWER', label: 'Viewer', desc: 'View & run only', color: '#10B981' }
-                                        ].map(r => (
-                                            <button
-                                                key={r.value}
-                                                type="button"
-                                                className={styles.roleOption}
-                                                style={{ borderColor: inviteRole === r.value ? r.color : '#E2E8F0', background: inviteRole === r.value ? `${r.color}15` : '#FFFFFF' }}
-                                                onClick={() => setInviteRole(r.value)}
-                                            >
-                                                <div className={styles.roleOptionIcon} style={{ color: r.color }}>
-                                                    {inviteRole === r.value && <Check size={18} />}
-                                                </div>
-                                                <div>
-                                                    <span className={styles.roleOptionLabel}>{r.label}</span>
-                                                    <span className={styles.roleOptionDesc}>{r.desc}</span>
-                                                </div>
-                                            </button>
-                                        ))}
+            <AnimatePresence>
+                {showInviteModal && (
+                    <ModalPortal>
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.15 }}
+                            className={styles.modalOverlay} 
+                            onClick={() => setShowInviteModal(false)}
+                        >
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.96 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.96 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                className={styles.modal} 
+                                onClick={e => e.stopPropagation()}
+                            >
+                                <div className={styles.modalHeader}>
+                                    <div className={styles.modalIconWrapper}>
+                                        <UserPlus size={24} color="#10B981" />
+                                    </div>
+                                    <div>
+                                        <h2 className={styles.modalTitle}>Invite Team Member</h2>
+                                        <p className={styles.modalSubtitle}>Add a new team member with specific access permissions</p>
                                     </div>
                                 </div>
-                                <div className={styles.modalActions}>
-                                    <button type="button" className={styles.btnCancel} onClick={() => setShowInviteModal(false)}>Cancel</button>
-                                    <button type="submit" className={styles.btnPrimary} disabled={inviteLoading}>{inviteLoading ? 'Inviting...' : 'Send Invite'}</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </ModalPortal>
-            )}
+                                <form onSubmit={handleInvite}>
+                                    {inviteError && <div className={styles.errorMessage}>{inviteError}</div>}
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.formLabel}>Full Name</label>
+                                        <input type="text" required className={styles.formInput} placeholder="John Doe" value={inviteName} onChange={e => setInviteName(e.target.value)} />
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.formLabel}>Email Address</label>
+                                        <input type="email" required className={styles.formInput} placeholder="john@company.com" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} />
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.formLabel}>Temporary Password</label>
+                                        <input type="password" required className={styles.formInput} placeholder="••••••••" value={invitePassword} onChange={e => setInvitePassword(e.target.value)} />
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.formLabel}>Role</label>
+                                        <div className={styles.roleSelector}>
+                                            {[
+                                                { value: 'ADMIN', label: 'Admin', desc: 'Full management access', color: '#3B82F6' },
+                                                { value: 'EDITOR', label: 'Editor', desc: 'Create & edit workflows', color: '#8B5CF6' },
+                                                { value: 'VIEWER', label: 'Viewer', desc: 'View & run only', color: '#10B981' }
+                                            ].map(r => (
+                                                <button
+                                                    key={r.value}
+                                                    type="button"
+                                                    className={styles.roleOption}
+                                                    style={{ borderColor: inviteRole === r.value ? r.color : '#E2E8F0', background: inviteRole === r.value ? `${r.color}15` : '#FFFFFF' }}
+                                                    onClick={() => setInviteRole(r.value)}
+                                                >
+                                                    <div className={styles.roleOptionIcon} style={{ color: r.color }}>
+                                                        {inviteRole === r.value && <Check size={18} />}
+                                                    </div>
+                                                    <div>
+                                                        <span className={styles.roleOptionLabel}>{r.label}</span>
+                                                        <span className={styles.roleOptionDesc}>{r.desc}</span>
+                                                    </div>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className={styles.modalActions}>
+                                        <button type="button" className={styles.btnCancel} onClick={() => setShowInviteModal(false)}>Cancel</button>
+                                        <button type="submit" className={styles.btnPrimary} disabled={inviteLoading}>{inviteLoading ? 'Inviting...' : 'Send Invite'}</button>
+                                    </div>
+                                </form>
+                            </motion.div>
+                        </motion.div>
+                    </ModalPortal>
+                )}
+            </AnimatePresence>
 
             {/* ROLE EDIT MODAL */}
-            {showRoleEditModal && (
-                <ModalPortal>
-                    <div className={styles.modalOverlay} onClick={() => setShowRoleEditModal(false)}>
-                        <div className={styles.modal} style={{ maxWidth: '480px' }} onClick={e => e.stopPropagation()}>
-                            <div className={styles.modalHeader}>
-                                <div className={styles.modalIconWrapper} style={{ background: '#EFF6FF' }}>
-                                    <Shield size={24} color="#3B82F6" />
+            <AnimatePresence>
+                {showRoleEditModal && (
+                    <ModalPortal>
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.15 }}
+                            className={styles.modalOverlay} 
+                            onClick={() => setShowRoleEditModal(false)}
+                        >
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.96 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.96 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                className={styles.modal} 
+                                style={{ maxWidth: '480px' }} 
+                                onClick={e => e.stopPropagation()}
+                            >
+                                <div className={styles.modalHeader}>
+                                    <div className={styles.modalIconWrapper} style={{ background: '#EFF6FF' }}>
+                                        <Shield size={24} color="#3B82F6" />
+                                    </div>
+                                    <div>
+                                        <h2 className={styles.modalTitle}>Update Role</h2>
+                                        <p className={styles.modalSubtitle}>Adjust permissions for {selectedMember?.name}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h2 className={styles.modalTitle}>Update Role</h2>
-                                    <p className={styles.modalSubtitle}>Adjust permissions for {selectedMember?.name}</p>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    {[
+                                        { value: 'ADMIN', label: 'Admin', desc: 'Full management access', color: '#3B82F6' },
+                                        { value: 'EDITOR', label: 'Editor', desc: 'Create & edit workflows', color: '#8B5CF6' },
+                                        { value: 'VIEWER', label: 'Viewer', desc: 'View & run only', color: '#10B981' },
+                                        { value: 'PAUSED', label: 'Paused', desc: 'No access', color: '#64748B' }
+                                    ].map(r => (
+                                        <button
+                                            key={r.value}
+                                            onClick={() => handleUpdateMember(selectedMember.id, { role: r.value })}
+                                            className={styles.roleOption}
+                                            style={{ borderColor: selectedMember.role === r.value ? r.color : '#E2E8F0', background: selectedMember.role === r.value ? `${r.color}15` : '#FFFFFF' }}
+                                        >
+                                            <div className={styles.roleOptionIcon} style={{ color: r.color }}>
+                                                {selectedMember.role === r.value && <Check size={18} />}
+                                            </div>
+                                            <div>
+                                                <span className={styles.roleOptionLabel}>{r.label}</span>
+                                                <span className={styles.roleOptionDesc}>{r.desc}</span>
+                                            </div>
+                                        </button>
+                                    ))}
                                 </div>
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                {[
-                                    { value: 'ADMIN', label: 'Admin', desc: 'Full management access', color: '#3B82F6' },
-                                    { value: 'EDITOR', label: 'Editor', desc: 'Create & edit workflows', color: '#8B5CF6' },
-                                    { value: 'VIEWER', label: 'Viewer', desc: 'View & run only', color: '#10B981' },
-                                    { value: 'PAUSED', label: 'Paused', desc: 'No access', color: '#64748B' }
-                                ].map(r => (
-                                    <button
-                                        key={r.value}
-                                        onClick={() => handleUpdateMember(selectedMember.id, { role: r.value })}
-                                        className={styles.roleOption}
-                                        style={{ borderColor: selectedMember.role === r.value ? r.color : '#E2E8F0', background: selectedMember.role === r.value ? `${r.color}15` : '#FFFFFF' }}
-                                    >
-                                        <div className={styles.roleOptionIcon} style={{ color: r.color }}>
-                                            {selectedMember.role === r.value && <Check size={18} />}
-                                        </div>
-                                        <div>
-                                            <span className={styles.roleOptionLabel}>{r.label}</span>
-                                            <span className={styles.roleOptionDesc}>{r.desc}</span>
-                                        </div>
-                                    </button>
-                                ))}
-                            </div>
-                            <div className={styles.modalActions}>
-                                <button className={styles.btnCancel} onClick={() => setShowRoleEditModal(false)}>Cancel</button>
-                                <button className={styles.btnDanger} onClick={() => setShowDecommissionModal(true)}>Decommission</button>
-                            </div>
-                        </div>
-                    </div>
-                </ModalPortal>
-            )}
+                                <div className={styles.modalActions}>
+                                    <button className={styles.btnCancel} onClick={() => setShowRoleEditModal(false)}>Cancel</button>
+                                    <button className={styles.btnDanger} onClick={() => setShowDecommissionModal(true)}>Decommission</button>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    </ModalPortal>
+                )}
+            </AnimatePresence>
 
             {/* DECOMMISSION MODAL */}
-            {showDecommissionModal && (
-                <ModalPortal>
-                    <div className={styles.modalOverlay} onClick={() => setShowDecommissionModal(false)}>
-                        <div className={styles.modal} style={{ maxWidth: '440px', textAlign: 'center' }} onClick={e => e.stopPropagation()}>
-                            <div className={styles.dangerIconWrapper}>
-                                <Trash2 size={32} color="#EF4444" />
-                            </div>
-                            <h2 className={styles.modalTitle} style={{ textAlign: 'center' }}>Decommission Operator?</h2>
-                            <p className={styles.modalSubtitle} style={{ textAlign: 'center' }}>
-                                Are you certain you wish to decommission <strong>{selectedMember?.name}</strong>? This action will immediately terminate all access and cannot be undone.
-                            </p>
-                            <div className={styles.modalActions}>
-                                <button className={styles.btnCancel} onClick={() => setShowDecommissionModal(false)}>Cancel</button>
-                                <button className={styles.btnDanger} onClick={handleRemoveMember}>Confirm Decommission</button>
-                            </div>
-                        </div>
-                    </div>
-                </ModalPortal>
-            )}
+            <AnimatePresence>
+                {showDecommissionModal && (
+                    <ModalPortal>
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.15 }}
+                            className={styles.modalOverlay} 
+                            onClick={() => setShowDecommissionModal(false)}
+                        >
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.96 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.96 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                className={styles.modal} 
+                                style={{ maxWidth: '440px', textAlign: 'center' }} 
+                                onClick={e => e.stopPropagation()}
+                            >
+                                <div className={styles.dangerIconWrapper}>
+                                    <Trash2 size={32} color="#EF4444" />
+                                </div>
+                                <h2 className={styles.modalTitle} style={{ textAlign: 'center' }}>Remove Team Member?</h2>
+                                <p className={styles.modalSubtitle} style={{ textAlign: 'center' }}>
+                                    Are you certain you wish to remove <strong>{selectedMember?.name}</strong>? This action will immediately terminate all access and cannot be undone.
+                                </p>
+                                <div className={styles.modalActions}>
+                                    <button className={styles.btnCancel} onClick={() => setShowDecommissionModal(false)}>Cancel</button>
+                                    <button className={styles.btnDanger} onClick={handleRemoveMember}>Confirm Remove</button>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    </ModalPortal>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

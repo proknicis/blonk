@@ -13,7 +13,18 @@ export type AuditEventType =
     | 'admin_change' 
     | 'admin_mail' 
     | 'password_reset' 
-    | 'failed_login';
+    | 'failed_login'
+    | 'setup_submitted'
+    | 'setup_completed'
+    | 'ai_analysis_completed'
+    | 'blueprint_matched'
+    | 'credential_connected'
+    | 'activation_step_completed'
+    | 'provisioning_started'
+    | 'provisioning_succeeded'
+    | 'provisioning_failed'
+    | 'dashboard_revisited'
+    | 'server_reassigned';
 
 export async function logAudit(userId: string, eventType: AuditEventType, target: string, metadata: any = {}) {
     try {

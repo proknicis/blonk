@@ -57,7 +57,7 @@ export function FleetManager() {
 
             {showAddModal && (
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(12px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-                    <div style={{ background: '#FFFFFF', border: '1px solid #F3F4F6', borderRadius: '40px', width: '100%', maxWidth: '520px', padding: '48px', boxShadow: '0 20px 50px rgba(0,0,0,0.1)', animation: 'fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+                    <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '40px', width: '100%', maxWidth: '520px', padding: '48px', boxShadow: '0 20px 50px rgba(0,0,0,0.1)', animation: 'fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                                 <div style={{ width: '56px', height: '56px', background: '#F0FDF4', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10B981' }}>
@@ -82,7 +82,7 @@ export function FleetManager() {
                                         placeholder="e.g. n8n-eu-01"
                                         value={formData.name}
                                         onChange={e => setFormData({...formData, name: e.target.value})}
-                                        style={{ width: '100%', padding: '16px 20px 16px 56px', background: '#F9FAFB', border: '1px solid #F3F4F6', borderRadius: '18px', color: '#111827', fontSize: '1rem', fontWeight: 800, outline: 'none' }}
+                                        style={{ width: '100%', padding: '16px 20px 16px 56px', background: '#F9FAFB', border: '1px solid var(--border)', borderRadius: '18px', color: '#111827', fontSize: '1rem', fontWeight: 800, outline: 'none' }}
                                     />
                                 </div>
                             </div>
@@ -97,7 +97,7 @@ export function FleetManager() {
                                         placeholder="https://n8n.your-instance.com"
                                         value={formData.url}
                                         onChange={e => setFormData({...formData, url: e.target.value})}
-                                        style={{ width: '100%', padding: '16px 20px 16px 56px', background: '#F9FAFB', border: '1px solid #F3F4F6', borderRadius: '18px', color: '#111827', fontSize: '1rem', fontWeight: 800, outline: 'none' }}
+                                        style={{ width: '100%', padding: '16px 20px 16px 56px', background: '#F9FAFB', border: '1px solid var(--border)', borderRadius: '18px', color: '#111827', fontSize: '1rem', fontWeight: 800, outline: 'none' }}
                                     />
                                 </div>
                             </div>
@@ -112,7 +112,7 @@ export function FleetManager() {
                                         placeholder="Paste n8n API key..."
                                         value={formData.api_key}
                                         onChange={e => setFormData({...formData, api_key: e.target.value})}
-                                        style={{ width: '100%', padding: '16px 20px 16px 56px', background: '#F9FAFB', border: '1px solid #F3F4F6', borderRadius: '18px', color: '#111827', fontSize: '1rem', fontWeight: 800, outline: 'none' }}
+                                        style={{ width: '100%', padding: '16px 20px 16px 56px', background: '#F9FAFB', border: '1px solid var(--border)', borderRadius: '18px', color: '#111827', fontSize: '1rem', fontWeight: 800, outline: 'none' }}
                                     />
                                 </div>
                             </div>
@@ -127,7 +127,7 @@ export function FleetManager() {
                                         placeholder="100"
                                         value={formData.max_workflows}
                                         onChange={e => setFormData({...formData, max_workflows: parseInt(e.target.value)})}
-                                        style={{ width: '100%', padding: '16px 20px 16px 56px', background: '#F9FAFB', border: '1px solid #F3F4F6', borderRadius: '18px', color: '#111827', fontSize: '1rem', fontWeight: 800, outline: 'none' }}
+                                        style={{ width: '100%', padding: '16px 20px 16px 56px', background: '#F9FAFB', border: '1px solid var(--border)', borderRadius: '18px', color: '#111827', fontSize: '1rem', fontWeight: 800, outline: 'none' }}
                                     />
                                 </div>
                             </div>
@@ -135,7 +135,7 @@ export function FleetManager() {
                             <button 
                                 type="submit" 
                                 disabled={loading}
-                                style={{ width: '100%', padding: '20px', background: '#0F172A', color: '#FFFFFF', border: 'none', borderRadius: '20px', fontWeight: 950, fontSize: '1.1rem', cursor: loading ? 'not-allowed' : 'pointer', marginTop: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', transition: 'all 0.3s ease' }}
+                                style={{ width: '100%', padding: '20px', background: 'var(--primary)', color: '#FFFFFF', border: 'none', borderRadius: '20px', fontWeight: 950, fontSize: '1.1rem', cursor: loading ? 'not-allowed' : 'pointer', marginTop: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', transition: 'all 0.3s ease' }}
                             >
                                 {loading && <Activity size={20} className={adminStyles.spinning} />}
                                 {loading ? 'Validating Instance...' : 'Add n8n Instance'}

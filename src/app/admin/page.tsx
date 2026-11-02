@@ -1,865 +1,449 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { 
-    Plus, 
-    Search, 
-    Zap, 
-    Trash2, 
-    Edit3, 
-    Activity, 
-    ShieldCheck,
-    RefreshCcw,
-    Layers,
-    ArrowUpRight,
-    Eye,
-    ShoppingCart,
-    BarChart3,
-    X,
-    Clock,
-    Database,
-    ChevronDown,
-    ArrowUp,
-    ArrowDown,
-    Server,
-    Cpu,
-    Play,
-    Pause,
-    RotateCcw,
-    Terminal,
-    Filter,
-    Settings,
-    MoreHorizontal,
-    Network,
-    Lock,
-    Globe,
-    AlertCircle,
-    Download
-} from "lucide-react";
+import { motion, useMotionValue, useTransform, animate } from "motion/react";
 
-import { Skeleton } from "../components/Skeleton";
+function Counter({ value }: { value: number }) {
+    const count = useMotionValue(0);
+    const rounded = useTransform(count, Math.round);
+
+    useEffect(() => {
+        const animation = animate(count, value, { duration: 0.8, ease: "easeOut" });
+        return animation.stop;
+    }, [value, count]);
+
+    return <motion.span>{rounded}</motion.span>;
+}
+import { 
+    Layers, Shield, Activity, Clock, AlertTriangle, 
+    ArrowUpRight, AlertCircle, CheckCircle, Info, ChevronRight, UserCheck
+} from "lucide-react";
 import adminStyles from "./admin.module.css";
 
-const MOCK_SYSTEM_INFO = {
-    cluster: "GLOBAL_ALPHA",
-    version: "v2.4.1",
-    env: "Production",
-    region: "Frankfurt, EU",
-    uptime: "7d 14h 22m"
-};
-
-const MOCK_ALERTS = [
-    { type: "high", message: "Node Primary_Sentinel CPU threshold exceeded", time: "1 min ago" },
-    { type: "medium", message: "Node AWS_Europe delayed synchronization", time: "15 mins ago" },
-    { type: "low", message: "Daily backup verification pending", time: "1 hour ago" }
-];
-
-export default function FleetProvisioningPage() {
+export default function OverviewPage() {
     const router = useRouter();
-    const [workflows, setWorkflows] = useState<any[]>([]);
-    const [nodes, setNodes] = useState<any[]>([]);
+    const [workspaces, setWorkspaces] = useState<any[]>([]);
+    const [approvals, setApprovals] = useState<any[]>([]);
+    const [auditEvents, setAuditEvents] = useState<any[]>([]);
+    const [telemetryLogs, setTelemetryLogs] = useState<any[]>([]);
+    const [servers, setServers] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [isNodesLoading, setIsNodesLoading] = useState(true);
-    const [filter, setFilter] = useState("All");
-    const [searchTerm, setSearchTerm] = useState("");
-    const [isProvisioning, setIsProvisioning] = useState(false);
-    const [provisionData, setProvisionData] = useState({ name: "", url: "", apiKey: "", maxWorkflows: 100 });
-    const [isProvisioningLoading, setIsProvisioningLoading] = useState(false);
-    
-    // ACTION MODALS STATE
-    const [selectedNode, setSelectedNode] = useState<any>(null);
-    const [showTerminal, setShowTerminal] = useState(false);
-    const [showConfig, setShowConfig] = useState(false);
-    const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
-    const [isTerminalLoading, setIsTerminalLoading] = useState(false);
 
-    // EDIT CONFIG STATE
-    const [editData, setEditData] = useState({ name: "", url: "", apiKey: "", maxWorkflows: 100 });
-    const [isUpdating, setIsUpdating] = useState(false);
-
-    // Fetch Workflows
-    const fetchWorkflows = async () => {
+    const fetchData = async () => {
+        setIsLoading(true);
         try {
-            const res = await fetch('/api/admin/workflows');
-            if (res.ok) {
-                const data = await res.json();
-                setWorkflows(data);
-            }
-        } catch (e) {
-            console.error(e);
-        }
-    };
+            const usersRes = await fetch("/api/admin/users");
+            const workspacesData = usersRes.ok ? await usersRes.json() : [];
+            const filteredWorkspaces = workspacesData.filter((w: any) => w.role !== "SuperAdmin");
+            setWorkspaces(filteredWorkspaces);
 
-    // Fetch Nodes
-    const fetchNodes = async (probe = false) => {
-        setIsNodesLoading(true);
-        try {
-            const res = await fetch(`/api/admin/nodes${probe ? '?probe=true' : ''}`);
-            if (res.ok) {
-                const data = await res.json();
-                setNodes(data);
-            }
+            const approvalsRes = await fetch("/api/admin/approvals");
+            const approvalsData = approvalsRes.ok ? await approvalsRes.json() : [];
+            setApprovals(approvalsData);
+
+            const eventsRes = await fetch("/api/admin/events");
+            const eventsData = eventsRes.ok ? await eventsRes.json() : [];
+            setAuditEvents(eventsData);
+
+            const logsRes = await fetch("/api/admin/logs");
+            const logsData = logsRes.ok ? await logsRes.json() : [];
+            setTelemetryLogs(logsData);
+
+            const nodesRes = await fetch("/api/admin/nodes");
+            const nodesData = nodesRes.ok ? await nodesRes.json() : [];
+            setServers(nodesData);
         } catch (e) {
-            console.error(e);
+            console.error("Failed to fetch dashboard data:", e);
         } finally {
-            setIsNodesLoading(false);
             setIsLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchWorkflows();
-        fetchNodes(true); // Probe on initial dashboard load for real-time telemetry stats
+        fetchData();
     }, []);
 
-    const provisionClient = async () => {
-        setIsProvisioningLoading(true);
-        try {
-            const res = await fetch('/api/admin/nodes', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: provisionData.name,
-                    url: provisionData.url,
-                    api_key: provisionData.apiKey,
-                    max_workflows: provisionData.maxWorkflows
-                })
-            });
-
-            if (res.ok) {
-                setIsProvisioning(false);
-                (window as any).showToast(`Sovereign Node Cluster for ${provisionData.name} successfully registered.`, "success");
-                setProvisionData({ name: "", url: "", apiKey: "", maxWorkflows: 100 });
-                fetchNodes(true);
-            } else {
-                const err = await res.json();
-                (window as any).showToast(`Provisioning failed: ${err.error || 'Server error'}`, "error");
-            }
-        } catch (error) { 
-            console.error(error); 
-            (window as any).showToast("Network error provisioning sovereign node.", "error");
-        } finally { 
-            setIsProvisioningLoading(false); 
-        }
+    // Relative time utility helper
+    const getRelativeTimeString = (dateString: string) => {
+        if (!dateString) return "recently";
+        const now = new Date();
+        const then = new Date(dateString);
+        const diffMs = now.getTime() - then.getTime();
+        if (isNaN(diffMs)) return "recently";
+        const diffMins = Math.floor(diffMs / 60000);
+        if (diffMins < 1) return "just now";
+        if (diffMins < 60) return `${diffMins}m ago`;
+        const diffHours = Math.floor(diffMins / 60);
+        if (diffHours < 24) return `${diffHours}h ago`;
+        const diffDays = Math.floor(diffHours / 24);
+        return `${diffDays}d ago`;
     };
 
-    const decommissionNode = async (id: string, name: string) => {
-        if (!confirm(`Permanently decommission and delete node cluster "${name}"?`)) return;
-        try {
-            const res = await fetch(`/api/admin/nodes/${id}`, { method: 'DELETE' });
-            if (res.ok) {
-                (window as any).showToast(`Successfully decommissioned node "${name}".`, "success");
-                fetchNodes(true);
-            } else {
-                (window as any).showToast("Failed to decommission node.", "error");
-            }
-        } catch (error) { 
-            console.error(error); 
-            (window as any).showToast("Error decommissioning node.", "error");
-        }
+    // Friendly status mapper
+    const getFriendlyStatus = (state: string) => {
+        const s = String(state || "").toUpperCase();
+        if (s === 'ACTIVATED' || s === 'READY' || s === 'ACTIVE') return "Active";
+        if (s === 'CONNECTIONS_IN_PROGRESS' || s === 'AWAITING_CREDENTIALS' || s === 'NEEDS_CREDENTIALS') return "Needs a Connection";
+        return "Not Started";
     };
 
-    // ACTION HANDLERS
-    const openTerminal = (node: any) => {
-        setSelectedNode(node);
-        setShowTerminal(true);
-        setIsTerminalLoading(true);
-        setTerminalLogs([
-            `[${new Date().toLocaleTimeString()}] INITIATING SECURE HANDSHAKE...`,
-            `[${new Date().toLocaleTimeString()}] TARGET: ${node.url}`,
-            `[${new Date().toLocaleTimeString()}] AUTHENTICATING CLUSTER KEY...`
-        ]);
+    // Dynamic KPIs calculations
+    const totalWorkspaces = workspaces.length;
+    const inActivation = workspaces.filter(w => 
+        w.activationStatus === 'DEPLOYING' || w.activationStatus === 'READY_FOR_DEPLOY'
+    ).length;
+    const awaitingCredentials = workspaces.filter(w => 
+        w.activationStatus === 'CONNECTIONS_IN_PROGRESS'
+    ).length;
+    const pendingApprovals = approvals.filter(a => a.status === 'PENDING').length;
+    const failedRunsCount = telemetryLogs.filter(l => 
+        l.status?.toLowerCase() === 'error' || l.status?.toLowerCase() === 'failed'
+    ).length;
 
-        // Simulate log stream
-        setTimeout(() => {
-            setTerminalLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] CONNECTION ESTABLISHED.`]);
-            setTerminalLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] FETCHING TELEMETRY STACK...`]);
-            setIsTerminalLoading(false);
-        }, 1500);
-
-        setTimeout(() => {
-            setTerminalLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] NODE STATUS: ${node.status.toUpperCase()}`]);
-            setTerminalLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] CPU LOAD: ${node.cpu}% | RAM USAGE: ${node.ram}%`]);
-            setTerminalLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ACTIVE WORKFLOWS: ${node.workflow_count || 0}`]);
-        }, 2500);
-    };
-
-    const openConfig = (node: any) => {
-        setSelectedNode(node);
-        setEditData({
-            name: node.name,
-            url: node.url,
-            apiKey: node.api_key || "",
-            maxWorkflows: node.max_workflows || 100
+    // Create action queue
+    const actionItems: { title: string; desc: string; type: "approval" | "failed_run" | "workspace" | "server"; href: string }[] = [];
+    
+    // 1. Offline servers
+    servers.filter(s => s.status !== 'Active').forEach(node => {
+        actionItems.push({
+            title: `Infrastructure Alarm: Server ${node.name} is OFFLINE`,
+            desc: `Node API at ${node.url} is unreachable. Check hosting settings.`,
+            type: "server",
+            href: `/admin/servers/${node.id}`
         });
-        setShowConfig(true);
-    };
+    });
 
-    const updateNodeConfig = async () => {
-        if (!selectedNode) return;
-        setIsUpdating(true);
-        try {
-            const res = await fetch('/api/admin/nodes', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    id: selectedNode.id,
-                    name: editData.name,
-                    url: editData.url,
-                    api_key: editData.apiKey,
-                    max_workflows: editData.maxWorkflows
-                })
-            });
+    // 2. Approvals requiring attention
+    approvals.filter(a => a.status === 'PENDING').forEach(app => {
+        actionItems.push({
+            title: `Approval Gate Triggered: ${app.policyName || 'invoice_limit_override'}`,
+            desc: `High-risk event awaiting authorization requested by ${app.requestedBy || 'Autonomous Engine'}.`,
+            type: "approval",
+            href: "/admin/approvals"
+        });
+    });
 
-            if (res.ok) {
-                (window as any).showToast("Node configuration updated successfully.", "success");
-                setShowConfig(false);
-                fetchNodes(true);
-            } else {
-                const err = await res.json();
-                (window as any).showToast(`Update failed: ${err.error}`, "error");
-            }
-        } catch (error) {
-            console.error(error);
-            (window as any).showToast("Network error updating node.", "error");
-        } finally {
-            setIsUpdating(false);
+    // 3. Group and Deduplicate Failed Runs
+    const failedRuns = telemetryLogs.filter(l => l.status?.toLowerCase() === 'error' || l.status?.toLowerCase() === 'failed');
+    const groupedFailures: Record<string, { log: any; count: number }> = {};
+    failedRuns.forEach(log => {
+        const key = `${log.workflowName}-${log.teamId}`;
+        if (!groupedFailures[key]) {
+            groupedFailures[key] = { log, count: 0 };
         }
-    };
+        groupedFailures[key].count += 1;
+        if (new Date(log.executedAt) > new Date(groupedFailures[key].log.executedAt)) {
+            groupedFailures[key].log = log;
+        }
+    });
 
-    // Calculate real dynamic provisioning metrics
-    const totalNodesCount = nodes.length;
-    const activeNodesCount = nodes.filter(n => n.status === 'Active').length;
-    const systemHealthPct = totalNodesCount > 0 ? Math.round((activeNodesCount / totalNodesCount) * 100) : 100;
-    
-    const totalCpu = nodes.reduce((sum, n) => sum + (n.cpu || 0), 0);
-    const avgResourceLoad = totalNodesCount > 0 ? Math.round(totalCpu / totalNodesCount) : 0;
-    
-    // Sum tasksCount from real database workflows
-    const totalOpVelocity = workflows.reduce((sum, w) => sum + (w.tasksCount || 0), 0);
-    
-    // Proportional data throughput estimate
-    const dynamicThroughput = (workflows.length * 0.4 + 0.4).toFixed(1);
-    
-    // Dynamic error rate based on offline or error nodes
-    const errorRate = nodes.some(n => n.status === 'Unreachable' || n.status === 'Timeout') ? '4.8%' : '0.0%';
-
-    const derivedAlerts = [
-        ...nodes
-            .filter(n => n.status === 'Unreachable' || n.status === 'Timeout')
-            .map(n => ({ type: 'high', message: `Node '${n.name}' connection timed out or offline`, time: '1 min ago' })),
-        ...nodes
-            .filter(n => n.status === 'Active' && (n.cpu > 80 || n.ram > 80))
-            .map(n => ({ type: 'medium', message: `Node '${n.name}' resource threshold exceeded`, time: '1 min ago' }))
-    ];
-    if (derivedAlerts.length === 0) {
-        derivedAlerts.push({ type: 'low', message: "Global cluster synchronization nominal", time: "Just Now" });
-        derivedAlerts.push({ type: 'low', message: "Sovereign n8n engines operational", time: "Just Now" });
-    }
-
-    // Filtering nodes
-    const filteredNodes = nodes.filter(node => {
-        const matchesSearch = node.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                              node.url.toLowerCase().includes(searchTerm.toLowerCase());
+    Object.values(groupedFailures).slice(0, 5).forEach(({ log, count }) => {
+        const affectedCustomer = workspaces.find(w => w.teamId === log.teamId);
+        const customerName = affectedCustomer?.firmName || "Unknown Customer";
+        const relativeTime = getRelativeTimeString(log.executedAt);
         
-        if (filter === "All") return matchesSearch;
-        if (filter === "Ready") return matchesSearch && node.status === 'Active';
-        if (filter === "Errors") return matchesSearch && (node.status === 'Unreachable' || node.status === 'Timeout');
-        if (filter === "Provisioned") return matchesSearch && node.status === 'Active';
-        if (filter === "Syncing") return matchesSearch && node.status === 'Pending';
-        return matchesSearch;
+        actionItems.push({
+            title: `${log.workflowName} failed (occurred ${count} times)`,
+            desc: `Customer: ${customerName} | ${relativeTime}`,
+            type: "failed_run",
+            href: affectedCustomer ? `/admin/workspaces/${affectedCustomer.id}` : "/admin/telemetry?filter=error"
+        });
+    });
+
+    // 4. Workspaces suspended or needing intervention
+    workspaces.filter(w => w.status === 'Suspended').forEach(ws => {
+        actionItems.push({
+            title: `Intervention Required: ${ws.firmName || 'Sovereign Workspace'}`,
+            desc: `Operations suspended. Action required on credential mappings.`,
+            type: "workspace",
+            href: `/admin/workspaces/${ws.id}`
+        });
     });
 
     return (
-        <div style={{ animation: "fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1)", display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', animation: 'fadeIn 0.5s ease-out' }}>
             
-            {/* SUB-HEADER SECTION */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '-12px' }}>
-                <div>
-                    <h1 style={{ fontSize: '1.75rem', fontWeight: 950, margin: 0, textTransform: 'uppercase', letterSpacing: '-0.02em', color: '#0F172A' }}>Fleet Provisioning</h1>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-                        <div style={{ width: '64px', height: '1px', background: '#E2E8F0', marginRight: '4px' }} />
-                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10B981' }} />
-                        <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', color: '#64748B', letterSpacing: '0.05em' }}>Node Cluster: Global_Alpha</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* OPERATIONS MASTER BANNER */}
-            <div style={{ background: '#0F172A', color: '#FFFFFF', border: 'none', padding: '40px 48px', borderRadius: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 20px 40px rgba(15, 23, 42, 0.08)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                    <div style={{ position: 'relative' }}>
-                        <div style={{ width: '64px', height: '64px', background: 'rgba(255,255,255,0.08)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <Globe size={32} color="#10B981" className={adminStyles.spinning} />
-                        </div>
-                        <div style={{ position: 'absolute', bottom: '-2px', right: '-2px', width: '16px', height: '16px', background: '#10B981', borderRadius: '50%', border: '3px solid #0F172A' }} />
-                    </div>
-                    <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
-                            <span style={{ padding: '3px 8px', background: 'rgba(16, 185, 129, 0.15)', color: '#10B981', borderRadius: '6px', fontSize: '0.6rem', fontWeight: 950, letterSpacing: '0.1em' }}>SOVEREIGN OPERATIONS</span>
-                            <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.2em', color: '#94A3B8' }}>FLEET TELEMETRY & PROVISIONING</span>
-                        </div>
-                        <h2 style={{ color: '#FFFFFF', fontSize: '2rem', fontWeight: 950, letterSpacing: '-0.04em', margin: 0 }}>Sovereign Operations</h2>
-                        <p style={{ color: '#94A3B8', fontSize: '0.95rem', fontWeight: 700, margin: '6px 0 0' }}>Real-time telemetry and granular fleet orchestration across global clusters.</p>
-                    </div>
-                </div>
-                <div>
-                    <button 
-                        onClick={() => setIsProvisioning(true)}
-                        style={{ background: '#10B981', color: '#0F172A', height: '56px', padding: '0 28px', borderRadius: '16px', border: 'none', fontWeight: 950, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 10px 20px rgba(16, 185, 129, 0.2)' }}
-                    >
-                        <Plus size={18} /> Provision New Cluster
-                    </button>
-                </div>
-            </div>
-
-            {/* SIX METRICS CARDS */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '20px' }}>
+            {/* KPI MATRIX */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
                 {[
-                    { label: 'ACTIVE NODES', value: activeNodesCount, detail: `Online / ${totalNodesCount} Total` },
-                    { label: 'SYSTEM HEALTH', value: `${systemHealthPct}%`, detail: systemHealthPct < 100 ? 'Needs Attention' : 'Optimal Capacity', error: systemHealthPct < 100 },
-                    { label: 'RESOURCE LOAD', value: `${avgResourceLoad}%`, detail: 'Average CPU Load' },
-                    { label: 'OP VELOCITY (24H)', value: totalOpVelocity, detail: 'Operations Executed' },
-                    { label: 'DATA THROUGHPUT', value: `${dynamicThroughput} TB`, detail: '+12% vs Yesterday' },
-                    { label: 'ERROR RATE (24H)', value: errorRate, detail: '-8% vs Yesterday' }
-                ].map((m, i) => (
-                    <div key={i} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '24px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '140px' }}>
-                        <div>
-                            <span style={{ fontSize: '0.65rem', fontWeight: 950, color: '#64748B', letterSpacing: '0.05em' }}>{m.label}</span>
-                            <div style={{ fontSize: '1.85rem', fontWeight: 950, color: m.error ? '#EF4444' : '#0F172A', marginTop: '8px', letterSpacing: '-0.02em' }}>{m.value}</div>
-                        </div>
-                        <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700, marginTop: '12px' }}>{m.detail}</div>
-                    </div>
-                ))}
+                    { label: 'Active Customers', value: totalWorkspaces, desc: 'Registered customers', icon: Layers, color: 'var(--accent)', href: '/admin/workspaces?filter=all' },
+                    { label: 'In Activation', value: inActivation, desc: 'Customers being set up', icon: Clock, color: '#F59E0B', href: '/admin/workspaces?filter=provisioning' },
+                    { label: 'Awaiting Credentials', value: awaitingCredentials, desc: 'Waiting on customer to connect an app', icon: ChevronRight, color: '#3B82F6', href: '/admin/workspaces?filter=awaiting credentials' },
+                    { label: 'Pending Approvals', value: pendingApprovals, desc: 'Manual reviews pending', icon: Shield, color: '#EF4444', href: '/admin/approvals' },
+                    { label: 'Failed Runs', value: failedRunsCount, desc: 'Automation run failed', icon: AlertTriangle, color: '#EF4444', href: '/admin/telemetry?filter=error' }
+                ].map((kpi, idx) => {
+                    const Icon = kpi.icon;
+                    const hasWarning = kpi.value > 0 && (kpi.color === '#EF4444' || kpi.color === '#F59E0B');
+                    return (
+                        <motion.div 
+                            key={idx} 
+                            onClick={() => router.push(kpi.href)}
+                            className={adminStyles.adminMetricCard} 
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            style={{ 
+                                padding: '24px', 
+                                minHeight: '120px', 
+                                display: 'flex', 
+                                flexDirection: 'column', 
+                                justifyContent: 'space-between',
+                                cursor: 'pointer',
+                                transition: 'border-color 0.2s',
+                                border: hasWarning ? `1.5px solid ${kpi.color}` : '1px solid var(--border)',
+                                background: hasWarning ? `${kpi.color}08` : 'var(--card)'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.borderColor = 'var(--accent)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.borderColor = hasWarning ? kpi.color : 'var(--border)';
+                            }}
+                        >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <span style={{ fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{kpi.label}</span>
+                                <Icon size={18} style={{ color: kpi.color }} />
+                            </div>
+                            <div style={{ margin: '12px 0 4px' }}>
+                                {isLoading ? (
+                                    <div style={{ height: '32px', width: '60px', background: 'var(--muted)', borderRadius: '6px', animation: 'pulse 1.5s infinite' }} />
+                                ) : (
+                                    <span style={{ fontSize: '1.8rem', fontWeight: 950, color: 'var(--foreground)', letterSpacing: '-0.04em' }}>
+                                        <Counter value={kpi.value} />
+                                    </span>
+                                )}
+                            </div>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)' }}>{kpi.desc}</span>
+                        </motion.div>
+                    );
+                })}
             </div>
 
-            {/* MIDDLE ROW: LEDGER & ACTIONS */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1.2fr', gap: '32px' }}>
+            {/* ACTION ITEMS & SYSTEM ALERTS */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1.65fr 1.35fr', gap: '32px' }}>
                 
-                {/* OPERATIONS LEDGER TABLE */}
-                <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-                        <div>
-                            <h3 style={{ fontSize: '1.25rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>OPERATIONS LEDGER</h3>
-                            <p style={{ fontSize: '0.85rem', color: '#64748B', margin: '4px 0 0', fontWeight: 700 }}>Real-time sovereign nodes and clusters status</p>
-                        </div>
-                        <div style={{ display: 'flex', gap: '12px' }}>
-                            <div className={adminStyles.filterBar} style={{ margin: 0 }}>
-                                {["All", "Ready", "Syncing", "Errors", "Provisioned"].map(f => (
-                                    <button 
-                                        key={f} 
-                                        onClick={() => setFilter(f)} 
-                                        className={`${adminStyles.filterBtn} ${filter === f ? adminStyles.filterBtnActive : ''}`}
-                                        style={{ height: '36px', padding: '0 16px', borderRadius: '10px' }}
-                                    >
-                                        {f}
-                                    </button>
-                                ))}
-                            </div>
-                            <div style={{ position: 'relative', width: '200px' }}>
-                                <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
-                                <input 
-                                    type="text" 
-                                    placeholder="Search ledger..." 
-                                    style={{ width: '100%', height: '36px', borderRadius: '12px', border: '1px solid #E2E8F0', paddingLeft: '36px', fontSize: '0.8rem', fontWeight: 750, outline: 'none' }}
-                                    value={searchTerm}
-                                    onChange={e => setSearchTerm(e.target.value)}
-                                />
-                            </div>
-                        </div>
+                {/* COLUMN 1: ITEMS NEEDING ATTENTION */}
+                <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '24px', padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    <div>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 950, margin: 0, color: 'var(--foreground)' }}>CRITICAL ACTION QUEUE</h3>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', margin: '4px 0 0', fontWeight: 750 }}>Operational blockages requiring platform owner intervention</p>
                     </div>
 
-                    <div style={{ overflowX: 'auto' }}>
-                        {isNodesLoading ? (
-                            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                <Skeleton style={{ height: '48px', borderRadius: '12px' }} />
-                                <Skeleton style={{ height: '48px', borderRadius: '12px' }} />
-                                <Skeleton style={{ height: '48px', borderRadius: '12px' }} />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1 }}>
+                        {isLoading ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <div style={{ height: '58px', background: 'var(--muted)', borderRadius: '12px', animation: 'pulse 1.5s infinite' }} />
+                                <div style={{ height: '58px', background: 'var(--muted)', borderRadius: '12px', animation: 'pulse 1.5s infinite' }} />
                             </div>
-                        ) : filteredNodes.length === 0 ? (
-                            <div style={{ padding: '48px', textAlign: 'center', color: '#64748B', fontWeight: 700 }}>
-                                <Server size={36} style={{ opacity: 0.3, marginBottom: '12px' }} />
-                                <div>No sovereign nodes found in cluster.</div>
+                        ) : actionItems.length === 0 ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '240px', border: '1px dashed var(--border)', borderRadius: '16px', color: 'var(--muted-foreground)', gap: '10px' }}>
+                                <CheckCircle size={24} style={{ color: 'var(--accent)' }} />
+                                <span style={{ fontSize: '0.8rem', fontWeight: 800 }}>System nominal. Action queue empty.</span>
                             </div>
                         ) : (
-                            <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 8px' }}>
-                                <thead>
-                                    <tr>
-                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Node Identity</th>
-                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Cluster Hub</th>
-                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Status</th>
-                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Active Workflows</th>
-                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Telemetry</th>
-                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Uptime</th>
-                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Last Seen</th>
-                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9', textAlign: 'right' }}>Commands</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredNodes.map(node => {
-                                        const isErr = node.status === 'Unreachable' || node.status === 'Timeout';
-                                        return (
-                                            <tr key={node.id} style={{ background: '#F8FAFC', borderRadius: '16px' }}>
-                                                <td style={{ padding: '16px', borderTopLeftRadius: '16px', borderBottomLeftRadius: '16px' }}>
-                                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                                        <div style={{ width: '40px', height: '40px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0F172A' }}>
-                                                            <Server size={18} />
-                                                        </div>
-                                                        <div>
-                                                            <div style={{ fontSize: '0.9rem', fontWeight: 950, color: '#0F172A' }}>{node.name}</div>
-                                                            <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 800, fontFamily: 'monospace' }}>{node.id.slice(0, 18)}...</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td style={{ padding: '16px' }}>
-                                                    <div style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0F172A' }}>
-                                                        {node.url.includes('.lv') || node.name.includes('Riga') ? 'Riga Hub' : 'AWS Europe'}
-                                                    </div>
-                                                    <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 800 }}>{node.url.replace(/^https?:\/\//, '')}</div>
-                                                </td>
-                                                <td style={{ padding: '16px' }}>
-                                                    <div style={{ 
-                                                        display: 'flex', 
-                                                        alignItems: 'center', 
-                                                        gap: '6px', 
-                                                        padding: '4px 10px', 
-                                                        background: node.status === 'Active' ? '#E8FDF0' : (isErr ? '#FEE2E2' : '#EFF6FF'), 
-                                                        color: node.status === 'Active' ? '#10B981' : (isErr ? '#EF4444' : '#3B82F6'), 
-                                                        borderRadius: '100px', 
-                                                        width: 'fit-content' 
-                                                    }}>
-                                                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }} />
-                                                        <span style={{ fontSize: '0.65rem', fontWeight: 950, textTransform: 'uppercase' }}>
-                                                            {node.status === 'Active' ? 'READY' : (isErr ? 'ERROR' : 'SYNCING')}
-                                                        </span>
-                                                    </div>
-                                                </td>
-                                                <td style={{ padding: '16px', fontSize: '0.9rem', fontWeight: 950, color: '#0F172A' }}>
-                                                    {node.workflow_count || 0} / {node.max_workflows || 100}
-                                                </td>
-                                                <td style={{ padding: '16px' }}>
-                                                    <div style={{ display: 'flex', gap: '3px' }}>
-                                                        {/* Visual Telemetry Bars */}
-                                                        <div style={{ width: '8px', height: '24px', background: '#F1F5F9', borderRadius: '2px', display: 'flex', alignItems: 'flex-end', overflow: 'hidden' }}>
-                                                            <div style={{ width: '100%', height: `${node.cpu || 8}%`, background: isErr ? '#EF4444' : '#10B981' }} />
-                                                        </div>
-                                                        <div style={{ width: '8px', height: '24px', background: '#F1F5F9', borderRadius: '2px', display: 'flex', alignItems: 'flex-end', overflow: 'hidden' }}>
-                                                            <div style={{ width: '100%', height: `${node.ram || 12}%`, background: isErr ? '#EF4444' : '#3B82F6' }} />
-                                                        </div>
-                                                        <div style={{ width: '8px', height: '24px', background: '#F1F5F9', borderRadius: '2px', display: 'flex', alignItems: 'flex-end', overflow: 'hidden' }}>
-                                                            <div style={{ width: '100%', height: `15%`, background: isErr ? '#EF4444' : '#8B5CF6' }} />
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 800, color: '#475569' }}>
-                                                    {node.status === 'Active' ? 'ONLINE' : 'OFFLINE'}
-                                                </td>
-                                                <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 800, color: '#475569' }}>
-                                                    {node.status === 'Active' ? 'Just Now' : 'N/A'}
-                                                </td>
-                                                <td style={{ padding: '16px', borderTopRightRadius: '16px', borderBottomRightRadius: '16px', textAlign: 'right' }}>
-                                                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                        <button 
-                                                            onClick={() => openTerminal(node)}
-                                                            style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#FFFFFF', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: node.status === 'Active' ? '#10B981' : '#64748B' }}
-                                                            title="Diagnostics Terminal"
-                                                        >
-                                                            <Terminal size={16} />
-                                                        </button>
-                                                        <button 
-                                                            onClick={() => openConfig(node)}
-                                                            style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#FFFFFF', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748B' }}
-                                                            title="Configure Node"
-                                                        >
-                                                            <Settings size={16} />
-                                                        </button>
-                                                        <button 
-                                                            onClick={() => decommissionNode(node.id, node.name)}
-                                                            style={{ width: '36px', height: '36px', border: '1px solid #FEE2E2', background: '#FFF5F5', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#EF4444' }}
-                                                            title="Decommission Node"
-                                                        >
-                                                            <Trash2 size={16} />
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
+                            actionItems.map((item, idx) => (
+                                <div 
+                                    key={idx} 
+                                    onClick={() => router.push(item.href)}
+                                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '14px', padding: '14px 18px', cursor: 'pointer', transition: 'all 0.2s' }}
+                                    onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--accent)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
+                                >
+                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                        {item.type === 'approval' ? (
+                                            <Shield size={18} style={{ color: '#EF4444' }} />
+                                        ) : item.type === 'failed_run' ? (
+                                            <AlertCircle size={18} style={{ color: '#EF4444' }} />
+                                        ) : (
+                                            <AlertTriangle size={18} style={{ color: '#F59E0B' }} />
+                                        )}
+                                        <div>
+                                            <div style={{ fontSize: '0.8rem', fontWeight: 900, color: 'var(--foreground)' }}>{item.title}</div>
+                                            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--muted-foreground)', marginTop: '2px' }}>{item.desc}</div>
+                                        </div>
+                                    </div>
+                                    <ArrowUpRight size={14} style={{ color: 'var(--muted-foreground)' }} />
+                                </div>
+                            ))
                         )}
                     </div>
                 </div>
 
-                {/* RIGHT ACTIONS PANELS */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                    
-                    {/* PROVISION QUICK ACTIONS */}
-                    <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
-                        <h3 style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A', margin: '0 0 20px' }}>PROVISION QUICK ACTIONS</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            {[
-                                { label: 'Provision New Node', desc: 'Add a new sovereign node to cluster', icon: <Plus size={16} />, action: () => setIsProvisioning(true) },
-                                { label: 'Sync Registry Nodes', desc: 'Trigger database and telemetry probe', icon: <RefreshCcw size={16} />, action: () => fetchNodes(true) },
-                                { label: 'Run Fleet Diagnostics', desc: 'Check n8n endpoints connection status', icon: <Activity size={16} />, action: () => { fetchNodes(true); (window as any).showToast("Sovereign fleet telemetry updated!", "success"); } }
-                            ].map((item, i) => (
-                                <button 
-                                    key={i} 
-                                    onClick={item.action}
-                                    style={{ display: 'flex', gap: '16px', alignItems: 'center', padding: '16px', background: '#F8FAFC', border: '1px solid #F1F5F9', borderRadius: '16px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s', width: '100%' }}
-                                >
-                                    <div style={{ width: '36px', height: '36px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10B981', flexShrink: 0 }}>
-                                        {item.icon}
+                {/* COLUMN 2: RECENT AUDIT EVENTS */}
+                <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '24px', padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    <div>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 950, margin: 0, color: 'var(--foreground)' }}>GOVERNANCE AUDIT RECORD</h3>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', margin: '4px 0 0', fontWeight: 750 }}>Immutable log trace of administrator determinations</p>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '340px', overflowY: 'auto', paddingRight: '4px' }}>
+                        {isLoading ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                <div style={{ height: '40px', background: 'var(--muted)', borderRadius: '8px', animation: 'pulse 1.5s infinite' }} />
+                                <div style={{ height: '40px', background: 'var(--muted)', borderRadius: '8px', animation: 'pulse 1.5s infinite' }} />
+                            </div>
+                        ) : auditEvents.length === 0 ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '240px', border: '1px dashed var(--border)', borderRadius: '16px', color: 'var(--muted-foreground)' }}>
+                                <span style={{ fontSize: '0.8rem', fontWeight: 800 }}>Audit timeline is empty.</span>
+                            </div>
+                        ) : (
+                            auditEvents
+                                .filter((e: any) => e.eventType !== 'page_visit')
+                                .slice(0, 8)
+                                .map((event, idx) => {
+                                const hasWorkspaceLink = event.userId && event.userId !== 'system';
+                                return (
+                                    <div 
+                                        key={idx} 
+                                        onClick={() => {
+                                            if (hasWorkspaceLink) {
+                                                router.push(`/admin/workspaces/${event.userId}`);
+                                            }
+                                        }}
+                                        style={{ 
+                                            display: 'flex', 
+                                            flexDirection: 'column', 
+                                            gap: '4px', 
+                                            borderBottom: '1px solid var(--border)', 
+                                            paddingBottom: '10px',
+                                            cursor: hasWorkspaceLink ? 'pointer' : 'default',
+                                            transition: 'opacity 0.2s'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            if (hasWorkspaceLink) e.currentTarget.style.opacity = '0.8';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (hasWorkspaceLink) e.currentTarget.style.opacity = '1';
+                                        }}
+                                    >
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span style={{ fontSize: '0.75rem', fontWeight: 950, color: 'var(--foreground)' }}>
+                                                {event.eventType}
+                                            </span>
+                                            <span style={{ fontSize: '0.65rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>
+                                                {new Date(event.createdAt).toLocaleTimeString()}
+                                            </span>
+                                        </div>
+                                        <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>
+                                            User: <span style={{ color: hasWorkspaceLink ? 'var(--accent)' : 'var(--foreground)' }}>{event.userName || event.userEmail || 'System'}</span> | Source: <span style={{ color: 'var(--foreground)' }}>{event.source || 'internal'}</span>
+                                        </div>
+                                        {event.metadata && (
+                                            <div style={{ fontSize: '0.65rem', background: 'var(--muted)', padding: '4px 8px', borderRadius: '4px', color: 'var(--muted-foreground)', fontFamily: 'monospace', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                {JSON.stringify(event.metadata)}
+                                            </div>
+                                        )}
                                     </div>
-                                    <div>
-                                        <div style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0F172A' }}>{item.label}</div>
-                                        <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700, marginTop: '2px' }}>{item.desc}</div>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* FLEET SHORTCUTS */}
-                    <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
-                        <h3 style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A', margin: '0 0 20px' }}>FLEET SHORTCUTS</h3>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                            {[
-                                { label: 'Users Registry', path: '/admin/users' },
-                                { label: 'Support Inbox', path: '/admin/support' },
-                                { label: 'Fleet Registry', path: '/admin' },
-                                { label: 'Incident Desk', path: '/admin/support' }
-                            ].map((link, i) => (
-                                <button 
-                                    key={i} 
-                                    onClick={() => router.push(link.path)}
-                                    style={{ padding: '16px', background: '#F8FAFC', border: '1px solid #F1F5F9', borderRadius: '16px', cursor: 'pointer', textAlign: 'center', fontSize: '0.8rem', fontWeight: 950, color: '#475569', transition: 'all 0.2s' }}
-                                >
-                                    {link.label}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* SYSTEM INFO */}
-                    <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
-                        <h3 style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A', margin: '0 0 20px' }}>SYSTEM INFO</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.85rem', fontWeight: 800, color: '#475569' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #F1F5F9', paddingBottom: '8px' }}>
-                                <span>Cluster</span>
-                                <span style={{ fontWeight: 950, color: '#0F172A' }}>{MOCK_SYSTEM_INFO.cluster}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #F1F5F9', paddingBottom: '8px' }}>
-                                <span>Version</span>
-                                <span style={{ fontWeight: 950, color: '#0F172A' }}>{MOCK_SYSTEM_INFO.version}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #F1F5F9', paddingBottom: '8px' }}>
-                                <span>Environment</span>
-                                <span style={{ fontWeight: 950, color: '#0F172A' }}>{MOCK_SYSTEM_INFO.env}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #F1F5F9', paddingBottom: '8px' }}>
-                                <span>Region</span>
-                                <span style={{ fontWeight: 950, color: '#0F172A' }}>{MOCK_SYSTEM_INFO.region}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span>Uptime</span>
-                                <span style={{ fontWeight: 950, color: '#0F172A' }}>{MOCK_SYSTEM_INFO.uptime}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-
-            {/* BOTTOM ROW: CLUSTER DISTRIBUTION, LOAD, TOP CLUSTERS, RECENT ALERTS */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '32px' }}>
-                
-                {/* CLUSTER DISTRIBUTION */}
-                <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>CLUSTER DISTRIBUTION</h3>
-                    <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0' }}>
-                        <svg width="100" height="100" viewBox="0 0 42 42" style={{ transform: 'rotate(-90deg)' }}>
-                            {/* Healthy 100% */}
-                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#10B981" strokeWidth="6" strokeDasharray={`${systemHealthPct} ${100 - systemHealthPct}`} strokeDashoffset="0" />
-                            {/* Error if health < 100 */}
-                            {systemHealthPct < 100 && (
-                                <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#EF4444" strokeWidth="6" strokeDasharray={`${100 - systemHealthPct} ${systemHealthPct}`} strokeDashoffset={`-${systemHealthPct}`} />
-                            )}
-                        </svg>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.75rem', fontWeight: 800, color: '#475569' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10B981' }} /> Healthy</div>
-                            <span style={{ fontWeight: 950 }}>{systemHealthPct}% ({activeNodesCount})</span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#EF4444' }} /> Error / Off</div>
-                            <span style={{ fontWeight: 950 }}>{100 - systemHealthPct}% ({totalNodesCount - activeNodesCount})</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* RESOURCE UTILIZATION (AVG) */}
-                <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A', margin: '0 0 16px' }}>RESOURCE UTILIZATION</h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                        {[
-                            { label: 'CPU Load', val: avgResourceLoad, color: '#10B981' },
-                            { label: 'Memory Load', val: totalNodesCount > 0 ? Math.round(nodes.reduce((sum, n) => sum + (n.ram || 0), 0) / totalNodesCount) : 0, color: '#3B82F6' },
-                            { label: 'Disk Usage', val: totalNodesCount > 0 ? 15 : 0, color: '#8B5CF6' },
-                            { label: 'Network IO', val: totalNodesCount > 0 ? 32 : 0, color: '#F59E0B' }
-                        ].map((item, i) => (
-                            <div key={i}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 800, color: '#475569', marginBottom: '6px' }}>
-                                    <span>{item.label}</span>
-                                    <span style={{ fontWeight: 950, color: '#0F172A' }}>{item.val}%</span>
-                                </div>
-                                <div style={{ width: '100%', height: '6px', background: '#F1F5F9', borderRadius: '100px', overflow: 'hidden' }}>
-                                    <div style={{ width: `${item.val}%`, height: '100%', background: item.color }} />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* TOP CLUSTERS BY LOAD */}
-                <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A', margin: '0 0 16px' }}>TOP CLUSTERS BY LOAD</h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                        {[
-                            { name: 'GLOBAL_ALPHA', val: avgResourceLoad, loc: 'Frankfurt, EU' },
-                            { name: 'EU_WEST_1', val: Math.round(avgResourceLoad * 0.8), loc: 'Ireland' },
-                            { name: 'US_EAST_1', val: Math.round(avgResourceLoad * 0.5), loc: 'N. Virginia' },
-                            { name: 'AP_SOUTH_1', val: Math.round(avgResourceLoad * 0.3), loc: 'Singapore' }
-                        ].map((item, i) => (
-                            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div>
-                                    <div style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0F172A' }}>{item.name}</div>
-                                    <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 800 }}>{item.loc}</div>
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                                    <span style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0F172A' }}>{item.val}%</span>
-                                    <div style={{ width: '60px', height: '4px', background: '#F1F5F9', borderRadius: '100px', overflow: 'hidden', marginTop: '4px' }}>
-                                        <div style={{ width: `${item.val}%`, height: '100%', background: '#10B981' }} />
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* RECENT ALERTS */}
-                <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A', margin: '0 0 16px' }}>RECENT ALERTS</h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                        {derivedAlerts.map((alert, i) => (
-                            <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                                <div style={{ 
-                                    width: '8px', 
-                                    height: '8px', 
-                                    borderRadius: '50%', 
-                                    background: alert.type === 'high' ? '#EF4444' : (alert.type === 'medium' ? '#F59E0B' : '#3B82F6'), 
-                                    marginTop: '5px',
-                                    boxShadow: alert.type === 'high' ? '0 0 8px #EF4444' : 'none'
-                                }} />
-                                <div>
-                                    <div style={{ fontSize: '0.8rem', fontWeight: 950, color: '#475569' }}>{alert.message}</div>
-                                    <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 800, marginTop: '2px' }}>{alert.time}</div>
-                                </div>
-                            </div>
-                        ))}
+                                );
+                            })
+                        )}
                     </div>
                 </div>
 
             </div>
 
-            {/* PROVISIONING MODAL */}
-            {isProvisioning && (
-                <div className={adminStyles.modalOverlay} onClick={() => setIsProvisioning(false)} style={{ backdropFilter: 'blur(16px)', background: 'rgba(250, 250, 250, 0.4)' }}>
-                    <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '580px', border: '1px solid #E2E8F0', boxShadow: '0 40px 80px -20px rgba(0, 0, 0, 0.12)', borderRadius: '32px', overflow: 'hidden' }}>
-                        <div className={adminStyles.modalHeader} style={{ background: '#0F172A', color: '#FFFFFF', padding: '40px 48px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                <div>
-                                    <div style={{ fontSize: '0.65rem', fontWeight: 950, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: '12px' }}>NEW SOVEREIGN CLUSTER</div>
-                                    <h3 style={{ fontSize: '1.75rem', fontWeight: 950, margin: 0, letterSpacing: '-0.03em', color: '#FFFFFF' }}>Provision Sovereign Node</h3>
-                                    <p style={{ opacity: 0.5, margin: '10px 0 0', fontWeight: 700, fontSize: '0.9rem' }}>Register a dedicated sovereign n8n engine and credentials.</p>
-                                </div>
-                                <button onClick={() => setIsProvisioning(false)} style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: 'white', padding: '10px', borderRadius: '10px', cursor: 'pointer', display: 'flex' }}><X size={20} /></button>
-                            </div>
-                        </div>
-                        <div className={adminStyles.modalBody} style={{ padding: '40px 48px', display: 'flex', flexDirection: 'column', gap: '24px', background: '#FFFFFF' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: '#64748B', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Cluster / Organization Name</label>
-                                    <input 
-                                        style={{ width: '100%', height: '48px', borderRadius: '12px', border: '1px solid #E2E8F0', padding: '0 16px', fontSize: '0.85rem', fontWeight: 750, outline: 'none' }} 
-                                        placeholder="e.g. Acme Corp Riga Hub" 
-                                        value={provisionData.name} 
-                                        onChange={e => setProvisionData({...provisionData, name: e.target.value})} 
-                                    />
-                                </div>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: '#64748B', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Node Endpoint URL</label>
-                                    <input 
-                                        style={{ width: '100%', height: '48px', borderRadius: '12px', border: '1px solid #E2E8F0', padding: '0 16px', fontSize: '0.85rem', fontWeight: 750, outline: 'none' }} 
-                                        placeholder="e.g. http://51.21.181.230:5678" 
-                                        value={provisionData.url} 
-                                        onChange={e => setProvisionData({...provisionData, url: e.target.value})} 
-                                    />
-                                </div>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: '#64748B', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>X-N8N-API-KEY</label>
-                                    <input 
-                                        style={{ width: '100%', height: '48px', borderRadius: '12px', border: '1px solid #E2E8F0', padding: '0 16px', fontSize: '0.85rem', fontWeight: 750, outline: 'none' }} 
-                                        placeholder="Copy API Key from n8n instance settings..." 
-                                        type="password"
-                                        value={provisionData.apiKey} 
-                                        onChange={e => setProvisionData({...provisionData, apiKey: e.target.value})} 
-                                    />
-                                </div>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: '#64748B', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Max Workflow Limit</label>
-                                    <input 
-                                        style={{ width: '100%', height: '48px', borderRadius: '12px', border: '1px solid #E2E8F0', padding: '0 16px', fontSize: '0.85rem', fontWeight: 750, outline: 'none' }} 
-                                        type="number"
-                                        value={provisionData.maxWorkflows} 
-                                        onChange={e => setProvisionData({...provisionData, maxWorkflows: parseInt(e.target.value) || 100})} 
-                                    />
-                                </div>
-                            </div>
-                            <div style={{ display: 'flex', gap: '14px', padding: '18px 20px', background: 'rgba(16, 185, 129, 0.06)', borderRadius: '14px', border: '1px solid rgba(16, 185, 129, 0.12)' }}>
-                                <ShieldCheck size={18} color="#10B981" style={{ flexShrink: 0, marginTop: '1px' }} />
-                                <p style={{ fontSize: '0.82rem', color: '#065F46', margin: 0, fontWeight: 700, lineHeight: 1.5 }}>A dedicated n8n instance will be queried and initialized with real-time active telemetry tracking on Riga Hub.</p>
-                            </div>
-                        </div>
-                        <div className={adminStyles.modalFooter} style={{ padding: '28px 48px', background: '#F8FAFC', borderTop: '1px solid #E2E8F0', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                            <button onClick={() => setIsProvisioning(false)} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', padding: '0 20px', height: '44px', borderRadius: '12px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 900, color: '#475569' }}>Cancel</button>
-                            <button onClick={provisionClient} disabled={isProvisioningLoading || !provisionData.name || !provisionData.url || !provisionData.apiKey} style={{ height: '44px', borderRadius: '12px', padding: '0 28px', background: '#0F172A', color: '#FFFFFF', border: 'none', cursor: 'pointer', fontWeight: 950 }}>
-                                {isProvisioningLoading ? 'Provisioning...' : 'Provision sovereign node'}
-                            </button>
-                        </div>
+            {/* LOWER PORTION: RECENT CUSTOMER ACTIVATION */}
+            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '24px', padding: '32px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                    <div>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 950, margin: 0, color: 'var(--foreground)' }}>CUSTOMER ACTIVATION TIMELINE</h3>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', margin: '4px 0 0', fontWeight: 750 }}>Overview of active customer activation details</p>
                     </div>
+                    <Link href="/admin/workspaces" style={{ fontSize: '0.75rem', fontWeight: 900, color: 'var(--accent)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        Manage Customers <ChevronRight size={14} />
+                    </Link>
                 </div>
-            )}
 
-            {/* TERMINAL MODAL */}
-            {showTerminal && selectedNode && (
-                <div className={adminStyles.modalOverlay} onClick={() => setShowTerminal(false)} style={{ backdropFilter: 'blur(16px)', background: 'rgba(0, 0, 0, 0.4)' }}>
-                    <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '640px', background: '#0F172A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '24px', overflow: 'hidden' }}>
-                        <div style={{ padding: '24px 32px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <Terminal size={18} color="#10B981" />
-                                <span style={{ color: '#FFFFFF', fontWeight: 950, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Node Diagnostics: {selectedNode.name}</span>
-                            </div>
-                            <button onClick={() => setShowTerminal(false)} style={{ background: 'transparent', border: 'none', color: '#94A3B8', cursor: 'pointer' }}><X size={20} /></button>
+                <div style={{ overflowX: 'auto' }}>
+                    {isLoading ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div style={{ height: '48px', background: 'var(--muted)', borderRadius: '8px', animation: 'pulse 1.5s infinite' }} />
                         </div>
-                        <div style={{ padding: '32px', background: '#050505', minHeight: '320px', fontFamily: 'monospace', fontSize: '0.85rem', color: '#10B981', overflowY: 'auto' }}>
-                            {terminalLogs.map((log, i) => (
-                                <div key={i} style={{ marginBottom: '8px', opacity: 0.9 }}>{log}</div>
-                            ))}
-                            {isTerminalLoading && (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px' }}>
-                                    <Activity size={14} className={adminStyles.spinning} />
-                                    <span>LISTENING FOR HEARTBEAT...</span>
-                                </div>
-                            )}
+                    ) : workspaces.length === 0 ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '140px', border: '1px dashed var(--border)', borderRadius: '16px', color: 'var(--muted-foreground)' }}>
+                            <span style={{ fontSize: '0.8rem', fontWeight: 800 }}>No customers registered.</span>
                         </div>
-                        <div style={{ padding: '16px 32px', background: 'rgba(255,255,255,0.02)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 800 }}>SECURE SSL/TLS TUNNEL ACTIVE</span>
-                            <button onClick={() => openTerminal(selectedNode)} style={{ background: 'transparent', border: 'none', color: '#10B981', fontWeight: 950, fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <RotateCcw size={14} /> REFRESH HANDSHAKE
-                            </button>
-                        </div>
-                    </div>
+                    ) : (
+                        <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 8px' }}>
+                            <thead>
+                                <tr>
+                                    <th style={{ padding: '8px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', textAlign: 'left' }}>Customer</th>
+                                    <th style={{ padding: '8px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', textAlign: 'left' }}>AI Employees</th>
+                                    <th style={{ padding: '8px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', textAlign: 'left' }}>Server</th>
+                                    <th style={{ padding: '8px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', textAlign: 'left' }}>Activation Status</th>
+                                    <th style={{ padding: '8px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', textAlign: 'left' }}>Integrations</th>
+                                    <th style={{ padding: '8px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', textAlign: 'right' }}>Registered Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {workspaces.slice(0, 6).map((ws, idx) => {
+                                    const rawState = ws.activationStatus || 'NOT_STARTED';
+                                    const friendlyState = getFriendlyStatus(rawState);
+                                    const connCreds = ws.connectedCredentials || [];
+                                    
+                                    return (
+                                        <tr 
+                                            key={ws.id} 
+                                            onClick={() => router.push(`/admin/workspaces/${ws.id}`)}
+                                            style={{ background: 'var(--muted)', cursor: 'pointer', transition: 'opacity 0.2s' }}
+                                            onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                                            onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                                        >
+                                            <td style={{ padding: '12px 16px', borderTopLeftRadius: '10px', borderBottomLeftRadius: '10px' }}>
+                                                <div style={{ fontSize: '0.85rem', fontWeight: 900, color: 'var(--foreground)' }}>{ws.firmName || 'Sovereign Customer'}</div>
+                                                <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>{ws.email}</div>
+                                            </td>
+                                            <td style={{ padding: '12px 16px' }}>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                                    <div style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--foreground)' }}>
+                                                        {ws.aiEmployee || 'General'}
+                                                    </div>
+                                                    {ws.activeEmployeesCount > 1 && (
+                                                        <div style={{ fontSize: '0.68rem', color: 'var(--accent)', fontWeight: 800 }}>
+                                                            {ws.activeEmployeesCount} AI Employees
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td style={{ padding: '12px 16px', fontSize: '0.8rem', fontWeight: 800, color: 'var(--foreground)' }}>
+                                                {ws.serverName || 'Unassigned'}
+                                            </td>
+                                            <td style={{ padding: '12px 16px' }}>
+                                                <span style={{ 
+                                                    fontSize: '0.65rem', 
+                                                    fontWeight: 950, 
+                                                    padding: '3px 8px', 
+                                                    borderRadius: '100px',
+                                                    background: friendlyState === 'Active' ? 'rgba(16, 185, 129, 0.15)' : (friendlyState === 'Needs a Connection' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(148, 163, 184, 0.15)'),
+                                                    color: friendlyState === 'Active' ? '#10B981' : (friendlyState === 'Needs a Connection' ? '#F59E0B' : '#94A3B8')
+                                                }}>
+                                                    {friendlyState}
+                                                </span>
+                                            </td>
+                                            <td style={{ padding: '12px 16px', fontSize: '0.75rem', fontWeight: 800 }}>
+                                                {connCreds.length > 0 ? (
+                                                    <div style={{ display: 'flex', gap: '4px' }}>
+                                                        {connCreds.map((c: any, cIdx: number) => (
+                                                            <span key={cIdx} style={{ background: 'var(--card)', border: '1px solid var(--border)', padding: '2px 6px', borderRadius: '4px', fontSize: '0.6rem' }}>
+                                                                 {c.provider}
+                                                             </span>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <span style={{ color: 'var(--muted-foreground)', fontSize: '0.7rem' }}>None connected</span>
+                                                )}
+                                            </td>
+                                            <td style={{ padding: '12px 16px', borderTopRightRadius: '10px', borderBottomRightRadius: '10px', textAlign: 'right', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)' }}>
+                                                {new Date(ws.createdAt).toLocaleDateString()}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    )}
                 </div>
-            )}
-
-            {/* CONFIG MODAL */}
-            {showConfig && selectedNode && (
-                <div className={adminStyles.modalOverlay} onClick={() => setShowConfig(false)} style={{ backdropFilter: 'blur(16px)', background: 'rgba(250, 250, 250, 0.4)' }}>
-                    <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '580px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', overflow: 'hidden' }}>
-                        <div style={{ padding: '40px 48px', background: '#0F172A', color: '#FFFFFF' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                <div>
-                                    <div style={{ fontSize: '0.65rem', fontWeight: 950, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: '12px' }}>NODE CONFIGURATION</div>
-                                    <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 950, letterSpacing: '-0.03em' }}>Edit Sovereign Node</h3>
-                                    <p style={{ margin: '8px 0 0', opacity: 0.5, fontSize: '0.9rem', fontWeight: 700 }}>Modify endpoint settings and security keys.</p>
-                                </div>
-                                <button onClick={() => setShowConfig(false)} style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: 'white', padding: '10px', borderRadius: '10px', cursor: 'pointer', display: 'flex' }}><X size={20} /></button>
-                            </div>
-                        </div>
-                        
-                        <div style={{ padding: '40px 48px', display: 'flex', flexDirection: 'column', gap: '24px', background: '#FFFFFF' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: '#64748B', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Node Name</label>
-                                    <input 
-                                        style={{ width: '100%', height: '48px', borderRadius: '12px', border: '1px solid #E2E8F0', padding: '0 16px', fontSize: '0.85rem', fontWeight: 750, outline: 'none' }} 
-                                        value={editData.name} 
-                                        onChange={e => setEditData({...editData, name: e.target.value})} 
-                                    />
-                                </div>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: '#64748B', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Endpoint URL</label>
-                                    <input 
-                                        style={{ width: '100%', height: '48px', borderRadius: '12px', border: '1px solid #E2E8F0', padding: '0 16px', fontSize: '0.85rem', fontWeight: 750, outline: 'none' }} 
-                                        value={editData.url} 
-                                        onChange={e => setEditData({...editData, url: e.target.value})} 
-                                    />
-                                </div>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: '#64748B', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>X-N8N-API-KEY</label>
-                                    <input 
-                                        style={{ width: '100%', height: '48px', borderRadius: '12px', border: '1px solid #E2E8F0', padding: '0 16px', fontSize: '0.85rem', fontWeight: 750, outline: 'none' }} 
-                                        type="password"
-                                        placeholder="Enter new API key to update..."
-                                        value={editData.apiKey} 
-                                        onChange={e => setEditData({...editData, apiKey: e.target.value})} 
-                                    />
-                                </div>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: '#64748B', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Workflow Capacity</label>
-                                    <input 
-                                        style={{ width: '100%', height: '48px', borderRadius: '12px', border: '1px solid #E2E8F0', padding: '0 16px', fontSize: '0.85rem', fontWeight: 750, outline: 'none' }} 
-                                        type="number"
-                                        value={editData.maxWorkflows} 
-                                        onChange={e => setEditData({...editData, maxWorkflows: parseInt(e.target.value) || 100})} 
-                                    />
-                                </div>
-                            </div>
-
-                            <div style={{ padding: '20px', background: '#F8FAFC', borderRadius: '20px', border: '1px solid #F1F5F9' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                                    <span style={{ fontSize: '0.75rem', fontWeight: 950, color: '#64748B' }}>CURRENT STATUS</span>
-                                    <span style={{ fontSize: '0.75rem', fontWeight: 950, color: selectedNode.status === 'Active' ? '#10B981' : '#EF4444' }}>
-                                        {selectedNode.status.toUpperCase()}
-                                    </span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <span style={{ fontSize: '0.75rem', fontWeight: 950, color: '#64748B' }}>LAST CHECK</span>
-                                    <span style={{ fontSize: '0.75rem', fontWeight: 950, color: '#0F172A' }}>
-                                        {selectedNode.last_check ? new Date(selectedNode.last_check).toLocaleString() : 'Never'}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className={adminStyles.modalFooter} style={{ padding: '28px 48px', background: '#F8FAFC', borderTop: '1px solid #E2E8F0', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                            <button onClick={() => setShowConfig(false)} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', padding: '0 20px', height: '44px', borderRadius: '12px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 900, color: '#475569' }}>Cancel</button>
-                            <button 
-                                onClick={updateNodeConfig} 
-                                disabled={isUpdating || !editData.name || !editData.url} 
-                                style={{ height: '44px', borderRadius: '12px', padding: '0 28px', background: '#0F172A', color: '#FFFFFF', border: 'none', cursor: isUpdating ? 'not-allowed' : 'pointer', fontWeight: 950, display: 'flex', alignItems: 'center', gap: '8px' }}
-                            >
-                                {isUpdating && <Activity size={16} className={adminStyles.spinning} />}
-                                {isUpdating ? 'Saving...' : 'Apply Changes'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            </div>
 
         </div>
     );

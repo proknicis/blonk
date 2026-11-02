@@ -115,8 +115,8 @@ export default function OfficeClient({
                 ...order,
                 statusLabel,
                 type: order.orderType === 'Custom Request' 
-                    ? "Custom Workflow Request" 
-                    : (order.orderNumber === "INSTALLED" ? "Operational Workflow" : "Deployment Pipeline")
+                    ? "Custom Automation Request" 
+                    : (order.orderNumber === "INSTALLED" ? "Operational Automation" : "Deployment Pipeline")
             };
         });
         return sorted;
@@ -173,8 +173,8 @@ export default function OfficeClient({
             {/* HEADER AREA */}
             <div className={styles.headerArea}>
                 <div className={styles.headerLeft}>
-                    <h1 className={styles.headerTitle}>My Workflows</h1>
-                    <p className={styles.headerSubtitle}>Manage and monitor your institutional automation fleet.</p>
+                    <h1 className={styles.headerTitle}>AI Workforce</h1>
+                    <p className={styles.headerSubtitle}>Manage, monitor, and configure your active digital worker fleet.</p>
                 </div>
 
                 <div style={{ flex: 1, maxWidth: '400px', position: 'relative' }}>
@@ -260,11 +260,11 @@ export default function OfficeClient({
             <div className={styles.mainLayout}>
                 {/* WORKFLOWS GRID */}
                 <div className={styles.workflowsArea}>
-                    <div className={styles.areaHeader}>Active Workflows</div>
+                    <div className={styles.areaHeader}>Active AI Employees</div>
                     
                     {filteredOrders.length === 0 ? (
                         <div style={{ padding: 48, textAlign: "center", background: "#fff", borderRadius: 24, border: "1px solid #E2E8F0" }}>
-                            <p style={{ fontWeight: 800, color: "#64748B", marginBottom: 16 }}>No workflows matching your criteria.</p>
+                            <p style={{ fontWeight: 800, color: "#64748B", marginBottom: 16 }}>No hired AI Employees matching your criteria.</p>
                             <button type="button" style={{ 
                                 padding: '12px 24px', 
                                 background: '#0F172A', 
@@ -295,7 +295,7 @@ export default function OfficeClient({
                                                 <div className={styles.cardNameGroup}>
                                                     <div className={styles.cardName}>{order.workflowName}</div>
                                                     <div className={styles.cardType}>
-                                                        {order.statusLabel === 'RUNNING' ? 'Operational Workflow' : 'Deployment Pipeline'}
+                                                        {order.statusLabel === 'RUNNING' ? 'Hired AI Employee' : 'Deployment Pipeline'}
                                                     </div>
                                                 </div>
                                             </div>
@@ -329,7 +329,7 @@ export default function OfficeClient({
                                                 {/* Price Quoted Banner - shown when admin has set a price */}
                                                 {order.amount && order.amount > 0 ? (
                                                     <div style={{
-                                                        background: 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)',
+                                                        background: '#ECFDF5',
                                                         border: '1.5px solid #10B981',
                                                         padding: '16px',
                                                         borderRadius: '16px',
@@ -349,7 +349,7 @@ export default function OfficeClient({
                                                             </div>
                                                         </div>
                                                         <p style={{ fontSize: '0.78rem', fontWeight: 600, color: '#065F46', lineHeight: 1.4, margin: 0 }}>
-                                                            Our team has reviewed your request and provided a quote. Complete payment to start building your custom workflow.
+                                                            Our team has reviewed your request and provided a quote. Complete payment to start building your custom automation.
                                                         </p>
                                                     </div>
                                                 ) : (
@@ -367,7 +367,7 @@ export default function OfficeClient({
                                                             <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#1E40AF' }}>Under Review</span>
                                                         </div>
                                                         <p style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1E3A8A', lineHeight: 1.4, margin: 0 }}>
-                                                            We have successfully received your custom workflow request. Our team is currently reviewing your requirements, and we will contact you shortly about the deployment details.
+                                                            We have successfully received your custom automation request. Our team is currently reviewing your requirements, and we will contact you shortly about the deployment details.
                                                         </p>
                                                     </div>
                                                 )}
@@ -549,7 +549,7 @@ export default function OfficeClient({
                                                         style={{
                                                             gridColumn: 'span 3',
                                                             width: '100%',
-                                                            background: 'linear-gradient(135deg, #059669, #10B981)',
+                                                            background: '#10B981',
                                                             color: '#fff',
                                                             fontWeight: 900,
                                                             fontSize: '0.88rem',

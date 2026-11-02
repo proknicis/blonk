@@ -25,7 +25,7 @@ export async function POST(req: Request) {
             }, { status: 400 });
         }
 
-        const n8nBaseUrl = process.env.N8N_BASE_URL || 'https://n8n.manadavana.lv';
+        const n8nBaseUrl = process.env.N8N_BASE_URL || 'http://localhost:3000';
         const url = `${n8nBaseUrl}/api/v1/workflows/${wf.n8nWorkflowId}`;
         const apiKey = process.env.N8N_API_KEY;
 

@@ -65,7 +65,7 @@ const IconCopy = () => (
 const STAGES: { key: Stage; label: string; sublabel: string }[] = [
     { key: 'ordered', label: 'Requested',  sublabel: 'Request received' },
     { key: 'setup',   label: 'Configured', sublabel: 'Being configured'  },
-    { key: 'ready',   label: 'Ready',      sublabel: 'Workflow ready to run' },
+    { key: 'ready',   label: 'Ready',      sublabel: 'Automation ready to run' },
 ];
 const STAGE_ORDER: Record<Stage, number> = { ordered: 0, setup: 1, ready: 2 };
 
@@ -162,7 +162,7 @@ function RunStateBanner({ state }: { state: RunState }) {
                         background: 'var(--accent)', boxShadow: '0 0 8px var(--accent)',
                         animation: 'runningPulse 1.2s ease-in-out infinite', flexShrink: 0,
                     }} />
-                    Workflow is running
+                    Automation is running
                 </>
             ) : (
                 <>
@@ -170,7 +170,7 @@ function RunStateBanner({ state }: { state: RunState }) {
                         width: '8px', height: '8px', borderRadius: '2px',
                         background: 'var(--muted-foreground)', flexShrink: 0, opacity: 0.6,
                     }} />
-                    Workflow stopped
+                    Automation stopped
                 </>
             )}
         </div>
@@ -294,7 +294,7 @@ export default function WorkflowList({ workflows }: { workflows: any[] }) {
                                                           : 'var(--muted)',
                                               }} />
                                         }
-                                        <span style={{ fontSize: '1rem', fontWeight: 950, color: '#111827', marginRight: '4px' }}>Workflow</span>
+                                        <span style={{ fontSize: '1rem', fontWeight: 950, color: '#111827', marginRight: '4px' }}>Automation</span>
                                         <strong className={styles.workflowTitle}>{wf.name}</strong>
                                         <span className={styles.workflowBadge}>AUTONOMOUS LOOP</span>
                                     </div>

@@ -1,0 +1,397 @@
+.container {
+    padding: 40px 40px 80px;
+    max-width: 1080px;
+    margin: 0 auto;
+    font-family: 'Inter', sans-serif;
+}
+
+.header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 36px;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #0F172A;
+    margin: 0 0 4px;
+}
+
+.subtitle {
+    font-size: 0.875rem;
+    color: #64748B;
+    margin: 0;
+}
+
+/* ---- Summary cards ---- */
+.summaryRow {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+}
+
+.summaryCard {
+    background: #fff;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 20px 24px;
+}
+
+.summaryLabel {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94A3B8;
+    margin-bottom: 8px;
+}
+
+.summaryValue {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #0F172A;
+    line-height: 1.1;
+}
+
+.summaryHint {
+    font-size: 0.72rem;
+    color: #94A3B8;
+    margin-top: 4px;
+}
+
+.accentCard {
+    border-left: 3px solid #10B981;
+}
+
+/* ---- Plan block ---- */
+.section {
+    margin-bottom: 36px;
+}
+
+.sectionTitle {
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #94A3B8;
+    margin-bottom: 14px;
+}
+
+.planCard {
+    background: #fff;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.planName {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #0F172A;
+    margin-bottom: 4px;
+}
+
+.planDetail {
+    font-size: 0.8rem;
+    color: #64748B;
+}
+
+.planBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ECFDF5;
+    color: #059669;
+    border: 1px solid #D1FAE5;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+/* ---- Usage bars ---- */
+.usageList {
+    background: #fff;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.usageRow {
+    display: grid;
+    grid-template-columns: 180px 1fr 80px;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 24px;
+    border-bottom: 1px solid #F1F5F9;
+}
+
+.usageRow:last-child {
+    border-bottom: none;
+}
+
+.usageLabel {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #334155;
+}
+
+.usageBar {
+    height: 6px;
+    background: #F1F5F9;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.usageFill {
+    height: 100%;
+    background: #10B981;
+    border-radius: 3px;
+    transition: width 0.4s ease;
+}
+
+.usageFillWarn {
+    background: #F59E0B;
+}
+
+.usageFillCrit {
+    background: #EF4444;
+}
+
+.usageCount {
+    font-size: 0.75rem;
+    color: #64748B;
+    text-align: right;
+}
+
+/* ---- Invoice table ---- */
+.invoiceTable {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 0.82rem;
+}
+
+.invoiceTable th {
+    background: #F8FAFC;
+    padding: 12px 20px;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94A3B8;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.invoiceTable td {
+    padding: 14px 20px;
+    color: #334155;
+    border-bottom: 1px solid #F1F5F9;
+}
+
+.invoiceTable tr:last-child td {
+    border-bottom: none;
+}
+
+.statusPaid {
+    display: inline-block;
+    background: #ECFDF5;
+    color: #059669;
+    border: 1px solid #D1FAE5;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.downloadLink {
+    color: #10B981;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.75rem;
+}
+
+.downloadLink:hover {
+    text-decoration: underline;
+}
+
+/* ---- Payment method ---- */
+.paymentCard {
+    background: #fff;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.paymentInfo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.paymentIcon {
+    width: 48px;
+    height: 32px;
+    background: #0666EB;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+}
+
+.paymentLabel {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #0F172A;
+}
+
+.paymentSub {
+    font-size: 0.75rem;
+    color: #64748B;
+    margin-top: 2px;
+}
+
+.btnSecondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    background: #fff;
+    color: #334155;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.btnSecondary:hover,
+.btnSecondary:focus-visible {
+    border-color: #10B981;
+    background: #ECFDF5;
+    outline: 2px solid #10B981;
+    outline-offset: 2px;
+}
+
+/* ---- Warning banners ---- */
+.warnBanner {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #FFFBEB;
+    border: 1px solid #FDE68A;
+    color: #92400E;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    margin-bottom: 28px;
+}
+
+.warnBannerCrit {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #FEF2F2;
+    border: 1px solid #FEE2E2;
+    color: #991B1B;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    margin-bottom: 28px;
+}
+
+/* ---- Usage count labels ---- */
+.warnLabel {
+    font-weight: 800;
+    color: #D97706;
+    font-size: 0.72rem;
+}
+
+.critLabel {
+    font-weight: 800;
+    color: #EF4444;
+    font-size: 0.72rem;
+}
+
+.usageCount {
+    font-size: 0.75rem;
+    color: #64748B;
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* ---- Upgrade link ---- */
+.upgradeLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #10B981;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid #D1FAE5;
+    padding: 5px 12px;
+    border-radius: 20px;
+    background: #ECFDF5;
+    transition: background 0.15s, border-color 0.15s;
+}
+.upgradeLink:hover { background: #D1FAE5; border-color: #6EE7B7; }
+.upgradeLink:focus-visible { outline: 2px solid #10B981; outline-offset: 2px; }
+
+/* ---- Invoice note ---- */
+.invoiceNote {
+    font-size: 0.75rem;
+    color: #94A3B8;
+    margin-top: 12px;
+}
+
+/* ---- Spin animation ---- */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* ---- Screenreader only ---- */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+@media (max-width: 680px) {
+    .container { padding: 24px 16px 60px; }
+    .usageRow { grid-template-columns: 1fr 1fr; }
+    .usageBar { display: none; }
+}

@@ -188,12 +188,12 @@ export default function UserDirectoryPage() {
                                     <td>
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                             <span style={{ fontSize: '0.65rem', fontWeight: 950, padding: '2px 8px', borderRadius: '6px', background: u.tier === 'Enterprise' ? '#0A0A0A' : '#F8F9FA', color: u.tier === 'Enterprise' ? '#FFFFFF' : '#64748B', width: 'fit-content' }}>{u.tier?.toUpperCase() || 'FREE'}</span>
-                                            <div style={{ fontWeight: 950, color: '#0A0A0A' }}>€{parseFloat(u.totalSpend || "0").toLocaleString()}</div>
+                                            <div style={{ fontWeight: 950, color: 'var(--foreground)' }}>€{parseFloat(u.totalSpend || "0").toLocaleString()}</div>
                                         </div>
                                     </td>
                                     <td>
                                         <div style={{ display: 'flex', gap: '4px' }}>
-                                            {Array.isArray(u.workflowsUsed) && u.workflowsUsed.length > 0 ? u.workflowsUsed.slice(0,3).map((w:any, i:number) => <div key={i} style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#F8F9FA', border: '1px solid #EEE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>{w.icon || '⚡'}</div>) : <span style={{ fontSize: '0.7rem', color: '#94A3B8' }}>No activations</span>}
+                                            {Array.isArray(u.workflowsUsed) && u.workflowsUsed.length > 0 ? u.workflowsUsed.slice(0,3).map((w:any, i:number) => <div key={i} style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#F8F9FA', border: '1px solid #EEE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>{w.icon || '⚡'}</div>) : <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)' }}>No activations</span>}
                                         </div>
                                     </td>
                                     <td>
@@ -202,7 +202,7 @@ export default function UserDirectoryPage() {
                                                 <div className={adminStyles.statusPulse} style={{ background: getStatusColor(getUserStatus(u)) }} />
                                                 <span>{getUserStatus(u)}</span>
                                             </div>
-                                            <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 800 }}>{new Date(u.lastActive || u.createdAt).toLocaleDateString()}</div>
+                                            <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>{new Date(u.lastActive || u.createdAt).toLocaleDateString()}</div>
                                         </div>
                                     </td>
                                     <td style={{ textAlign: 'right' }} onClick={e => e.stopPropagation()}>
@@ -225,7 +225,7 @@ export default function UserDirectoryPage() {
                             <div className={adminStyles.modalHeader}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                                        <div style={{ width: '60px', height: '60px', background: '#FFF', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 950, color: '#0A0A0A' }}>{selectedUser.name.charAt(0)}</div>
+                                        <div style={{ width: '60px', height: '60px', background: '#FFF', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 950, color: 'var(--foreground)' }}>{selectedUser.name.charAt(0)}</div>
                                         <div>
                                             <h3 className={adminStyles.modalTitle}>{selectedUser.name}</h3>
                                             <p className={adminStyles.modalSubtitle}>{selectedUser.email} • {selectedUser.tier || 'Free'}</p>
@@ -257,7 +257,7 @@ export default function UserDirectoryPage() {
                                                     <span>{w.icon} {w.name}</span>
                                                     <span style={{ color: '#34D186', fontWeight: 950, fontSize: '0.7rem' }}>ACTIVE</span>
                                                 </div>
-                                            )) : <p style={{ color: '#94A3B8', textAlign: 'center', padding: '20px' }}>No workflows found.</p>}
+                                            )) : <p style={{ color: 'var(--muted-foreground)', textAlign: 'center', padding: '20px' }}>No workflows found.</p>}
                                         </div>
                                     </div>
                                 </div>

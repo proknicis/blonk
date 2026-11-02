@@ -36,3 +36,26 @@ export async function POST(request: Request) {
     }
 }
 
+export async function GET(request: Request) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+        const { searchParams } = new URL(request.url);
+        const orderId = searchParams.get('id');
+        if (!orderId) return NextResponse.json({ error: 'Missing orderId' }, { status: 400 });
+
+        const [order] = await db.query(
+            'SELECT status, logs FROM "WorkflowOrder" WHERE id = $1',
+            [orderId]
+        ) as any[];
+
+        if (!order) return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+
+        return NextResponse.json({ status: order.status, logs: order.logs || [] });
+    } catch (error) {
+        console.error('Error fetching order logs:', error);
+        return NextResponse.json({ error: 'Failed' }, { status: 500 });
+    }
+}
+

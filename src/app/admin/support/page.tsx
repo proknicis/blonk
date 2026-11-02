@@ -212,7 +212,7 @@ export default function SupportInboxPage() {
                         {/* Search and Filters */}
                         <div className={styles.searchContainer}>
                             <div style={{ position: 'relative', flex: 1 }}>
-                                <Search style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} size={14} />
+                                <Search style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} size={14} />
                                 <input
                                     type="text"
                                     placeholder="Search tickets..."
@@ -426,7 +426,7 @@ export default function SupportInboxPage() {
                                                             {!isAdmin && msg.content.includes("failing with a 500 error") && (
                                                                 <div className={styles.attachment}>
                                                                     <div className={styles.attachmentInfo}>
-                                                                        <FileText size={24} style={{ color: '#94A3B8' }} />
+                                                                        <FileText size={24} style={{ color: 'var(--muted-foreground)' }} />
                                                                         <div>
                                                                             <div className={styles.attachmentName}>error-screenshot.png</div>
                                                                             <div className={styles.attachmentMeta}>245 KB • PNG Image</div>
@@ -474,7 +474,7 @@ export default function SupportInboxPage() {
 
                                 {/* Text input area */}
                                 <div style={{ 
-                                    border: '1px solid #E2E8F0', 
+                                    border: '1px solid var(--border)', 
                                     borderRadius: '16px', 
                                     padding: '12px', 
                                     background: editorTab === 'note' ? '#FFFBEB' : '#F8FAFC', 
@@ -492,7 +492,7 @@ export default function SupportInboxPage() {
 
                                     {/* Formatting toolbar footer */}
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <div style={{ display: 'flex', gap: '8px', color: '#94A3B8' }}>
+                                        <div style={{ display: 'flex', gap: '8px', color: 'var(--muted-foreground)' }}>
                                             <button style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '4px', color: 'inherit' }}><Paperclip size={14} /></button>
                                             <button style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '4px', color: 'inherit' }}><Smile size={14} /></button>
                                             <button style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '4px', color: 'inherit' }}><Bold size={14} /></button>
@@ -516,7 +516,7 @@ export default function SupportInboxPage() {
                     ) : (
                         <div className={styles.emptyState}>
                             <MessageSquare size={48} className={styles.emptyStateIcon} />
-                            <h3 style={{ fontWeight: 950, color: '#0F172A', marginBottom: '4px' }}>No ticket selected</h3>
+                            <h3 style={{ fontWeight: 950, color: 'var(--foreground)', marginBottom: '4px' }}>No ticket selected</h3>
                             <span className={styles.emptyStateText}>Please select a ticket from the left panel to load the thread.</span>
                         </div>
                     )}
@@ -546,10 +546,10 @@ export default function SupportInboxPage() {
 
                                     <div style={{ borderTop: '1px solid #E2E8F0', marginTop: '8px', paddingTop: '12px' }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 900, marginBottom: '6px' }}>
-                                            <span style={{ color: '#94A3B8' }}>SLA Guarantee</span>
+                                            <span style={{ color: 'var(--muted-foreground)' }}>SLA Guarantee</span>
                                             <span style={{ color: '#10B981' }}>Response in 58m</span>
                                         </div>
-                                        <div style={{ width: '100%', height: '6px', background: '#F1F5F9', borderRadius: '100px', overflow: 'hidden' }}>
+                                        <div style={{ width: '100%', height: '6px', background: 'var(--muted)', borderRadius: '100px', overflow: 'hidden' }}>
                                             <div style={{ width: '75%', height: '100%', background: '#10B981', borderRadius: '100px' }} />
                                         </div>
                                     </div>
@@ -580,15 +580,15 @@ export default function SupportInboxPage() {
                                 <h4 className={styles.infoSectionTitle}>Quick Actions</h4>
                                 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                    <button style={{ height: '36px', width: '100%', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 900, color: '#0F172A', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                    <button style={{ height: '36px', width: '100%', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 900, color: 'var(--foreground)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                         <Play size={12} />
                                         Open in Workflow Viewer
                                     </button>
-                                    <button style={{ height: '36px', width: '100%', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 900, color: '#0F172A', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                    <button style={{ height: '36px', width: '100%', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 900, color: 'var(--foreground)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                         <FileText size={12} />
                                         View Run Logs
                                     </button>
-                                    <button style={{ height: '36px', width: '100%', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 900, color: '#0F172A', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                    <button style={{ height: '36px', width: '100%', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 900, color: 'var(--foreground)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                         <Phone size={12} />
                                         Contact Client
                                     </button>

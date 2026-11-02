@@ -8,44 +8,138 @@ export async function ensureWorkflowSchema() {
     await db.execute('ALTER TABLE "Workflow" ADD COLUMN IF NOT EXISTS "teamId" UUID');
     await db.execute('ALTER TABLE "Workflow" ADD COLUMN IF NOT EXISTS "progress" INTEGER DEFAULT 0');
 }
+import { PROVISIONING_STATUS, ProvisioningStatus, isValidProvisioningTransition } from "@/lib/provisioning-lifecycle";
 
-export async function allocateNodeForTeam(teamId: string): Promise<any | null> {
-    let [assignedNode] = await db.query(
-        'SELECT * FROM "ClusterNode" WHERE "teamId" = $1 AND status ILIKE \'Active\' LIMIT 1',
+export async function transitionTeamProvisioningStatus(teamId: string, toStatus: ProvisioningStatus): Promise<boolean> {
+    const [team] = await db.query(
+        'SELECT "provisioningStatus" FROM "Team" WHERE id = $1 LIMIT 1',
         [teamId]
     ) as any[];
 
-    if (!assignedNode) {
-        const [anyAssigned] = await db.query('SELECT * FROM "ClusterNode" WHERE "teamId" = $1 LIMIT 1', [teamId]) as any[];
-        if (anyAssigned) assignedNode = anyAssigned;
+    const currentStatus = (team?.provisioningStatus || PROVISIONING_STATUS.UNASSIGNED) as ProvisioningStatus;
+
+    if (!isValidProvisioningTransition(currentStatus, toStatus)) {
+        console.warn(`[Provisioning Lifecycle] Invalid state transition: ${currentStatus} -> ${toStatus} for Team ${teamId}`);
+        try {
+            await db.execute(
+                `INSERT INTO "Event" ("userId", "eventType", "metadata", "source") 
+                 VALUES ($1, $2, $3, $4)`,
+                [
+                    null,
+                    'invalid_provision_transition',
+                    JSON.stringify({
+                        teamId,
+                        title: 'Invalid State Transition Warning',
+                        description: `Attempted invalid transition from ${currentStatus} to ${toStatus}.`,
+                        ip_address: '127.0.0.1',
+                        user_agent: 'BLONK System Guard'
+                    }),
+                    'audit_log'
+                ]
+            );
+        } catch (e) {
+            console.error("Audit log insertion failed:", e);
+        }
     }
 
-    if (assignedNode) return assignedNode;
+    await db.execute(
+        'UPDATE "Team" SET "provisioningStatus" = $1 WHERE id = $2',
+        [toStatus, teamId]
+    );
+    return true;
+}
 
-    const unassignedActive = await db.query(
-        'SELECT * FROM "ClusterNode" WHERE "teamId" IS NULL AND status ILIKE \'Active\' ORDER BY "createdAt" ASC LIMIT 1'
+export async function allocateNodeForTeam(teamId: string): Promise<any | null> {
+    // 1. Check if the Team/Workspace already has a server assigned
+    const [team] = await db.query(
+        'SELECT "serverId" FROM "Team" WHERE id = $1 LIMIT 1',
+        [teamId]
     ) as any[];
 
-    if (unassignedActive.length > 0) {
-        const target = unassignedActive[0];
-        await db.execute('UPDATE "ClusterNode" SET "teamId" = $1 WHERE id = $2', [teamId, target.id]);
-        return { ...target, teamId };
+    if (team?.serverId) {
+        const [node] = await db.query(
+            'SELECT * FROM "ClusterNode" WHERE id = $1 LIMIT 1',
+            [team.serverId]
+        ) as any[];
+        if (node) return node;
     }
 
-    const anyUnassigned = await db.query(
-        'SELECT * FROM "ClusterNode" WHERE "teamId" IS NULL ORDER BY "createdAt" ASC LIMIT 1'
-    ) as any[];
+    // 2. Load-balanced query to find active, assignable server with the lowest assigned workspace count
+    const assignableNodes = await db.query(`
+        SELECT n.*, 
+               (SELECT COUNT(*) FROM "Team" t WHERE t."serverId" = n.id) as assigned_workspaces
+        FROM "ClusterNode" n
+        WHERE n.status = 'Active' AND n.is_assignable = true
+        ORDER BY assigned_workspaces ASC, n."createdAt" ASC
+        LIMIT 1
+    `) as any[];
 
-    if (anyUnassigned.length > 0) {
-        const target = anyUnassigned[0];
-        await db.execute('UPDATE "ClusterNode" SET "teamId" = $1 WHERE id = $2', [teamId, target.id]);
-        return { ...target, teamId };
+    let targetNode = assignableNodes[0] || null;
+
+    if (targetNode) {
+        // Persist the assignment on the Team (Workspace)
+        await db.execute(
+            `UPDATE "Team" SET 
+                "serverId" = $1, 
+                "assignedAt" = CURRENT_TIMESTAMP 
+             WHERE id = $2`,
+            [targetNode.id, teamId]
+        );
+        await transitionTeamProvisioningStatus(teamId, PROVISIONING_STATUS.RESERVED);
+
+        // Update ClusterNode for legacy backward compatibility
+        await db.execute(
+            'UPDATE "ClusterNode" SET "teamId" = $1 WHERE id = $2 AND "teamId" IS NULL',
+            [teamId, targetNode.id]
+        );
+
+        return { ...targetNode, teamId };
+    }
+
+    // No Capacity Fallback: set status to QUEUED
+    await db.execute(
+        `UPDATE "Team" SET 
+            "serverId" = NULL, 
+            "assignedAt" = NULL 
+         WHERE id = $1`,
+        [teamId]
+    );
+    await transitionTeamProvisioningStatus(teamId, PROVISIONING_STATUS.QUEUED);
+
+    // Log a system audit event about exhaustion
+    try {
+        await db.execute(
+            `INSERT INTO "Event" ("userId", "eventType", "metadata", "source") 
+             VALUES ($1, $2, $3, $4)`,
+            [
+                null,
+                'infra_capacity_exhausted',
+                JSON.stringify({
+                    teamId,
+                    title: 'Server Capacity Exhausted',
+                    description: 'No active, assignable server nodes are available. Workspace placed in provisioning queue.',
+                    ip_address: '127.0.0.1',
+                    user_agent: 'BLONK System Allocator'
+                }),
+                'audit_log'
+            ]
+        );
+    } catch (e) {
+        console.error("Audit log insertion failed:", e);
     }
 
     return null;
 }
 
 export async function bindNodeToTeam(nodeId: string, teamId: string) {
+    await db.execute(
+        `UPDATE "Team" SET 
+            "serverId" = $1, 
+            "assignedAt" = CURRENT_TIMESTAMP 
+         WHERE id = $2`,
+        [nodeId, teamId]
+    );
+    await transitionTeamProvisioningStatus(teamId, PROVISIONING_STATUS.READY);
     await db.execute('UPDATE "ClusterNode" SET "teamId" = $1 WHERE id = $2', [teamId, nodeId]);
 }
 

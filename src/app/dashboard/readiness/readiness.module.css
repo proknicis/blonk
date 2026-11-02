@@ -1,0 +1,157 @@
+.container {
+    width: 100%;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #020617;
+    letter-spacing: -0.03em;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+.subtitle {
+    font-size: 0.85rem;
+    color: #64748B;
+    line-height: 1.4;
+}
+
+.dualColumn {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 28px;
+    margin-top: 16px;
+}
+
+@media (max-width: 900px) {
+    .dualColumn {
+        grid-template-columns: 1fr;
+    }
+}
+
+.leftColCard, .rightColCard {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 24px;
+}
+
+.cardTitle {
+    font-size: 1rem;
+    font-weight: 900;
+    color: #020617;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+}
+
+.checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.checkRow {
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 16px;
+    background: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.checkHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.checkReason {
+    font-size: 0.75rem;
+    color: #EF4444;
+    background: #FFF5F5;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #FEE2E2;
+}
+
+.btnPrimary {
+    height: 48px;
+    width: 100%;
+    background: #10B981;
+    color: #FFFFFF;
+    font-weight: 800;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    transition: background 0.15s ease;
+    margin-top: 20px;
+}
+
+.btnPrimary:hover {
+    background: #059669;
+}
+
+.btnPrimary:focus-visible {
+    outline: 2px solid #10B981;
+    outline-offset: 2px;
+}
+
+.auditMiniBox {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Sync result panels */
+.syncResultOk,
+.syncResultFail {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.45;
+    margin-top: 16px;
+}
+
+.syncResultOk {
+    background: #ECFDF5;
+    border: 1px solid #D1FAE5;
+    color: #065F46;
+}
+
+.syncResultFail {
+    background: #FEF2F2;
+    border: 1px solid #FEE2E2;
+    color: #991B1B;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+

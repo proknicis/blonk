@@ -463,17 +463,17 @@ export default function FleetHealthMonitoringPage() {
             {/* SUB-HEADER SECTION */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '-12px' }}>
                 <div>
-                    <h1 style={{ fontSize: '1.75rem', fontWeight: 950, margin: 0, textTransform: 'uppercase', letterSpacing: '-0.02em', color: '#0F172A' }}>Fleet Health Monitoring</h1>
+                    <h1 style={{ fontSize: '1.75rem', fontWeight: 950, margin: 0, textTransform: 'uppercase', letterSpacing: '-0.02em', color: 'var(--foreground)' }}>Fleet Health Monitoring</h1>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
                         <div style={{ width: '64px', height: '1px', background: '#E2E8F0', marginRight: '4px' }} />
                         <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10B981' }} />
-                        <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', color: '#64748B', letterSpacing: '0.05em' }}>Node Cluster: Global_Alpha</span>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', color: 'var(--muted-foreground)', letterSpacing: '0.05em' }}>Node Cluster: Global_Alpha</span>
                     </div>
                 </div>
             </div>
 
             {/* DEEP SLATE BANNER WITH STATS */}
-            <div style={{ background: '#0F172A', color: '#FFFFFF', border: 'none', padding: '40px 48px', borderRadius: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 20px 40px rgba(15, 23, 42, 0.08)' }}>
+            <div style={{ background: 'var(--primary)', color: '#FFFFFF', border: 'none', padding: '40px 48px', borderRadius: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 20px 40px rgba(15, 23, 42, 0.08)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
                     <div style={{ position: 'relative' }}>
                         <div style={{ width: '64px', height: '64px', background: 'rgba(255,255,255,0.08)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -484,10 +484,10 @@ export default function FleetHealthMonitoringPage() {
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
                             <span style={{ padding: '3px 8px', background: 'rgba(16, 185, 129, 0.15)', color: '#10B981', borderRadius: '6px', fontSize: '0.6rem', fontWeight: 950, letterSpacing: '0.1em' }}>GLOBAL FLEET OPERATIONS</span>
-                            <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.2em', color: '#94A3B8' }}>REAL-TIME MONITORING</span>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--muted-foreground)' }}>REAL-TIME MONITORING</span>
                         </div>
                         <h2 style={{ color: '#FFFFFF', fontSize: '2rem', fontWeight: 950, letterSpacing: '-0.04em', margin: 0 }}>Global Fleet Operations</h2>
-                        <p style={{ color: '#94A3B8', fontSize: '0.95rem', fontWeight: 700, margin: '6px 0 0' }}>Real-time health and performance of all registered sovereign engines.</p>
+                        <p style={{ color: 'var(--muted-foreground)', fontSize: '0.95rem', fontWeight: 700, margin: '6px 0 0' }}>Real-time health and performance of all registered sovereign engines.</p>
                     </div>
                 </div>
                 
@@ -506,7 +506,7 @@ export default function FleetHealthMonitoringPage() {
                     </div>
                     <button 
                         onClick={() => setShowProvisionModal(true)}
-                        style={{ background: '#10B981', color: '#0F172A', height: '56px', padding: '0 28px', borderRadius: '16px', border: 'none', fontWeight: 950, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 10px 20px rgba(16, 185, 129, 0.2)' }}
+                        style={{ background: '#10B981', color: 'var(--foreground)', height: '56px', padding: '0 28px', borderRadius: '16px', border: 'none', fontWeight: 950, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 10px 20px rgba(16, 185, 129, 0.2)' }}
                     >
                         <Plus size={18} /> Provision New Server
                     </button>
@@ -528,12 +528,12 @@ export default function FleetHealthMonitoringPage() {
             {/* PROVISIONING MODAL */}
             {showProvisionModal && (
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-                    <div style={{ background: '#FFFFFF', borderRadius: '24px', padding: '40px', maxWidth: '500px', width: '90%', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)' }}>
+                    <div style={{ background: 'var(--card)', borderRadius: '24px', padding: '40px', maxWidth: '500px', width: '90%', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                            <h2 style={{ fontSize: '1.25rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>Provision New Server</h2>
+                            <h2 style={{ fontSize: '1.25rem', fontWeight: 950, color: 'var(--foreground)', margin: 0 }}>Provision New Server</h2>
                             <button 
                                 onClick={() => setShowProvisionModal(false)}
-                                style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#F8FAFC', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                                style={{ width: '36px', height: '36px', border: '1px solid var(--border)', background: 'var(--muted)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                             >
                                 <X size={16} />
                             </button>
@@ -541,7 +541,7 @@ export default function FleetHealthMonitoringPage() {
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '8px' }}>Customer</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted-foreground)', marginBottom: '8px' }}>Customer</label>
                                 <select 
                                     value={provisionData.customerId}
                                     onChange={(e) => {
@@ -553,7 +553,7 @@ export default function FleetHealthMonitoringPage() {
                                             customerEmail: customer?.email || ''
                                         });
                                     }}
-                                    style={{ width: '100%', height: '52px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 20px', fontSize: '0.95rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                    style={{ width: '100%', height: '52px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0 20px', fontSize: '0.95rem', fontWeight: 600, color: 'var(--foreground)', outline: 'none' }}
                                 >
                                     <option value="">Select customer...</option>
                                     {availableCustomers.map(customer => (
@@ -563,11 +563,11 @@ export default function FleetHealthMonitoringPage() {
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '8px' }}>Instance Type</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted-foreground)', marginBottom: '8px' }}>Instance Type</label>
                                 <select 
                                     value={provisionData.instanceType}
                                     onChange={(e) => setProvisionData({ ...provisionData, instanceType: e.target.value })}
-                                    style={{ width: '100%', height: '52px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 20px', fontSize: '0.95rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                    style={{ width: '100%', height: '52px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0 20px', fontSize: '0.95rem', fontWeight: 600, color: 'var(--foreground)', outline: 'none' }}
                                 >
                                     <option value="">Select instance type...</option>
                                     <option value="VPS-1">VPS-1 (2 vCPU, 4GB RAM)</option>
@@ -578,11 +578,11 @@ export default function FleetHealthMonitoringPage() {
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '8px' }}>Region</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted-foreground)', marginBottom: '8px' }}>Region</label>
                                 <select 
                                     value={provisionData.region}
                                     onChange={(e) => setProvisionData({ ...provisionData, region: e.target.value })}
-                                    style={{ width: '100%', height: '52px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 20px', fontSize: '0.95rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                    style={{ width: '100%', height: '52px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0 20px', fontSize: '0.95rem', fontWeight: 600, color: 'var(--foreground)', outline: 'none' }}
                                 >
                                     <option value="EU-CENTRAL-1">Frankfurt, Germany</option>
                                     <option value="EU-WEST-1">Rotterdam, Netherlands</option>
@@ -596,13 +596,13 @@ export default function FleetHealthMonitoringPage() {
                                 <button 
                                     onClick={handleProvisionServer}
                                     disabled={isProvisioning || !provisionData.customerId || !provisionData.instanceType}
-                                    style={{ flex: 1, height: '52px', background: '#0F172A', color: '#FFFFFF', border: 'none', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: isProvisioning || !provisionData.customerId || !provisionData.instanceType ? 'not-allowed' : 'pointer', opacity: isProvisioning || !provisionData.customerId || !provisionData.instanceType ? 0.6 : 1 }}
+                                    style={{ flex: 1, height: '52px', background: 'var(--primary)', color: '#FFFFFF', border: 'none', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: isProvisioning || !provisionData.customerId || !provisionData.instanceType ? 'not-allowed' : 'pointer', opacity: isProvisioning || !provisionData.customerId || !provisionData.instanceType ? 0.6 : 1 }}
                                 >
                                     {isProvisioning ? 'Provisioning...' : 'Provision Server'}
                                 </button>
                                 <button 
                                     onClick={() => setShowProvisionModal(false)}
-                                    style={{ flex: 1, height: '52px', background: 'transparent', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: 'pointer' }}
+                                    style={{ flex: 1, height: '52px', background: 'transparent', color: 'var(--muted-foreground)', border: '1px solid var(--border)', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: 'pointer' }}
                                 >
                                     Cancel
                                 </button>
@@ -615,15 +615,15 @@ export default function FleetHealthMonitoringPage() {
             {/* MANUAL REGISTRATION MODAL */}
             {showManualModal && (
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-                    <div style={{ background: '#FFFFFF', borderRadius: '24px', padding: '40px', maxWidth: '550px', width: '90%', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)' }}>
+                    <div style={{ background: 'var(--card)', borderRadius: '24px', padding: '40px', maxWidth: '550px', width: '90%', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                             <div>
-                                <h2 style={{ fontSize: '1.25rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>Register Manual Server</h2>
-                                <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0', fontWeight: 700 }}>Connect an existing n8n server to a customer tenant.</p>
+                                <h2 style={{ fontSize: '1.25rem', fontWeight: 950, color: 'var(--foreground)', margin: 0 }}>Register Manual Server</h2>
+                                <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', margin: '4px 0 0', fontWeight: 700 }}>Connect an existing n8n server to a customer tenant.</p>
                             </div>
                             <button 
                                 onClick={() => setShowManualModal(false)}
-                                style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#F8FAFC', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                                style={{ width: '36px', height: '36px', border: '1px solid var(--border)', background: 'var(--muted)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                             >
                                 <X size={16} />
                             </button>
@@ -631,7 +631,7 @@ export default function FleetHealthMonitoringPage() {
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '6px' }}>Assign Customer (Optional)</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted-foreground)', marginBottom: '6px' }}>Assign Customer (Optional)</label>
                                 <select 
                                     value={manualData.customerId}
                                     onChange={(e) => {
@@ -643,7 +643,7 @@ export default function FleetHealthMonitoringPage() {
                                             customerEmail: customer?.email || ''
                                         });
                                     }}
-                                    style={{ width: '100%', height: '48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                    style={{ width: '100%', height: '48px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: 'var(--foreground)', outline: 'none' }}
                                 >
                                     <option value="">Leave Unassigned (Internal Pool)</option>
                                     {availableCustomers.map(customer => (
@@ -654,67 +654,67 @@ export default function FleetHealthMonitoringPage() {
 
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '6px' }}>Server Name</label>
+                                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted-foreground)', marginBottom: '6px' }}>Server Name</label>
                                     <input 
                                         type="text"
                                         placeholder="e.g. Riga Core Node"
                                         value={manualData.name}
                                         onChange={(e) => setManualData({ ...manualData, name: e.target.value })}
-                                        style={{ width: '100%', height: '48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                        style={{ width: '100%', height: '48px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: 'var(--foreground)', outline: 'none' }}
                                     />
                                 </div>
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '6px' }}>Max Workflows</label>
+                                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted-foreground)', marginBottom: '6px' }}>Max Workflows</label>
                                     <input 
                                         type="number"
                                         value={manualData.maxWorkflows}
                                         onChange={(e) => setManualData({ ...manualData, maxWorkflows: parseInt(e.target.value) || 100 })}
-                                        style={{ width: '100%', height: '48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                        style={{ width: '100%', height: '48px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: 'var(--foreground)', outline: 'none' }}
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '6px' }}>n8n URL Endpoint</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted-foreground)', marginBottom: '6px' }}>n8n URL Endpoint</label>
                                 <input 
                                     type="text"
                                     placeholder="https://your-n8n-instance.com"
                                     value={manualData.url}
                                     onChange={(e) => setManualData({ ...manualData, url: e.target.value })}
-                                    style={{ width: '100%', height: '48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                    style={{ width: '100%', height: '48px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: 'var(--foreground)', outline: 'none' }}
                                 />
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '6px' }}>n8n API Key</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted-foreground)', marginBottom: '6px' }}>n8n API Key</label>
                                 <input 
                                     type="password"
                                     placeholder="n8n_api_key_..."
                                     value={manualData.apiKey}
                                     onChange={(e) => setManualData({ ...manualData, apiKey: e.target.value })}
-                                    style={{ width: '100%', height: '48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                    style={{ width: '100%', height: '48px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: 'var(--foreground)', outline: 'none' }}
                                 />
                             </div>
 
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '6px' }}>IP Address (Optional)</label>
+                                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted-foreground)', marginBottom: '6px' }}>IP Address (Optional)</label>
                                     <input 
                                         type="text"
                                         placeholder="e.g. 192.168.1.1"
                                         value={manualData.ipAddress}
                                         onChange={(e) => setManualData({ ...manualData, ipAddress: e.target.value })}
-                                        style={{ width: '100%', height: '48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                        style={{ width: '100%', height: '48px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: 'var(--foreground)', outline: 'none' }}
                                     />
                                 </div>
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '6px' }}>Region (Optional)</label>
+                                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted-foreground)', marginBottom: '6px' }}>Region (Optional)</label>
                                     <input 
                                         type="text"
                                         placeholder="e.g. Riga, LV"
                                         value={manualData.region}
                                         onChange={(e) => setManualData({ ...manualData, region: e.target.value })}
-                                        style={{ width: '100%', height: '48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                        style={{ width: '100%', height: '48px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0 16px', fontSize: '0.9rem', fontWeight: 600, color: 'var(--foreground)', outline: 'none' }}
                                     />
                                 </div>
                             </div>
@@ -723,13 +723,13 @@ export default function FleetHealthMonitoringPage() {
                                 <button 
                                     onClick={handleManualRegisterServer}
                                     disabled={isRegistering || !manualData.name || !manualData.url || !manualData.apiKey}
-                                    style={{ flex: 1, height: '52px', background: '#0F172A', color: '#FFFFFF', border: 'none', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: isRegistering || !manualData.name || !manualData.url || !manualData.apiKey ? 'not-allowed' : 'pointer', opacity: isRegistering || !manualData.name || !manualData.url || !manualData.apiKey ? 0.6 : 1 }}
+                                    style={{ flex: 1, height: '52px', background: 'var(--primary)', color: '#FFFFFF', border: 'none', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: isRegistering || !manualData.name || !manualData.url || !manualData.apiKey ? 'not-allowed' : 'pointer', opacity: isRegistering || !manualData.name || !manualData.url || !manualData.apiKey ? 0.6 : 1 }}
                                 >
                                     {isRegistering ? 'Registering...' : 'Register Server'}
                                 </button>
                                 <button 
                                     onClick={() => setShowManualModal(false)}
-                                    style={{ flex: 1, height: '52px', background: 'transparent', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: 'pointer' }}
+                                    style={{ flex: 1, height: '52px', background: 'transparent', color: 'var(--muted-foreground)', border: '1px solid var(--border)', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: 'pointer' }}
                                 >
                                     Cancel
                                 </button>
@@ -742,9 +742,9 @@ export default function FleetHealthMonitoringPage() {
             {/* N8N ACTION CONFIRMATION MODAL */}
             {showN8nModal && selectedNode && n8nAction && (
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-                    <div style={{ background: '#FFFFFF', borderRadius: '24px', padding: '40px', maxWidth: '400px', width: '90%', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)' }}>
+                    <div style={{ background: 'var(--card)', borderRadius: '24px', padding: '40px', maxWidth: '400px', width: '90%', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                            <h2 style={{ fontSize: '1.25rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>
+                            <h2 style={{ fontSize: '1.25rem', fontWeight: 950, color: 'var(--foreground)', margin: 0 }}>
                                 {n8nAction === 'start' && 'Start n8n'}
                                 {n8nAction === 'stop' && 'Stop n8n'}
                                 {n8nAction === 'restart' && 'Restart n8n'}
@@ -752,14 +752,14 @@ export default function FleetHealthMonitoringPage() {
                             </h2>
                             <button 
                                 onClick={() => setShowN8nModal(false)}
-                                style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#F8FAFC', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                                style={{ width: '36px', height: '36px', border: '1px solid var(--border)', background: 'var(--muted)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                             >
                                 <X size={16} />
                             </button>
                         </div>
 
                         <div style={{ marginBottom: '24px' }}>
-                            <p style={{ fontSize: '0.95rem', color: '#64748B', fontWeight: 700, margin: 0 }}>
+                            <p style={{ fontSize: '0.95rem', color: 'var(--muted-foreground)', fontWeight: 700, margin: 0 }}>
                                 Are you sure you want to {n8nAction} n8n on server <strong>{selectedNode.name}</strong>?
                             </p>
                             {n8nAction === 'stop' && (
@@ -773,13 +773,13 @@ export default function FleetHealthMonitoringPage() {
                             <button 
                                 onClick={executeN8nAction}
                                 disabled={isN8nActionLoading}
-                                style={{ flex: 1, height: '52px', background: '#0F172A', color: '#FFFFFF', border: 'none', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: isN8nActionLoading ? 'not-allowed' : 'pointer', opacity: isN8nActionLoading ? 0.6 : 1 }}
+                                style={{ flex: 1, height: '52px', background: 'var(--primary)', color: '#FFFFFF', border: 'none', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: isN8nActionLoading ? 'not-allowed' : 'pointer', opacity: isN8nActionLoading ? 0.6 : 1 }}
                             >
                                 {isN8nActionLoading ? 'Processing...' : 'Confirm'}
                             </button>
                             <button 
                                 onClick={() => setShowN8nModal(false)}
-                                style={{ flex: 1, height: '52px', background: 'transparent', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: 'pointer' }}
+                                style={{ flex: 1, height: '52px', background: 'transparent', color: 'var(--muted-foreground)', border: '1px solid var(--border)', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: 'pointer' }}
                             >
                                 Cancel
                             </button>
@@ -791,12 +791,12 @@ export default function FleetHealthMonitoringPage() {
             {/* WORKFLOW DEPLOYMENT MODAL */}
             {showDeployModal && (
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-                    <div style={{ background: '#FFFFFF', borderRadius: '24px', padding: '40px', maxWidth: '500px', width: '90%', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)' }}>
+                    <div style={{ background: 'var(--card)', borderRadius: '24px', padding: '40px', maxWidth: '500px', width: '90%', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                            <h2 style={{ fontSize: '1.25rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>Deploy Workflow</h2>
+                            <h2 style={{ fontSize: '1.25rem', fontWeight: 950, color: 'var(--foreground)', margin: 0 }}>Deploy Workflow</h2>
                             <button 
                                 onClick={() => setShowDeployModal(false)}
-                                style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#F8FAFC', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                                style={{ width: '36px', height: '36px', border: '1px solid var(--border)', background: 'var(--muted)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                             >
                                 <X size={16} />
                             </button>
@@ -804,11 +804,11 @@ export default function FleetHealthMonitoringPage() {
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '8px' }}>Workflow</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted-foreground)', marginBottom: '8px' }}>Workflow</label>
                                 <select 
                                     value={deployData.workflowId}
                                     onChange={(e) => setDeployData({ ...deployData, workflowId: e.target.value })}
-                                    style={{ width: '100%', height: '52px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 20px', fontSize: '0.95rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                    style={{ width: '100%', height: '52px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0 20px', fontSize: '0.95rem', fontWeight: 600, color: 'var(--foreground)', outline: 'none' }}
                                 >
                                     <option value="">Select workflow...</option>
                                     {availableWorkflows.map(workflow => (
@@ -818,11 +818,11 @@ export default function FleetHealthMonitoringPage() {
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: '8px' }}>Target Server</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted-foreground)', marginBottom: '8px' }}>Target Server</label>
                                 <select 
                                     value={deployData.serverId}
                                     onChange={(e) => setDeployData({ ...deployData, serverId: e.target.value })}
-                                    style={{ width: '100%', height: '52px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0 20px', fontSize: '0.95rem', fontWeight: 600, color: '#0F172A', outline: 'none' }}
+                                    style={{ width: '100%', height: '52px', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0 20px', fontSize: '0.95rem', fontWeight: 600, color: 'var(--foreground)', outline: 'none' }}
                                 >
                                     <option value="">Select server...</option>
                                     {nodes.filter(n => n.status === 'Active').map(node => (
@@ -835,13 +835,13 @@ export default function FleetHealthMonitoringPage() {
                                 <button 
                                     onClick={handleDeployWorkflow}
                                     disabled={isDeploying || !deployData.workflowId || !deployData.serverId}
-                                    style={{ flex: 1, height: '52px', background: '#0F172A', color: '#FFFFFF', border: 'none', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: isDeploying || !deployData.workflowId || !deployData.serverId ? 'not-allowed' : 'pointer', opacity: isDeploying || !deployData.workflowId || !deployData.serverId ? 0.6 : 1 }}
+                                    style={{ flex: 1, height: '52px', background: 'var(--primary)', color: '#FFFFFF', border: 'none', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: isDeploying || !deployData.workflowId || !deployData.serverId ? 'not-allowed' : 'pointer', opacity: isDeploying || !deployData.workflowId || !deployData.serverId ? 0.6 : 1 }}
                                 >
                                     {isDeploying ? 'Deploying...' : 'Deploy Workflow'}
                                 </button>
                                 <button 
                                     onClick={() => setShowDeployModal(false)}
-                                    style={{ flex: 1, height: '52px', background: 'transparent', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: 'pointer' }}
+                                    style={{ flex: 1, height: '52px', background: 'transparent', color: 'var(--muted-foreground)', border: '1px solid var(--border)', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 800, cursor: 'pointer' }}
                                 >
                                     Cancel
                                 </button>
@@ -861,12 +861,12 @@ export default function FleetHealthMonitoringPage() {
                     { label: 'ACTIVE WORKFLOWS', value: totalWorkflows, detail: 'Total provisioned automations' },
                     { label: 'SERVER SYNC', value: `${activeNodes}/${totalNodes}`, detail: 'Active fleet sync status' }
                 ].map((m, i) => (
-                    <div key={i} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '24px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '140px' }}>
+                    <div key={i} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '24px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '140px' }}>
                         <div>
-                            <span style={{ fontSize: '0.65rem', fontWeight: 950, color: '#64748B', letterSpacing: '0.05em' }}>{m.label}</span>
-                            <div style={{ fontSize: '1.85rem', fontWeight: 950, color: '#0F172A', marginTop: '8px', letterSpacing: '-0.02em' }}>{m.value}</div>
+                            <span style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)', letterSpacing: '0.05em' }}>{m.label}</span>
+                            <div style={{ fontSize: '1.85rem', fontWeight: 950, color: 'var(--foreground)', marginTop: '8px', letterSpacing: '-0.02em' }}>{m.value}</div>
                         </div>
-                        <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700, marginTop: '12px' }}>{m.detail}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 700, marginTop: '12px' }}>{m.detail}</div>
                     </div>
                 ))}
             </div>
@@ -875,18 +875,18 @@ export default function FleetHealthMonitoringPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1.2fr', gap: '32px' }}>
                 
                 {/* SOVEREIGN FLEET REGISTRY */}
-                <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
+                <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                         <div>
-                            <h3 style={{ fontSize: '1.25rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>SOVEREIGN FLEET REGISTRY</h3>
-                            <p style={{ fontSize: '0.85rem', color: '#64748B', margin: '4px 0 0', fontWeight: 700 }}>Telemetry status across client node fleet</p>
+                            <h3 style={{ fontSize: '1.25rem', fontWeight: 950, color: 'var(--foreground)', margin: 0 }}>SOVEREIGN FLEET REGISTRY</h3>
+                            <p style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', margin: '4px 0 0', fontWeight: 700 }}>Telemetry status across client node fleet</p>
                         </div>
                         <div style={{ display: 'flex', gap: '12px' }}>
                             <div style={{ position: 'relative' }}>
                                 <select 
                                     value={statusFilter} 
                                     onChange={e => setStatusFilter(e.target.value)}
-                                    style={{ padding: '8px 16px', borderRadius: '12px', border: '1px solid #E2E8F0', fontSize: '0.8rem', fontWeight: 800, background: '#F8FAFC', outline: 'none', cursor: 'pointer' }}
+                                    style={{ padding: '8px 16px', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '0.8rem', fontWeight: 800, background: 'var(--muted)', outline: 'none', cursor: 'pointer' }}
                                 >
                                     <option value="All">All Statuses</option>
                                     <option value="Healthy">Healthy</option>
@@ -895,11 +895,11 @@ export default function FleetHealthMonitoringPage() {
                                 </select>
                             </div>
                             <div style={{ position: 'relative', width: '220px' }}>
-                                <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+                                <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} />
                                 <input 
                                     type="text" 
                                     placeholder="Filter fleet..." 
-                                    style={{ width: '100%', height: '36px', borderRadius: '12px', border: '1px solid #E2E8F0', paddingLeft: '36px', fontSize: '0.8rem', fontWeight: 750, outline: 'none' }}
+                                    style={{ width: '100%', height: '36px', borderRadius: '12px', border: '1px solid var(--border)', paddingLeft: '36px', fontSize: '0.8rem', fontWeight: 750, outline: 'none' }}
                                     value={searchTerm}
                                     onChange={e => setSearchTerm(e.target.value)}
                                 />
@@ -914,7 +914,7 @@ export default function FleetHealthMonitoringPage() {
                                 <Skeleton style={{ height: '48px', borderRadius: '12px' }} />
                             </div>
                         ) : filteredNodes.length === 0 ? (
-                            <div style={{ padding: '48px', textAlign: 'center', color: '#64748B', fontWeight: 700 }}>
+                            <div style={{ padding: '48px', textAlign: 'center', color: 'var(--muted-foreground)', fontWeight: 700 }}>
                                 <Server size={36} style={{ opacity: 0.3, marginBottom: '12px' }} />
                                 <div>No matching sovereign nodes found.</div>
                             </div>
@@ -922,50 +922,50 @@ export default function FleetHealthMonitoringPage() {
                             <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 8px' }}>
                                 <thead>
                                     <tr>
-                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Node ID</th>
-                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Customer</th>
-                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Tenant / Name</th>
-                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Region</th>
-                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Status</th>
-                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Uptime</th>
-                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>CPU</th>
-                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Memory</th>
-                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Disk</th>
-                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Workflows</th>
-                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Telemetry</th>
-                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9', textAlign: 'right' }}>Actions</th>
+                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Node ID</th>
+                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Customer</th>
+                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Tenant / Name</th>
+                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Region</th>
+                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Status</th>
+                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Uptime</th>
+                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>CPU</th>
+                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Memory</th>
+                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Disk</th>
+                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Workflows</th>
+                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9' }}>Telemetry</th>
+                                        <th style={{ padding: '12px 16px', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1.5px solid #F1F5F9', textAlign: 'right' }}>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {filteredNodes.map(node => {
                                         const isErr = node.status === 'Unreachable' || node.status === 'Timeout';
                                         return (
-                                            <tr key={node.id} style={{ background: '#F8FAFC', borderRadius: '16px' }}>
+                                            <tr key={node.id} style={{ background: 'var(--muted)', borderRadius: '16px' }}>
                                                 <td style={{ padding: '16px', borderTopLeftRadius: '16px', borderBottomLeftRadius: '16px' }}>
                                                     <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                                        <div style={{ width: '40px', height: '40px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0F172A' }}>
+                                                        <div style={{ width: '40px', height: '40px', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--foreground)' }}>
                                                             <Server size={18} />
                                                         </div>
                                                         <div>
-                                                            <div style={{ fontSize: '0.9rem', fontWeight: 950, color: '#0F172A', fontFamily: 'monospace' }}>{node.id.slice(0, 8).toUpperCase()}</div>
-                                                            <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 800 }}>{node.status === 'Active' ? '1m ago' : 'N/A'}</div>
+                                                            <div style={{ fontSize: '0.9rem', fontWeight: 950, color: 'var(--foreground)', fontFamily: 'monospace' }}>{node.id.slice(0, 8).toUpperCase()}</div>
+                                                            <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>{node.status === 'Active' ? '1m ago' : 'N/A'}</div>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 950, color: '#0F172A' }}>
+                                                <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 950, color: 'var(--foreground)' }}>
                                                     {node.customerName ? (
                                                         <div>
                                                             <div style={{ fontWeight: 950 }}>{node.customerName}</div>
-                                                            <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 700 }}>{node.customerEmail}</div>
+                                                            <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>{node.customerEmail}</div>
                                                         </div>
                                                     ) : (
-                                                        <span style={{ color: '#94A3B8', fontWeight: 700, fontStyle: 'italic' }}>Unassigned</span>
+                                                        <span style={{ color: 'var(--muted-foreground)', fontWeight: 700, fontStyle: 'italic' }}>Unassigned</span>
                                                     )}
                                                 </td>
-                                                <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 950, color: '#0F172A' }}>
+                                                <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 950, color: 'var(--foreground)' }}>
                                                     {node.name}
                                                 </td>
-                                                <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 800, color: '#475569' }}>
+                                                <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 800, color: 'var(--muted-foreground)' }}>
                                                     {node.url.includes('.lv') || node.name.includes('Riga') ? 'Riga, LV' : 'Frankfurt, EU'}
                                                 </td>
                                                 <td style={{ padding: '16px' }}>
@@ -985,7 +985,7 @@ export default function FleetHealthMonitoringPage() {
                                                         </span>
                                                     </div>
                                                 </td>
-                                                <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 800, color: '#475569' }}>
+                                                <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 800, color: 'var(--muted-foreground)' }}>
                                                     {node.uptime || '0h 0m'}
                                                 </td>
                                                 <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 950, color: node.cpu > 80 ? '#EF4444' : '#0F172A' }}>
@@ -994,10 +994,10 @@ export default function FleetHealthMonitoringPage() {
                                                 <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 950, color: node.ram > 80 ? '#EF4444' : '#0F172A' }}>
                                                     {node.ram || 0}%
                                                 </td>
-                                                <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 950, color: '#0F172A' }}>
+                                                <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 950, color: 'var(--foreground)' }}>
                                                     {node.disk || 0}%
                                                 </td>
-                                                <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 950, color: '#0F172A' }}>
+                                                <td style={{ padding: '16px', fontSize: '0.85rem', fontWeight: 950, color: 'var(--foreground)' }}>
                                                     {node.workflow_count || 0}
                                                 </td>
                                                 <td style={{ padding: '16px' }}>
@@ -1009,35 +1009,35 @@ export default function FleetHealthMonitoringPage() {
                                                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                                                         <button 
                                                             onClick={() => handleN8nAction(node, 'restart')}
-                                                            style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#FFFFFF', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748B' }}
+                                                            style={{ width: '36px', height: '36px', border: '1px solid var(--border)', background: 'var(--card)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--muted-foreground)' }}
                                                             title="Restart n8n"
                                                         >
                                                             <RotateCcw size={16} />
                                                         </button>
                                                         <button 
                                                             onClick={() => handleN8nAction(node, 'start')}
-                                                            style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#FFFFFF', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#10B981' }}
+                                                            style={{ width: '36px', height: '36px', border: '1px solid var(--border)', background: 'var(--card)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#10B981' }}
                                                             title="Start n8n"
                                                         >
                                                             <Play size={16} />
                                                         </button>
                                                         <button 
                                                             onClick={() => handleN8nAction(node, 'stop')}
-                                                            style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#FFFFFF', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#EF4444' }}
+                                                            style={{ width: '36px', height: '36px', border: '1px solid var(--border)', background: 'var(--card)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#EF4444' }}
                                                             title="Stop n8n"
                                                         >
                                                             <Pause size={16} />
                                                         </button>
                                                         <button 
                                                             onClick={() => openTerminal(node)}
-                                                            style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#FFFFFF', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: node.status === 'Active' ? '#10B981' : '#64748B' }}
+                                                            style={{ width: '36px', height: '36px', border: '1px solid var(--border)', background: 'var(--card)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: node.status === 'Active' ? '#10B981' : '#64748B' }}
                                                             title="Terminal"
                                                         >
                                                             <Terminal size={16} />
                                                         </button>
                                                         <button 
                                                             onClick={() => openConfig(node)}
-                                                            style={{ width: '36px', height: '36px', border: '1px solid #E2E8F0', background: '#FFFFFF', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748B' }}
+                                                            style={{ width: '36px', height: '36px', border: '1px solid var(--border)', background: 'var(--card)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--muted-foreground)' }}
                                                             title="Settings"
                                                         >
                                                             <Settings size={16} />
@@ -1064,11 +1064,11 @@ export default function FleetHealthMonitoringPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                     
                     {/* ALERTS & INCIDENTS */}
-                    <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
-                        <h3 style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A', margin: '0 0 20px' }}>ALERTS & INCIDENTS</h3>
+                    <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 950, color: 'var(--foreground)', margin: '0 0 20px' }}>ALERTS & INCIDENTS</h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             {derivedAlerts.length === 0 ? (
-                                <div style={{ color: '#64748B', fontSize: '0.85rem', fontWeight: 700, textAlign: 'center', padding: '12px' }}>
+                                <div style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', fontWeight: 700, textAlign: 'center', padding: '12px' }}>
                                     No active warning or critical alerts in cluster.
                                 </div>
                             ) : (
@@ -1077,9 +1077,9 @@ export default function FleetHealthMonitoringPage() {
                                         <div>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                 <span style={{ fontSize: '0.8rem', fontWeight: 950, color: alert.type === 'critical' ? '#EF4444' : '#F59E0B' }}>{alert.node}</span>
-                                                <span style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 800 }}>{alert.time}</span>
+                                                <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>{alert.time}</span>
                                             </div>
-                                            <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#475569', marginTop: '4px' }}>{alert.msg}</div>
+                                            <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted-foreground)', marginTop: '4px' }}>{alert.msg}</div>
                                         </div>
                                     </div>
                                 ))
@@ -1088,8 +1088,8 @@ export default function FleetHealthMonitoringPage() {
                     </div>
 
                     {/* RESOURCE USAGE OVER TIME (SVG Line Chart) */}
-                    <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
-                        <h3 style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A', margin: '0 0 20px' }}>RESOURCE USAGE OVER TIME (24H)</h3>
+                    <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 950, color: 'var(--foreground)', margin: '0 0 20px' }}>RESOURCE USAGE OVER TIME (24H)</h3>
                         <div style={{ height: '140px', width: '100%' }}>
                             <svg viewBox="0 0 300 100" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
                                 <path 
@@ -1108,15 +1108,15 @@ export default function FleetHealthMonitoringPage() {
                                 />
                             </svg>
                         </div>
-                        <div style={{ display: 'flex', gap: '16px', fontSize: '0.75rem', fontWeight: 800, color: '#64748B', marginTop: '16px' }}>
+                        <div style={{ display: 'flex', gap: '16px', fontSize: '0.75rem', fontWeight: 800, color: 'var(--muted-foreground)', marginTop: '16px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#3B82F6' }} /> Average CPU</div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10B981' }} /> Average Memory</div>
                         </div>
                     </div>
 
                     {/* REGION HEALTH */}
-                    <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
-                        <h3 style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A', margin: '0 0 20px' }}>REGION HEALTH</h3>
+                    <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)' }}>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 950, color: 'var(--foreground)', margin: '0 0 20px' }}>REGION HEALTH</h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.85rem', fontWeight: 850 }}>
                             {[
                                 { reg: "Riga, LV", val: activeAlertsCount === 0 ? "100%" : "50%", warning: activeAlertsCount > 0, good: activeAlertsCount === 0 },
@@ -1125,8 +1125,8 @@ export default function FleetHealthMonitoringPage() {
                                 { reg: "Virginia, US", val: "100%", good: true },
                                 { reg: "Singapore, SG", val: "100%", good: true }
                             ].map((region, i) => (
-                                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #F1F5F9', paddingBottom: '8px' }}>
-                                    <span style={{ color: '#475569' }}>{region.reg}</span>
+                                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
+                                    <span style={{ color: 'var(--muted-foreground)' }}>{region.reg}</span>
                                     <span style={{ fontWeight: 950, color: region.good ? '#10B981' : (region.warning ? '#F59E0B' : '#EF4444') }}>{region.val}</span>
                                 </div>
                             ))}
@@ -1141,16 +1141,16 @@ export default function FleetHealthMonitoringPage() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px' }}>
                 
                 {/* TOP RESOURCE CONSUMERS */}
-                <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A', margin: '0 0 20px' }}>TOP RESOURCE CONSUMERS</h3>
+                <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 950, color: 'var(--foreground)', margin: '0 0 20px' }}>TOP RESOURCE CONSUMERS</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         {nodes.slice(0, 3).map((item, i) => (
                             <div key={i}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 800, color: '#475569', marginBottom: '6px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 800, color: 'var(--muted-foreground)', marginBottom: '6px' }}>
                                     <span>{item.name}</span>
-                                    <span style={{ fontWeight: 950, color: '#0F172A' }}>{item.cpu || 8}%</span>
+                                    <span style={{ fontWeight: 950, color: 'var(--foreground)' }}>{item.cpu || 8}%</span>
                                 </div>
-                                <div style={{ width: '100%', height: '6px', background: '#F1F5F9', borderRadius: '100px', overflow: 'hidden' }}>
+                                <div style={{ width: '100%', height: '6px', background: 'var(--muted)', borderRadius: '100px', overflow: 'hidden' }}>
                                     <div style={{ width: `${item.cpu || 8}%`, height: '100%', background: (item.cpu || 8) > 80 ? '#EF4444' : '#10B981' }} />
                                 </div>
                             </div>
@@ -1159,8 +1159,8 @@ export default function FleetHealthMonitoringPage() {
                 </div>
 
                 {/* WORKFLOW EXECUTIONS (24H) */}
-                <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>WORKFLOW EXECUTIONS (24H)</h3>
+                <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 950, color: 'var(--foreground)', margin: 0 }}>WORKFLOW EXECUTIONS (24H)</h3>
                     <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0' }}>
                         <svg width="100" height="100" viewBox="0 0 42 42" style={{ transform: 'rotate(-90deg)' }}>
                             <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#EF4444" strokeWidth="6" />
@@ -1176,7 +1176,7 @@ export default function FleetHealthMonitoringPage() {
                             />
                         </svg>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.75rem', fontWeight: 800, color: '#475569' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.75rem', fontWeight: 800, color: 'var(--muted-foreground)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10B981' }} /> Successful</div>
                             <span style={{ fontWeight: 950 }}>{executionStats.success.toLocaleString()} ({executionStats.total > 0 ? Math.round((executionStats.success / executionStats.total) * 100) : 100}%)</span>
@@ -1189,8 +1189,8 @@ export default function FleetHealthMonitoringPage() {
                 </div>
 
                 {/* UPTIME DISTRIBUTION */}
-                <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A', margin: 0 }}>UPTIME DISTRIBUTION</h3>
+                <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '32px', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 950, color: 'var(--foreground)', margin: 0 }}>UPTIME DISTRIBUTION</h3>
                     <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0' }}>
                         <svg width="100" height="100" viewBox="0 0 42 42" style={{ transform: 'rotate(-90deg)' }}>
                             <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#EF4444" strokeWidth="6" />
@@ -1206,7 +1206,7 @@ export default function FleetHealthMonitoringPage() {
                             />
                         </svg>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px', fontSize: '0.7rem', fontWeight: 800, color: '#475569' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px', fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted-foreground)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10B981' }} /> Healthy: {activeNodes} Nodes ({totalNodes > 0 ? Math.round((activeNodes / totalNodes) * 100) : 100}%)</div>
                         {offlineNodes > 0 && (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#EF4444' }} /> Offline: {offlineNodes} Nodes ({Math.round((offlineNodes / totalNodes) * 100)}%)</div>
@@ -1220,13 +1220,13 @@ export default function FleetHealthMonitoringPage() {
             {showTerminal && selectedNode && (
                 <ModalPortal>
                     <div className={adminStyles.modalOverlay} onClick={() => setShowTerminal(false)} style={{ backdropFilter: 'blur(16px)', background: 'rgba(0, 0, 0, 0.4)' }}>
-                        <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '640px', background: '#0F172A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '24px', overflow: 'hidden' }}>
+                        <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '640px', background: 'var(--primary)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '24px', overflow: 'hidden' }}>
                             <div style={{ padding: '24px 32px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                     <Terminal size={18} color="#10B981" />
                                     <span style={{ color: '#FFFFFF', fontWeight: 950, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Node Diagnostics: {selectedNode.name}</span>
                                 </div>
-                                <button onClick={() => setShowTerminal(false)} style={{ background: 'transparent', border: 'none', color: '#94A3B8', cursor: 'pointer' }}><X size={20} /></button>
+                                <button onClick={() => setShowTerminal(false)} style={{ background: 'transparent', border: 'none', color: 'var(--muted-foreground)', cursor: 'pointer' }}><X size={20} /></button>
                             </div>
                             <div style={{ padding: '32px', background: '#050505', minHeight: '320px', fontFamily: 'monospace', fontSize: '0.85rem', color: '#10B981', overflowY: 'auto' }}>
                                 {terminalLogs.map((log, i) => (
@@ -1240,7 +1240,7 @@ export default function FleetHealthMonitoringPage() {
                                 )}
                             </div>
                             <div style={{ padding: '16px 32px', background: 'rgba(255,255,255,0.02)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 800 }}>SECURE SSL/TLS TUNNEL ACTIVE</span>
+                                <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 800 }}>SECURE SSL/TLS TUNNEL ACTIVE</span>
                                 <button onClick={() => openTerminal(selectedNode)} style={{ background: 'transparent', border: 'none', color: '#10B981', fontWeight: 950, fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                     <RotateCcw size={14} /> REFRESH HANDSHAKE
                                 </button>
@@ -1254,8 +1254,8 @@ export default function FleetHealthMonitoringPage() {
             {showConfig && selectedNode && (
                 <ModalPortal>
                     <div className={adminStyles.modalOverlay} onClick={() => setShowConfig(false)} style={{ backdropFilter: 'blur(16px)', background: 'rgba(250, 250, 250, 0.4)' }}>
-                        <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '580px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '32px', overflow: 'hidden' }}>
-                            <div style={{ padding: '40px 48px', background: '#0F172A', color: '#FFFFFF' }}>
+                        <div className={adminStyles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '580px', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '32px', overflow: 'hidden' }}>
+                            <div style={{ padding: '40px 48px', background: 'var(--primary)', color: '#FFFFFF' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                     <div>
                                         <div style={{ fontSize: '0.65rem', fontWeight: 950, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: '12px' }}>NODE CONFIGURATION</div>
@@ -1266,28 +1266,28 @@ export default function FleetHealthMonitoringPage() {
                                 </div>
                             </div>
                             
-                            <div style={{ padding: '40px 48px', display: 'flex', flexDirection: 'column', gap: '24px', background: '#FFFFFF' }}>
+                            <div style={{ padding: '40px 48px', display: 'flex', flexDirection: 'column', gap: '24px', background: 'var(--card)' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                     <div>
-                                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: '#64748B', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Node Name</label>
+                                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Node Name</label>
                                         <input 
-                                            style={{ width: '100%', height: '48px', borderRadius: '12px', border: '1px solid #E2E8F0', padding: '0 16px', fontSize: '0.85rem', fontWeight: 750, outline: 'none' }} 
+                                            style={{ width: '100%', height: '48px', borderRadius: '12px', border: '1px solid var(--border)', padding: '0 16px', fontSize: '0.85rem', fontWeight: 750, outline: 'none' }} 
                                             value={editData.name} 
                                             onChange={e => setEditData({...editData, name: e.target.value})} 
                                         />
                                     </div>
                                     <div>
-                                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: '#64748B', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Endpoint URL</label>
+                                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Endpoint URL</label>
                                         <input 
-                                            style={{ width: '100%', height: '48px', borderRadius: '12px', border: '1px solid #E2E8F0', padding: '0 16px', fontSize: '0.85rem', fontWeight: 750, outline: 'none' }} 
+                                            style={{ width: '100%', height: '48px', borderRadius: '12px', border: '1px solid var(--border)', padding: '0 16px', fontSize: '0.85rem', fontWeight: 750, outline: 'none' }} 
                                             value={editData.url} 
                                             onChange={e => setEditData({...editData, url: e.target.value})} 
                                         />
                                     </div>
                                     <div>
-                                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: '#64748B', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>X-N8N-API-KEY</label>
+                                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>X-N8N-API-KEY</label>
                                         <input 
-                                            style={{ width: '100%', height: '48px', borderRadius: '12px', border: '1px solid #E2E8F0', padding: '0 16px', fontSize: '0.85rem', fontWeight: 750, outline: 'none' }} 
+                                            style={{ width: '100%', height: '48px', borderRadius: '12px', border: '1px solid var(--border)', padding: '0 16px', fontSize: '0.85rem', fontWeight: 750, outline: 'none' }} 
                                             type="password"
                                             placeholder="Enter new API key to update..."
                                             value={editData.apiKey} 
@@ -1295,9 +1295,9 @@ export default function FleetHealthMonitoringPage() {
                                         />
                                     </div>
                                     <div>
-                                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: '#64748B', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Workflow Capacity</label>
+                                        <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Workflow Capacity</label>
                                         <input 
-                                            style={{ width: '100%', height: '48px', borderRadius: '12px', border: '1px solid #E2E8F0', padding: '0 16px', fontSize: '0.85rem', fontWeight: 750, outline: 'none' }} 
+                                            style={{ width: '100%', height: '48px', borderRadius: '12px', border: '1px solid var(--border)', padding: '0 16px', fontSize: '0.85rem', fontWeight: 750, outline: 'none' }} 
                                             type="number"
                                             value={editData.maxWorkflows} 
                                             onChange={e => setEditData({...editData, maxWorkflows: parseInt(e.target.value) || 100})} 
@@ -1305,28 +1305,28 @@ export default function FleetHealthMonitoringPage() {
                                     </div>
                                 </div>
 
-                                <div style={{ padding: '20px', background: '#F8FAFC', borderRadius: '20px', border: '1px solid #F1F5F9' }}>
+                                <div style={{ padding: '20px', background: 'var(--muted)', borderRadius: '20px', border: '1px solid #F1F5F9' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, color: '#64748B' }}>CURRENT STATUS</span>
+                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)' }}>CURRENT STATUS</span>
                                         <span style={{ fontSize: '0.75rem', fontWeight: 950, color: selectedNode.status === 'Active' ? '#10B981' : '#EF4444' }}>
                                             {selectedNode.status.toUpperCase()}
                                         </span>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, color: '#64748B' }}>LAST CHECK</span>
-                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, color: '#0F172A' }}>
+                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)' }}>LAST CHECK</span>
+                                        <span style={{ fontSize: '0.75rem', fontWeight: 950, color: 'var(--foreground)' }}>
                                             {selectedNode.last_check ? new Date(selectedNode.last_check).toLocaleString() : 'Never'}
                                         </span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className={adminStyles.modalFooter} style={{ padding: '28px 48px', background: '#F8FAFC', borderTop: '1px solid #E2E8F0', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                                <button onClick={() => setShowConfig(false)} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', padding: '0 20px', height: '44px', borderRadius: '12px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 900, color: '#475569' }}>Cancel</button>
+                            <div className={adminStyles.modalFooter} style={{ padding: '28px 48px', background: 'var(--muted)', borderTop: '1px solid #E2E8F0', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                                <button onClick={() => setShowConfig(false)} style={{ background: 'var(--card)', border: '1px solid var(--border)', padding: '0 20px', height: '44px', borderRadius: '12px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 900, color: 'var(--muted-foreground)' }}>Cancel</button>
                                 <button 
                                     onClick={updateNodeConfig} 
                                     disabled={isUpdating || !editData.name || !editData.url} 
-                                    style={{ height: '44px', borderRadius: '12px', padding: '0 28px', background: '#0F172A', color: '#FFFFFF', border: 'none', cursor: isUpdating ? 'not-allowed' : 'pointer', fontWeight: 950, display: 'flex', alignItems: 'center', gap: '8px' }}
+                                    style={{ height: '44px', borderRadius: '12px', padding: '0 28px', background: 'var(--primary)', color: '#FFFFFF', border: 'none', cursor: isUpdating ? 'not-allowed' : 'pointer', fontWeight: 950, display: 'flex', alignItems: 'center', gap: '8px' }}
                                 >
                                     {isUpdating && <Activity size={16} className={adminStyles.spinning} />}
                                     {isUpdating ? 'Saving...' : 'Apply Changes'}

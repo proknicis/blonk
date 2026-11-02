@@ -63,19 +63,20 @@
     transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     white-space: nowrap;
     display: inline-flex;
-    align-items: baseline;
+    align-items: flex-end;
     text-transform: uppercase;
     margin-right: 32px;
+    line-height: 1;
 }
 
 .logo_dot {
     display: inline-block;
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
     background: #34D186; /* The ONE emerald green */
     margin-left: 2px;
-    border-radius: 1px;
-    vertical-align: baseline;
+    margin-bottom: 3.5px;
+    border-radius: 0;
 }
 
 .nav_cta {

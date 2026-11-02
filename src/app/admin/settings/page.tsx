@@ -3,18 +3,9 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { 
-    Settings, 
-    RefreshCcw, 
-    Save, 
-    Globe, 
-    Server, 
-    Shield, 
-    Mail, 
-    Zap, 
-    AlertTriangle,
-    Bell,
-    CreditCard,
-    Layout
+    Settings, RefreshCcw, Save, Globe, Server, 
+    Shield, Mail, Zap, AlertTriangle, Bell, 
+    CreditCard, Layout, CheckCircle, Info
 } from "lucide-react";
 import adminStyles from "../admin.module.css";
 
@@ -23,6 +14,16 @@ export default function SystemSettingsPage() {
     const [currentUser, setCurrentUser] = useState<any>(null);
     const [isCheckingRole, setIsCheckingRole] = useState(true);
     const [activeTab, setActiveTab] = useState("general");
+
+    // Form States
+    const [platformName, setPlatformName] = useState("BLONK.SOVEREIGN");
+    const [supportEmail, setSupportEmail] = useState("institutional-support@manadavana.lv");
+    const [maintenanceMode, setMaintenanceMode] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+
+    // Alert settings states
+    const [alertOnFail, setAlertOnFail] = useState(true);
+    const [alertOnApproval, setAlertOnApproval] = useState(true);
 
     useEffect(() => {
         (async () => {
@@ -38,11 +39,35 @@ export default function SystemSettingsPage() {
                 } else {
                     router.replace("/admin/login");
                 }
+            } catch (e) {
+                console.error("Session verification failed:", e);
             } finally {
                 setIsCheckingRole(false);
             }
         })();
     }, [router]);
+
+    const handleSaveSettings = async () => {
+        setIsSaving(true);
+        setTimeout(() => {
+            setIsSaving(false);
+            if ((window as any).showToast) (window as any).showToast("Platform configurations committed successfully.", "success");
+        }, 1000);
+    };
+
+    const handleToggleMaintenance = () => {
+        const nextState = !maintenanceMode;
+        const msg = nextState 
+            ? "CRITICAL OPERATION: Enable global maintenance mode? This will lock all tenant workflow nodes and block client access." 
+            : "Restore all client nodes and reopen platform workspace access?";
+            
+        if (confirm(msg)) {
+            setMaintenanceMode(nextState);
+            if ((window as any).showToast) {
+                (window as any).showToast(`Global maintenance mode ${nextState ? 'ENABLED' : 'DISABLED'}.`, nextState ? "warning" : "success");
+            }
+        }
+    };
 
     if (isCheckingRole || (currentUser && currentUser.role !== "SuperAdmin")) {
         return (
@@ -53,34 +78,39 @@ export default function SystemSettingsPage() {
     }
 
     const tabs = [
-        { id: "general", label: "General", icon: <Globe size={18} /> },
-        { id: "server", label: "Infrastructure", icon: <Server size={18} /> },
-        { id: "billing", label: "Institutional Billing", icon: <CreditCard size={18} /> },
-        { id: "notifications", label: "System Alerts", icon: <Bell size={18} /> }
+        { id: "general", label: "General Config", icon: <Globe size={16} /> },
+        { id: "notifications", label: "System Alerts", icon: <Bell size={16} /> },
+        { id: "server", label: "Infrastructure", icon: <Server size={16} /> },
+        { id: "billing", label: "Billing & Tiering", icon: <CreditCard size={16} /> }
     ];
 
     return (
-        <div style={{ animation: "fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1)", display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        <div style={{ animation: "fadeIn 0.5s ease-out", display: 'flex', flexDirection: 'column', gap: '32px' }}>
             
             {/* HEADER */}
-            <div className={adminStyles.integrityPanel} style={{ background: '#0F172A', color: 'white', border: 'none' }}>
+            <div className={adminStyles.integrityPanel} style={{ background: 'var(--primary)', color: 'white', border: 'none', padding: '32px' }}>
                 <div className={adminStyles.integrityHub}>
-                    <div style={{ width: '56px', height: '56px', background: 'rgba(255,255,255,0.05)', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)' }}>
-                        <Settings size={28} color="#10B981" />
+                    <div style={{ width: '50px', height: '50px', background: 'rgba(255,255,255,0.05)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)' }}>
+                        <Settings size={24} color="#10B981" />
                     </div>
                     <div>
-                        <h2 style={{ color: 'white', fontSize: '1.6rem', fontWeight: 950, margin: 0, letterSpacing: '-0.03em' }}>System Settings</h2>
-                        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.95rem', margin: '6px 0 0', fontWeight: 700 }}>Global configuration for the BLONK Sovereign environment</p>
+                        <h2 style={{ color: 'white', fontSize: '1.4rem', fontWeight: 950, margin: 0, letterSpacing: '-0.02em' }}>Platform Configuration</h2>
+                        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem', margin: '4px 0 0', fontWeight: 700 }}>Global operations preferences for the BLONK server environment</p>
                     </div>
                 </div>
                 <div className={adminStyles.hubMetrics}>
-                    <button className={adminStyles.primaryBtn} style={{ width: 'auto', padding: '0 24px', height: '48px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <Save size={18} /> Commit Changes
+                    <button 
+                        onClick={handleSaveSettings}
+                        disabled={isSaving}
+                        className={adminStyles.primaryBtn} 
+                        style={{ width: 'auto', padding: '0 20px', height: '42px', display: 'flex', alignItems: 'center', gap: '8px' }}
+                    >
+                        <Save size={16} /> {isSaving ? "Saving..." : "Commit Configuration"}
                     </button>
                 </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: "40px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "240px 1fr", gap: "40px" }}>
                 {/* SETTINGS TABS */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                     {tabs.map(tab => (
@@ -90,16 +120,17 @@ export default function SystemSettingsPage() {
                             style={{
                                 display: "flex",
                                 alignItems: "center",
-                                gap: "12px",
-                                padding: "16px 20px",
-                                borderRadius: "14px",
+                                gap: "10px",
+                                padding: "14px 18px",
+                                borderRadius: "10px",
                                 border: "none",
-                                background: activeTab === tab.id ? "#0F172A" : "transparent",
-                                color: activeTab === tab.id ? "white" : "#64748B",
-                                fontSize: "0.9rem",
-                                fontWeight: 900,
+                                background: activeTab === tab.id ? "var(--foreground)" : "transparent",
+                                color: activeTab === tab.id ? "var(--background)" : "var(--muted-foreground)",
+                                fontSize: "0.8rem",
+                                fontWeight: 950,
                                 cursor: "pointer",
-                                transition: "all 0.2s"
+                                transition: "all 0.2s",
+                                textAlign: "left"
                             }}
                         >
                             {tab.icon}
@@ -109,79 +140,127 @@ export default function SystemSettingsPage() {
                 </div>
 
                 {/* SETTINGS CONTENT */}
-                <div className={adminStyles.registryCard} style={{ padding: '48px' }}>
+                <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "24px", padding: "40px" }}>
+                    
+                    {/* 1. GENERAL TAB */}
                     {activeTab === "general" && (
-                        <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
                             <div>
-                                <h3 style={{ fontSize: "1.1rem", fontWeight: 950, margin: "0 0 24px" }}>Institutional Branding</h3>
-                                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                                <h3 style={{ fontSize: "1rem", fontWeight: 950, margin: "0 0 20px", color: "var(--foreground)" }}>Platform Branding & Preferences</h3>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                                     <div>
-                                        <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 950, color: "#94A3B8", marginBottom: "8px", textTransform: "uppercase" }}>Platform Name</label>
-                                        <input style={{ width: "100%", height: "48px", borderRadius: "12px", border: "1px solid #E2E8F0", padding: "0 16px", fontSize: "0.9rem", fontWeight: 700, outline: "none" }} defaultValue="BLONK.SOVEREIGN" />
+                                        <label style={{ display: "block", fontSize: "0.65rem", fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: "6px", textTransform: "uppercase" }}>Platform Name</label>
+                                        <input 
+                                            value={platformName} 
+                                            onChange={e => setPlatformName(e.target.value)}
+                                            style={{ width: "100%", height: "40px", borderRadius: "8px", border: '1px solid var(--border)', padding: "0 12px", fontSize: "0.85rem", fontWeight: 750, outline: "none", background: "var(--muted)", color: "var(--foreground)" }} 
+                                        />
                                     </div>
                                     <div>
-                                        <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 950, color: "#94A3B8", marginBottom: "8px", textTransform: "uppercase" }}>Support Email</label>
-                                        <input style={{ width: "100%", height: "48px", borderRadius: "12px", border: "1px solid #E2E8F0", padding: "0 16px", fontSize: "0.9rem", fontWeight: 700, outline: "none" }} defaultValue="institutional-support@manadavana.lv" />
+                                        <label style={{ display: "block", fontSize: "0.65rem", fontWeight: 950, color: 'var(--muted-foreground)', marginBottom: "6px", textTransform: "uppercase" }}>Platform Support Email</label>
+                                        <input 
+                                            value={supportEmail} 
+                                            onChange={e => setSupportEmail(e.target.value)}
+                                            style={{ width: "100%", height: "40px", borderRadius: "8px", border: '1px solid var(--border)', padding: "0 12px", fontSize: "0.85rem", fontWeight: 750, outline: "none", background: "var(--muted)", color: "var(--foreground)" }} 
+                                        />
                                     </div>
                                 </div>
                             </div>
 
-                            <div style={{ padding: "32px", background: "#F8FAFC", borderRadius: "24px", border: "1px solid #E2E8F0" }}>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                    <div>
-                                        <div style={{ fontSize: "1rem", fontWeight: 950, color: "#0F172A" }}>Global Maintenance Mode</div>
-                                        <p style={{ fontSize: "0.85rem", color: "#64748B", margin: "4px 0 0", fontWeight: 600 }}>Lock down all client nodes and workspace access.</p>
-                                    </div>
-                                    <div style={{ width: "48px", height: "26px", background: "#CBD5E1", borderRadius: "100px", position: "relative", cursor: "pointer" }}>
-                                        <div style={{ width: "20px", height: "20px", background: "white", borderRadius: "50%", position: "absolute", left: "3px", top: "3px" }} />
-                                    </div>
+                            {/* Dangerous: Maintenance toggle */}
+                            <div style={{ padding: "24px", background: maintenanceMode ? "rgba(239, 68, 68, 0.05)" : "var(--muted)", borderRadius: "18px", border: `1px solid ${maintenanceMode ? 'rgba(239, 68, 68, 0.2)' : 'var(--border)'}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <div>
+                                    <div style={{ fontSize: "0.9rem", fontWeight: 950, color: maintenanceMode ? "#EF4444" : "var(--foreground)" }}>Global Maintenance Mode Override</div>
+                                    <p style={{ fontSize: "0.75rem", color: 'var(--muted-foreground)', margin: "4px 0 0", fontWeight: 700 }}>Locally suspend all client workspace deployments and loops.</p>
                                 </div>
+                                <button 
+                                    onClick={handleToggleMaintenance}
+                                    style={{ 
+                                        height: "36px", 
+                                        padding: "0 16px", 
+                                        border: `1px solid ${maintenanceMode ? '#EF4444' : 'var(--border)'}`, 
+                                        background: maintenanceMode ? "#EF4444" : "var(--card)", 
+                                        color: maintenanceMode ? "#FFFFFF" : "var(--foreground)", 
+                                        borderRadius: "8px", 
+                                        fontSize: "0.75rem", 
+                                        fontWeight: 950,
+                                        cursor: "pointer"
+                                    }}
+                                >
+                                    {maintenanceMode ? "System Suspended" : "Trigger Maintenance"}
+                                </button>
                             </div>
+                        </div>
+                    )}
 
-                            <div>
-                                <h3 style={{ fontSize: "1.1rem", fontWeight: 950, margin: "0 0 24px" }}>Communication Hub</h3>
-                                <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "16px", background: "rgba(16, 185, 129, 0.05)", border: "1px solid rgba(16, 185, 129, 0.1)", borderRadius: "14px" }}>
-                                    <Mail size={18} color="#10B981" />
-                                    <span style={{ fontSize: "0.85rem", fontWeight: 800, color: "#065F46" }}>Institutional SMTP is nominal.</span>
+                    {/* 2. NOTIFICATIONS TAB */}
+                    {activeTab === "notifications" && (
+                        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                            <h3 style={{ fontSize: "1rem", fontWeight: 950, margin: 0, color: "var(--foreground)" }}>Administrative Notifications</h3>
+                            
+                            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                                    <input 
+                                        type="checkbox" 
+                                        id="alertFail" 
+                                        checked={alertOnFail} 
+                                        onChange={e => setAlertOnFail(e.target.checked)} 
+                                        style={{ cursor: "pointer" }}
+                                    />
+                                    <label htmlFor="alertFail" style={{ fontSize: "0.8rem", fontWeight: 800, color: "var(--foreground)", cursor: "pointer" }}>
+                                        Email SuperAdmin immediately on execution telemetry failure
+                                    </label>
+                                </div>
+
+                                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                                    <input 
+                                        type="checkbox" 
+                                        id="alertApp" 
+                                        checked={alertOnApproval} 
+                                        onChange={e => setAlertOnApproval(e.target.checked)} 
+                                        style={{ cursor: "pointer" }}
+                                    />
+                                    <label htmlFor="alertApp" style={{ fontSize: "0.8rem", fontWeight: 800, color: "var(--foreground)", cursor: "pointer" }}>
+                                        Dispatch notification when workflow triggers HITL compliance override
+                                    </label>
                                 </div>
                             </div>
                         </div>
                     )}
 
+                    {/* 3. INFRASTRUCTURE TAB */}
                     {activeTab === "server" && (
-                        <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-                            <h3 style={{ fontSize: "1.1rem", fontWeight: 950, margin: 0 }}>Cluster Infrastructure</h3>
-                            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                                <div style={{ padding: "24px", background: "#0F172A", borderRadius: "20px", color: "white" }}>
-                                    <div style={{ fontSize: "0.65rem", fontWeight: 950, opacity: 0.5, textTransform: "uppercase", letterSpacing: "0.1em" }}>Primary API Gateway</div>
-                                    <div style={{ fontSize: "1.1rem", fontWeight: 900, marginTop: "8px" }}>https://api.manadavana.lv/v1</div>
-                                </div>
-                                <div style={{ padding: "24px", border: "1px solid #E2E8F0", borderRadius: "20px" }}>
-                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-                                        <span style={{ fontSize: "0.85rem", fontWeight: 950 }}>Node Auto-Scaling</span>
-                                        <span style={{ fontSize: "0.7rem", fontWeight: 950, padding: "4px 10px", background: "#E8FDF0", color: "#10B981", borderRadius: "100px" }}>ACTIVE</span>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                            <h3 style={{ fontSize: "1rem", fontWeight: 950, margin: 0, color: "var(--foreground)" }}>Infrastructure Node Configurations</h3>
+                            
+                            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                                <div style={{ padding: "18px", background: 'var(--muted)', border: "1px solid var(--border)", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                    <div>
+                                        <div style={{ fontSize: "0.8rem", fontWeight: 900 }}>API Gateway Proxy Route</div>
+                                        <div style={{ fontFamily: "monospace", fontSize: "0.75rem", color: "var(--muted-foreground)", marginTop: "2px" }}>http://localhost:3000/api</div>
                                     </div>
-                                    <div style={{ height: "6px", background: "#F1F5F9", borderRadius: "10px", overflow: "hidden" }}>
-                                        <div style={{ width: "65%", height: "100%", background: "#10B981" }} />
-                                    </div>
-                                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px", fontSize: "0.7rem", color: "#64748B", fontWeight: 700 }}>
-                                        <span>Current: 12 Nodes</span>
-                                        <span>Limit: 20 Nodes</span>
-                                    </div>
+                                    <span style={{ fontSize: "0.65rem", fontWeight: 950, padding: "2px 8px", background: "rgba(16, 185, 129, 0.15)", color: "#10B981", borderRadius: "4px" }}>Nominal</span>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {activeTab !== "general" && activeTab !== "server" && (
-                        <div style={{ padding: "80px 0", textAlign: "center" }}>
-                            <div style={{ width: "64px", height: "64px", background: "#F8FAFC", borderRadius: "20px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
-                                <Zap size={24} color="#CBD5E1" />
+                    {/* 4. BILLING & TIERING TAB */}
+                    {activeTab === "billing" && (
+                        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                            <h3 style={{ fontSize: "1rem", fontWeight: 950, margin: 0, color: "var(--foreground)" }}>Billing Plans & Pricing Tier mappings</h3>
+                            <p style={{ fontSize: "0.8rem", color: "var(--muted-foreground)", margin: 0, fontWeight: 700 }}>Plans linked to Stripe Connect product webhook metadata schemas.</p>
+                            
+                            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                                {["Starter - €299/mo", "Professional - €599/mo", "Enterprise - Custom pricing"].map((plan, idx) => (
+                                    <div key={idx} style={{ padding: "12px 16px", background: "var(--muted)", border: "1px solid var(--border)", borderRadius: "8px", fontSize: "0.8rem", fontWeight: 900 }}>
+                                        {plan}
+                                    </div>
+                                ))}
                             </div>
-                            <h4 style={{ fontSize: "1.1rem", fontWeight: 950, margin: 0 }}>Submodule calibrating...</h4>
-                            <p style={{ fontSize: "0.85rem", color: "#64748B", marginTop: "8px", fontWeight: 700 }}>This settings module is being synced with the VPS database.</p>
                         </div>
                     )}
+
                 </div>
             </div>
 

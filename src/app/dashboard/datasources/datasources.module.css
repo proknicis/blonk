@@ -1,0 +1,110 @@
+.container {
+    width: 100%;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #020617;
+    letter-spacing: -0.03em;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+.subtitle {
+    font-size: 0.85rem;
+    color: #64748B;
+    line-height: 1.4;
+}
+
+.tableCard {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-top: 16px;
+}
+
+.ledgerTable {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.ledgerTable th {
+    background: #F8FAFC;
+    padding: 14px 20px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748B;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.ledgerTable td {
+    padding: 16px 20px;
+    font-size: 0.8rem;
+    color: #334155;
+    border-bottom: 1px solid #F1F5F9;
+}
+
+.ledgerTable tr:last-child td {
+    border-bottom: none;
+}
+
+.btnSecondary {
+    height: 32px;
+    padding: 0 12px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    color: #475569;
+    font-weight: 800;
+    font-size: 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.btnSecondary:hover {
+    border-color: #CBD5E1;
+    color: #020617;
+    background: #F8FAFC;
+}
+
+.btnSecondary:focus-visible {
+    outline: 2px solid #10B981;
+    outline-offset: 2px;
+}
+
+.statusLabel {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 4px 10px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.statusSuccess {
+    background: #ECFDF5;
+    color: #10B981;
+}
+
+.statusFailed {
+    background: #FFF5F5;
+    color: #EF4444;
+}

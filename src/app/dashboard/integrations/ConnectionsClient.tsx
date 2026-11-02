@@ -112,56 +112,65 @@ export default function ConnectionsClient({ initialConnections, needsAttention, 
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredConnections.map((conn, i) => (
-                                    <tr key={conn.id}>
-                                        <td>
-                                            <div className={styles.appCell}>
-                                                <div className={styles.appIcon} style={{ background: conn.color }}>
-                                                    {conn.app[0]}
-                                                </div>
-                                                <div className={styles.appInfo}>
-                                                    <div className={styles.appName}>{conn.app}</div>
-                                                    <div className={styles.appCategory}>{conn.category}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className={styles.statusText} style={{ color: getStatusColor(conn.statusKey) }}>
-                                                {conn.status}
-                                            </div>
-                                            <div className={styles.statusSub}>
-                                                {conn.health === 'Healthy' ? 'Healthy' : conn.health === 'Not connected' ? 'Not set up' : conn.health === 'Reconnect needed' ? 'Re-auth required' : 'Token expired'}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className={styles.workflowList}>
-                                                {conn.workflows.map((w, j) => (
-                                                    <div key={j} className={styles.workflowTag}>
-                                                        {w.startsWith('+') ? <span style={{ background: '#F1F5F9', padding: '2px 6px', borderRadius: 100, fontSize: '0.65rem', fontWeight: 800, color: '#64748B' }}>{w}</span> : w}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0F172A' }}>{conn.lastChecked}</div>
-                                            <div className={styles.statusSub} style={{ color: getStatusColor(conn.statusKey), display: 'flex', alignItems: 'center', gap: 4 }}>
-                                                {conn.health} {conn.statusKey !== 'connected' && conn.statusKey !== 'not_connected' && <div style={{width: 6, height: 6, borderRadius: '50%', background: getStatusColor(conn.statusKey)}}/>}
-                                                {conn.statusKey === 'connected' && <div style={{width: 6, height: 6, borderRadius: '50%', background: '#10B981'}}/>}
-                                            </div>
-                                        </td>
-                                        <td style={{ textAlign: 'right' }}>
-                                            <button 
-                                                className={styles.actionButton}
-                                                onClick={() => router.push('/dashboard/access')}
-                                            >
-                                                {conn.action}
-                                            </button>
-                                        </td>
-                                        <td style={{ textAlign: 'right', paddingRight: 24 }}>
-                                            <MoreHorizontal size={16} color="#94A3B8" style={{ cursor: 'pointer' }} />
+                                {filteredConnections.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={6} style={{ textAlign: 'center', padding: '48px 24px', color: 'var(--muted-foreground)' }}>
+                                            <span style={{ fontSize: '0.88rem', fontWeight: 900, color: 'var(--foreground)', display: 'block', marginBottom: '6px' }}>No active connections</span>
+                                            <span style={{ fontSize: '0.78rem' }}>Integrations required by your hired AI Employees will appear here.</span>
                                         </td>
                                     </tr>
-                                ))}
+                                ) : (
+                                    filteredConnections.map((conn, i) => (
+                                        <tr key={conn.id}>
+                                            <td>
+                                                <div className={styles.appCell}>
+                                                    <div className={styles.appIcon} style={{ background: conn.color }}>
+                                                        {conn.app[0]}
+                                                    </div>
+                                                    <div className={styles.appInfo}>
+                                                        <div className={styles.appName}>{conn.app}</div>
+                                                        <div className={styles.appCategory}>{conn.category}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className={styles.statusText} style={{ color: getStatusColor(conn.statusKey) }}>
+                                                    {conn.status}
+                                                </div>
+                                                <div className={styles.statusSub}>
+                                                    {conn.health === 'Healthy' ? 'Healthy' : conn.health === 'Not connected' ? 'Not set up' : conn.health === 'Reconnect needed' ? 'Re-auth required' : 'Token expired'}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className={styles.workflowList}>
+                                                    {conn.workflows.map((w, j) => (
+                                                        <div key={j} className={styles.workflowTag}>
+                                                            {w.startsWith('+') ? <span style={{ background: '#F1F5F9', padding: '2px 6px', borderRadius: 100, fontSize: '0.65rem', fontWeight: 800, color: '#64748B' }}>{w}</span> : w}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0F172A' }}>{conn.lastChecked}</div>
+                                                <div className={styles.statusSub} style={{ color: getStatusColor(conn.statusKey), display: 'flex', alignItems: 'center', gap: 4 }}>
+                                                    {conn.health} {conn.statusKey !== 'connected' && conn.statusKey !== 'not_connected' && <div style={{width: 6, height: 6, borderRadius: '50%', background: getStatusColor(conn.statusKey)}}/>}
+                                                    {conn.statusKey === 'connected' && <div style={{width: 6, height: 6, borderRadius: '50%', background: '#10B981'}}/>}
+                                                </div>
+                                            </td>
+                                            <td style={{ textAlign: 'right' }}>
+                                                <button 
+                                                    className={styles.actionButton}
+                                                    onClick={() => router.push('/dashboard/access')}
+                                                >
+                                                    {conn.action}
+                                                </button>
+                                            </td>
+                                            <td style={{ textAlign: 'right', paddingRight: 24 }}>
+                                                <MoreHorizontal size={16} color="#94A3B8" style={{ cursor: 'pointer' }} />
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>

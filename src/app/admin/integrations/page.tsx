@@ -3,155 +3,309 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { 
-    ExternalLink, 
-    RefreshCcw, 
-    Plus, 
-    Zap, 
-    Shield, 
-    CheckCircle, 
-    AlertCircle, 
-    Cloud, 
-    Key, 
-    Bot,
-    MessageSquare,
-    CreditCard
+    ExternalLink, RefreshCcw, CheckCircle, AlertCircle, 
+    Cloud, Key, Bot, MessageSquare, CreditCard, ChevronRight,
+    Users, ShieldAlert, Sparkles, Filter, X, Database
 } from "lucide-react";
 import adminStyles from "../admin.module.css";
 
+const BLUEPRINT_REQUIRED_TOOLS: Record<string, string[]> = {
+    'invoice-parsing-billing': ['Gmail', 'OpenAI', 'Google Sheets'],
+    'outbound-enrichment': ['Slack', 'OpenAI', 'Apollo.io'],
+    'customer-intake-sync': ['Hubspot', 'Slack', 'Gmail'],
+    'expense-compliance-audit': ['Gmail', 'OpenAI', 'Stripe'],
+    'talent-screening-pipeline': ['Slack', 'OpenAI', 'Google Sheets'],
+    'automated-contract-review': ['Stripe', 'Gmail', 'Slack'],
+    'support-ticket-routing': ['Gmail', 'Slack', 'OpenAI'],
+    'document-knowledge-search': ['Google Drive', 'Slack', 'Notion'],
+    'devops-alert-triaging': ['Gmail', 'Slack', 'Jira'],
+    'lead-nurturing-agent': ['Slack', 'OpenAI', 'Gmail'],
+    'client-onboarding-tracker': ['Gmail', 'Slack', 'Google Sheets'],
+    'subscription-churn-alert': ['Stripe', 'OpenAI', 'Slack'],
+    'legal-contract-generator': ['Gmail', 'OpenAI', 'Slack'],
+    'translation-localization': ['OpenAI', 'Google Sheets', 'Slack'],
+    'social-media-scheduler': ['Gmail', 'Slack', 'OpenAI'],
+    'it-asset-tracker': ['Gmail', 'OpenAI', 'Slack'],
+    'compliance-reporting': ['OpenAI', 'Slack', 'Gmail'],
+    'employee-performance-tracker': ['Gmail', 'OpenAI', 'Google Sheets'],
+    'content-marketing-generator': ['Gmail', 'OpenAI', 'Slack'],
+    'billing-collections-reminder': ['Slack', 'Stripe', 'Gmail'],
+    'product-release-notifier': ['Slack', 'OpenAI', 'Gmail']
+};
+
+interface IntegrationStat {
+    provider: string;
+    label: string;
+    icon: React.ReactNode;
+    connectedCount: number;
+    missingCount: number;
+    expiredCount: number;
+}
+
 export default function IntegrationsPage() {
     const router = useRouter();
-    const [currentUser, setCurrentUser] = useState<any>(null);
-    const [isCheckingRole, setIsCheckingRole] = useState(true);
+    const [workspaces, setWorkspaces] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    
+    // Drill down selected provider state
+    const [selectedProvider, setSelectedProvider] = useState<string | null>(null);
+
+    const fetchWorkspaces = async () => {
+        setIsLoading(true);
+        try {
+            const res = await fetch("/api/admin/users");
+            if (res.ok) {
+                const data = await res.json();
+                const filtered = data.filter((w: any) => w.role !== "SuperAdmin");
+                setWorkspaces(filtered);
+            }
+        } catch (e) {
+            console.error("Failed to load integrations data:", e);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        (async () => {
-            try {
-                const res = await fetch("/api/admin/session");
-                if (res.ok) {
-                    const data = await res.json();
-                    setCurrentUser(data.user);
-                    const role = (data.user.role || "").toUpperCase();
-                    if (role !== "SUPERADMIN" && role !== "SUPER ADMIN" && role !== "ROOT") {
-                        router.replace("/admin");
-                    }
-                } else {
-                    router.replace("/admin/login");
-                }
-            } finally {
-                setIsCheckingRole(false);
-            }
-        })();
-    }, [router]);
+        fetchWorkspaces();
+    }, []);
 
-    if (isCheckingRole || (currentUser && currentUser.role !== "SuperAdmin")) {
-        return (
-            <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <RefreshCcw size={24} className={adminStyles.spinning} color="var(--accent)" />
-            </div>
-        );
-    }
-
-    const integrations = [
-        { 
-            name: "n8n Workflow Engine", 
-            status: "Connected", 
-            type: "Core Automation", 
-            icon: <Zap size={24} color="#FF6D5A" />,
-            lastSync: "2 mins ago",
-            desc: "Primary execution engine for sovereign client workflows."
-        },
-        { 
-            name: "PostgreSQL Database", 
-            status: "Connected", 
-            type: "Persistence", 
-            icon: <Cloud size={24} color="#336791" />,
-            lastSync: "Live",
-            desc: "Institutional relational data store on VPS cluster."
-        },
-        { 
-            name: "Stripe Connect", 
-            status: "Connected", 
-            type: "Financial Hub", 
-            icon: <CreditCard size={24} color="#635BFF" />,
-            lastSync: "14 mins ago",
-            desc: "Institutional billing and subscription management."
-        },
-        { 
-            name: "OpenAI API", 
-            status: "Connected", 
-            type: "Cognitive Engine", 
-            icon: <Bot size={24} color="#10A37F" />,
-            lastSync: "1 hour ago",
-            desc: "LLM services for autonomous agent reasoning."
-        }
+    // Integration providers configuration
+    const PROVIDERS = [
+        { key: "gmail", label: "Gmail Link", icon: <MessageSquare size={20} color="#EA4335" /> },
+        { key: "slack", label: "Slack Sync", icon: <MessageSquare size={20} color="#4A154B" /> },
+        { key: "google sheets", label: "Google Sheets", icon: <Cloud size={20} color="#0F9D58" /> },
+        { key: "stripe", label: "Stripe Connect", icon: <CreditCard size={20} color="#635BFF" /> },
+        { key: "openai", label: "OpenAI API", icon: <Bot size={20} color="#10A37F" /> },
+        { key: "google drive", label: "Google Drive", icon: <Cloud size={20} color="#4285F4" /> },
+        { key: "notion", label: "Notion Integration", icon: <Database size={20} color="#000000" /> }
     ];
 
+    // Compute metrics
+    const stats: IntegrationStat[] = PROVIDERS.map(p => {
+        let connectedCount = 0;
+        let missingCount = 0;
+        let expiredCount = 0;
+
+        workspaces.forEach(ws => {
+            const blueprintKey = ws.selectedWorkflowId || "";
+            const reqTools = BLUEPRINT_REQUIRED_TOOLS[blueprintKey] || [];
+            const isRequired = reqTools.map(t => t.toLowerCase()).includes(p.key.toLowerCase());
+
+            const credentials = ws.connectedCredentials || [];
+            const cred = credentials.find((c: any) => c.provider.toLowerCase() === p.key.toLowerCase());
+
+            if (cred) {
+                if (cred.status === 'expired' || cred.status === 'failed') {
+                    expiredCount++;
+                } else {
+                    connectedCount++;
+                }
+            } else if (isRequired) {
+                missingCount++;
+            }
+        });
+
+        return {
+            provider: p.key,
+            label: p.label,
+            icon: p.icon,
+            connectedCount,
+            missingCount,
+            expiredCount
+        };
+    });
+
+    // Affected workspaces for selected provider
+    const getAffectedWorkspaces = () => {
+        if (!selectedProvider) return [];
+        return workspaces.filter(ws => {
+            const blueprintKey = ws.selectedWorkflowId || "";
+            const reqTools = BLUEPRINT_REQUIRED_TOOLS[blueprintKey] || [];
+            const isRequired = reqTools.map(t => t.toLowerCase()).includes(selectedProvider.toLowerCase());
+
+            const credentials = ws.connectedCredentials || [];
+            const cred = credentials.find((c: any) => c.provider.toLowerCase() === selectedProvider.toLowerCase());
+
+            // We show it in drilldown if it requires this integration, whether active, missing, or failed
+            return isRequired || !!cred;
+        });
+    };
+
+    const affectedWorkspaces = getAffectedWorkspaces();
+
     return (
-        <div style={{ animation: "fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1)", display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "24px", animation: "fadeIn 0.5s ease-out" }}>
             
-            {/* HEADER */}
-            <div className={adminStyles.integrityPanel} style={{ background: '#0F172A', color: 'white', border: 'none' }}>
-                <div className={adminStyles.integrityHub}>
-                    <div style={{ width: '56px', height: '56px', background: 'rgba(255,255,255,0.05)', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)' }}>
-                        <ExternalLink size={28} color="#10B981" />
-                    </div>
-                    <div>
-                        <h2 style={{ color: 'white', fontSize: '1.6rem', fontWeight: 950, margin: 0, letterSpacing: '-0.03em' }}>System Integrations</h2>
-                        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.95rem', margin: '6px 0 0', fontWeight: 700 }}>Manage institutional connections and third-party API gateways</p>
+            {/* PLATFORM METRICS SUMMARY */}
+            <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "24px", padding: "32px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px" }}>
+                <div>
+                    <span style={{ fontSize: "0.65rem", fontWeight: 950, color: "var(--muted-foreground)", textTransform: "uppercase" }}>Active connected Integrations</span>
+                    <div style={{ fontSize: "1.75rem", fontWeight: 950, color: "#10B981", marginTop: "6px" }}>
+                        {stats.reduce((sum, s) => sum + s.connectedCount, 0)}
                     </div>
                 </div>
-                <div className={adminStyles.hubMetrics}>
-                    <button className={adminStyles.primaryBtn} style={{ width: 'auto', padding: '0 24px', height: '48px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <Plus size={18} /> Provision Gateway
-                    </button>
+                <div>
+                    <span style={{ fontSize: "0.65rem", fontWeight: 950, color: "var(--muted-foreground)", textTransform: "uppercase" }}>Critical Missing links</span>
+                    <div style={{ fontSize: "1.75rem", fontWeight: 950, color: "#EF4444", marginTop: "6px" }}>
+                        {stats.reduce((sum, s) => sum + s.missingCount, 0)}
+                    </div>
+                </div>
+                <div>
+                    <span style={{ fontSize: "0.65rem", fontWeight: 950, color: "var(--muted-foreground)", textTransform: "uppercase" }}>Expired auth errors</span>
+                    <div style={{ fontSize: "1.75rem", fontWeight: 950, color: "#F59E0B", marginTop: "6px" }}>
+                        {stats.reduce((sum, s) => sum + s.expiredCount, 0)}
+                    </div>
                 </div>
             </div>
 
-            {/* INTEGRATIONS GRID */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "24px" }}>
-                {integrations.map((int, i) => (
-                    <div key={i} className={adminStyles.registryCard} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                            <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                                <div style={{ width: '56px', height: '56px', background: '#F8FAFC', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #E2E8F0' }}>
-                                    {int.icon}
-                                </div>
-                                <div>
-                                    <h4 style={{ fontSize: '1.1rem', fontWeight: 950, margin: 0 }}>{int.name}</h4>
-                                    <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{int.type}</span>
-                                </div>
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 12px', background: '#E8FDF0', color: '#10B981', borderRadius: '100px' }}>
-                                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }} />
-                                <span style={{ fontSize: '0.65rem', fontWeight: 950 }}>{int.status}</span>
-                            </div>
-                        </div>
+            {/* TWO COLUMN CONTENT */}
+            <div style={{ display: "grid", gridTemplateColumns: selectedProvider ? "1.6fr 1.4fr" : "1fr", gap: "32px", transition: "all 0.3s", alignItems: "start" }}>
+                
+                {/* INTEGRATIONS PROVIDER INDEX */}
+                <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "24px", padding: "32px" }}>
+                    <div style={{ marginBottom: "20px" }}>
+                        <h3 style={{ fontSize: "1.1rem", fontWeight: 950, color: "var(--foreground)", margin: 0 }}>PLATFORM INTEGRATION SYNC</h3>
+                        <p style={{ fontSize: "0.75rem", color: "var(--muted-foreground)", margin: "4px 0 0", fontWeight: 750 }}>Sync status tracking of credentials across client workspaces</p>
+                    </div>
 
-                        <p style={{ fontSize: '0.9rem', color: '#64748B', fontWeight: 600, lineHeight: '1.6', margin: 0 }}>{int.desc}</p>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "16px" }}>
+                        {isLoading ? (
+                            Array(4).fill(0).map((_, i) => (
+                                <div key={i} style={{ height: "100px", background: "var(--muted)", borderRadius: "14px", animation: "pulse 1.5s infinite" }} />
+                            ))
+                        ) : (
+                            stats.map((s, idx) => {
+                                const isSelected = selectedProvider === s.provider;
+                                return (
+                                    <div 
+                                        key={idx}
+                                        onClick={() => setSelectedProvider(isSelected ? null : s.provider)}
+                                        style={{ 
+                                            padding: "24px", 
+                                            background: isSelected ? "var(--muted)" : "var(--card)", 
+                                            border: `1px solid ${isSelected ? 'var(--accent)' : 'var(--border)'}`, 
+                                            borderRadius: "16px",
+                                            cursor: "pointer",
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            gap: "14px",
+                                            transition: "all 0.2s"
+                                        }}
+                                        onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.borderColor = 'var(--accent)'; }}
+                                        onMouseLeave={(e) => { if (!isSelected) e.currentTarget.style.borderColor = 'var(--border)'; }}
+                                    >
+                                        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                                            <div style={{ width: "38px", height: "38px", background: "var(--muted)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--border)" }}>
+                                                {s.icon}
+                                            </div>
+                                            <div>
+                                                <h4 style={{ fontSize: "0.9rem", fontWeight: 950, color: "var(--foreground)", margin: 0 }}>{s.label}</h4>
+                                                <span style={{ fontSize: "0.65rem", fontWeight: 900, color: "var(--muted-foreground)", textTransform: "uppercase" }}>{s.provider}</span>
+                                            </div>
+                                        </div>
 
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '16px', borderTop: '1px solid #F1F5F9' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <RefreshCcw size={14} color="#94A3B8" />
-                                <span style={{ fontSize: '0.75rem', color: '#94A3B8', fontWeight: 750 }}>Sync: {int.lastSync}</span>
+                                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px", fontSize: "0.8rem", fontWeight: 800 }}>
+                                            <div>
+                                                <div style={{ color: "#10B981" }}>{s.connectedCount}</div>
+                                                <span style={{ fontSize: "0.6rem", color: "var(--muted-foreground)", fontWeight: 700 }}>ACTIVE</span>
+                                            </div>
+                                            <div>
+                                                <div style={{ color: "#EF4444" }}>{s.missingCount}</div>
+                                                <span style={{ fontSize: "0.6rem", color: "var(--muted-foreground)", fontWeight: 700 }}>MISSING</span>
+                                            </div>
+                                            <div>
+                                                <div style={{ color: "#F59E0B" }}>{s.expiredCount}</div>
+                                                <span style={{ fontSize: "0.6rem", color: "var(--muted-foreground)", fontWeight: 700 }}>EXPIRED</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )}
+                    </div>
+                </div>
+
+                {/* IMPACTED WORKSPACES DRILL-DOWN */}
+                {selectedProvider && (
+                    <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "24px", padding: "32px", display: "flex", flexDirection: "column", gap: "20px", animation: "fadeIn 0.2s ease-out" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border)", paddingBottom: "12px" }}>
+                            <div>
+                                <h3 style={{ fontSize: "1rem", fontWeight: 950, color: "var(--foreground)", margin: 0 }}>IMPACTED WORKSPACES</h3>
+                                <span style={{ fontSize: "0.7rem", color: "var(--muted-foreground)", fontWeight: 700 }}>Provider: {selectedProvider.toUpperCase()}</span>
                             </div>
-                            <button style={{ background: 'none', border: 'none', color: '#3B82F6', fontSize: '0.8rem', fontWeight: 950, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                Configure <Key size={14} />
+                            <button onClick={() => setSelectedProvider(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)" }}>
+                                <X size={16} />
                             </button>
                         </div>
-                    </div>
-                ))}
-            </div>
 
-            {/* API LOGS PREVIEW */}
-            <div className={adminStyles.registryCard} style={{ padding: '40px' }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 950, margin: '0 0 24px' }}>Institutional Gateway Logs</h3>
-                <div style={{ height: "180px", background: "#0F172A", borderRadius: "20px", padding: "24px", fontFamily: "monospace", fontSize: "0.75rem", overflow: "hidden", color: "#94A3B8", lineHeight: 1.8 }}>
-                    <div>[20:04:12] <span style={{ color: "#10B981" }}>SUCCESS</span>: Stripe.Webhook.Signature verified.</div>
-                    <div>[20:03:45] <span style={{ color: "#10B981" }}>SUCCESS</span>: n8n.Trigger received for node blonk-sync-01.</div>
-                    <div>[19:58:22] <span style={{ color: "#3B82F6" }}>INFO</span>: OpenAI.Usage calibration completed.</div>
-                    <div>[19:45:10] <span style={{ color: "#10B981" }}>SUCCESS</span>: PostgreSQL.Handshake nominal.</div>
-                    <div style={{ opacity: 0.5 }}>[19:30:00] System.Handshake starting institutional sync...</div>
-                </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "400px", overflowY: "auto", paddingRight: "4px" }}>
+                            {affectedWorkspaces.length === 0 ? (
+                                <span style={{ fontSize: "0.8rem", color: "var(--muted-foreground)", fontStyle: "italic" }}>No workspaces configured with this integration.</span>
+                            ) : (
+                                affectedWorkspaces.map((ws) => {
+                                    const credentials = ws.connectedCredentials || [];
+                                    const cred = credentials.find((c: any) => c.provider.toLowerCase() === selectedProvider.toLowerCase());
+                                    
+                                    let statusText = "Missing Connection";
+                                    let statusColor = "#EF4444";
+                                    let statusBg = "rgba(239, 68, 68, 0.1)";
+
+                                    if (cred) {
+                                        if (cred.status === 'expired' || cred.status === 'failed') {
+                                            statusText = "Expired / Failed";
+                                            statusColor = "#F59E0B";
+                                            statusBg = "rgba(245, 158, 11, 0.1)";
+                                        } else {
+                                            statusText = "Connected Nominal";
+                                            statusColor = "#10B981";
+                                            statusBg = "rgba(16, 185, 129, 0.1)";
+                                        }
+                                    }
+
+                                    return (
+                                        <div 
+                                            key={ws.id} 
+                                            onClick={() => router.push(`/admin/workspaces/${ws.id}`)}
+                                            style={{ 
+                                                display: "flex", 
+                                                justifyContent: "space-between", 
+                                                alignItems: "center", 
+                                                padding: "12px 16px", 
+                                                background: "var(--muted)", 
+                                                borderRadius: "10px", 
+                                                cursor: "pointer",
+                                                border: "1px solid var(--border)",
+                                                transition: "border-color 0.2s"
+                                            }}
+                                            onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--accent)'}
+                                            onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
+                                        >
+                                            <div>
+                                                <div style={{ fontSize: "0.8rem", fontWeight: 900, color: "var(--foreground)" }}>{ws.firmName || "Sovereign Workspace"}</div>
+                                                <div style={{ fontSize: "0.7rem", color: "var(--muted-foreground)", fontWeight: 700, marginTop: "2px" }}>Operator: {ws.name}</div>
+                                            </div>
+                                            
+                                            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                                                <span style={{ 
+                                                    fontSize: "0.6rem", 
+                                                    fontWeight: 950, 
+                                                    padding: "3px 8px", 
+                                                    borderRadius: "4px",
+                                                    background: statusBg,
+                                                    color: statusColor,
+                                                    textTransform: "uppercase"
+                                                }}>{statusText}</span>
+                                                <ChevronRight size={14} style={{ color: "var(--muted-foreground)" }} />
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            )}
+                        </div>
+                    </div>
+                )}
+
             </div>
 
         </div>

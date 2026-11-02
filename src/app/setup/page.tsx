@@ -1,119 +1,243 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import React, { useState, useEffect, Suspense } from "react";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { motion, AnimatePresence } from "motion/react";
+import { 
+    ArrowRight, ArrowLeft, Check, Brain, Receipt, 
+    TrendingUp, Users, Headphones, Radar, ShieldCheck, 
+    Loader2, Building2, User
+} from "lucide-react";
 import styles from "./setup.module.css";
-import React from "react";
 
-const IconLaw = () => <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>;
-const IconAccounting = () => <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>;
-const IconInsurance = () => <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>;
-const IconHR = () => <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
-const IconInvoice = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>;
-const IconOnboard = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>;
-const IconEU = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>;
-const IconUS = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/><path d="M4 14h16"/></svg>;
+interface PrimaryBrainOption {
+    id: string;
+    title: string;
+    shortName: string;
+    description: string;
+    icon: React.ElementType;
+}
 
-function SetupContent() {
+const PRIMARY_BRAINS: PrimaryBrainOption[] = [
+    {
+        id: "Finance & Accounting",
+        title: "Finance & Accounting",
+        shortName: "Finance",
+        description: "Invoice extraction, ledger reconciliation, automated expense approvals & payment matching.",
+        icon: Receipt
+    },
+    {
+        id: "Sales & Inbound Leads",
+        title: "Sales & Inbound Leads",
+        shortName: "Sales",
+        description: "Inbound lead qualification, CRM synchronization, contact enrichment & deal alerts.",
+        icon: TrendingUp
+    },
+    {
+        id: "HR & Internal Operations",
+        title: "HR & Internal Operations",
+        shortName: "HR & Operations",
+        description: "Employee onboarding workspaces, document signing loops & compliance routing.",
+        icon: Users
+    },
+    {
+        id: "Customer Support Triaging",
+        title: "Customer Support Triaging",
+        shortName: "Support",
+        description: "Intelligent ticket categorization, urgent escalation alerts & auto-draft replies.",
+        icon: Headphones
+    },
+    {
+        id: "Marketing & Competitor Alerts",
+        title: "Marketing & Competitor Alerts",
+        shortName: "Marketing",
+        description: "Competitor website surveillance, pricing shift alerts & content intelligence.",
+        icon: Radar
+    }
+];
+
+const INDUSTRIES = [
+    "Financial Services & Accounting",
+    "Legal & Compliance",
+    "Management Consulting",
+    "Technology & SaaS",
+    "Real Estate & Property Management",
+    "E-commerce & Retail",
+    "Healthcare & Medical",
+    "Marketing & Agency",
+    "Other Professional Services"
+];
+
+const COMPANY_SIZES = [
+    "1-10 employees",
+    "11-50 employees",
+    "51-200 employees",
+    "201-500 employees",
+    "500+ employees"
+];
+
+function OnboardingContent() {
     const router = useRouter();
     const { data: session, status } = useSession();
-    const [step, setStep] = useState(2); // Starting at 2 logically (1 is login)
-    const [isProvisioning, setIsProvisioning] = useState(false);
-    const [progress, setProgress] = useState(0);
-    const [currentTask, setCurrentTask] = useState("");
-    
-    const [formData, setFormData] = useState({
-        industry: "",
-        teamSize: "",
-        region: "",
-        selectedLoop: "",
-        practiceArea: "",
-        accountingSoftware: ""
-    });
 
-    const tasks = [
-        "Deploying nodes...",
-        "Syncing institutional protocols...",
-        "Establishing Sovereign Space...",
-        "Validating compliance constraints...",
-        "Finalizing Fleet configuration..."
-    ];
+    // Steps: 1 = Account, 2 = Company, 3 = Primary Brain, 4 = Creation / Ready
+    const [step, setStep] = useState(1);
+    const [loadingInitial, setLoadingInitial] = useState(true);
 
+    // Step 1: Account
+    const [fullName, setFullName] = useState("");
+    const [email, setEmail] = useState("");
+    const [jobTitle, setJobTitle] = useState("");
+
+    // Step 2: Company
+    const [companyName, setCompanyName] = useState("");
+    const [website, setWebsite] = useState("");
+    const [industry, setIndustry] = useState("Financial Services & Accounting");
+    const [companySize, setCompanySize] = useState("1-10 employees");
+    const [country, setCountry] = useState("Latvia");
+
+    // Step 3: Primary Brain (Exactly 1 selectable)
+    const [primaryBrain, setPrimaryBrain] = useState("Finance & Accounting");
+
+    // Step 4: Creation & Ready
+    const [isCreating, setIsCreating] = useState(false);
+    const [creationProgress, setCreationProgress] = useState(0);
+    const [isReady, setIsReady] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+
+    // 1. Auth Guard & Initial Data Autofill
     useEffect(() => {
-        if (isProvisioning) {
-            let current = 0;
-            const interval = setInterval(() => {
-                current += 1;
-                setProgress(current);
-                const taskIndex = Math.floor((current / 100) * tasks.length);
-                setCurrentTask(tasks[Math.min(taskIndex, tasks.length - 1)]);
-                if (current >= 100) {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        setIsProvisioning(false);
-                        setStep(4);
-                    }, 500);
-                }
-            }, 35);
-            return () => clearInterval(interval);
+        if (status === "unauthenticated") {
+            router.replace("/login");
+            return;
         }
-    }, [isProvisioning]);
 
-    const industries = [
-        { id: 'Law', label: 'Law Firm', icon: <IconLaw /> },
-        { id: 'Accounting', label: 'Accounting', icon: <IconAccounting /> },
-        { id: 'Insurance', label: 'Insurance', icon: <IconInsurance /> },
-        { id: 'HR', label: 'HR Agency', icon: <IconHR /> }
-    ];
+        if (status === "authenticated") {
+            // Fetch existing user and company data from GET /api/setup
+            const loadUserData = async () => {
+                try {
+                    const res = await fetch("/api/setup");
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.user) {
+                            if (data.user.fullName) setFullName(data.user.fullName);
+                            if (data.user.email) setEmail(data.user.email);
+                            if (data.user.jobTitle) setJobTitle(data.user.jobTitle);
+                        }
+                        if (data.company) {
+                            if (data.company.companyName) setCompanyName(data.company.companyName);
+                            if (data.company.website) setWebsite(data.company.website);
+                            if (data.company.industry) setIndustry(data.company.industry);
+                            if (data.company.companySize) setCompanySize(data.company.companySize);
+                            if (data.company.country) setCountry(data.company.country);
+                        }
+                        if (data.primaryBrain) {
+                            setPrimaryBrain(data.primaryBrain);
+                        }
+                    }
+                } catch (err) {
+                    console.error("Failed to load initial setup data:", err);
+                } finally {
+                    setLoadingInitial(false);
+                }
+            };
+            loadUserData();
+        }
+    }, [status, router]);
 
-    const teamSizes = ["1-5 Operators", "6-20 Operators", "21-50 Operators", "50+ Operators"];
-    const regions = [
-        { id: "eu", label: "EU-Frankfurt", desc: "GDPR Compliant Node", icon: <IconEU /> },
-        { id: "us", label: "US-East", desc: "SOC2 Accelerated Node", icon: <IconUS /> }
-    ];
+    // Fallback email from session if not yet populated
+    useEffect(() => {
+        if (session?.user?.email && !email) {
+            setEmail(session.user.email);
+        }
+        if (session?.user?.name && !fullName) {
+            setFullName(session.user.name);
+        }
+    }, [session, email, fullName]);
 
-    const loops = [
-        { id: "invoice", name: "Automatic Invoice Processor", desc: "Syncs billing & reminds overdue clients.", icon: <IconInvoice /> },
-        { id: "onboard", name: "Client Onboarding System", desc: "Extracts intake data and generates NDAs.", icon: <IconOnboard /> }
-    ];
+    // Step Handlers
+    const handleNextToCompany = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!fullName.trim()) {
+            setErrorMessage("Please enter your full name.");
+            return;
+        }
+        setErrorMessage("");
+        setStep(2);
+    };
 
-    const handleNext = async () => {
-        if (step === 2) {
-            if (formData.industry === 'Law' || formData.industry === 'Accounting') {
-                setStep(3);
-            } else {
-                setIsProvisioning(true);
+    const handleNextToBrain = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!companyName.trim()) {
+            setErrorMessage("Please enter your company name.");
+            return;
+        }
+        setErrorMessage("");
+        setStep(3);
+    };
+
+    const handleCreateBrain = async () => {
+        setStep(4);
+        setIsCreating(true);
+        setIsReady(false);
+        setCreationProgress(15);
+        setErrorMessage("");
+
+        // Progress simulation animation
+        const timer1 = setTimeout(() => setCreationProgress(55), 500);
+        const timer2 = setTimeout(() => setCreationProgress(85), 1100);
+
+        try {
+            // Send setup payload to database
+            const res = await fetch("/api/setup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    fullName,
+                    jobTitle,
+                    companyName,
+                    website,
+                    industry,
+                    companySize,
+                    country,
+                    primaryBrain
+                })
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.error || "Failed to save configuration.");
             }
-        } else if (step === 3) {
-            setIsProvisioning(true);
-        } else if (step === 4) {
-            try {
-                await fetch('/api/setup', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
-                window.location.href = "/dashboard";
-            } catch (err) {
-                console.error("Setup save failed", err);
-                window.location.href = "/dashboard";
-            }
+
+            setCreationProgress(100);
+            setTimeout(() => {
+                setIsCreating(false);
+                setIsReady(true);
+            }, 700);
+        } catch (err: any) {
+            console.error("Brain creation error:", err);
+            setErrorMessage(err.message || "Something went wrong while initializing your brain.");
+            setIsCreating(false);
+            setStep(3); // return to selection on error
+        } finally {
+            clearTimeout(timer1);
+            clearTimeout(timer2);
         }
     };
 
-    const isNonOwner = status === 'authenticated' && (session?.user as any)?.role !== 'OWNER';
+    const handleOpenBrain = () => {
+        router.push("/dashboard/company-brain");
+    };
 
-    if (status === 'loading') {
-        return <div className={styles.wrapper}><div style={{ padding: '64px', textAlign: 'center', width: '100%', color: '#64748B', fontWeight: 800 }}>Initializing verification...</div></div>;
-    }
+    const selectedBrainConfig = PRIMARY_BRAINS.find(b => b.id === primaryBrain) || PRIMARY_BRAINS[0];
 
-    if (isNonOwner) {
+    if (loadingInitial) {
         return (
             <div className={styles.wrapper}>
-                <div style={{ padding: '64px', textAlign: 'center', width: '100%', color: '#64748B', fontWeight: 800 }}>
-                    Initializing workspace traversal...
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh", gap: "16px" }}>
+                    <Loader2 size={28} className={styles.spinning} color="#111827" />
+                    <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#6B7280" }}>Initializing BLONK onboarding...</span>
                 </div>
             </div>
         );
@@ -121,167 +245,376 @@ function SetupContent() {
 
     return (
         <div className={styles.wrapper}>
-            <div className={styles.leftColumn}>
-                <Link href="/" className={styles.logo}>
-                    BLONK<span className={styles.logo_dot}></span>
-                </Link>
-                <div className={styles.sidebarContent}>
-                    <span className={styles.visualTag}>Sovereign Handshaking</span>
-                    <h1 className={styles.sidebarTitle}>Integration<br />Provisioning.</h1>
-                    <p className={styles.sidebarText}>Establish your sovereign firm instance in minutes. We automate the administrative friction, you focus on the exceptions.</p>
+            <div className={styles.container}>
+                {/* ─── Top Header Bar ─── */}
+                <div className={styles.headerBar}>
+                    <div className={styles.logo}>
+                        BLONK<span className={styles.logo_dot} />
+                    </div>
+
+                    <div className={styles.stepper}>
+                        {[
+                            { num: 1, label: "Account" },
+                            { num: 2, label: "Company" },
+                            { num: 3, label: "Primary Brain" },
+                            { num: 4, label: "Ready" }
+                        ].map(s => {
+                            const isCurrent = step === s.num;
+                            const isPassed = step > s.num;
+                            return (
+                                <div 
+                                    key={s.num} 
+                                    className={`${styles.stepperStep} ${isCurrent ? styles.stepActive : ""} ${isPassed ? styles.stepCompleted : ""}`}
+                                >
+                                    <div className={styles.stepCircle} style={{
+                                        background: isCurrent || isPassed ? "#111827" : "#F3F4F6",
+                                        color: isCurrent || isPassed ? "#FFFFFF" : "#6B7280"
+                                    }}>
+                                        {isPassed ? <Check size={10} strokeWidth={3} /> : s.num}
+                                    </div>
+                                    <span className={styles.stepText}>{s.label}</span>
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
-                <div style={{ marginTop: 'auto', fontSize: '0.75rem', fontWeight: 900, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.2em' }}>
-                    SECURE PROTOCOL / {session?.user?.email?.toUpperCase() || "IDENTITY CONFIGURED"}
-                </div>
-            </div>
 
-            <div className={styles.rightColumn}>
-                <div className={styles.formContainer}>
-                    {!isProvisioning && (
-                        <div className={styles.stepWrapper}>
-                            <span className={styles.stepLabel}>Initialization Step 0{step === 2 ? 1 : step === 3 ? 2 : 3} / 03</span>
-                            <div className={styles.stepIndicator}>
-                                {[2, 3, 4].map(s => <div key={s} className={`${styles.dot} ${step >= s ? styles.dotActive : ''}`} />)}
+                {errorMessage && (
+                    <div style={{
+                        maxWidth: "680px",
+                        margin: "12px auto 0",
+                        width: "100%",
+                        padding: "12px 16px",
+                        background: "#FEF2F2",
+                        border: "1px solid #FCA5A5",
+                        borderRadius: "10px",
+                        color: "#DC2626",
+                        fontSize: "0.82rem",
+                        fontWeight: 700
+                    }}>
+                        {errorMessage}
+                    </div>
+                )}
+
+                {/* ─── Animated Step Content ─── */}
+                <AnimatePresence mode="wait">
+                    {/* STEP 1: ACCOUNT */}
+                    {step === 1 && (
+                        <motion.div
+                            key="step-1"
+                            initial={{ opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -12 }}
+                            transition={{ duration: 0.22 }}
+                            className={styles.onboardingCard}
+                        >
+                            <div className={styles.onboardingHeader}>
+                                <div className={styles.stepTag}>
+                                    <User size={13} /> Step 01 — Account Identity
+                                </div>
+                                <h1 className={styles.onboardingTitle}>Personalize your command identity</h1>
+                                <p className={styles.onboardingDesc}>
+                                    These credentials configure your operator signature across institutional automation nodes.
+                                </p>
                             </div>
-                        </div>
-                    )}
 
-                    {step === 2 && !isProvisioning && (
-                        <div className={styles.header}>
-                            <h1 className={styles.title}>Institutional Profile.</h1>
-                            <p className={styles.subtitle}>Configure the foundation of your sovereign fleet so we can adjust compliance thresholds.</p>
-                            
-                            <div className={styles.form} style={{ marginTop: '40px' }}>
-                                <div className={styles.inputWrapper}>
-                                    <label className={styles.inputLabel}>What institution do you represent?</label>
-                                    <div className={styles.industryGrid}>
-                                        {industries.map(ind => (
-                                            <div key={ind.id} className={`${styles.industryCard} ${formData.industry === ind.id ? styles.industryCardActive : ''}`} onClick={() => setFormData({ ...formData, industry: ind.id })}>
-                                                <div className={styles.industryIcon}>{ind.icon}</div>
-                                                <div className={styles.industryLabel}>{ind.label}</div>
-                                            </div>
-                                        ))}
-                                    </div>
+                            <form onSubmit={handleNextToCompany} className={styles.formGrid}>
+                                <div className={styles.inputGroup}>
+                                    <label className={styles.inputLabel}>Full Name</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        className={styles.inputField}
+                                        placeholder="e.g. Alexander Vance"
+                                        value={fullName}
+                                        onChange={e => setFullName(e.target.value)}
+                                    />
                                 </div>
 
-                                <div className={styles.inputWrapper}>
-                                    <label className={styles.inputLabel}>Fleet Size (Operators)</label>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                                        {teamSizes.map(size => (
-                                            <div key={size} className={`${styles.industryCard} ${formData.teamSize === size ? styles.industryCardActive : ''}`} onClick={() => setFormData({ ...formData, teamSize: size })} style={{ padding: '16px', textAlign: 'center' }}>
-                                                <div className={styles.industryLabel} style={{ fontSize: '0.85rem' }}>{size}</div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                <div className={styles.inputGroup}>
+                                    <label className={styles.inputLabel}>Work Email</label>
+                                    <input
+                                        type="email"
+                                        disabled
+                                        className={`${styles.inputField} ${styles.inputFieldDisabled}`}
+                                        value={email || session?.user?.email || ""}
+                                    />
                                 </div>
 
-                                <div className={styles.inputWrapper}>
-                                    <label className={styles.inputLabel}>Sovereign Region</label>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                                        {regions.map(r => (
-                                            <div key={r.id} className={`${styles.industryCard} ${formData.region === r.id ? styles.industryCardActive : ''}`} onClick={() => setFormData({ ...formData, region: r.id })} style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                                <div style={{ color: formData.region === r.id ? 'var(--accent)' : 'var(--muted-foreground)' }}>{r.icon}</div>
-                                                <div className={styles.industryLabel} style={{ fontSize: '1.05rem', margin: 0 }}>{r.label}</div>
-                                                <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>{r.desc}</div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                <div className={styles.inputGroup}>
+                                    <label className={styles.inputLabel}>Job Title</label>
+                                    <input
+                                        type="text"
+                                        className={styles.inputField}
+                                        placeholder="e.g. Managing Partner, COO, Head of Operations"
+                                        value={jobTitle}
+                                        onChange={e => setJobTitle(e.target.value)}
+                                    />
                                 </div>
 
-                                <button onClick={handleNext} className={styles.submitBtn} disabled={!formData.industry || !formData.teamSize || !formData.region}>
-                                    {formData.industry === 'Law' || formData.industry === 'Accounting' ? 'Continue Setup' : 'Provision Infrastructure'}
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {step === 3 && !isProvisioning && (
-                        <div className={styles.header}>
-                            <h1 className={styles.title}>Refine Parameters.</h1>
-                            <p className={styles.subtitle}>Help us tailor the sovereign fleet to your specific operational needs.</p>
-                            
-                            <div className={styles.form} style={{ marginTop: '40px' }}>
-                                {formData.industry === 'Law' && (
-                                    <div className={styles.inputWrapper}>
-                                        <label className={styles.inputLabel}>Primary Practice Area</label>
-                                        <div className={styles.industryGrid}>
-                                            {['Corporate', 'Family', 'Real Estate', 'Litigation'].map(area => (
-                                                <div key={area} className={`${styles.industryCard} ${formData.practiceArea === area ? styles.industryCardActive : ''}`} onClick={() => setFormData({ ...formData, practiceArea: area })}>
-                                                    <div className={styles.industryLabel}>{area} Law</div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                                
-                                {formData.industry === 'Accounting' && (
-                                    <div className={styles.inputWrapper}>
-                                        <label className={styles.inputLabel}>Primary Software Environment</label>
-                                        <div className={styles.industryGrid}>
-                                            {['QuickBooks', 'Xero', 'Sage', 'NetSuite'].map(sw => (
-                                                <div key={sw} className={`${styles.industryCard} ${formData.accountingSoftware === sw ? styles.industryCardActive : ''}`} onClick={() => setFormData({ ...formData, accountingSoftware: sw })}>
-                                                    <div className={styles.industryLabel}>{sw}</div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                <button onClick={handleNext} className={styles.submitBtn} disabled={(formData.industry === 'Law' && !formData.practiceArea) || (formData.industry === 'Accounting' && !formData.accountingSoftware)}>
-                                    Provision Infrastructure
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {isProvisioning && (
-                        <div className={styles.provisioningContainer}>
-                            <h1 className={styles.title}>Fleet Provisioning.</h1>
-                            <p style={{ color: '#64748B', fontWeight: 600, marginBottom: 32 }}>Deploying your firm's high-stakes autonomous infrastructure...</p>
-                            <div className={styles.progressBar}><div className={styles.progressFill} style={{ width: `${progress}%` }} /></div>
-                            <div style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A', letterSpacing: '0.05em' }}>{currentTask}</div>
-                        </div>
-                    )}
-
-                    {step === 4 && !isProvisioning && (
-                        <div className={styles.header}>
-                            <h1 className={styles.title}>Hello, {session?.user?.name || "Operator"}.</h1>
-                            <p className={styles.subtitle}>Your environment is ready. Would you like to initialize your first Loop?</p>
-                            
-                            <div className={styles.form} style={{ marginTop: '40px' }}>
-                                {loops.map(loop => (
-                                    <div key={loop.id} className={`${styles.industryCard} ${formData.selectedLoop === loop.id ? styles.industryCardActive : ''}`} style={{ textAlign: 'left', display: 'flex', gap: '16px', alignItems: 'center' }} onClick={() => setFormData({ ...formData, selectedLoop: loop.id })}>
-                                        <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: formData.selectedLoop === loop.id ? 'rgba(52, 209, 134, 0.1)' : '#F1F5F9', color: formData.selectedLoop === loop.id ? 'var(--accent)' : '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.3s' }}>
-                                            {loop.icon}
-                                        </div>
-                                        <div>
-                                            <div className={styles.industryLabel} style={{ fontSize: '1.1rem', marginBottom: '4px' }}>{loop.name}</div>
-                                            <div style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>{loop.desc}</div>
-                                        </div>
-                                    </div>
-                                ))}
-
-                                <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
-                                    <button onClick={handleNext} className={styles.submitBtn} style={{ flex: 1 }} disabled={!formData.selectedLoop}>
-                                        Initialize & Enter Dashboard
-                                    </button>
-                                    <button onClick={handleNext} style={{ flex: 1, background: 'transparent', border: '1px solid #E2E8F0', padding: '16px', borderRadius: '16px', fontWeight: 800, color: '#64748B', cursor: 'pointer' }}>
-                                        Skip for now
+                                <div className={styles.buttonRow} style={{ justifyContent: "flex-end" }}>
+                                    <button type="submit" className={styles.primaryBtn}>
+                                        Continue to Company <ArrowRight size={15} />
                                     </button>
                                 </div>
-                            </div>
-                        </div>
+                            </form>
+                        </motion.div>
                     )}
 
-                    {step > 2 && step <= 4 && !isProvisioning && (
-                        <div style={{ marginTop: '48px', display: 'flex', justifyContent: 'center' }}>
-                            <button className={styles.backBtn} onClick={() => setStep(step - 1)}>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                                Protocol Reversion
-                            </button>
-                        </div>
+                    {/* STEP 2: COMPANY */}
+                    {step === 2 && (
+                        <motion.div
+                            key="step-2"
+                            initial={{ opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -12 }}
+                            transition={{ duration: 0.22 }}
+                            className={styles.onboardingCard}
+                        >
+                            <div className={styles.onboardingHeader}>
+                                <div className={styles.stepTag}>
+                                    <Building2 size={13} /> Step 02 — Company Organization
+                                </div>
+                                <h1 className={styles.onboardingTitle}>Set up your firm profile</h1>
+                                <p className={styles.onboardingDesc}>
+                                    Define your company parameters to align AI decision thresholds and regional compliance rules.
+                                </p>
+                            </div>
+
+                            <form onSubmit={handleNextToBrain} className={styles.formGrid}>
+                                <div className={styles.inputGroup}>
+                                    <label className={styles.inputLabel}>Company Name</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        className={styles.inputField}
+                                        placeholder="e.g. Vance Capital Advisory"
+                                        value={companyName}
+                                        onChange={e => setCompanyName(e.target.value)}
+                                    />
+                                </div>
+
+                                <div className={styles.inputGroup}>
+                                    <label className={styles.inputLabel}>Website</label>
+                                    <input
+                                        type="text"
+                                        className={styles.inputField}
+                                        placeholder="e.g. https://vanceadvisory.com"
+                                        value={website}
+                                        onChange={e => setWebsite(e.target.value)}
+                                    />
+                                </div>
+
+                                <div className={styles.inputGroup}>
+                                    <label className={styles.inputLabel}>Industry</label>
+                                    <select
+                                        className={styles.selectField}
+                                        value={industry}
+                                        onChange={e => setIndustry(e.target.value)}
+                                    >
+                                        {INDUSTRIES.map(ind => (
+                                            <option key={ind} value={ind}>{ind}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className={styles.formRowTwo}>
+                                    <div className={styles.inputGroup}>
+                                        <label className={styles.inputLabel}>Company Size</label>
+                                        <select
+                                            className={styles.selectField}
+                                            value={companySize}
+                                            onChange={e => setCompanySize(e.target.value)}
+                                        >
+                                            {COMPANY_SIZES.map(sz => (
+                                                <option key={sz} value={sz}>{sz}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div className={styles.inputGroup}>
+                                        <label className={styles.inputLabel}>Country</label>
+                                        <input
+                                            type="text"
+                                            required
+                                            className={styles.inputField}
+                                            placeholder="e.g. Latvia, Germany, United States"
+                                            value={country}
+                                            onChange={e => setCountry(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className={styles.buttonRow}>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => { setErrorMessage(""); setStep(1); }}
+                                        className={styles.backBtn}
+                                    >
+                                        <ArrowLeft size={15} /> Back
+                                    </button>
+                                    <button type="submit" className={styles.primaryBtn}>
+                                        Continue to Primary Brain <ArrowRight size={15} />
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
                     )}
-                </div>
+
+                    {/* STEP 3: PRIMARY BRAIN */}
+                    {step === 3 && (
+                        <motion.div
+                            key="step-3"
+                            initial={{ opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -12 }}
+                            transition={{ duration: 0.22 }}
+                            className={styles.onboardingCard}
+                        >
+                            <div className={styles.onboardingHeader}>
+                                <div className={styles.stepTag}>
+                                    <Brain size={13} /> Step 03 — Primary Brain
+                                </div>
+                                <h1 className={styles.onboardingTitle}>WHAT DO YOU WANT TO AUTOMATE?</h1>
+                                <p className={styles.onboardingDesc}>
+                                    Select 1 Primary Brain to initialize your core knowledge index and decision policies. Additional modules can be connected later.
+                                </p>
+                            </div>
+
+                            <div className={styles.brainGrid}>
+                                {PRIMARY_BRAINS.map(b => {
+                                    const isSelected = primaryBrain === b.id;
+                                    const IconComponent = b.icon;
+                                    return (
+                                        <div
+                                            key={b.id}
+                                            className={`${styles.brainCard} ${isSelected ? styles.brainCardSelected : ""}`}
+                                            onClick={() => setPrimaryBrain(b.id)}
+                                        >
+                                            <div className={styles.brainIconWrap}>
+                                                <IconComponent size={20} />
+                                            </div>
+                                            <div className={styles.brainMeta}>
+                                                <span className={styles.brainCardTitle}>{b.title}</span>
+                                                <span className={styles.brainCardDesc}>{b.description}</span>
+                                            </div>
+                                            <div className={styles.brainCheck}>
+                                                <Check size={13} strokeWidth={3} />
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            <div className={styles.buttonRow}>
+                                <button 
+                                    type="button" 
+                                    onClick={() => { setErrorMessage(""); setStep(2); }}
+                                    className={styles.backBtn}
+                                >
+                                    <ArrowLeft size={15} /> Back
+                                </button>
+                                <button 
+                                    type="button" 
+                                    onClick={handleCreateBrain} 
+                                    className={styles.primaryBtn}
+                                >
+                                    Create {selectedBrainConfig.shortName} Brain <ArrowRight size={15} />
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {/* STEP 4: BRAIN CREATION (LOADING & READY) */}
+                    {step === 4 && (
+                        <motion.div
+                            key="step-4"
+                            initial={{ opacity: 0, scale: 0.98 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.98 }}
+                            transition={{ duration: 0.25 }}
+                            className={styles.stateCard}
+                        >
+                            {isCreating ? (
+                                <>
+                                    <div className={styles.pulseIconCircle}>
+                                        <Brain size={28} />
+                                    </div>
+                                    <div>
+                                        <h2 style={{ fontSize: "1.45rem", fontWeight: 900, color: "#111827", margin: "0 0 6px 0", letterSpacing: "-0.03em" }}>
+                                            Creating your {selectedBrainConfig.shortName} Brain...
+                                        </h2>
+                                        <p style={{ fontSize: "0.84rem", color: "#6B7280", margin: 0 }}>
+                                            Provisioning vector index, seeding decision guardrails, and binding corporate memory.
+                                        </p>
+                                    </div>
+
+                                    <div className={styles.loadingProgressTrack}>
+                                        <div 
+                                            className={styles.loadingProgressBar} 
+                                            style={{ width: `${creationProgress}%` }} 
+                                        />
+                                    </div>
+                                </>
+                            ) : isReady ? (
+                                <>
+                                    <div className={styles.readyBadge}>
+                                        <ShieldCheck size={14} /> Sovereign Deployment Verified
+                                    </div>
+
+                                    <div>
+                                        <h2 style={{ fontSize: "1.65rem", fontWeight: 950, color: "#111827", margin: "0 0 6px 0", letterSpacing: "-0.03em", textTransform: "uppercase" }}>
+                                            YOUR {selectedBrainConfig.shortName.toUpperCase()} BRAIN IS READY
+                                        </h2>
+                                        <p style={{ fontSize: "0.85rem", color: "#6B7280", margin: 0 }}>
+                                            Corporate intelligence parameters configured for {companyName || "your organization"}.
+                                        </p>
+                                    </div>
+
+                                    <div className={styles.readyMetricsGrid}>
+                                        <div className={styles.metricBox}>
+                                            <span className={styles.metricLabel}>Knowledge</span>
+                                            <div className={styles.metricValueRow}>
+                                                <span className={styles.readyDot} />
+                                                <span>Ready</span>
+                                            </div>
+                                        </div>
+
+                                        <div className={styles.metricBox}>
+                                            <span className={styles.metricLabel}>Rules</span>
+                                            <div className={styles.metricValueRow}>
+                                                <span className={styles.readyDot} />
+                                                <span>Ready</span>
+                                            </div>
+                                        </div>
+
+                                        <div className={styles.metricBox}>
+                                            <span className={styles.metricLabel}>Connected Apps</span>
+                                            <div className={styles.metricValueRow}>
+                                                <span>0</span>
+                                            </div>
+                                        </div>
+
+                                        <div className={styles.metricBox}>
+                                            <span className={styles.metricLabel}>Automations</span>
+                                            <div className={styles.metricValueRow}>
+                                                <span>0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button 
+                                        type="button" 
+                                        onClick={handleOpenBrain} 
+                                        className={styles.openBrainBtn}
+                                    >
+                                        Open {selectedBrainConfig.shortName} Brain <ArrowRight size={17} />
+                                    </button>
+                                </>
+                            ) : null}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     );
@@ -289,8 +622,12 @@ function SetupContent() {
 
 export default function SetupPage() {
     return (
-        <Suspense fallback={<div className={styles.wrapper}><p style={{ color: 'white', padding: 40 }}>Initializing institutional provisioning engine...</p></div>}>
-            <SetupContent />
+        <Suspense fallback={
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh" }}>
+                <Loader2 size={24} className={styles.spinning} />
+            </div>
+        }>
+            <OnboardingContent />
         </Suspense>
     );
 }

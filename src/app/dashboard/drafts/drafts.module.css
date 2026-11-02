@@ -1,0 +1,447 @@
+/* 
+  BLONK | DRAFTS & APPROVALS CSS
+  Cohesive, elegant design with soft card layout and smooth hover states.
+*/
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding-bottom: 60px;
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-bottom: 1px solid #E2E8F0;
+    padding-bottom: 24px;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 950;
+    color: #0F172A;
+    margin: 0;
+    letter-spacing: -0.04em;
+}
+
+.subtitle {
+    font-size: 1rem;
+    color: #64748B;
+    font-weight: 500;
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* CARDS STACK */
+.listSection {
+    width: 100%;
+}
+
+.cardsStack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.itemCard {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.itemCard:hover {
+    border-color: #CBD5E1;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04);
+}
+
+.cardMain {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-grow: 1;
+}
+
+.itemName {
+    font-size: 1.05rem;
+    font-weight: 900;
+    color: #0F172A;
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.itemMeta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    color: #64748B;
+    font-weight: 500;
+}
+
+.metaLabel {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.metaDivider {
+    color: #CBD5E1;
+}
+
+.badgeWrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.badgeWarning {
+    background: #FFFBEB;
+    color: #D97706;
+}
+
+.badgeSuccess {
+    background: #ECFDF5;
+    color: #059669;
+}
+
+.badgeDraft {
+    background: #F1F5F9;
+    color: #64748B;
+}
+
+.missingBox {
+    background: #FEF2F2;
+    border: 1px solid #FEE2E2;
+    color: #DC2626;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 850;
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+/* ACTIONS */
+.cardActions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.btn {
+    border-radius: 10px;
+    padding: 9px 16px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+    outline: none;
+    height: 38px;
+}
+
+.btnPrimary {
+    background: #0F172A;
+    color: #FFFFFF;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+}
+
+.btnPrimary:hover {
+    background: #34D186;
+    color: #FFFFFF;
+    box-shadow: 0 4px 15px rgba(52, 209, 134, 0.2);
+}
+
+.btnAction {
+    background: #FFFFFF;
+    border: 1px solid #D97706;
+    color: #D97706;
+    text-decoration: none;
+}
+
+.btnAction:hover {
+    background: #FFFBEB;
+}
+
+.btnSecondary {
+    background: #FFFFFF;
+    color: #64748B;
+    border: 1px solid #E2E8F0;
+}
+
+.btnSecondary:hover {
+    background: #F8FAFC;
+    color: #0F172A;
+}
+
+.btnDanger {
+    background: #EF4444;
+    color: #FFFFFF;
+}
+
+.btnDanger:hover {
+    background: #DC2626;
+}
+
+.btnDelete {
+    background: #FEF2F2;
+    color: #DC2626;
+    border: 1px solid #FEE2E2;
+    width: 38px;
+    padding: 0;
+}
+
+.btnDelete:hover {
+    background: #FEE2E2;
+    color: #B91C1C;
+}
+
+/* EMPTY STATE */
+.emptyState {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 24px;
+    padding: 80px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 600px;
+    margin: 40px auto;
+}
+
+.emptyIconWrapper {
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    background: #F1F5F9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.emptyTitle {
+    font-size: 1.2rem;
+    font-weight: 950;
+    color: #0F172A;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.02em;
+}
+
+.emptySubtitle {
+    font-size: 0.88rem;
+    color: #64748B;
+    margin: 0 0 24px 0;
+    line-height: 1.5;
+}
+
+.btnExplore {
+    background: #0F172A;
+    color: #FFFFFF;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.btnExplore:hover {
+    background: #1E293B;
+    transform: translateY(-1px);
+}
+
+/* DIALOG MODALS */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeInOverlay 0.2s ease-out;
+}
+
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modalContent {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 440px;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
+    animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.modalHeader {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.warningIcon {
+    color: #D97706;
+    background: #FFFBEB;
+    padding: 8px;
+    border-radius: 12px;
+    width: 44px;
+    height: 44px;
+}
+
+.deleteWarningIcon {
+    color: #EF4444;
+    background: #FEF2F2;
+    padding: 8px;
+    border-radius: 12px;
+    width: 44px;
+    height: 44px;
+}
+
+.modalTitle {
+    font-size: 1.25rem;
+    font-weight: 950;
+    color: #0F172A;
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.modalBody {
+    margin: 0;
+}
+
+.modalText {
+    font-size: 0.88rem;
+    color: #475569;
+    line-height: 1.6;
+    margin: 0;
+    font-weight: 500;
+}
+
+.modalFooter {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    border-top: 1px solid #F1F5F9;
+    padding-top: 16px;
+}
+
+/* CUSTOM TOAST */
+.toast {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    background: #0F172A;
+    color: #FFFFFF;
+    padding: 12px 20px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+    animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.toastSuccess {
+    border-left: 4px solid #34D186;
+}
+
+.toastError {
+    border-left: 4px solid #EF4444;
+}
+
+.toastClose {
+    background: transparent;
+    border: none;
+    color: #94A3B8;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+    margin-left: 8px;
+}
+
+.toastClose:hover {
+    color: #FFFFFF;
+    opacity: 1;
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* RESPONSIVE LAYOUT */
+@media (max-width: 650px) {
+    .itemCard {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+    }
+    .cardActions {
+        justify-content: flex-end;
+    }
+}

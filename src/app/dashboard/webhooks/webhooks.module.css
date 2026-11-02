@@ -1,0 +1,111 @@
+.container {
+    width: 100%;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #020617;
+    letter-spacing: -0.03em;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+.subtitle {
+    font-size: 0.85rem;
+    color: #64748B;
+    line-height: 1.4;
+}
+
+.tableCard {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-top: 16px;
+}
+
+.ledgerTable {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.ledgerTable th {
+    background: #F8FAFC;
+    padding: 14px 20px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748B;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.ledgerTable td {
+    padding: 16px 20px;
+    font-size: 0.8rem;
+    color: #334155;
+    border-bottom: 1px solid #F1F5F9;
+}
+
+.ledgerTable tr:last-child td {
+    border-bottom: none;
+}
+
+.copyBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #94A3B8;
+    padding: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+}
+
+.copyBtn:hover {
+    color: #020617;
+    background: #F1F5F9;
+}
+
+.copyBtn:focus-visible {
+    outline: 2px solid #10B981;
+}
+
+.statusLabel {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 4px 10px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.statusSuccess {
+    background: #ECFDF5;
+    color: #10B981;
+}
+
+.codeBox {
+    font-size: 0.75rem;
+    background: #F1F5F9;
+    padding: 4px 8px;
+    border-radius: 6px;
+    color: #475569;
+    font-family: monospace;
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

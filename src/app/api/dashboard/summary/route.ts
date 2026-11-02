@@ -32,6 +32,52 @@ export async function GET() {
     }
 
     try {
+        // Multi-Tenant Isolation: Validate that the requesting user is a member of this team
+        const memberRows = await db.query(`
+            SELECT role FROM "User"
+            WHERE "teamId" = $1 AND id = $2
+            LIMIT 1
+        `, [teamId, (session.user as any).id]) as any[];
+
+        let isMember = memberRows.length > 0;
+        if (!isMember) {
+            const teamRows = await db.query(`
+                SELECT id FROM "Team" WHERE id = $1 AND "ownerId" = $2 LIMIT 1
+            `, [teamId, (session.user as any).id]) as any[];
+            if (teamRows.length > 0) isMember = true;
+        }
+
+        if (!isMember) {
+            console.log("[DASHBOARD_SUMMARY_API] Tenant validation failed. Access Denied.");
+            return NextResponse.json({ error: "Access Denied: Cross-tenant query blocked." }, { status: 403 });
+        }
+
+        // Calculate AI Spend from logs
+        const spendRes = await db.query(`
+            SELECT 
+                COALESCE(SUM(
+                    CASE 
+                        WHEN (result->>'cost') IS NOT NULL THEN (result->>'cost')::numeric
+                        ELSE 0.0025 
+                    END
+                ), 0.00) as spend
+            FROM "WorkflowLog"
+            WHERE "teamId" = $1
+        `, [teamId]) as any[];
+        const totalSpend = parseFloat(spendRes[0]?.spend || "0");
+
+        // Fetch user activation status and state
+        const [userRow] = await db.query(`
+            SELECT "activationStatus", "activationState", "selectedWorkflowId"
+            FROM "User"
+            WHERE id = $1
+            LIMIT 1
+        `, [(session.user as any).id]) as any[];
+
+        const activationStatus = userRow?.activationStatus || "NOT_STARTED";
+        const activationState = userRow?.activationState || {};
+        const selectedWorkflowId = userRow?.selectedWorkflowId || null;
+
         // 1. Fetch Workflows summary (only existing workflows for this team)
         const workflowRows = await db.query(`
             SELECT id, name, status, performance, "tasksCount", "lastRun", "n8nWorkflowId", "n8nWebhookUrl"
@@ -210,6 +256,9 @@ export async function GET() {
         const totalRunsCount = parseInt(totalRunsRes[0]?.total || "0");
 
         return NextResponse.json({
+            activationStatus,
+            activationState,
+            selectedWorkflowId,
             totalWorkflows: workflowRows.length,
             activeAgents: activeUnits,
             totalTasks: totalRunsCount, 
@@ -221,7 +270,8 @@ export async function GET() {
             efficiencyRate: totalRunsCount > 0 ? Math.round(((totalRunsCount - failedRunsCount) / totalRunsCount) * 100) : 100,
             chartData: Object.values(fleetPaths),
             topWorkflows,
-            intelligenceFeed: formattedFeed
+            intelligenceFeed: formattedFeed,
+            totalSpend
         });
     } catch (error: any) {
         console.error("[DASHBOARD_SUMMARY_ERROR]", error);

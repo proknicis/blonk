@@ -14,12 +14,14 @@ export async function GET() {
         const adminId = token.split('_')[1];
 
         const rows = await db.query(
-            'SELECT id, name, email, plan FROM "User" WHERE id = $1 AND plan = \'SuperAdmin\' LIMIT 1',
+            'SELECT id, name, email, plan, status FROM "User" WHERE id = $1 AND plan IN (\'SuperAdmin\', \'SupportStaff\') LIMIT 1',
             [adminId]
         ) as any[];
 
-        if (rows.length === 0) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        if (rows.length === 0 || rows[0].status === 'Suspended' || rows[0].status === 'Disabled') {
+            const response = NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            response.cookies.delete('admin_token');
+            return response;
         }
 
         const adminUser = rows[0];

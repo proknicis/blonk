@@ -109,13 +109,13 @@ export default function UserDetailPage() {
                 </button>
             </div>
 
-            <div style={{ flex: 1, background: '#FFFFFF', border: '1px solid #F3F4F6', borderRadius: '32px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ flex: 1, background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '32px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                 
                 {/* User Header Profile */}
-                <div style={{ background: '#0F172A', color: '#FFFFFF', padding: '56px 64px' }}>
+                <div style={{ background: 'var(--primary)', color: '#FFFFFF', padding: '56px 64px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
-                            <div style={{ width: '100px', height: '100px', background: '#10B981', borderRadius: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', fontWeight: 950, color: '#0F172A' }}>
+                            <div style={{ width: '100px', height: '100px', background: '#10B981', borderRadius: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', fontWeight: 950, color: 'var(--foreground)' }}>
                                 {user.name?.charAt(0)}
                             </div>
                             <div>
@@ -123,7 +123,7 @@ export default function UserDetailPage() {
                                     <h2 style={{ fontSize: '2.5rem', fontWeight: 950, margin: 0, letterSpacing: '-0.04em', textTransform: 'uppercase' }}>
                                         {user.name}
                                     </h2>
-                                    <div style={{ padding: '4px 12px', background: '#10B981', color: '#0F172A', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase' }}>
+                                    <div style={{ padding: '4px 12px', background: '#10B981', color: 'var(--foreground)', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase' }}>
                                         Plan: {planName}
                                     </div>
                                 </div>
@@ -163,7 +163,7 @@ export default function UserDetailPage() {
                                 { label: "ROLE", value: user.role || "Operator", icon: <ShieldCheck size={16} /> },
                                 { label: "JOINED DATE", value: new Date(user.createdAt).toLocaleDateString(), icon: <Calendar size={16} /> }
                             ].map((item, i) => (
-                                <div key={i} style={{ background: '#FAFAFA', padding: '32px', borderRadius: '24px', border: 'none' }}>
+                                <div key={i} style={{ background: 'var(--muted)', padding: '32px', borderRadius: '24px', border: 'none' }}>
                                     <div style={{ display: 'flex', gap: '12px', alignItems: 'center', color: '#6B7280', marginBottom: '16px' }}>
                                         {item.icon}
                                         <span style={{ fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</span>
@@ -177,7 +177,7 @@ export default function UserDetailPage() {
                     {modalTab === "Workflows" && (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '48px', animation: 'fadeIn 0.5s ease-out' }}>
                             <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>
-                                <button className={adminStyles.primaryBtn} style={{ background: '#0F172A', color: '#FFFFFF', border: 'none', height: '40px', padding: '0 20px', borderRadius: '12px' }}>Add Workflow Access</button>
+                                <button className={adminStyles.primaryBtn} style={{ background: 'var(--primary)', color: '#FFFFFF', border: 'none', height: '40px', padding: '0 20px', borderRadius: '12px' }}>Add Workflow Access</button>
                             </div>
 
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
@@ -200,7 +200,7 @@ export default function UserDetailPage() {
                             <div>
                                 <h3 style={{ fontSize: '1.1rem', fontWeight: 950, marginBottom: '24px', textTransform: 'uppercase' }}>ASSIGNED WORKFLOWS</h3>
                                 {userWorkflows.length > 0 ? (
-                                    <div style={{ background: '#FFFFFF', borderRadius: '24px', border: '1px solid #F3F4F6', overflow: 'hidden' }}>
+                                    <div style={{ background: 'var(--card)', borderRadius: '24px', border: '1px solid var(--border)', overflow: 'hidden' }}>
                                         <table className={adminStyles.registryTable} style={{ margin: 0 }}>
                                             <thead>
                                                 <tr>
@@ -214,7 +214,7 @@ export default function UserDetailPage() {
                                             <tbody>
                                                 {userWorkflows.map((flow: any, i: number) => (
                                                     <tr key={flow.id || i} className={adminStyles.registryRow} style={{ height: '72px' }}>
-                                                        <td style={{ fontWeight: 950, color: '#0F172A' }}>{flow.name || 'Unnamed Workflow'}</td>
+                                                        <td style={{ fontWeight: 950, color: 'var(--foreground)' }}>{flow.name || 'Unnamed Workflow'}</td>
                                                         <td style={{ fontSize: '0.85rem', color: '#6B7280' }}>{flow.tasksCount ?? 0} tasks</td>
                                                         <td><span style={{ padding: '6px 12px', background: flow.status === 'Ready' || flow.status === 'Active' || flow.status === 'Live' ? '#F0FDF4' : '#FFF7ED', color: flow.status === 'Ready' || flow.status === 'Active' || flow.status === 'Live' ? '#16A34A' : '#EA580C', borderRadius: '100px', fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase' }}>{flow.status?.replace(/_/g, ' ') || 'UNKNOWN'}</span></td>
                                                         <td style={{ fontSize: '0.85rem', color: '#6B7280' }}>{flow.lastRun ? new Date(flow.lastRun).toLocaleString() : 'Never'}</td>
@@ -235,7 +235,7 @@ export default function UserDetailPage() {
                                         </table>
                                     </div>
                                 ) : (
-                                    <div style={{ background: '#FAFAFA', padding: '48px', borderRadius: '24px', textAlign: 'center', color: '#6B7280' }}>
+                                    <div style={{ background: 'var(--muted)', padding: '48px', borderRadius: '24px', textAlign: 'center', color: '#6B7280' }}>
                                         <Activity size={32} style={{ marginBottom: '16px', opacity: 0.3 }} />
                                         <div style={{ fontWeight: 950 }}>No Workflows Assigned</div>
                                     </div>
@@ -247,7 +247,7 @@ export default function UserDetailPage() {
                     {modalTab === "Billing" && (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '48px', animation: 'fadeIn 0.5s ease-out' }}>
                             <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>
-                                <button className={adminStyles.primaryBtn} style={{ background: '#0F172A', color: '#FFFFFF', border: 'none', height: '40px', padding: '0 20px', borderRadius: '12px' }}>Open Billing Portal</button>
+                                <button className={adminStyles.primaryBtn} style={{ background: 'var(--primary)', color: '#FFFFFF', border: 'none', height: '40px', padding: '0 20px', borderRadius: '12px' }}>Open Billing Portal</button>
                             </div>
 
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
@@ -257,7 +257,7 @@ export default function UserDetailPage() {
                                     { label: "NEXT INVOICE", value: nextInvoice, icon: <Calendar size={16} /> },
                                     { label: "TOTAL PAID", value: totalPaid, icon: <CreditCard size={16} /> }
                                 ].map((item, i) => (
-                                    <div key={i} style={{ background: '#FAFAFA', padding: '24px', borderRadius: '24px', border: 'none' }}>
+                                    <div key={i} style={{ background: 'var(--muted)', padding: '24px', borderRadius: '24px', border: 'none' }}>
                                         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', color: '#6B7280', marginBottom: '16px' }}>
                                             {item.icon}
                                             <span style={{ fontSize: '0.65rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</span>
@@ -268,24 +268,24 @@ export default function UserDetailPage() {
                             </div>
 
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px' }}>
-                                <div style={{ background: '#FAFAFA', padding: '24px', borderRadius: '16px', border: 'none' }}>
+                                <div style={{ background: 'var(--muted)', padding: '24px', borderRadius: '16px', border: 'none' }}>
                                     <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#6B7280', marginBottom: '8px' }}>Payment Method</div>
-                                    <div style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A' }}>{paymentMethod}</div>
+                                    <div style={{ fontSize: '1rem', fontWeight: 950, color: 'var(--foreground)' }}>{paymentMethod}</div>
                                 </div>
-                                <div style={{ background: '#FAFAFA', padding: '24px', borderRadius: '16px', border: 'none' }}>
+                                <div style={{ background: 'var(--muted)', padding: '24px', borderRadius: '16px', border: 'none' }}>
                                     <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#6B7280', marginBottom: '8px' }}>Billing Email</div>
-                                    <div style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A' }}>{user.email}</div>
+                                    <div style={{ fontSize: '1rem', fontWeight: 950, color: 'var(--foreground)' }}>{user.email}</div>
                                 </div>
-                                <div style={{ background: '#FAFAFA', padding: '24px', borderRadius: '16px', border: 'none' }}>
+                                <div style={{ background: 'var(--muted)', padding: '24px', borderRadius: '16px', border: 'none' }}>
                                     <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#6B7280', marginBottom: '8px' }}>Monthly Price</div>
-                                    <div style={{ fontSize: '1rem', fontWeight: 950, color: '#0F172A' }}>{monthlyPrice}</div>
+                                    <div style={{ fontSize: '1rem', fontWeight: 950, color: 'var(--foreground)' }}>{monthlyPrice}</div>
                                 </div>
                             </div>
 
                             <div>
                                 <h3 style={{ fontSize: '1.1rem', fontWeight: 950, marginBottom: '24px', textTransform: 'uppercase' }}>INVOICES</h3>
                                 {invoices.length > 0 ? (
-                                    <div style={{ background: '#FFFFFF', borderRadius: '24px', border: '1px solid #F3F4F6', overflow: 'hidden' }}>
+                                    <div style={{ background: 'var(--card)', borderRadius: '24px', border: '1px solid var(--border)', overflow: 'hidden' }}>
                                         <table className={adminStyles.registryTable} style={{ margin: 0 }}>
                                             <thead>
                                                 <tr>
@@ -299,12 +299,12 @@ export default function UserDetailPage() {
                                             <tbody>
                                                 {invoices.map((inv, i) => (
                                                     <tr key={i} className={adminStyles.registryRow} style={{ height: '72px' }}>
-                                                        <td style={{ fontWeight: 950, color: '#0F172A' }}>{inv.id}</td>
+                                                        <td style={{ fontWeight: 950, color: 'var(--foreground)' }}>{inv.id}</td>
                                                         <td style={{ fontSize: '0.85rem', color: '#6B7280' }}>{inv.date}</td>
-                                                        <td style={{ fontWeight: 950, color: '#0F172A' }}>{inv.amount}</td>
+                                                        <td style={{ fontWeight: 950, color: 'var(--foreground)' }}>{inv.amount}</td>
                                                         <td><span style={{ padding: '6px 12px', background: '#F0FDF4', color: '#16A34A', borderRadius: '100px', fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase' }}>{inv.status}</span></td>
                                                         <td style={{ textAlign: 'right' }}>
-                                                            <button style={{ width: '40px', height: '40px', borderRadius: '12px', border: '1px solid #F3F4F6', background: '#FAFAFA', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280', cursor: 'pointer' }}>
+                                                            <button style={{ width: '40px', height: '40px', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--muted)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280', cursor: 'pointer' }}>
                                                                 <ArrowDownCircle size={16} />
                                                             </button>
                                                         </td>
@@ -314,7 +314,7 @@ export default function UserDetailPage() {
                                         </table>
                                     </div>
                                 ) : (
-                                    <div style={{ background: '#FAFAFA', padding: '48px', borderRadius: '24px', textAlign: 'center', color: '#6B7280' }}>
+                                    <div style={{ background: 'var(--muted)', padding: '48px', borderRadius: '24px', textAlign: 'center', color: '#6B7280' }}>
                                         <CreditCard size={32} style={{ marginBottom: '16px', opacity: 0.3 }} />
                                         <div style={{ fontWeight: 950 }}>No Invoices Yet</div>
                                     </div>
@@ -332,12 +332,12 @@ export default function UserDetailPage() {
                                     { label: "LAST WORKFLOW ACTION", value: workflowsUsedCount > 0 ? "12m ago" : "Never", icon: <Zap size={16} /> },
                                     { label: "FAILED LOGIN ATTEMPTS", value: failedLoginCount.toString(), icon: <ShieldAlert size={16} color="#EF4444" /> }
                                 ].map((item, i) => (
-                                    <div key={i} style={{ background: '#FAFAFA', padding: '24px', borderRadius: '24px', border: 'none' }}>
+                                    <div key={i} style={{ background: 'var(--muted)', padding: '24px', borderRadius: '24px', border: 'none' }}>
                                         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', color: '#6B7280', marginBottom: '16px' }}>
                                             {item.icon}
                                             <span style={{ fontSize: '0.65rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</span>
                                         </div>
-                                        <div style={{ fontSize: '1.25rem', fontWeight: 950, color: '#0F172A' }}>{item.value}</div>
+                                        <div style={{ fontSize: '1.25rem', fontWeight: 950, color: 'var(--foreground)' }}>{item.value}</div>
                                     </div>
                                 ))}
                             </div>
@@ -352,12 +352,12 @@ export default function UserDetailPage() {
                                         "Admin changes made to this user", "Failed login attempts"
                                     ].map(filterLabel => (
                                         <label key={filterLabel} style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
-                                            <div style={{ width: '16px', height: '16px', background: '#0F172A', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            <div style={{ width: '16px', height: '16px', background: 'var(--primary)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M8.5 2.5L3.5 7.5L1.5 5.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                                 </svg>
                                             </div>
-                                            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A' }}>{filterLabel}</span>
+                                            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--foreground)' }}>{filterLabel}</span>
                                         </label>
                                     ))}
                                 </div>
@@ -366,11 +366,11 @@ export default function UserDetailPage() {
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                                         <h3 style={{ fontSize: '1.1rem', fontWeight: 950, margin: 0, textTransform: 'uppercase' }}>ACTION LOG</h3>
                                         <div style={{ display: 'flex', gap: '8px' }}>
-                                            <button style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '8px 16px', fontSize: '0.8rem', fontWeight: 800, color: '#0F172A', cursor: 'pointer' }}>All Events</button>
+                                            <button style={{ background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '12px', padding: '8px 16px', fontSize: '0.8rem', fontWeight: 800, color: 'var(--foreground)', cursor: 'pointer' }}>All Events</button>
                                         </div>
                                     </div>
                                     
-                                    <div style={{ background: '#FFFFFF', borderRadius: '24px', border: '1px solid #F3F4F6', overflow: 'hidden' }}>
+                                    <div style={{ background: 'var(--card)', borderRadius: '24px', border: '1px solid var(--border)', overflow: 'hidden' }}>
                                         {isLoadingLogs ? (
                                             <div style={{ padding: '48px', textAlign: 'center', color: '#6B7280' }}>Loading logs...</div>
                                         ) : auditLogs.length > 0 ? (
@@ -386,8 +386,8 @@ export default function UserDetailPage() {
                                                     {auditLogs.map((log, i) => (
                                                         <tr key={i} className={adminStyles.registryRow} style={{ height: '72px' }}>
                                                             <td style={{ fontSize: '0.85rem', color: '#6B7280', fontWeight: 800 }}>{log.time}</td>
-                                                            <td style={{ fontWeight: 950, color: '#0F172A', fontSize: '0.95rem' }}>{log.action}</td>
-                                                            <td style={{ fontSize: '0.85rem', color: '#0F172A' }}>{log.target}</td>
+                                                            <td style={{ fontWeight: 950, color: 'var(--foreground)', fontSize: '0.95rem' }}>{log.action}</td>
+                                                            <td style={{ fontSize: '0.85rem', color: 'var(--foreground)' }}>{log.target}</td>
                                                         </tr>
                                                     ))}
                                                 </tbody>
@@ -402,9 +402,9 @@ export default function UserDetailPage() {
                     )}
                 </div>
 
-                <div style={{ padding: '32px 64px', background: '#FFFFFF', borderTop: '1px solid #F3F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ padding: '32px 64px', background: 'var(--card)', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-                        <button className={adminStyles.primaryBtn} style={{ background: '#0F172A', color: '#FFFFFF', height: '48px', padding: '0 24px', borderRadius: '12px', border: 'none' }}>
+                        <button className={adminStyles.primaryBtn} style={{ background: 'var(--primary)', color: '#FFFFFF', height: '48px', padding: '0 24px', borderRadius: '12px', border: 'none' }}>
                             <UserCheck size={18} style={{ marginRight: '8px' }} /> Update Profile
                         </button>
                         <button 

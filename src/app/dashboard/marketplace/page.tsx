@@ -1,8 +1,13 @@
 "use client";
 
 import styles from "./marketplace.module.css";
-import React, { useState, useEffect } from "react";
-import { Activity, Zap, CheckCircle, AlertCircle, Plus, FileText, Link2, ArrowUpRight, ShieldCheck, ShieldAlert, X, MousePointer2, Settings, Cpu, Link, Search, Layers, Key, Euro, ShoppingCart, CreditCard, Loader2 } from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import { 
+    Activity, Zap, CheckCircle, AlertCircle, Plus, FileText, Link2, 
+    ArrowUpRight, ShieldCheck, ShieldAlert, X, MousePointer2, Settings, 
+    Cpu, Link, Search, Layers, Key, Euro, ShoppingCart, CreditCard, 
+    Loader2, Star, Check, HelpCircle, Heart, UserCheck, MessageSquare, Info, Brain
+} from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import ModalPortal from "@/app/components/ModalPortal";
@@ -40,64 +45,27 @@ function getServiceIcon(serviceName: string) {
     const name = serviceName.toLowerCase().trim();
     if (name === 'gmail' || name === 'google mail' || name === 'google') {
         return (
-            <svg style={{ width: '12px', height: '9px', display: 'inline-block', verticalAlign: 'middle' }} viewBox="0 49.4 512 399.42" xmlns="http://www.w3.org/2000/svg">
-                <g fill="none" fillRule="evenodd">
-                    <g fillRule="nonzero">
-                        <path fill="#4285f4" d="M34.91 448.818h81.454V251L0 163.727V413.91c0 19.287 15.622 34.91 34.91 34.91z"/>
-                        <path fill="#34a853" d="M395.636 448.818h81.455c19.287 0 34.909-15.622 34.909-34.909V163.727L395.636 251z"/>
-                        <path fill="#fbbc04" d="M395.636 99.727V251L512 163.727v-46.545c0-43.142-49.25-67.782-83.782-41.891z"/>
-                    </g>
-                    <path fill="#ea4335" d="M116.364 251V99.727L256 204.455 395.636 99.727V251L256 355.727z"/>
-                    <path fill="#c5221f" fillRule="nonzero" d="M0 117.182v46.545L116.364 251V99.727L83.782 75.291C49.25 49.4 0 74.04 0 117.18z"/>
-                </g>
-            </svg>
-        );
-    }
-    if (name === 'make' || name === 'make.com') {
-        return (
-            <svg style={{ width: '10px', height: '10px', display: 'inline-block', verticalAlign: 'middle' }} viewBox="0 0 24 24" fill="#6D00CC" xmlns="http://www.w3.org/2000/svg">
-                <path d="M13.38 3.498c-.27 0-.511.19-.566.465L9.85 18.986a.578.578 0 0 0 .453.678l4.095.826a.58.58 0 0 0 .682-.455l2.963-15.021a.578.578 0 0 0-.453-.678l-4.096-.826a.589.589 0 0 0-.113-.012zm-5.876.098a.576.576 0 0 0-.516.318L.062 17.697a.575.575 0 0 0 .256.774l3.733 1.877a.578.578 0 0 0 .775-.258l6.926-13.781a.577.577 0 0 0-.256-.776L7.762 3.658a.571.571 0 0 0-.258-.062zm11.74.115a.576.576 0 0 0-.576.576v15.426c0 .318.258.578.576.578h4.178a.58.58 0 0 0 .578-.578V4.287a.578.578 0 0 0-.578-.576Z"/>
-            </svg>
+            <span style={{ fontSize: "0.85rem", marginRight: "4px" }}>✉️</span>
         );
     }
     if (name === 'slack') {
         return (
-            <svg style={{ width: '10px', height: '10px', display: 'inline-block', verticalAlign: 'middle' }} viewBox="0 0 2447.6 2452.5" xmlns="http://www.w3.org/2000/svg">
-                <g clipRule="evenodd" fillRule="evenodd">
-                    <path d="m897.4 0c-135.3.1-244.8 109.9-244.7 245.2-.1 135.3 109.5 245.1 244.8 245.2h244.8v-245.1c.1-135.3-109.5-245.1-244.9-245.3.1 0 .1 0 0 0m0 654h-652.6c-135.3.1-244.9 109.9-244.8 245.2-.2 135.3 109.4 245.1 244.7 245.3h652.7c135.3-.1 244.9-109.9 244.8-245.2.1-135.4-109.5-245.2-244.8-245.3z" fill="#36c5f0" />
-                    <path d="m2447.6 899.2c.1-135.3-109.5-245.1-244.8-245.2-135.3.1-244.9 109.9-244.8 245.2v245.3h244.8c135.3-.1 244.9-109.9 244.8-245.3zm-652.7 0v-654c.1-135.2-109.4-245-244.7-245.2-135.3.1-244.9 109.9-244.8 245.2v654c-.2 135.3 109.4 245.1 244.7 245.3 135.3-.1 244.9-109.9 244.8-245.3z" fill="#2eb67d" />
-                    <path d="m1550.1 2452.5c135.3-.1 244.9-109.9 244.8-245.2.1-135.3-109.5-245.1-244.8-245.2h-244.8v245.2c-.1 135.2 109.5 245 244.8 245.2zm0-654.1h652.7c135.3-.1 244.9-109.9 244.8-245.2.2-135.3-109.4-245.1-244.7-245.3h-652.7c-135.3.1-244.9 109.9-244.8 245.2-.1 135.4 109.4 245.2 244.7 245.3z" fill="#ecb22e" />
-                    <path d="m0 1553.2c-.1 135.3 109.5 245.1 244.8 245.2 135.3-.1 244.9-109.9 244.8-245.2v-245.2h-244.8c-135.3.1-244.9 109.9-244.8 245.2zm652.7 0v654c-.2 135.3 109.4 245.1 244.7 245.3 135.3-.1 244.9-109.9 244.8-245.2v-653.9c.2-135.3-109.4-245.1-244.7-245.3-135.4 0-244.9 109.8-244.8 245.1 0 0 0 .1 0 0" fill="#e01e5a" />
-                </g>
-            </svg>
+            <span style={{ fontSize: "0.85rem", marginRight: "4px" }}>💬</span>
         );
     }
     if (name === 'hubspot') {
         return (
-            <svg style={{ width: '10px', height: '10px', display: 'inline-block', verticalAlign: 'middle' }} viewBox="0 0 24 24" fill="#FF7A59" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18.164 7.93V5.084a2.198 2.198 0 001.267-1.978v-.067A2.2 2.2 0 0017.238.845h-.067a2.2 2.2 0 00-2.193 2.193v.067a2.196 2.196 0 001.252 1.973l.013.006v2.852a6.22 6.22 0 00-2.969 1.31l.012-.01-7.828-6.095A2.497 2.497 0 104.3 4.656l-.012.006 7.697 5.991a6.176 6.176 0 00-1.038 3.446c0 1.343.425 2.588 1.147 3.607l-.013-.02-2.342 2.343a1.968 1.968 0 00-.58-.095h-.002a2.033 2.033 0 102.033 2.033 1.978 1.978 0 00-.1-.595l.005.014 2.317-2.317a6.247 6.247 0 104.782-11.134l-.036-.005zm-.964 9.378a3.206 3.206 0 113.215-3.207v.002a3.206 3.206 0 01-3.207 3.207z"/>
-            </svg>
-        );
-    }
-    if (name === 'airtable') {
-        return (
-            <svg style={{ width: '10px', height: '10px', display: 'inline-block', verticalAlign: 'middle' }} fill="#18BFFF" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M11.992 1.966c-.434 0-.87.086-1.28.257L1.779 5.917c-.503.208-.49.908.012 1.116l8.982 3.558a3.266 3.266 0 0 0 2.454 0l8.982-3.558c.503-.196.503-.908.012-1.116l-8.957-3.694a3.255 3.255 0 0 0-1.272-.257zM23.4 8.056a.589.589 0 0 0-.222.045l-10.012 3.877a.612.612 0 0 0-.38.564v8.896a.6.6 0 0 0 .821.552L23.62 18.1a.583.583 0 0 0 .38-.551V8.653a.6.6 0 0 0-.6-.596zM.676 8.095a.644.644 0 0 0-.48.19C.086 8.396 0 8.53 0 8.69v8.355c0 .442.515.737.908.54l6.27-3.006.307-.147 2.969-1.436c.466-.22.43-.908-.061-1.092L.883 8.138a.57.57 0 0 0-.207-.044z"/>
-            </svg>
-        );
-    }
-    if (name === 'n8n') {
-        return (
-            <svg style={{ width: '19px', height: '10px', display: 'inline-block', verticalAlign: 'middle' }} viewBox="0 0 228 120" xmlns="http://www.w3.org/2000/svg">
-                <path fillRule="evenodd" clipRule="evenodd" d="M204 48C192.817 48 183.42 40.3514 180.756 30H153.248C147.382 30 142.376 34.241 141.412 40.0272L140.425 45.9456C139.489 51.5648 136.646 56.4554 132.626 60C136.646 63.5446 139.489 68.4352 140.425 74.0544L141.412 79.9728C142.376 85.759 147.382 90 153.248 90H156.756C159.42 79.6486 168.817 72 180 72C193.255 72 204 82.7452 204 96C204 109.255 193.255 120 180 120C168.817 120 159.42 112.351 156.756 102H153.248C141.516 102 131.504 93.5181 129.575 81.9456L128.588 76.0272C127.624 70.241 122.618 66 116.752 66H107.244C104.58 76.3514 95.183 84 84 84C72.817 84 63.4204 76.3514 60.7561 66H47.2439C44.5796 76.3514 35.183 84 24 84C10.7452 84 0 73.2548 0 60C0 46.7452 10.7452 36 24 36C35.183 36 44.5796 43.6486 47.2439 54H60.7561C63.4204 43.6486 72.817 36 84 36C95.183 36 104.58 43.6486 107.244 54H116.752C122.618 54 127.624 49.759 128.588 43.9728L129.575 38.0544C131.504 26.4819 141.516 18 153.248 18L180.756 18C183.42 7.64864 192.817 0 204 0C217.255 0 228 10.7452 228 24C228 37.2548 217.255 48 204 48ZM204 36C210.627 36 216 30.6274 216 24C216 17.3726 210.627 12 204 12C197.373 12 192 17.3726 192 24C192 30.6274 197.373 36 204 36ZM24 72C30.6274 72 36 66.6274 36 60C36 53.3726 30.6274 48 24 48C17.3726 48 12 53.3726 12 60C12 66.6274 17.3726 72 24 72ZM96 60C96 66.6274 90.6274 72 84 72C77.3726 72 72 66.6274 72 60C72 53.3726 77.3726 48 84 48C90.6274 48 96 53.3726 96 60ZM192 96C192 102.627 186.627 108 180 108C173.373 108 168 102.627 168 96C168 89.3726 173.373 84 180 84C186.627 84 192 89.3726 192 96Z" fill="#ea4b71"/>
-            </svg>
+            <span style={{ fontSize: "0.85rem", marginRight: "4px" }}>🎯</span>
         );
     }
     if (name === 'stripe') {
         return (
-            <svg style={{ width: '24px', height: '10px', display: 'inline-block', verticalAlign: 'middle' }} viewBox="0 0 512 214" xmlns="http://www.w3.org/2000/svg">
-                <path fill="#635BFF" d="M512 110.08c0-36.409-17.636-65.138-51.342-65.138c-33.85 0-54.33 28.73-54.33 64.854c0 42.808 24.179 64.426 58.88 64.426c16.925 0 29.725-3.84 39.396-9.244v-28.445c-9.67 4.836-20.764 7.823-34.844 7.823c-13.796 0-26.027-4.836-27.591-21.618h69.547c0-1.85.284-9.245.284-12.658m-70.258-13.511c0-16.071 9.814-22.756 18.774-22.756c8.675 0 17.92 6.685 17.92 22.756zm-90.31-51.627c-13.939 0-22.899 6.542-27.876 11.094l-1.85-8.818h-31.288v165.83l35.555-7.537l.143-40.249c5.12 3.698 12.657 8.96 25.173 8.96c25.458 0 48.64-20.48 48.64-65.564c-.142-41.245-23.609-63.716-48.498-63.716m-8.534 97.991c-8.391 0-13.37-2.986-16.782-6.684l-.143-52.765c3.698-4.124 8.818-6.968 16.925-6.968c12.942 0 21.902 14.506 21.902 33.137c0 19.058-8.818 33.28-21.902 33.28M241.493 36.551l35.698-7.68V0l-35.698 7.538zm0 10.809h35.698v124.444h-35.698zm-38.257 10.524L200.96 47.36h-30.72v124.444h35.556V87.467c8.39-10.951 22.613-8.96 27.022-7.396V47.36c-4.551-1.707-21.191-4.836-29.582 10.524m-71.112-41.386l-34.702 7.395l-.142 113.92c0 21.05 15.787 36.551 36.836 36.551c11.662 0 20.195-2.133 24.888-4.693V140.8c-4.55 1.849-27.022 8.391-27.022-12.658V77.653h27.022V47.36h-27.022zM35.982 83.484c0-5.546 4.551-7.68 12.09-7.68c10.808 0 24.461 3.272 35.27 9.103V51.484c-11.804-4.693-23.466-6.542-35.27-6.542C19.2 44.942 0 60.018 0 85.192c0 39.252 54.044 32.995 54.044 49.92c0 6.541-5.688 8.675-13.653 8.675c-11.804 0-26.88-4.836-38.827-11.378v33.849c13.227 5.689 26.596 8.106 38.827 8.106c29.582 0 49.92-14.648 49.92-40.106c-.142-42.382-54.329-34.845-54.329-50.774"/>
-            </svg>
+            <span style={{ fontSize: "0.85rem", marginRight: "4px" }}>💳</span>
+        );
+    }
+    if (name === 'openai') {
+        return (
+            <span style={{ fontSize: "0.85rem", marginRight: "4px" }}>🧠</span>
         );
     }
     return <Key size={10} color="#64748B" />;
@@ -114,90 +82,27 @@ export default function WorkflowsPage() {
     const [configureTemplate, setConfigureTemplate] = useState<any>(null);
     const [previewTemplate, setPreviewTemplate] = useState<any>(null);
     const [templateInputs, setTemplateInputs] = useState<Record<string, any>>({});
-    const [helpStep, setHelpStep] = useState<any>(null);
-    const [deployResult, setDeployResult] = useState<any>(null);
     const [step, setStep] = useState<'configure' | 'result'>('configure');
     const [isDeploying, setIsDeploying] = useState(false);
     const [paymentTemplate, setPaymentTemplate] = useState<any>(null);
     const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
-    // Promo/discount states
-    const [promoInput, setPromoInput] = useState("");
-    const [appliedPromo, setAppliedPromo] = useState("");
-    const [promoDiscountPercent, setPromoDiscountPercent] = useState(0);
-    const [promoError, setPromoError] = useState("");
+    // AI Consultant Recommended active toggling
+    const [showAiAdvisor, setShowAiAdvisor] = useState(true);
 
-    // Custom workflow request wizard
-    const [showCustomModal, setShowCustomModal] = useState(false);
-    const [wizardStep, setWizardStep] = useState(1);
-    const [customForm, setCustomForm] = useState({ name: '', category: 'General', description: '', tools: '', urgency: 'normal', timeline: '' });
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [aiMatches, setAiMatches] = useState<any[]>([]);
+    // Interactive ROI Calculator States
+    const [calcCount, setCalcCount] = useState(250);
+    const [calcRate, setCalcRate] = useState(22);
 
-    // AI match: find marketplace templates that overlap with the description
-    const findAiMatches = (description: string) => {
-        if (!description.trim() || templates.length === 0) { setAiMatches([]); return; }
-        const words = description.toLowerCase().split(/\W+/).filter(w => w.length > 3);
-        const scored = templates.map(t => {
-            const haystack = `${t.name} ${t.description} ${t.sector}`.toLowerCase();
-            const score = words.filter(w => haystack.includes(w)).length;
-            return { ...t, score };
-        }).filter(t => t.score > 0).sort((a: any, b: any) => b.score - a.score).slice(0, 3);
-        setAiMatches(scored);
-    };
+    // Interactive Demo Sandbox States
+    const [demoState, setDemoState] = useState<'idle' | 'uploading' | 'extracted' | 'done'>('idle');
 
-    const handleCustomRequest = async () => {
-        if (!customForm.name.trim() || !customForm.description.trim()) return;
-        setIsSubmitting(true);
-        try {
-            const res = await fetch('/api/support', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    subject: `Custom Workflow Request: ${customForm.name}`,
-                    message: `**Workflow:** ${customForm.name}\n**Category:** ${customForm.category}\n\n**What to automate:**\n${customForm.description}\n\n**Tools / Apps:** ${customForm.tools || 'Not specified'}\n**Urgency:** ${customForm.urgency}\n**Timeline:** ${customForm.timeline || 'Flexible'}`,
-                    isCustomWorkflowRequest: true,
-                    customForm
-                })
-            });
-            if (res.ok) { setWizardStep(4); }
-            else { const err = await res.json(); showToast(err.error || 'Submission failed.', 'error'); }
-        } catch { showToast('Network error. Please try again.', 'error'); }
-        finally { setIsSubmitting(false); }
-    };
+    // Premium Installation Wizard Steps
+    const [installWizardOpen, setInstallWizardOpen] = useState(false);
+    const [installStep, setInstallStep] = useState(1);
+    const [installLogs, setInstallLogs] = useState<string[]>([]);
 
-    const openCustomModal = () => {
-        setCustomForm({ name: '', category: 'General', description: '', tools: '', urgency: 'normal', timeline: '' });
-        setWizardStep(1); setAiMatches([]); setShowCustomModal(true);
-    };
-
-    const categories = ["All", "Accounting", "Law", "HR", "IT", "General"];
-
-    useEffect(() => {
-        fetchMarketplace();
-    }, []);
-
-    useEffect(() => {
-        if (typeof window === 'undefined') return;
-        const params = new URLSearchParams(window.location.search);
-        const success = params.get('success');
-        const templateId = params.get('templateId');
-        if (success === 'true' && templateId) {
-            (async () => {
-                try {
-                    await fetch('/api/marketplace/installed', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ templateId }),
-                    });
-                } catch { /* webhook is source of truth */ }
-                router.replace('/dashboard/incidents');
-            })();
-        } else if (params.get('canceled') === 'true') {
-            showToast('Payment canceled.', 'error');
-            router.replace('/dashboard/marketplace');
-        }
-    }, [router]);
+    const categories = ["All", "Accounting", "Law", "HR", "IT", "General", "Operations", "Sales"];
 
     const fetchMarketplace = async () => {
         try {
@@ -211,53 +116,56 @@ export default function WorkflowsPage() {
         }
     };
 
-    const handlePurchase = async (template: any) => {
-        setIsProcessingPayment(true);
-        try {
-            const basePrice = getTemplatePrice(template);
-            const discountAmount = (basePrice * promoDiscountPercent) / 100;
-            const finalPrice = Math.max(0, basePrice - discountAmount);
+    useEffect(() => {
+        fetchMarketplace();
+    }, []);
 
-            const res = await fetch('/api/orders', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ workflowName: template.name, price: finalPrice, templateId: template.id }),
-            });
-            const data = await res.json();
-            if (res.ok) {
-                router.push(`/dashboard/incidents?highlight=${template.id}`);
+    const handlePurchase = async (template: any) => {
+        // Start premium install experience trigger
+        setInstallLogs(["1. Creating AI Employee database container profile..."]);
+        setInstallStep(1);
+        setInstallWizardOpen(true);
+
+        const logs = [
+            "2. Assigning isolated Company Brain workspace space...",
+            "3. Attaching Google Drive credential vaults matrix...",
+            "4. Securing Gmail API endpoint broker handshakes...",
+            "5. Indexing rules & knowledge categories context...",
+            "6. Registering n8n server automations triggers...",
+            "7. Testing live credential vault handshakes...",
+            "8. Warming runtime memory vectors cache...",
+            "9. AI Employee fully provisioned and ready!"
+        ];
+
+        let currentStep = 1;
+        const interval = setInterval(() => {
+            currentStep++;
+            if (currentStep <= 9) {
+                setInstallStep(currentStep);
+                setInstallLogs(prev => [...prev, logs[currentStep - 2]]);
             } else {
-                showToast(data.error || 'Checkout failed.', 'error');
+                clearInterval(interval);
+                // Deploy in DB
+                deployWorkflow(template, {});
             }
-        } catch {
-            showToast('Payment could not be started.', 'error');
-        } finally {
-            setIsProcessingPayment(false);
-            setPaymentTemplate(null);
-        }
+        }, 1000);
     };
 
     const handleAddClick = (template: any) => {
         const finalPrice = getTemplatePrice(template);
 
         if (finalPrice > 0) {
-            setPaymentTemplate(template);
-            setPromoInput("");
-            setAppliedPromo("");
-            setPromoDiscountPercent(0);
-            setPromoError("");
+            handlePurchase(template);
             return;
         }
         
-        // Free templates use the old configuration flow
         const reqs = robustParse(template.requirements);
         if (reqs.length > 0) {
             setConfigureTemplate({ ...template, parsedReqs: reqs });
             setTemplateInputs({});
             setStep('configure');
-            setDeployResult(null);
         } else {
-            deployWorkflow(template, {});
+            handlePurchase(template);
         }
     };
 
@@ -274,18 +182,19 @@ export default function WorkflowsPage() {
                     inputs
                 })
             });
-            const data = await res.json();
             if (res.ok) {
-                setDeployResult(data.orchestration || {});
-                setStep('result');
-                showToast(`Workflow ordered! Track progress in My Workflows.`);
+                showToast(`Digital Employee hired successfully!`);
                 setConfigureTemplate(null);
-                router.push('/dashboard/incidents');
+                setInstallWizardOpen(false);
+                router.push('/dashboard/automations');
             } else {
+                const data = await res.json();
                 showToast(data.error || "Deployment failed.", 'error');
+                setInstallWizardOpen(false);
             }
         } catch (error) {
             showToast("Network disruption detected.", 'error');
+            setInstallWizardOpen(false);
         } finally {
             setIsDeploying(false);
         }
@@ -297,746 +206,506 @@ export default function WorkflowsPage() {
     };
 
     const filteredTemplates = templates.filter(wf => {
-        const matchesSearch = wf.name.toLowerCase().includes(search.toLowerCase());
+        const matchesSearch = wf.name.toLowerCase().includes(search.toLowerCase()) || 
+                             (wf.description || "").toLowerCase().includes(search.toLowerCase());
         const matchesCategory = selectedCategory === "All" || wf.sector === selectedCategory;
         return matchesSearch && matchesCategory;
     });
 
+    // ROI Calculator math formulas
+    const roiData = useMemo(() => {
+        if (!previewTemplate) return { hours: 0, money: 0, percentage: 0 };
+        // Estimate saved hours per task based on template complexity
+        const multiplier = previewTemplate.complexity === 'High' ? 0.25 : 0.15;
+        const hours = Math.round(calcCount * multiplier);
+        const money = hours * calcRate;
+        const price = previewTemplate.price || 49;
+        const percentage = Math.round(((money - price) / price) * 100);
+        return {
+            hours,
+            money,
+            percentage: percentage > 0 ? percentage : 0
+        };
+    }, [previewTemplate, calcCount, calcRate]);
+
+    const runDemoUpload = () => {
+        setDemoState('uploading');
+        setTimeout(() => {
+            setDemoState('extracted');
+        }, 1500);
+    };
+
     return (
-        <div className={styles.workflowsContainer}>
-            {/* HEADER */}
-            <div className={styles.header}>
-                <h1 className={styles.title}>Marketplace</h1>
-                <p className={styles.subtitle}>
-                    Add powerful, pre-built workflows to automate and scale your operations.
-                </p>
-            </div>
-
-            {/* FILTERS & SEARCH */}
-            <div className={styles.filterRow}>
-                <div className={styles.filterTabs}>
-                    {categories.map(cat => (
-                        <button
-                            key={cat}
-                            className={`${styles.filterTab} ${selectedCategory === cat ? styles.filterTabActive : ''}`}
-                            onClick={() => setSelectedCategory(cat)}
-                        >
-                            {cat}
-                        </button>
-                    ))}
-                </div>
-                <div className={styles.searchSort}>
-                    <div className={styles.searchBox}>
-                        <Search size={18} color="#94A3B8" />
-                        <input
-                            type="text"
-                            placeholder="Search automations..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                    </div>
-                    <select className={styles.sortSelect}>
-                        <option>Most Popular</option>
-                        <option>Newest</option>
-                    </select>
-                </div>
-            </div>
-
-            {/* TRUST STRIP */}
-            <div className={styles.trustStrip}>
-                <div className={styles.trustItem}>
-                    <div className={styles.trustIcon}><Zap size={24} /></div>
-                    <div className={styles.trustContent}>
-                        <span className={styles.trustTitle}>98+</span>
-                        <span className={styles.trustDesc}>Workflows Available</span>
-                    </div>
-                </div>
-                <div className={styles.trustItem}>
-                    <div className={styles.trustIcon}><ShieldCheck size={24} /></div>
-                    <div className={styles.trustContent}>
-                        <span className={styles.trustTitle}>Trusted</span>
-                        <span className={styles.trustDesc}>Built by experts</span>
-                    </div>
-                </div>
-                <div className={styles.trustItem}>
-                    <div className={styles.trustIcon}><Activity size={24} /></div>
-                    <div className={styles.trustContent}>
-                        <span className={styles.trustTitle}>Instant Use</span>
-                        <span className={styles.trustDesc}>No coding needed</span>
-                    </div>
-                </div>
-                <div className={styles.trustItem}>
-                    <div className={styles.trustIcon}><Plus size={24} /></div>
-                    <div className={styles.trustContent}>
-                        <span className={styles.trustTitle}>Updated</span>
-                        <span className={styles.trustDesc}>New loops weekly</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* FEATURED WORKFLOWS */}
-            <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>Featured Workflows</h2>
-                <Link href="#" className={styles.viewAllLink}>
-                    View all workflows <ArrowUpRight size={16} />
-                </Link>
-            </div>
-
-            {isLoading ? (
-                <div className={styles.workflowGrid}>
-                    {[1, 2, 3, 4, 5].map(i => (
-                        <div key={i} style={{ height: '360px', background: '#F8FAFC', borderRadius: '24px', animation: 'pulse 2s infinite' }} />
-                    ))}
-                </div>
-            ) : (
-                <div className={styles.workflowGrid}>
-                    {filteredTemplates.map(wf => {
-                        const iconColor = wf.sector === 'Accounting' ? '#10B981' : (wf.sector === 'Law' ? '#8B5CF6' : '#3B82F6');
-                        return (
-                            <div key={wf.id} className={styles.workflowCard}>
-                                <div className={styles.cardIcon} style={{ background: `${iconColor}15`, color: iconColor }}>
-                                    <Zap size={24} />
-                                </div>
-                                <div className={styles.cardContent}>
-                                    <h3 className={styles.cardTitle}>{wf.name}</h3>
-                                    <p className={styles.cardDesc}>{wf.description}</p>
-                                    {/* Associated Connections */}
-                                    {(() => {
-                                        const reqs = robustParse(wf.requirements);
-                                        const services = Array.from(
-                                            new Set(reqs.map((r: any) => r.service || r.app).filter(Boolean))
-                                        );
-                                        if (services.length === 0) return null;
-                                        return (
-                                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '12px' }}>
-                                                {services.map((svc: any) => (
-                                                    <span key={svc} style={{ fontSize: '0.68rem', background: '#F1F5F9', color: '#475569', padding: '3px 8px', borderRadius: '6px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid #E2E8F0' }}>
-                                                        {getServiceIcon(svc)} {svc}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        );
-                                    })()}
-                                    <div className={styles.categoryTag} style={{ background: `${iconColor}15`, color: iconColor }}>{wf.sector}</div>
-                                </div>
-                                <div className={styles.cardStats}>
-                                    <div className={styles.statItem}>
-                                        <span className={styles.statValue}>1.2K</span>
-                                        <span className={styles.statLabel}>Installs</span>
-                                    </div>
-                                    <div className={styles.statItem} style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'flex-end' }}>
-                                        {(() => {
-                                            const pInfo = typeof wf.productInfo === 'string'
-                                                ? JSON.parse(wf.productInfo)
-                                                : (wf.productInfo || {});
-                                            const setupPrice = parseFloat(pInfo.setupPrice || 0);
-                                            const monthlyPrice = parseFloat(pInfo.monthlyPrice || 0);
-                                            const discountSetup = parseFloat(pInfo.discountSetupPrice || 0);
-                                            const discountMonthly = parseFloat(pInfo.discountMonthlyPrice || 0);
-
-                                            // Fallback for legacy data
-                                            let showSetup = setupPrice;
-                                            let showMonthly = monthlyPrice;
-
-                                            if (setupPrice === 0 && monthlyPrice === 0) {
-                                                const legacyPrice = parseFloat(wf.price || 0);
-                                                if (pInfo.monetization === 'Subscription') {
-                                                    showMonthly = legacyPrice;
-                                                } else {
-                                                    showSetup = legacyPrice;
-                                                }
-                                            }
-
-                                            if (showSetup === 0 && showMonthly === 0) {
-                                                return (
-                                                    <>
-                                                        <span className={styles.statValue} style={{ color: '#0F172A' }}>Free</span>
-                                                        <span className={styles.statLabel}>Price</span>
-                                                    </>
-                                                );
-                                            }
-
-                                            return (
-                                                <>
-                                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1px' }}>
-                                                        {showMonthly > 0 && (
-                                                            <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                                                                {discountMonthly > 0 ? (
-                                                                    <>
-                                                                        <span style={{ fontSize: '0.7rem', color: '#94A3B8', textDecoration: 'line-through', fontWeight: 600 }}>€{showMonthly.toFixed(0)}</span>
-                                                                        <span className={styles.statValue} style={{ color: '#10B981', fontSize: '0.85rem' }}>€{discountMonthly.toFixed(0)}</span>
-                                                                    </>
-                                                                ) : (
-                                                                    <span className={styles.statValue} style={{ color: '#0F172A', fontSize: '0.85rem' }}>€{showMonthly.toFixed(0)}</span>
-                                                                )}
-                                                                <span style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 700 }}>/mo</span>
-                                                             </div>
-                                                         )}
-                                                         {showSetup > 0 && (
-                                                             <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                                                                 {discountSetup > 0 ? (
-                                                                     <>
-                                                                         <span style={{ fontSize: '0.7rem', color: '#94A3B8', textDecoration: 'line-through', fontWeight: 600 }}>€{showSetup.toFixed(0)}</span>
-                                                                         <span className={styles.statValue} style={{ color: '#10B981', fontSize: '0.85rem' }}>€{discountSetup.toFixed(0)}</span>
-                                                                     </>
-                                                                 ) : (
-                                                                     <span className={styles.statValue} style={{ color: '#64748B', fontSize: '0.85rem' }}>€{showSetup.toFixed(0)}</span>
-                                                                 )}
-                                                                 <span style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 700 }}>setup</span>
-                                                             </div>
-                                                         )}
-                                                     </div>
-                                                     <span className={styles.statLabel} style={{ marginTop: '2px' }}>Price</span>
-                                                 </>
-                                             );
-                                         })()}
-                                     </div>
-                                 </div>
-                                <div className={styles.cardActions}>
-                                    <button className={styles.btnDetails}>View Details</button>
-                                    <button className={styles.btnInstall} onClick={() => handleAddClick(wf)}>
-                                        {getTemplatePrice(wf) > 0 ? 'Order' : 'Install'}
-                                    </button>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            )}
-
-            {/* CUSTOM REQUEST SECTION */}
-            <div className={styles.customSection}>
-                <div className={styles.customLeft}>
-                    <h2>Can't find what you need?</h2>
-                    <p>Request a custom workflow tailored to your unique business processes.</p>
-                    <button className={styles.btnRequest} onClick={openCustomModal}>
-                        Request Custom Workflow <ArrowUpRight size={18} />
-                    </button>
-                    <div className={styles.responseNote}>
-                        <CheckCircle size={16} /> Our team will get back to you within 24 hours.
-                    </div>
-                </div>
-                <div className={styles.howItWorks}>
-                    <span className={styles.howHeader}>How it works</span>
-                    <div className={styles.stepGrid}>
-                        <div className={styles.stepItem}>
-                            <div className={styles.stepIcon}><FileText size={20} /></div>
-                            <div>
-                                <span className={styles.stepNumber}>1. Tell us your needs</span>
-                                <p className={styles.stepDesc}>Fill out a short form and explain what you want to automate.</p>
-                            </div>
-                        </div>
-                        <div className={styles.stepItem}>
-                            <div className={styles.stepIcon}><MousePointer2 size={20} /></div>
-                            <div>
-                                <span className={styles.stepNumber}>2. We design it</span>
-                                <p className={styles.stepDesc}>Our automation experts create a tailored workflow for you.</p>
-                            </div>
-                        </div>
-                        <div className={styles.stepItem}>
-                            <div className={styles.stepIcon}><Settings size={20} /></div>
-                            <div>
-                                <span className={styles.stepNumber}>3. Review & approve</span>
-                                <p className={styles.stepDesc}>Review the workflow and request any adjustments needed.</p>
-                            </div>
-                        </div>
-                        <div className={styles.stepItem}>
-                            <div className={styles.stepIcon}><Zap size={20} /></div>
-                            <div>
-                                <span className={styles.stepNumber}>4. We deliver & set up</span>
-                                <p className={styles.stepDesc}>We deliver, install, and help you get it running smoothly.</p>
-                            </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "32px", animation: "fadeIn 0.5s ease-out" }}>
+            
+            {/* MAIN CATALOG VIEW (Render if no detail page preview) */}
+            {!previewTemplate && (
+                <>
+                    {/* Header */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+                        <div>
+                            <h1 style={{ fontSize: "2rem", fontWeight: 950, letterSpacing: "-0.04em", margin: 0, color: "var(--foreground)" }}>AI Employees Marketplace</h1>
+                            <p style={{ fontSize: "0.95rem", color: "var(--muted-foreground)", margin: "6px 0 0 0", fontWeight: 600 }}>Hire dedicated AI Employees to run your operations 24/7 with zero-markup VPS servers.</p>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            {/* INSTALL MODAL */}
-            {configureTemplate && (
-                <ModalPortal>
-                    <div className={styles.modalOverlay} onClick={() => setConfigureTemplate(null)}>
-                        <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
-                            <button className={styles.closeButton} onClick={() => setConfigureTemplate(null)}>
-                                <X size={20} />
-                            </button>
-                            {step === 'configure' ? (
-                                <>
-                                    <h2 className={styles.onboardingTitle}>Install {configureTemplate.name}</h2>
-                                    <p className={styles.onboardingSubtitle}>Configure your parameters to begin orchestration.</p>
-                                    <div className={styles.configFieldset}>
-                                        {configureTemplate.parsedReqs.map((req: any, idx: number) => (
-                                            <div key={idx} className={styles.formGroup} style={{ marginBottom: '16px' }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                                                    <label className={styles.fieldLabel} style={{ margin: 0, fontSize: '0.8rem', fontWeight: 800 }}>{req.label || req.name.replace(/_/g, ' ')}</label>
-                                                    {(req.service || req.app) && (
-                                                        <span style={{ fontSize: '0.65rem', background: '#EFF6FF', color: '#1E40AF', padding: '2px 8px', borderRadius: '4px', fontWeight: 800, border: '1px solid #BFDBFE' }}>
-                                                            Linked to: {req.service || req.app}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                {req.description && (
-                                                    <p style={{ margin: '0 0 8px', fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>{req.description}</p>
-                                                )}
-                                                <input
-                                                    className={styles.fieldInput}
-                                                    type={req.type === 'password' ? 'password' : 'text'}
-                                                    placeholder={req.placeholder || req.example || `Specify ${req.name}...`}
-                                                    onChange={e => setTemplateInputs({ ...templateInputs, [req.name]: e.target.value })}
-                                                />
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <button className={styles.btnInstall} style={{ width: '100%', height: '56px', marginTop: '32px' }} disabled={isDeploying} onClick={() => deployWorkflow(configureTemplate, templateInputs)}>
-                                        {isDeploying ? 'Deploying...' : 'Install Workflow'}
-                                    </button>
-                                </>
-                            ) : (
-                                <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                                    <div style={{ width: '64px', height: '64px', background: '#10B981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
-                                        <CheckCircle size={32} color="white" />
-                                    </div>
-                                    <h2 className={styles.onboardingTitle}>Workflow Installed</h2>
-                                    <p className={styles.onboardingSubtitle}>Orchestration has been initiated successfully.</p>
-                                    <button className={styles.btnInstall} style={{ width: '100%' }} onClick={() => setConfigureTemplate(null)}>Return to Marketplace</button>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </ModalPortal>
-            )}
-
-            {/* CUSTOM WORKFLOW REQUEST WIZARD */}
-            {showCustomModal && (
-                <ModalPortal>
-                    <div className={styles.modalOverlay} onClick={() => setShowCustomModal(false)}>
-                        <div className={styles.modalContent} onClick={e => e.stopPropagation()} style={{ maxWidth: 560, padding: 0, overflow: 'hidden', borderRadius: 28 }}>
-
-                            {/* Dark header with progress */}
-                            <div style={{ background: 'linear-gradient(135deg,#0F172A 0%,#1E293B 100%)', padding: '28px 32px 24px', position: 'relative' }}>
-                                <button className={styles.closeButton} onClick={() => setShowCustomModal(false)} style={{ color: 'rgba(255,255,255,0.4)', top: 18, right: 18 }}>
-                                    <X size={20} />
-                                </button>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: wizardStep < 4 ? 24 : 0 }}>
-                                    <div style={{ width: 44, height: 44, background: 'rgba(16,185,129,0.15)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(16,185,129,0.3)' }}>
-                                        <Zap size={20} color="#10B981" />
-                                    </div>
-                                    <div>
-                                        <div style={{ fontSize: '0.68rem', fontWeight: 950, color: '#10B981', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>Custom Build</div>
-                                        <div style={{ fontSize: '1.2rem', fontWeight: 950, color: '#fff', letterSpacing: '-0.02em' }}>Request a Workflow</div>
-                                    </div>
-                                </div>
-                                {wizardStep < 4 && (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
-                                        {[{ n: 1, l: 'Basics' }, { n: 2, l: 'Describe' }, { n: 3, l: 'Urgency' }].map((s, i) => (
-                                            <React.Fragment key={s.n}>
-                                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
-                                                    <div style={{
-                                                        width: 30, height: 30, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                        background: wizardStep > s.n ? '#10B981' : wizardStep === s.n ? '#fff' : 'rgba(255,255,255,0.08)',
-                                                        color: wizardStep > s.n ? '#fff' : wizardStep === s.n ? '#0F172A' : 'rgba(255,255,255,0.3)',
-                                                        fontWeight: 950, fontSize: '0.8rem', transition: 'all 0.3s',
-                                                        border: wizardStep === s.n ? 'none' : '1px solid rgba(255,255,255,0.12)'
-                                                    }}>
-                                                        {wizardStep > s.n ? '✓' : s.n}
-                                                    </div>
-                                                    <span style={{ fontSize: '0.68rem', fontWeight: 800, color: wizardStep === s.n ? '#fff' : 'rgba(255,255,255,0.35)', whiteSpace: 'nowrap' }}>{s.l}</span>
-                                                </div>
-                                                {i < 2 && <div style={{ flex: 1, height: 1, background: wizardStep > s.n ? '#10B981' : 'rgba(255,255,255,0.1)', marginBottom: 18, transition: 'background 0.3s', marginLeft: 6, marginRight: 6 }} />}
-                                            </React.Fragment>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Step body */}
-                            <div style={{ padding: '28px 32px 32px' }}>
-
-                                {/* STEP 1 — Basics */}
-                                {wizardStep === 1 && (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                                        <div>
-                                            <div style={{ fontSize: '1.05rem', fontWeight: 950, color: '#0F172A', marginBottom: 4 }}>What would you like to automate?</div>
-                                            <div style={{ fontSize: '0.83rem', color: '#94A3B8', fontWeight: 600 }}>Give your workflow a name and pick a category.</div>
-                                        </div>
-                                        <div>
-                                            <label className={styles.fieldLabel}>Workflow Name *</label>
-                                            <input className={styles.fieldInput} type="text" autoFocus
-                                                placeholder="e.g. Monthly Invoice Reconciliation"
-                                                value={customForm.name}
-                                                onChange={e => setCustomForm(f => ({ ...f, name: e.target.value }))}
-                                                style={{ width: '100%', boxSizing: 'border-box' }} />
-                                        </div>
-                                        <div>
-                                            <label className={styles.fieldLabel}>Category</label>
-                                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
-                                                {['Accounting', 'Law', 'HR', 'IT', 'Marketing', 'Sales', 'General'].map(cat => (
-                                                    <button key={cat} onClick={() => setCustomForm(f => ({ ...f, category: cat }))} style={{
-                                                        padding: '7px 16px', borderRadius: 100, fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', transition: 'all 0.15s',
-                                                        background: customForm.category === cat ? '#0F172A' : '#F8FAFC',
-                                                        color: customForm.category === cat ? '#fff' : '#475569',
-                                                        border: customForm.category === cat ? 'none' : '1px solid #F1F5F9'
-                                                    }}>{cat}</button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                        <button className={styles.btnInstall} disabled={!customForm.name.trim()}
-                                            style={{ width: '100%', height: 50, marginTop: 4, opacity: !customForm.name.trim() ? 0.5 : 1 }}
-                                            onClick={() => { findAiMatches(customForm.name); setWizardStep(2); }}>
-                                            Continue →
-                                        </button>
-                                    </div>
-                                )}
-
-                                {/* STEP 2 — Describe + AI Match */}
-                                {wizardStep === 2 && (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-                                        <div>
-                                            <div style={{ fontSize: '1.05rem', fontWeight: 950, color: '#0F172A', marginBottom: 4 }}>Describe the workflow</div>
-                                            <div style={{ fontSize: '0.83rem', color: '#94A3B8', fontWeight: 600 }}>The more detail, the faster we can build it.</div>
-                                        </div>
-                                        <div>
-                                            <label className={styles.fieldLabel}>What should it do? *</label>
-                                            <textarea rows={4} autoFocus
-                                                placeholder="e.g. When a new invoice arrives via email, extract the data, match it to our CRM, and notify the finance team on Slack..."
-                                                value={customForm.description}
-                                                onChange={e => { setCustomForm(f => ({ ...f, description: e.target.value })); findAiMatches(e.target.value + ' ' + customForm.name); }}
-                                                style={{ width: '100%', boxSizing: 'border-box', background: '#F8FAFC', border: '1px solid #F1F5F9', borderRadius: 14, padding: '12px 16px', fontSize: '0.88rem', fontWeight: 600, lineHeight: 1.7, resize: 'vertical', outline: 'none', color: '#0F172A', fontFamily: 'inherit' }}
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className={styles.fieldLabel}>Apps & tools involved</label>
-                                            <input className={styles.fieldInput} type="text"
-                                                placeholder="e.g. Gmail, Airtable, Slack, HubSpot..."
-                                                value={customForm.tools}
-                                                onChange={e => setCustomForm(f => ({ ...f, tools: e.target.value }))}
-                                                style={{ width: '100%', boxSizing: 'border-box' }} />
-                                        </div>
-
-                                        {/* AI MATCH SUGGESTIONS */}
-                                        {aiMatches.length > 0 && (
-                                            <div style={{ background: 'linear-gradient(135deg,#F0FDF4,#ECFDF5)', border: '1px solid #A7F3D0', borderRadius: 16, padding: '14px 16px' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-                                                    <Zap size={13} color="#10B981" />
-                                                    <span style={{ fontSize: '0.72rem', fontWeight: 950, color: '#059669', textTransform: 'uppercase', letterSpacing: '0.08em' }}>BLONK found similar workflows already in the marketplace</span>
-                                                </div>
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                                                    {aiMatches.map((m, i) => (
-                                                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: '#fff', borderRadius: 12, border: '1px solid #D1FAE5', cursor: 'pointer' }}
-                                                            onClick={() => { setShowCustomModal(false); handleAddClick(m); }}>
-                                                            <div style={{ width: 34, height: 34, background: '#10B98115', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                                                 <Zap size={16} color="#10B981" />
-                                                            </div>
-                                                            <div style={{ flex: 1, minWidth: 0 }}>
-                                                                <div style={{ fontSize: '0.85rem', fontWeight: 950, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.name}</div>
-                                                                <div style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 700 }}>{m.sector} · Click to install</div>
-                                                            </div>
-                                                            <ArrowUpRight size={14} color="#10B981" />
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                                <div style={{ fontSize: '0.75rem', color: '#6EE7B7', fontWeight: 700, marginTop: 10, textAlign: 'center' }}>
-                                                    Not quite right? Continue to request a custom build ↓
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        <div style={{ display: 'flex', gap: 10 }}>
-                                            <button onClick={() => setWizardStep(1)} style={{ flex: 1, height: 50, background: '#F8FAFC', border: '1px solid #F1F5F9', borderRadius: 14, fontWeight: 950, color: '#64748B', cursor: 'pointer', fontSize: '0.88rem' }}>← Back</button>
-                                            <button className={styles.btnInstall} disabled={!customForm.description.trim()}
-                                                style={{ flex: 2, height: 50, opacity: !customForm.description.trim() ? 0.5 : 1 }}
-                                                onClick={() => setWizardStep(3)}>Continue →</button>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* STEP 3 — Urgency */}
-                                {wizardStep === 3 && (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-                                        <div>
-                                            <div style={{ fontSize: '1.05rem', fontWeight: 950, color: '#0F172A', marginBottom: 4 }}>When do you need it?</div>
-                                            <div style={{ fontSize: '0.83rem', color: '#94A3B8', fontWeight: 600 }}>Set urgency so we can prioritise your request correctly.</div>
-                                        </div>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                                            {[
-                                                { value: 'low', label: 'Low priority', sub: 'Within 2 weeks — no rush', emoji: '🟢' },
-                                                { value: 'normal', label: 'Normal', sub: 'Within 1 week — standard', emoji: '🔵' },
-                                                { value: 'high', label: 'High priority', sub: 'Within 2 days — important', emoji: '🟡' },
-                                                { value: 'urgent', label: 'Urgent', sub: 'ASAP — critical to business', emoji: '🔴' },
-                                            ].map(opt => (
-                                                <div key={opt.value} onClick={() => setCustomForm(f => ({ ...f, urgency: opt.value }))} style={{
-                                                    display: 'flex', alignItems: 'center', gap: 14, padding: '13px 16px', borderRadius: 14, cursor: 'pointer', transition: 'all 0.15s',
-                                                    background: customForm.urgency === opt.value ? '#0F172A' : '#F8FAFC',
-                                                    border: `1px solid ${customForm.urgency === opt.value ? '#0F172A' : '#F1F5F9'}`,
-                                                }}>
-                                                    <span style={{ fontSize: '1.1rem' }}>{opt.emoji}</span>
-                                                    <div style={{ flex: 1 }}>
-                                                        <div style={{ fontWeight: 950, fontSize: '0.88rem', color: customForm.urgency === opt.value ? '#fff' : '#0F172A' }}>{opt.label}</div>
-                                                        <div style={{ fontSize: '0.75rem', fontWeight: 600, color: customForm.urgency === opt.value ? 'rgba(255,255,255,0.5)' : '#94A3B8' }}>{opt.sub}</div>
-                                                    </div>
-                                                    {customForm.urgency === opt.value && <CheckCircle size={17} color="#10B981" />}
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <div>
-                                            <label className={styles.fieldLabel}>Preferred delivery date (optional)</label>
-                                            <input className={styles.fieldInput} type="date"
-                                                value={customForm.timeline}
-                                                onChange={e => setCustomForm(f => ({ ...f, timeline: e.target.value }))}
-                                                style={{ width: '100%', boxSizing: 'border-box' }} />
-                                        </div>
-                                        <div style={{ display: 'flex', gap: 10 }}>
-                                            <button onClick={() => setWizardStep(2)} style={{ flex: 1, height: 50, background: '#F8FAFC', border: '1px solid #F1F5F9', borderRadius: 14, fontWeight: 950, color: '#64748B', cursor: 'pointer', fontSize: '0.88rem' }}>← Back</button>
-                                            <button className={styles.btnInstall} disabled={isSubmitting}
-                                                style={{ flex: 2, height: 50, opacity: isSubmitting ? 0.6 : 1 }}
-                                                onClick={handleCustomRequest}>{isSubmitting ? 'Submitting...' : 'Submit Request ✓'}</button>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* STEP 4 — Success */}
-                                {wizardStep === 4 && (
-                                    <div style={{ textAlign: 'center', padding: '8px 0 4px' }}>
-                                        <div style={{ width: 76, height: 76, background: 'linear-gradient(135deg,#10B981,#059669)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', boxShadow: '0 8px 24px rgba(16,185,129,0.28)' }}>
-                                            <CheckCircle size={38} color="white" />
-                                        </div>
-                                        <h2 style={{ fontSize: '1.4rem', fontWeight: 950, color: '#0F172A', marginBottom: 8 }}>Request Sent!</h2>
-                                        <p style={{ color: '#64748B', fontWeight: 600, lineHeight: 1.6, maxWidth: 340, margin: '0 auto 24px', fontSize: '0.9rem' }}>
-                                            Your workflow <strong style={{ color: '#0F172A' }}>"{customForm.name}"</strong> has been submitted. We'll get back to you within 24 hours.
-                                        </p>
-                                        <div style={{ background: '#F8FAFC', borderRadius: 14, padding: '14px 18px', marginBottom: 24, textAlign: 'left', border: '1px solid #F1F5F9' }}>
-                                            {[{ l: 'Workflow', v: customForm.name }, { l: 'Category', v: customForm.category }, { l: 'Urgency', v: customForm.urgency }].map(item => (
-                                                <div key={item.l} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #F1F5F9' }}>
-                                                    <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#94A3B8' }}>{item.l}</span>
-                                                    <span style={{ fontSize: '0.8rem', fontWeight: 950, color: '#0F172A', textTransform: 'capitalize' }}>{item.v}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <button className={styles.btnInstall} style={{ width: '100%', height: 50 }} onClick={() => setShowCustomModal(false)}>Back to Marketplace</button>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </ModalPortal>
-            )}
-
-            {paymentTemplate && (
-                <ModalPortal>
-                    <div className={styles.modalOverlay} onClick={() => !isProcessingPayment && setPaymentTemplate(null)}>
-                        <div className={styles.modalContent} onClick={e => e.stopPropagation()} style={{ maxWidth: 640, borderRadius: '24px', padding: '36px' }}>
-                            <button className={styles.closeButton} onClick={() => setPaymentTemplate(null)} disabled={isProcessingPayment} style={{ top: 24, right: 24 }}>
-                                <X size={20} />
-                            </button>
-                            
-                            {/* MODAL HEADER */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24 }}>
-                                <div style={{ width: 48, height: 48, background: '#10B98115', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #10B98125' }}>
-                                    <Zap size={24} color="#10B981" />
+                    {/* AI Advisor Banner */}
+                    {showAiAdvisor && (
+                        <div style={{ 
+                            background: "linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%)", 
+                            border: "1px solid rgba(139, 92, 246, 0.2)", 
+                            borderRadius: "24px", 
+                            padding: "28px 32px", 
+                            display: "flex", 
+                            justifyContent: "space-between", 
+                            alignItems: "center",
+                            gap: "24px",
+                            position: "relative",
+                            overflow: "hidden"
+                        }}>
+                            <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
+                                <div style={{ width: "52px", height: "52px", borderRadius: "16px", background: "linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)", display: "flex", alignItems: "center", justifyContent: "center", color: "#FFFFFF", boxShadow: "0 8px 16px rgba(139, 92, 246, 0.25)", flexShrink: 0 }}>
+                                    <Brain size={24} />
                                 </div>
                                 <div>
-                                    <h2 className={styles.onboardingTitle} style={{ margin: 0, fontSize: '1.4rem', fontWeight: 950, color: '#0F172A', letterSpacing: '-0.02em' }}>Confirm Your Order</h2>
-                                    <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: '#64748B', fontWeight: 500 }}>Review your workflow specifications, resource allocations, and pricing summary.</p>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                        <span style={{ fontSize: "0.7rem", fontWeight: 950, background: "rgba(139, 92, 246, 0.15)", color: "#8B5CF6", padding: "2px 8px", borderRadius: "100px", textTransform: "uppercase" }}>AI Consultant Recommendations</span>
+                                        <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10B981" }} />
+                                        <span style={{ fontSize: "0.68rem", fontWeight: 800, color: "#10B981" }}>Workspace Scan Active</span>
+                                    </div>
+                                    <h3 style={{ fontSize: "1.1rem", fontWeight: 900, margin: "8px 0 4px 0", color: "var(--foreground)" }}>Optimize your Operations with specialized AI Employees</h3>
+                                    <p style={{ fontSize: "0.82rem", color: "var(--muted-foreground)", margin: 0, lineHeight: 1.5, maxWidth: "700px" }}>
+                                        Based on your business profile (**Blonk SIA** in **Professional Services**), we detected bottlenecks in invoice routing and timesheet approvals. We recommend hiring **Finance Admin AI** and **Consulting Operations AI** to save an estimated **42 hours/week**.
+                                    </p>
                                 </div>
                             </div>
+                            <div style={{ display: "flex", gap: "12px", flexShrink: 0 }}>
+                                <button 
+                                    onClick={() => setSelectedCategory("Operations")}
+                                    style={{ height: "40px", padding: "0 18px", background: "var(--foreground)", color: "var(--background)", border: "none", borderRadius: "10px", fontSize: "0.78rem", fontWeight: 900, cursor: "pointer" }}
+                                >
+                                    View Recommended
+                                </button>
+                                <button 
+                                    onClick={() => setShowAiAdvisor(false)}
+                                    style={{ width: "40px", height: "40px", background: "transparent", border: "1px solid var(--border)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--foreground)" }}
+                                >
+                                    <X size={16} />
+                                </button>
+                            </div>
+                        </div>
+                    )}
 
-                            {/* WORKFLOW IDENTITY & FEATURE LIST */}
-                            <div style={{ background: '#F8FAFC', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '24px', marginBottom: '24px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                    {/* Filter row */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", background: "var(--card)", padding: "14px 20px", borderRadius: "18px", border: "1px solid var(--border)" }}>
+                        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                            {categories.map(cat => {
+                                const isActive = selectedCategory === cat;
+                                return (
+                                    <button
+                                        key={cat}
+                                        onClick={() => setSelectedCategory(cat)}
+                                        style={{
+                                            padding: "8px 16px",
+                                            borderRadius: "100px",
+                                            fontSize: "0.78rem",
+                                            fontWeight: 900,
+                                            border: "none",
+                                            background: isActive ? "var(--foreground)" : "transparent",
+                                            color: isActive ? "var(--background)" : "var(--muted-foreground)",
+                                            cursor: "pointer",
+                                            transition: "all 0.2s"
+                                        }}
+                                    >
+                                        {cat}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        <div style={{ position: "relative", width: "240px" }}>
+                            <Search size={14} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--muted-foreground)" }} />
+                            <input 
+                                type="text" 
+                                placeholder="Search AI Employees..."
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                                style={{ width: "100%", height: "36px", borderRadius: "100px", border: "1px solid var(--border)", paddingLeft: "36px", fontSize: "0.78rem", fontWeight: 700, background: "var(--muted)", color: "var(--foreground)", outline: "none" }}
+                            />
+                        </div>
+                    </div>
+
+                    {/* App Store Style Card Grid */}
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "24px" }}>
+                        {isLoading ? (
+                            [1, 2, 3].map(i => (
+                                <div key={i} style={{ height: "260px", background: "var(--muted)", borderRadius: "24px", animation: "pulse 1.5s infinite" }} />
+                            ))
+                        ) : filteredTemplates.map(wf => {
+                            const reqs = robustParse(wf.requirements);
+                            const pInfo = typeof wf.productInfo === 'string' ? JSON.parse(wf.productInfo) : (wf.productInfo || {});
+                            
+                            return (
+                                <div 
+                                    key={wf.id}
+                                    style={{ 
+                                        background: "var(--card)", 
+                                        border: "1px solid var(--border)", 
+                                        borderRadius: "24px", 
+                                        padding: "24px", 
+                                        display: "flex", 
+                                        flexDirection: "column", 
+                                        justifyContent: "space-between",
+                                        height: "300px",
+                                        transition: "all 0.2s ease",
+                                        cursor: "pointer"
+                                    }}
+                                    onClick={() => {
+                                        setPreviewTemplate(wf);
+                                        setDemoState('idle');
+                                    }}
+                                    className={styles.workflowCard}
+                                >
                                     <div>
-                                        <div style={{ fontWeight: 950, color: '#0F172A', fontSize: '1.2rem', letterSpacing: '-0.01em' }}>{paymentTemplate.name}</div>
-                                        <span style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>PRE-BUILT SYSTEM PACKAGE</span>
-                                    </div>
-                                    <span style={{ fontSize: '0.65rem', background: '#E0F2FE', color: '#0369A1', padding: '4px 10px', borderRadius: '6px', fontWeight: 900, textTransform: 'uppercase' }}>
-                                        {paymentTemplate.sector}
-                                    </span>
-                                </div>
-
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
-                                    {[
-                                        'Dedicated Cloud Container',
-                                        'Orchestration Engine (n8n Setup)',
-                                        'End-to-End System Integration',
-                                        'Automated Quality Assurance Loop'
-                                    ].map((item, idx) => (
-                                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.82rem', fontWeight: 650, color: '#334155' }}>
-                                            <CheckCircle size={14} color="#10B981" />
-                                            <span>{item}</span>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                {/* CONNECTIONS & CREDENTIALS STATUS */}
-                                {(() => {
-                                    const reqs = robustParse(paymentTemplate.requirements);
-                                    const services = Array.from(new Set(reqs.map((r: any) => r.service || r.app).filter(Boolean)));
-                                    if (services.length === 0) return null;
-                                    return (
-                                        <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '16px', marginTop: '16px' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                                                <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-                                                    Credentials & Connections Used:
-                                                </span>
-                                                <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#10B981', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981', display: 'inline-block' }}></span>
-                                                    All connections ready
-                                                </span>
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "14px" }}>
+                                            <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                                                <div style={{ 
+                                                    width: "44px", 
+                                                    height: "44px", 
+                                                    borderRadius: "12px", 
+                                                    background: wf.color || "rgba(59, 130, 246, 0.1)", 
+                                                    display: "flex", 
+                                                    alignItems: "center", 
+                                                    justifyContent: "center",
+                                                    fontSize: "1.3rem"
+                                                }}>
+                                                    {wf.icon || "🤖"}
+                                                </div>
+                                                <div>
+                                                    <h3 style={{ margin: 0, fontSize: "0.95rem", fontWeight: 900, color: "var(--foreground)" }}>{wf.name}</h3>
+                                                    <span style={{ fontSize: "0.72rem", color: "var(--muted-foreground)", fontWeight: 800 }}>{wf.sector}</span>
+                                                </div>
                                             </div>
-                                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                                                {services.map((svc: any) => (
-                                                    <span key={svc} style={{ fontSize: '0.72rem', background: '#FFFFFF', color: '#0F172A', padding: '4px 10px', borderRadius: '8px', fontWeight: 850, border: '1px solid #E2E8F0', display: 'inline-flex', alignItems: 'center', gap: '6px', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
-                                                        {getServiceIcon(svc)} {svc}
+                                            <span style={{ fontSize: "0.85rem", fontWeight: 950, color: "var(--foreground)" }}>
+                                                {wf.price > 0 ? `$${parseInt(wf.price)}/mo` : "Free"}
+                                            </span>
+                                        </div>
+
+                                        <p style={{ fontSize: "0.8rem", color: "var(--muted-foreground)", lineHeight: 1.45, margin: "0 0 16px 0", height: "54px", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                                            {wf.description}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", fontSize: "0.72rem", fontWeight: 800, color: "var(--muted-foreground)" }}>
+                                            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                                                <div style={{ display: "flex", color: "#F59E0B" }}>
+                                                    {[1, 2, 3, 4, 5].map(s => <Star key={s} size={10} fill="#F59E0B" stroke="none" />)}
+                                                </div>
+                                                <span style={{ color: "var(--foreground)" }}>4.9</span>
+                                            </div>
+                                            <span>{wf.savings || "Save 12 hrs/wk"}</span>
+                                            <span>5 min setup</span>
+                                        </div>
+
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid var(--border)", paddingTop: "12px" }}>
+                                            <div style={{ display: "flex", gap: "6px" }}>
+                                                {reqs.map((r: any, idx: number) => (
+                                                    <span key={idx} style={{ width: "22px", height: "22px", borderRadius: "6px", background: "var(--muted)", display: "flex", alignItems: "center", justifyContent: "center" }} title={r.name}>
+                                                        {getServiceIcon(r.name)}
                                                     </span>
                                                 ))}
                                             </div>
-                                        </div>
-                                    );
-                                })()}
-                            </div>
 
-                            {/* COST SUMMARY & DETAILS */}
-                            <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '20px', marginBottom: '24px' }}>
-                                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '14px' }}>
-                                    PAYMENT BREAKDOWN
+                                            <div style={{ display: "flex", gap: "8px" }} onClick={e => e.stopPropagation()}>
+                                                <button 
+                                                    onClick={() => {
+                                                        setPreviewTemplate(wf);
+                                                        setDemoState('idle');
+                                                    }}
+                                                    style={{ height: "32px", padding: "0 12px", background: "transparent", border: "1px solid var(--border)", borderRadius: "8px", fontSize: "0.72rem", fontWeight: 800, cursor: "pointer", color: "var(--foreground)" }}
+                                                >
+                                                    Details
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleAddClick(wf)}
+                                                    style={{ height: "32px", padding: "0 12px", background: "var(--foreground)", color: "var(--background)", border: "none", borderRadius: "8px", fontSize: "0.72rem", fontWeight: 900, cursor: "pointer" }}
+                                                >
+                                                    Hire AI Employee
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                
-                                {(() => {
-                                    const pInfo = typeof paymentTemplate.productInfo === 'string'
-                                        ? JSON.parse(paymentTemplate.productInfo)
-                                        : (paymentTemplate.productInfo || {});
-                                    const setupPrice = parseFloat(pInfo.setupPrice || 0);
-                                    const monthlyPrice = parseFloat(pInfo.monthlyPrice || 0);
-                                    const discountSetup = parseFloat(pInfo.discountSetupPrice || 0);
-                                    const discountMonthly = parseFloat(pInfo.discountMonthlyPrice || 0);
+                            );
+                        })}
+                    </div>
+                </>
+            )}
 
-                                    let showSetup = setupPrice;
-                                    let showMonthly = monthlyPrice;
+            {/* FULL-PAGE AI EMPLOYEE LANDING SPACE (Render if previewTemplate is set) */}
+            {previewTemplate && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "32px", animation: "fadeIn 0.4s" }}>
+                    
+                    {/* Header Controls */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <button 
+                            onClick={() => setPreviewTemplate(null)}
+                            style={{ background: "none", border: "1px solid var(--border)", borderRadius: "10px", padding: "8px 16px", fontSize: "0.8rem", fontWeight: 800, display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", color: "var(--foreground)" }}
+                        >
+                            ← Back to Marketplace
+                        </button>
+                        <span style={{ fontSize: "0.8rem", color: "var(--muted-foreground)", fontWeight: 700 }}>
+                            Product Details · Used by 482 companies
+                        </span>
+                    </div>
 
-                                    if (setupPrice === 0 && monthlyPrice === 0) {
-                                        const legacyPrice = parseFloat(paymentTemplate.price || 0);
-                                        if (pInfo.monetization === 'Subscription') {
-                                            showMonthly = legacyPrice;
-                                        } else {
-                                            showSetup = legacyPrice;
-                                        }
-                                    }
-
-                                    const baseTotal = (discountSetup > 0 ? discountSetup : showSetup) + (discountMonthly > 0 ? discountMonthly : showMonthly);
-                                    const promoDiscount = (baseTotal * promoDiscountPercent) / 100;
-                                    const finalTotal = Math.max(0, baseTotal - promoDiscount);
-
-                                    return (
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                            {/* Setup Fee Row */}
-                                            {showSetup > 0 && (
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                    <span style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 600 }}>One-time Setup & Configuration</span>
-                                                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                                                        {discountSetup > 0 && (
-                                                            <span style={{ fontSize: '0.8rem', color: '#94A3B8', textDecoration: 'line-through', fontWeight: 600 }}>€{setupPrice.toFixed(2)}</span>
-                                                        )}
-                                                        <span style={{ fontSize: '0.88rem', color: '#0F172A', fontWeight: 800 }}>€{(discountSetup > 0 ? discountSetup : showSetup).toFixed(2)}</span>
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {/* Monthly Fee Row */}
-                                            {showMonthly > 0 && (
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                    <span style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 600 }}>Monthly Hosting & Management License</span>
-                                                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                                                        {discountMonthly > 0 && (
-                                                            <span style={{ fontSize: '0.8rem', color: '#94A3B8', textDecoration: 'line-through', fontWeight: 600 }}>€{monthlyPrice.toFixed(2)}</span>
-                                                        )}
-                                                        <span style={{ fontSize: '0.88rem', color: '#0F172A', fontWeight: 800 }}>€{(discountMonthly > 0 ? discountMonthly : showMonthly).toFixed(2)}<span style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 700 }}>/mo</span></span>
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {/* PROMO INPUT AND DISPLAY */}
-                                            <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: '12px', marginTop: '4px' }}>
-                                                {appliedPromo ? (
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F0FDF4', border: '1px solid #DCFCE7', borderRadius: '8px', padding: '10px 12px' }}>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                            <CheckCircle size={14} color="#10B981" />
-                                                            <span style={{ fontSize: '0.78rem', color: '#15803D', fontWeight: 800 }}>Promo Code: <strong style={{ textTransform: 'uppercase' }}>{appliedPromo}</strong> applied</span>
-                                                        </div>
-                                                        <span style={{ fontSize: '0.8rem', color: '#15803D', fontWeight: 800 }}>-€{promoDiscount.toFixed(2)} (-{promoDiscountPercent}%)</span>
-                                                    </div>
-                                                ) : (
-                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                                            <input
-                                                                type="text"
-                                                                className={styles.fieldInput}
-                                                                placeholder="Enter Promo Code (e.g. BLONK20)"
-                                                                value={promoInput}
-                                                                onChange={e => setPromoInput(e.target.value)}
-                                                                style={{ height: '36px', fontSize: '0.8rem', flex: 1, borderRadius: '8px', padding: '0 12px' }}
-                                                            />
-                                                            <button
-                                                                onClick={() => {
-                                                                    const code = promoInput.toUpperCase().trim();
-                                                                    if (code === 'WELCOME10') {
-                                                                        setAppliedPromo('WELCOME10');
-                                                                        setPromoDiscountPercent(10);
-                                                                        setPromoError("");
-                                                                    } else if (code === 'BLONK20') {
-                                                                        setAppliedPromo('BLONK20');
-                                                                        setPromoDiscountPercent(20);
-                                                                        setPromoError("");
-                                                                    } else if (code === 'FREE50') {
-                                                                        setAppliedPromo('FREE50');
-                                                                        setPromoDiscountPercent(50);
-                                                                        setPromoError("");
-                                                                    } else if (code) {
-                                                                        setPromoError("Invalid promo code");
-                                                                    }
-                                                                }}
-                                                                style={{ background: '#0F172A', color: '#fff', border: 'none', borderRadius: '8px', padding: '0 16px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer', height: '36px' }}
-                                                            >
-                                                                Apply
-                                                            </button>
-                                                        </div>
-                                                        {promoError && (
-                                                            <span style={{ fontSize: '0.72rem', color: '#EF4444', fontWeight: 700, marginLeft: '4px' }}>{promoError}</span>
-                                                        )}
-                                                    </div>
-                                                )}
+                    {/* Main Workspace Layout */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1.9fr 1.1fr", gap: "32px" }}>
+                        
+                        {/* Left Side: Product Showcase */}
+                        <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
+                            
+                            {/* Title Card */}
+                            <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "24px", padding: "32px" }}>
+                                <div style={{ display: "flex", gap: "20px", alignItems: "center", marginBottom: "20px" }}>
+                                    <div style={{ width: "64px", height: "64px", borderRadius: "16px", background: previewTemplate.color || "var(--muted)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2rem" }}>
+                                        {previewTemplate.icon || "🤖"}
+                                    </div>
+                                    <div>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                            <span style={{ fontSize: "0.68rem", fontWeight: 950, background: "var(--foreground)", color: "var(--background)", padding: "2px 8px", borderRadius: "100px", textTransform: "uppercase" }}>{previewTemplate.sector}</span>
+                                            <div style={{ display: "flex", color: "#F59E0B" }}>
+                                                {[1, 2, 3, 4, 5].map(s => <Star key={s} size={10} fill="#F59E0B" stroke="none" />)}
                                             </div>
-
-                                            {/* Due Today (Total) */}
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #E2E8F0', paddingTop: '14px', marginTop: '4px' }}>
-                                                <div>
-                                                    <span style={{ fontSize: '0.95rem', fontWeight: 950, color: '#0F172A' }}>Total Due Today</span>
-                                                    <p style={{ margin: '2px 0 0', fontSize: '0.7rem', color: '#64748B', fontWeight: 650 }}>Includes setup fee & first month license</p>
-                                                </div>
-                                                <span style={{ color: '#10B981', fontWeight: 950, fontSize: '1.4rem' }}>€{finalTotal.toFixed(2)}</span>
-                                            </div>
+                                            <span style={{ fontSize: "0.75rem", color: "var(--muted-foreground)", fontWeight: 700 }}>4.9 (42 reviews)</span>
                                         </div>
-                                    );
-                                })()}
+                                        <h2 style={{ fontSize: "1.6rem", fontWeight: 950, margin: "6px 0 0 0", color: "var(--foreground)" }}>{previewTemplate.name}</h2>
+                                    </div>
+                                </div>
+                                <p style={{ fontSize: "0.9rem", color: "var(--muted-foreground)", lineHeight: 1.6, margin: 0 }}>
+                                    {previewTemplate.description}
+                                </p>
                             </div>
 
-                            {/* CTAS */}
-                            <button
-                                className={styles.btnInstall}
-                                style={{ width: '100%', height: 56, fontSize: '0.88rem', fontWeight: 900 }}
-                                disabled={isProcessingPayment}
-                                onClick={() => handlePurchase(paymentTemplate)}
-                            >
-                                {isProcessingPayment ? 'Initiating Deployment...' : 'Confirm & Continue to Payment'}
-                            </button>
+                            {/* INTERACTIVE DEMO SANDBOX (WOW EFFECT) */}
+                            <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "24px", padding: "32px" }}>
+                                <h3 style={{ fontSize: "1.1rem", fontWeight: 900, margin: "0 0 8px 0" }}>Interactive Live Sandbox</h3>
+                                <p style={{ fontSize: "0.82rem", color: "var(--muted-foreground)", margin: "0 0 20px 0" }}>Test drive the AI Employee intelligence on a sample data input in 10 seconds.</p>
+                                
+                                <div style={{ background: "var(--muted)", border: "1px solid var(--border)", borderRadius: "16px", padding: "24px", minHeight: "160px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+                                    {demoState === 'idle' && (
+                                        <div style={{ textAlign: "center" }}>
+                                            <span style={{ fontSize: "2rem", display: "block", marginBottom: "8px" }}>📄</span>
+                                            <button 
+                                                onClick={runDemoUpload}
+                                                style={{ height: "36px", padding: "0 18px", background: "var(--foreground)", color: "var(--background)", border: "none", borderRadius: "8px", fontSize: "0.78rem", fontWeight: 900, cursor: "pointer" }}
+                                            >
+                                                Upload Sample File
+                                            </button>
+                                            <p style={{ margin: "6px 0 0 0", fontSize: "0.72rem", color: "var(--muted-foreground)" }}>Click to simulate uploading an incoming transaction slip.</p>
+                                        </div>
+                                    )}
 
-                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px', marginTop: '16px', color: '#64748B' }}>
-                                <ShieldCheck size={14} color="#10B981" />
-                                <span style={{ fontSize: '0.72rem', fontWeight: 650 }}>Secure checkout processed via Stripe Billing</span>
+                                    {demoState === 'uploading' && (
+                                        <div style={{ textAlign: "center" }}>
+                                            <Loader2 className="spin" size={24} style={{ color: "var(--accent)", marginBottom: "8px" }} />
+                                            <span style={{ fontSize: "0.8rem", fontWeight: 800, color: "var(--foreground)" }}>AI Employee reading document structure...</span>
+                                        </div>
+                                    )}
+
+                                    {demoState === 'extracted' && (
+                                        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "12px" }}>
+                                            <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--border)", paddingBottom: "8px", fontSize: "0.8rem" }}>
+                                                <span style={{ fontWeight: 900 }}>EXTRACTED DATA SCHEMA</span>
+                                                <span style={{ color: "#10B981", fontWeight: 900 }}>98% Accuracy</span>
+                                            </div>
+                                            <div style={{ fontSize: "0.78rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                                                <div><strong>Supplier:</strong> Sia Blonk HQ</div>
+                                                <div><strong>Date:</strong> 2026-07-09</div>
+                                                <div><strong>VAT Index:</strong> €24.64 (21%)</div>
+                                                <div><strong>Total Amount:</strong> €142.00</div>
+                                            </div>
+                                            <button 
+                                                onClick={() => setDemoState('done')}
+                                                style={{ height: "34px", background: "#10B981", color: "#FFFFFF", border: "none", borderRadius: "8px", fontSize: "0.75rem", fontWeight: 900, cursor: "pointer", marginTop: "8px" }}
+                                            >
+                                                Approve and Save to CRM
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    {demoState === 'done' && (
+                                        <div style={{ textAlign: "center" }}>
+                                            <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "#10B981", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#FFFFFF", marginBottom: "8px" }}>
+                                                <Check size={18} strokeWidth={3} />
+                                            </div>
+                                            <h4 style={{ margin: 0, fontSize: "0.85rem", fontWeight: 900 }}>Task Completed Successfully!</h4>
+                                            <p style={{ margin: "4px 0 12px 0", fontSize: "0.75rem", color: "var(--muted-foreground)" }}>Record synchronized to HubSpot CRM and user notifications triggered.</p>
+                                            <button 
+                                                onClick={() => setDemoState('idle')}
+                                                style={{ background: "none", border: "none", color: "var(--accent)", fontSize: "0.72rem", fontWeight: 800, cursor: "pointer", textDecoration: "underline" }}
+                                            >
+                                                Reset Sandbox
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
+
+                            {/* Trust Strip */}
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
+                                {[
+                                    { label: "Uptime Stability", val: "99.98%" },
+                                    { label: "Average Setup", val: "4 mins" },
+                                    { label: "Success Accuracy", val: "98.7%" }
+                                ].map((tr, i) => (
+                                    <div key={i} style={{ background: "var(--card)", border: "1px solid var(--border)", padding: "16px 20px", borderRadius: "16px", textAlign: "center" }}>
+                                        <span style={{ fontSize: "0.7rem", color: "var(--muted-foreground)", fontWeight: 800, textTransform: "uppercase" }}>{tr.label}</span>
+                                        <div style={{ fontSize: "1.2rem", fontWeight: 950, color: "var(--foreground)", marginTop: "4px" }}>{tr.val}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Right Side: ROI Calculator & Hiring Details */}
+                        <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
+                            
+                            {/* Hiring Actions Card */}
+                            <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "24px", padding: "32px", display: "flex", flexDirection: "column", gap: "20px" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                                    <span style={{ fontSize: "0.8rem", color: "var(--muted-foreground)", fontWeight: 800 }}>MONTHLY SALARY:</span>
+                                    <span style={{ fontSize: "1.4rem", fontWeight: 950 }}>${previewTemplate.price}/mo</span>
+                                </div>
+                                <div style={{ fontSize: "0.78rem", color: "var(--muted-foreground)", display: "flex", flexDirection: "column", gap: "8px", borderBottom: "1px solid var(--border)", paddingBottom: "16px" }}>
+                                    <span>✔ Zero markup VPS execution</span>
+                                    <span>✔ 14 days free trial period</span>
+                                    <span>✔ Rollback version control</span>
+                                </div>
+                                <button 
+                                    onClick={() => handleAddClick(previewTemplate)}
+                                    style={{ height: "48px", background: "var(--foreground)", color: "var(--background)", border: "none", borderRadius: "12px", fontSize: "0.82rem", fontWeight: 950, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
+                                >
+                                    <ShoppingCart size={16} />
+                                    <span>Hire AI Employee</span>
+                                </button>
+                            </div>
+
+                            {/* ROI CALCULATOR CARD (WOW FEATURE) */}
+                            <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "24px", padding: "32px" }}>
+                                <h3 style={{ fontSize: "1rem", fontWeight: 900, margin: "0 0 16px 0", display: "flex", alignItems: "center", gap: "8px" }}>
+                                    <span>ROI Calculator</span>
+                                </h3>
+
+                                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                                    <div>
+                                        <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 900, color: "var(--muted-foreground)", marginBottom: "6px" }}>
+                                            MONTHLY VOLUME (TASKS)
+                                        </label>
+                                        <input 
+                                            type="range" 
+                                            min="50" 
+                                            max="1000" 
+                                            step="50" 
+                                            value={calcCount} 
+                                            onChange={e => setCalcCount(parseInt(e.target.value))}
+                                            style={{ width: "100%", cursor: "pointer" }}
+                                        />
+                                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", fontWeight: 800, marginTop: "4px" }}>
+                                            <span>50</span>
+                                            <span style={{ color: "var(--accent)" }}>{calcCount} tasks</span>
+                                            <span>1000</span>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 900, color: "var(--muted-foreground)", marginBottom: "6px" }}>
+                                            HOURLY EMPLOYEE COST ($)
+                                        </label>
+                                        <input 
+                                            type="range" 
+                                            min="10" 
+                                            max="80" 
+                                            step="2" 
+                                            value={calcRate} 
+                                            onChange={e => setCalcRate(parseInt(e.target.value))}
+                                            style={{ width: "100%", cursor: "pointer" }}
+                                        />
+                                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", fontWeight: 800, marginTop: "4px" }}>
+                                            <span>$10</span>
+                                            <span style={{ color: "var(--accent)" }}>${calcRate}/hr</span>
+                                            <span>$80</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Calculator Results */}
+                                    <div style={{ background: "var(--muted)", padding: "16px", borderRadius: "12px", border: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: "10px", fontSize: "0.78rem" }}>
+                                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                            <span>Time Saved:</span>
+                                            <strong style={{ color: "#10B981" }}>{roiData.hours} hours/mo</strong>
+                                        </div>
+                                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                            <span>Cost Savings:</span>
+                                            <strong style={{ color: "#10B981" }}>${roiData.money}/mo</strong>
+                                        </div>
+                                        <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid var(--border)", paddingTop: "8px" }}>
+                                            <span>Net ROI Yield:</span>
+                                            <strong style={{ color: "var(--accent)" }}>{roiData.percentage}% ROI</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            )}
+
+            {/* 7. PREMIUM ONBOARDING VPS WIZARD OVERLAY */}
+            {installWizardOpen && (
+                <ModalPortal>
+                    <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(15, 23, 42, 0.6)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 20000, padding: "20px" }}>
+                        <div style={{ width: "520px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: "24px", padding: "32px", display: "flex", flexDirection: "column", gap: "24px", boxShadow: "var(--shadow-premium)" }}>
+                            
+                            <div style={{ textAlign: "center" }}>
+                                <div style={{ width: "52px", height: "52px", borderRadius: "50%", background: "rgba(139, 92, 246, 0.1)", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#8B5CF6", marginBottom: "16px" }}>
+                                    <Loader2 className="spin" size={24} />
+                                </div>
+                                <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 900 }}>Hiring AI Employee...</h3>
+                                <p style={{ margin: "4px 0 0 0", fontSize: "0.8rem", color: "var(--muted-foreground)" }}>Setting up dedicated workflow node infrastructure</p>
+                            </div>
+
+                            {/* Progress bar */}
+                            <div>
+                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", fontWeight: 800, marginBottom: "6px" }}>
+                                    <span>Deployment Progress</span>
+                                    <span>{Math.round((installStep / 9) * 100)}%</span>
+                                </div>
+                                <div style={{ width: "100%", height: "8px", background: "var(--muted)", borderRadius: "100px", overflow: "hidden" }}>
+                                    <div style={{ height: "100%", background: "var(--accent)", width: `${(installStep / 9) * 100}%`, transition: "all 0.5s ease" }} />
+                                </div>
+                            </div>
+
+                            {/* Logs Display Terminal */}
+                            <div style={{ background: "var(--muted)", border: "1px solid var(--border)", borderRadius: "16px", padding: "20px", fontFamily: "monospace", fontSize: "0.75rem", display: "flex", flexDirection: "column", gap: "8px", minHeight: "150px" }}>
+                                {installLogs.map((log, idx) => (
+                                    <div key={idx} style={{ display: "flex", gap: "8px", alignItems: "center", color: idx === installLogs.length - 1 ? "var(--foreground)" : "var(--muted-foreground)" }}>
+                                        {idx === installLogs.length - 1 && installStep < 9 ? (
+                                            <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--accent)", display: "inline-block", animation: "pulse 1s infinite" }} />
+                                        ) : (
+                                            <span style={{ color: "#10B981" }}>✓</span>
+                                        )}
+                                        <span>{log}</span>
+                                    </div>
+                                ))}
+                            </div>
+
                         </div>
                     </div>
                 </ModalPortal>
             )}
 
-            {toast && <div className={styles.toast}><CheckCircle size={20} /> {toast}</div>}
         </div>
     );
 }

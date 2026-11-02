@@ -19,7 +19,8 @@ import {
     Zap,
     Layout,
     Database,
-    ShieldCheck
+    ShieldCheck,
+    Clock
 } from "lucide-react";
 
 import { Skeleton, SkeletonRectangle } from "../../components/Skeleton";
@@ -116,10 +117,10 @@ export default function AdminAnalyticsPage() {
             {/* KPI MATRIX */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
                 {[
-                    { label: "Gross Revenue", value: analyticsData?.kpis.revenue.total, trend: analyticsData?.kpis.revenue.change, icon: <DollarSign size={20} color="var(--accent)" /> },
-                    { label: "Active Licenses", value: analyticsData?.kpis.activeUsers.monthly, trend: "+12%", icon: <Users size={20} color="var(--accent)" /> },
-                    { label: "Op Velocity", value: "98.4%", trend: "+2.1%", icon: <Zap size={20} color="#F59E0B" /> },
-                    { label: "System Health", value: "Optimal", trend: "0.0% Latency", icon: <ShieldCheck size={20} color="#10B981" /> }
+                    { label: "Total Enrolled Users", value: analyticsData?.activationAnalytics?.totalEnrolled || 0, trend: "Intake Ledger", icon: <Users size={20} color="var(--accent)" /> },
+                    { label: "Setup Completion Rate", value: `${(analyticsData?.activationAnalytics?.setupCompletionRate || 0).toFixed(1)}%`, trend: "Phase 1 Conversion", icon: <CheckCircle2 size={20} color="#10B981" /> },
+                    { label: "Activation Completion Rate", value: `${(analyticsData?.activationAnalytics?.activationCompletionRate || 0).toFixed(1)}%`, trend: "Sovereign Deployed", icon: <Zap size={20} color="#F59E0B" /> },
+                    { label: "Avg Time-To-Deploy", value: `${analyticsData?.activationAnalytics?.avgTimeToDeploy || 0} mins`, trend: "Node Provisioning", icon: <Clock size={20} color="var(--accent)" /> }
                 ].map((kpi, i) => (
                     <div key={i} style={{ background: 'var(--background)', padding: '32px', borderRadius: '24px', border: '1px solid var(--border)', position: 'relative', overflow: 'hidden' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
@@ -127,8 +128,7 @@ export default function AdminAnalyticsPage() {
                             {kpi.icon}
                         </div>
                         <div style={{ fontSize: '1.75rem', fontWeight: 950, letterSpacing: '-0.02em' }}>{isLoadingAnalytics ? '...' : kpi.value}</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '12px', fontSize: '0.75rem', fontWeight: 950, color: '#10B981' }}>
-                            <ArrowUp size={12} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '12px', fontSize: '0.75rem', fontWeight: 950, color: 'var(--muted-foreground)' }}>
                             {kpi.trend}
                         </div>
                     </div>
@@ -136,67 +136,148 @@ export default function AdminAnalyticsPage() {
             </div>
 
             {/* STRATEGIC CHARTS */}
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1.4fr', gap: '24px' }}>
+                {/* Onboarding & Activation Step Drop-offs */}
                 <div style={{ background: 'var(--background)', padding: '40px', borderRadius: '32px', border: '1px solid var(--border)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
-                        <div>
-                            <h3 style={{ fontSize: '1.25rem', fontWeight: 950, margin: 0 }}>Revenue Propagation</h3>
-                            <p style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', fontWeight: 750, marginTop: '4px' }}>Institutional yield across all production clusters.</p>
-                        </div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 950, color: 'var(--accent)' }}>{analyticsData?.kpis.revenue.total}</div>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 950, margin: 0 }}>Onboarding &amp; Activation Funnel</h3>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', fontWeight: 750, marginTop: '4px', marginBottom: '32px' }}>
+                        Drop-off analysis across canonical activation state machine steps.
+                    </p>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        {(() => {
+                            const steps = [
+                                { label: "1. Select AI Co-Pilot (Intake started)", key: "NOT_STARTED" },
+                                { label: "2. Calibration ready (Setup complete)", key: "SUMMARY_READY" },
+                                { label: "3. Loop matched (Blueprint selected)", key: "WORKFLOW_SELECTED" },
+                                { label: "4. Integrations pending", key: "CONNECTIONS_IN_PROGRESS" },
+                                { label: "5. Pre-flight checks", key: "READY_FOR_DEPLOY" },
+                                { label: "6. Provisioning loop", key: "DEPLOYING" },
+                                { label: "7. Active Cluster Deployed (Activated)", key: "ACTIVATED" }
+                            ];
+                            
+                            const funnelData = analyticsData?.activationAnalytics?.funnel || {};
+                            const maxVal = Math.max(...steps.map(s => funnelData[s.key] || 0), 1);
+
+                            return steps.map((step, idx) => {
+                                const val = funnelData[step.key] || 0;
+                                const pct = Math.round((val / maxVal) * 100);
+
+                                return (
+                                    <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', fontWeight: 800 }}>
+                                            <span style={{ color: 'var(--foreground)' }}>{step.label}</span>
+                                            <span style={{ color: 'var(--muted-foreground)' }}>{val} user(s) ({pct}%)</span>
+                                        </div>
+                                        <div style={{ height: '8px', background: 'var(--muted)', borderRadius: '4px', overflow: 'hidden' }}>
+                                            <div style={{ width: `${pct}%`, height: '100%', background: step.key === "ACTIVATED" ? "#10B981" : "var(--primary)", transition: 'all 0.5s' }} />
+                                        </div>
+                                    </div>
+                                );
+                            });
+                        })()}
                     </div>
-                    {isLoadingAnalytics ? <SkeletonRectangle height="220px" borderRadius="20px" /> :
-                        <AnalyticsChart data={analyticsData?.charts.revenue[0].data} color="var(--accent)" height={220} />
-                    }
                 </div>
 
-                <div style={{ background: 'var(--foreground)', padding: '40px', borderRadius: '32px', border: 'none', color: 'var(--background)' }}>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 950, margin: 0, color: 'white' }}>Strategic Insights</h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '32px' }}>
-                        {analyticsData?.insights.map((insight: any, i: number) => (
-                            <div key={i} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', padding: '20px', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                                <div style={{ width: '32px', height: '32px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--accent)', flexShrink: 0 }}>
-                                    <Target size={16} color="var(--background)" />
+                {/* AI Insights & Provisioning Outcomes */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    <div style={{ background: 'var(--foreground)', padding: '40px', borderRadius: '32px', border: 'none', color: 'var(--background)' }}>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: 950, margin: 0, color: 'white' }}>Strategic Insights</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '24px' }}>
+                            {analyticsData?.insights.map((insight: any, i: number) => (
+                                <div key={i} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', padding: '16px', background: 'rgba(255,255,255,0.05)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                    <div style={{ width: '32px', height: '32px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: insight.type === 'critical' ? '#EF4444' : 'var(--accent)', flexShrink: 0 }}>
+                                        <Target size={16} color="var(--background)" />
+                                    </div>
+                                    <div style={{ fontSize: '0.85rem', fontWeight: 750, lineHeight: 1.5, opacity: 0.9 }}>{insight.text}</div>
                                 </div>
-                                <div style={{ fontSize: '0.85rem', fontWeight: 750, lineHeight: 1.5, opacity: 0.9 }}>{insight.text}</div>
-                            </div>
-                        ))}
+                            ))}
+                            {(!analyticsData?.insights || analyticsData.insights.length === 0) && (
+                                <div style={{ fontSize: '0.85rem', opacity: 0.7 }}>Nominal metrics - all conversion vectors perform within target ranges.</div>
+                            )}
+                        </div>
                     </div>
-                    <button className={adminStyles.primaryBtn} style={{ width: '100%', marginTop: '32px', height: '56px', background: 'white', color: 'var(--foreground)', border: 'none' }}>
-                        Download Full Report
-                    </button>
+
+                    <div style={{ background: 'var(--background)', padding: '32px', borderRadius: '24px', border: '1px solid var(--border)' }}>
+                        <h4 style={{ fontSize: '0.9rem', fontWeight: 950, textTransform: 'uppercase', color: 'var(--muted-foreground)', letterSpacing: '0.05em', margin: '0 0 16px' }}>
+                            Docker Provisioning Outcomes
+                        </h4>
+                        <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexGrow: 1 }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 800 }}>
+                                    <span>Successful Builds</span>
+                                    <span style={{ color: '#10B981' }}>{analyticsData?.activationAnalytics?.successCount || 0}</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 800 }}>
+                                    <span>Failed Container Cleanups</span>
+                                    <span style={{ color: '#EF4444' }}>{analyticsData?.activationAnalytics?.failureCount || 0}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* FUNNEL & REGISTRY GROWTH */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                <div style={{ background: 'var(--background)', padding: '40px', borderRadius: '32px', border: '1px solid var(--border)' }}>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 950, marginBottom: '32px' }}>Institutional Onboarding Funnel</h3>
-                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '24px', height: '200px' }}>
-                        {analyticsData?.charts.funnel.map((val: number, i: number) => (
-                            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                <div 
-                                    style={{ 
-                                        height: `${(val / (analyticsData?.charts.funnel[0] || 1)) * 100}%`, 
-                                        background: i === 2 ? 'var(--accent)' : 'var(--muted)', 
-                                        borderRadius: '12px',
-                                        transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1)'
-                                    }} 
-                                />
-                                <div style={{ textAlign: 'center' }}>
-                                    <div style={{ fontSize: '0.9rem', fontWeight: 950 }}>{val.toLocaleString()}</div>
-                                    <div style={{ fontSize: '0.65rem', fontWeight: 950, color: 'var(--muted-foreground)', textTransform: 'uppercase' }}>{['Visitors', 'Signups', 'Paid'][i]}</div>
-                                </div>
+            {/* BREAKDOWN SECTIONS */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+                {/* AI Employee Preference Grid */}
+                <div style={{ background: 'var(--background)', padding: '32px', borderRadius: '24px', border: '1px solid var(--border)' }}>
+                    <h4 style={{ fontSize: '0.9rem', fontWeight: 950, textTransform: 'uppercase', color: 'var(--muted-foreground)', letterSpacing: '0.05em', margin: '0 0 20px' }}>
+                        Most Selected AI Co-Pilots
+                    </h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {analyticsData?.activationAnalytics?.mostSelectedRoles.slice(0, 5).map((role: any, idx: number) => (
+                            <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.82rem', fontWeight: 750 }}>
+                                <span style={{ textTransform: 'capitalize', color: 'var(--foreground)' }}>
+                                    {role.role === 'ops' ? 'Sophia (Operations)' : role.role === 'sales' ? 'Elena (Sales)' : role.role === 'finance' ? 'Marcus (Finance)' : role.role}
+                                </span>
+                                <span style={{ padding: '2px 8px', background: 'var(--muted)', borderRadius: '6px', fontSize: '0.75rem' }}>{role.count} select(s)</span>
                             </div>
                         ))}
+                        {(!analyticsData?.activationAnalytics?.mostSelectedRoles || analyticsData.activationAnalytics.mostSelectedRoles.length === 0) && (
+                            <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>No co-pilot selections logged.</div>
+                        )}
                     </div>
                 </div>
 
-                <div style={{ background: 'var(--background)', padding: '40px', borderRadius: '32px', border: '1px solid var(--border)' }}>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 950, marginBottom: '32px' }}>Registry Growth Velocity</h3>
-                    {isLoadingAnalytics ? <SkeletonRectangle height="200px" borderRadius="20px" /> :
-                        <AnalyticsChart data={analyticsData?.charts.users[0].data} color="#0EA5E9" height={200} />
-                    }
+                {/* Popular Recommended Blueprint Specifications */}
+                <div style={{ background: 'var(--background)', padding: '32px', borderRadius: '24px', border: '1px solid var(--border)' }}>
+                    <h4 style={{ fontSize: '0.9rem', fontWeight: 950, textTransform: 'uppercase', color: 'var(--muted-foreground)', letterSpacing: '0.05em', margin: '0 0 20px' }}>
+                        Recommended Blueprints
+                    </h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {analyticsData?.activationAnalytics?.mostRecommendedBlueprints.slice(0, 5).map((bp: any, idx: number) => (
+                            <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.82rem', fontWeight: 750 }}>
+                                <span style={{ color: 'var(--foreground)', textTransform: 'capitalize', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '160px' }}>
+                                    {bp.id.replace(/-/g, ' ')}
+                                </span>
+                                <span style={{ padding: '2px 8px', background: 'var(--muted)', borderRadius: '6px', fontSize: '0.75rem' }}>{bp.count} match(es)</span>
+                            </div>
+                        ))}
+                        {(!analyticsData?.activationAnalytics?.mostRecommendedBlueprints || analyticsData.activationAnalytics.mostRecommendedBlueprints.length === 0) && (
+                            <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>No blueprint recommendations registered.</div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Integration Blocker Counts */}
+                <div style={{ background: 'var(--background)', padding: '32px', borderRadius: '24px', border: '1px solid var(--border)' }}>
+                    <h4 style={{ fontSize: '0.9rem', fontWeight: 950, textTransform: 'uppercase', color: 'var(--muted-foreground)', letterSpacing: '0.05em', margin: '0 0 20px' }}>
+                        Common Connection Blockers
+                    </h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {analyticsData?.activationAnalytics?.missingIntegrations.slice(0, 5).map((block: any, idx: number) => (
+                            <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.82rem', fontWeight: 750 }}>
+                                <span style={{ textTransform: 'capitalize', color: 'var(--foreground)' }}>{block.provider}</span>
+                                <span style={{ padding: '2px 8px', background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444', borderRadius: '6px', fontSize: '0.75rem' }}>
+                                    {block.count} missing/invalid
+                                </span>
+                            </div>
+                        ))}
+                        {(!analyticsData?.activationAnalytics?.missingIntegrations || analyticsData.activationAnalytics.missingIntegrations.length === 0) && (
+                            <div style={{ fontSize: '0.8rem', color: '#10B981', fontWeight: 800 }}>0 blockages logged. All syncs nominal.</div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

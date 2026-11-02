@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Logo from "../Logo";
 import styles from "./Nav.module.css";
 
 export default function PremiumNav() {
@@ -27,8 +28,8 @@ export default function PremiumNav() {
     return (
         <nav className={styles.nav_wrapper}>
             <div className={`${styles.pill_nav} ${scrolled ? styles.scrolled : ""}`}>
-                <Link href="/" className={`${styles.nav_logo} ${scrolled ? styles.visible : ""}`}>
-                    BLONK<span className={styles.logo_dot}></span>
+                <Link href="/" className={`${styles.nav_logo} ${scrolled ? styles.visible : ""}`} style={{ display: "inline-flex", alignItems: "center" }}>
+                    <Logo height={22} />
                 </Link>
                 
                 <div className={styles.links_group}>

@@ -3,6 +3,10 @@ import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 export async function proxy(req: NextRequest) {
+    if (process.env.NODE_ENV === "development" && req.nextUrl.pathname.startsWith("/dashboard/brains")) {
+        return NextResponse.next();
+    }
+
     const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
     if (!token) {

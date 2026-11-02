@@ -453,7 +453,7 @@ export default function AdminOrdersClient() {
     if (isLoading) return (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '400px', gap: 16, color: 'var(--muted-foreground)' }}>
             <Loader2 size={36} className={adminStyles.spinning} style={{ color: '#10B981' }} />
-            <span style={{ fontWeight: 800, letterSpacing: '-0.02em', fontSize: '1rem', color: '#64748B' }}>Synchronizing Order Pipeline…</span>
+            <span style={{ fontWeight: 800, letterSpacing: '-0.02em', fontSize: '1rem', color: 'var(--muted-foreground)' }}>Synchronizing Order Pipeline…</span>
         </div>
     );
 
@@ -480,8 +480,8 @@ export default function AdminOrdersClient() {
             
             {/* 1. ORDER SUMMARY METRIC HEADER CARD */}
             <div style={{ 
-                background: '#FFFFFF', 
-                border: '1px solid #E2E8F0', 
+                background: 'var(--card)', 
+                border: '1px solid var(--border)', 
                 borderRadius: '16px', 
                 padding: '24px 32px', 
                 marginBottom: '24px', 
@@ -506,8 +506,8 @@ export default function AdminOrdersClient() {
                         <ShoppingCart size={24} />
                     </div>
                     <div>
-                        <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>ORDER MANAGEMENT</h1>
-                        <p style={{ fontSize: '0.88rem', color: '#64748B', margin: '4px 0 0', fontWeight: 500 }}>
+                        <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--foreground)', margin: 0, letterSpacing: '-0.02em' }}>ORDER MANAGEMENT</h1>
+                        <p style={{ fontSize: '0.88rem', color: 'var(--muted-foreground)', margin: '4px 0 0', fontWeight: 500 }}>
                             Track, manage and fulfill marketplace orders and custom requests.
                         </p>
                     </div>
@@ -519,9 +519,9 @@ export default function AdminOrdersClient() {
                         <div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                 <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10B981' }} />
-                                <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.05em' }}>TOTAL ORDERS</span>
+                                <span style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--muted-foreground)', letterSpacing: '0.05em' }}>TOTAL ORDERS</span>
                             </div>
-                            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0F172A', marginTop: '4px' }}>{totalCount}</div>
+                            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--foreground)', marginTop: '4px' }}>{totalCount}</div>
                         </div>
                         <div style={{ width: '1px', height: '36px', background: '#E2E8F0', marginLeft: '12px' }} />
                     </div>
@@ -530,9 +530,9 @@ export default function AdminOrdersClient() {
                         <div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                 <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#F59E0B' }} />
-                                <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.05em' }}>PENDING</span>
+                                <span style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--muted-foreground)', letterSpacing: '0.05em' }}>PENDING</span>
                             </div>
-                            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0F172A', marginTop: '4px' }}>{pendingCount}</div>
+                            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--foreground)', marginTop: '4px' }}>{pendingCount}</div>
                         </div>
                         <div style={{ width: '1px', height: '36px', background: '#E2E8F0', marginLeft: '12px' }} />
                     </div>
@@ -541,9 +541,9 @@ export default function AdminOrdersClient() {
                         <div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                 <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#3B82F6' }} />
-                                <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.05em' }}>IN PROGRESS</span>
+                                <span style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--muted-foreground)', letterSpacing: '0.05em' }}>IN PROGRESS</span>
                             </div>
-                            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0F172A', marginTop: '4px' }}>{inProgressCount}</div>
+                            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--foreground)', marginTop: '4px' }}>{inProgressCount}</div>
                         </div>
                         <div style={{ width: '1px', height: '36px', background: '#E2E8F0', marginLeft: '12px' }} />
                     </div>
@@ -552,9 +552,9 @@ export default function AdminOrdersClient() {
                         <div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                 <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10B981' }} />
-                                <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.05em' }}>COMPLETED</span>
+                                <span style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--muted-foreground)', letterSpacing: '0.05em' }}>COMPLETED</span>
                             </div>
-                            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0F172A', marginTop: '4px' }}>{completedCount}</div>
+                            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--foreground)', marginTop: '4px' }}>{completedCount}</div>
                         </div>
                         <div style={{ width: '1px', height: '36px', background: '#E2E8F0', marginLeft: '12px' }} />
                     </div>
@@ -562,9 +562,9 @@ export default function AdminOrdersClient() {
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#8B5CF6' }} />
-                            <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.05em' }}>REFUNDED</span>
+                            <span style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--muted-foreground)', letterSpacing: '0.05em' }}>REFUNDED</span>
                         </div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0F172A', marginTop: '4px' }}>{refundedCount}</div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--foreground)', marginTop: '4px' }}>{refundedCount}</div>
                     </div>
                 </div>
             </div>
@@ -613,7 +613,7 @@ export default function AdminOrdersClient() {
                             padding: '2px 8px',
                             borderRadius: '100px',
                             background: activeTab === tab.id ? '#F1F5F9' : '#F8FAFC',
-                            border: '1px solid #E2E8F0',
+                            border: '1px solid var(--border)',
                             color: activeTab === tab.id ? '#0F172A' : '#64748B',
                             fontWeight: 700
                         }}>
@@ -638,7 +638,7 @@ export default function AdminOrdersClient() {
                     
                     {/* Search Field */}
                     <div style={{ position: 'relative', width: '280px' }}>
-                        <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+                        <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} />
                         <input
                             type="text"
                             placeholder="Search by order ID, customer, workflow..."
@@ -650,13 +650,13 @@ export default function AdminOrdersClient() {
                             style={{
                                 width: '100%',
                                 height: '40px',
-                                background: '#FFFFFF',
-                                border: '1px solid #E2E8F0',
+                                background: 'var(--card)',
+                                border: '1px solid var(--border)',
                                 borderRadius: '8px',
                                 paddingLeft: '36px',
                                 paddingRight: '12px',
                                 fontSize: '0.88rem',
-                                color: '#0F172A',
+                                color: 'var(--foreground)',
                                 outline: 'none'
                             }}
                         />
@@ -671,12 +671,12 @@ export default function AdminOrdersClient() {
                         }}
                         style={{
                             height: '40px',
-                            background: '#FFFFFF',
-                            border: '1px solid #E2E8F0',
+                            background: 'var(--card)',
+                            border: '1px solid var(--border)',
                             borderRadius: '8px',
                             padding: '0 12px',
                             fontSize: '0.88rem',
-                            color: '#64748B',
+                            color: 'var(--muted-foreground)',
                             outline: 'none',
                             cursor: 'pointer'
                         }}
@@ -698,12 +698,12 @@ export default function AdminOrdersClient() {
                         }}
                         style={{
                             height: '40px',
-                            background: '#FFFFFF',
-                            border: '1px solid #E2E8F0',
+                            background: 'var(--card)',
+                            border: '1px solid var(--border)',
                             borderRadius: '8px',
                             padding: '0 12px',
                             fontSize: '0.88rem',
-                            color: '#64748B',
+                            color: 'var(--muted-foreground)',
                             outline: 'none',
                             cursor: 'pointer'
                         }}
@@ -723,12 +723,12 @@ export default function AdminOrdersClient() {
                         }}
                         style={{
                             height: '40px',
-                            background: '#FFFFFF',
-                            border: '1px solid #E2E8F0',
+                            background: 'var(--card)',
+                            border: '1px solid var(--border)',
                             borderRadius: '8px',
                             padding: '0 12px',
                             fontSize: '0.88rem',
-                            color: '#64748B',
+                            color: 'var(--muted-foreground)',
                             outline: 'none',
                             cursor: 'pointer',
                             maxWidth: '160px'
@@ -742,7 +742,7 @@ export default function AdminOrdersClient() {
 
                     {/* Date filter field */}
                     <div style={{ position: 'relative' }}>
-                        <Calendar size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+                        <Calendar size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} />
                         <input
                             type="text"
                             placeholder="Date Range"
@@ -754,13 +754,13 @@ export default function AdminOrdersClient() {
                             style={{
                                 width: '130px',
                                 height: '40px',
-                                background: '#FFFFFF',
-                                border: '1px solid #E2E8F0',
+                                background: 'var(--card)',
+                                border: '1px solid var(--border)',
                                 borderRadius: '8px',
                                 paddingLeft: '32px',
                                 paddingRight: '12px',
                                 fontSize: '0.88rem',
-                                color: '#64748B',
+                                color: 'var(--muted-foreground)',
                                 outline: 'none'
                             }}
                         />
@@ -772,12 +772,12 @@ export default function AdminOrdersClient() {
                         style={{
                             height: '40px',
                             background: showAdvancedFilters ? '#F1F5F9' : '#FFFFFF',
-                            border: '1px solid #E2E8F0',
+                            border: '1px solid var(--border)',
                             borderRadius: '8px',
                             padding: '0 16px',
                             fontSize: '0.88rem',
                             fontWeight: 600,
-                            color: '#0F172A',
+                            color: 'var(--foreground)',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
@@ -819,13 +819,13 @@ export default function AdminOrdersClient() {
                         }}
                         style={{
                             height: '40px',
-                            background: '#FFFFFF',
-                            border: '1px solid #E2E8F0',
+                            background: 'var(--card)',
+                            border: '1px solid var(--border)',
                             borderRadius: '8px',
                             padding: '0 16px',
                             fontSize: '0.88rem',
                             fontWeight: 600,
-                            color: '#0F172A',
+                            color: 'var(--foreground)',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
@@ -840,7 +840,7 @@ export default function AdminOrdersClient() {
                         onClick={() => setShowCreateModal(true)}
                         style={{
                             height: '40px',
-                            background: '#0F172A',
+                            background: 'var(--primary)',
                             border: 'none',
                             borderRadius: '8px',
                             padding: '0 18px',
@@ -862,8 +862,8 @@ export default function AdminOrdersClient() {
 
             {/* 4. MAIN REGISTRY DATA TABLE */}
             <div style={{ 
-                background: '#FFFFFF', 
-                border: '1px solid #E2E8F0', 
+                background: 'var(--card)', 
+                border: '1px solid var(--border)', 
                 borderRadius: '12px', 
                 overflow: 'hidden',
                 boxShadow: '0 1px 2px rgba(0,0,0,0.01)'
@@ -871,36 +871,36 @@ export default function AdminOrdersClient() {
                 <div style={{ overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '1000px' }}>
                         <thead>
-                            <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
-                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            <tr style={{ background: 'var(--muted)', borderBottom: '1px solid #E2E8F0' }}>
+                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
                                         ORDER ID <ArrowUpDown size={12} />
                                     </div>
                                 </th>
-                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>CUSTOMER</th>
-                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>ORDER TYPE</th>
-                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>ITEM / WORKFLOW</th>
-                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>PLAN</th>
-                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>STATUS</th>
-                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>PRIORITY</th>
-                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>CREATED AT</th>
-                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>VALUE</th>
-                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>ASSIGNED TO</th>
-                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'right' }}>ACTIONS</th>
+                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>CUSTOMER</th>
+                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>ORDER TYPE</th>
+                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>ITEM / WORKFLOW</th>
+                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>PLAN</th>
+                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>STATUS</th>
+                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>PRIORITY</th>
+                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>CREATED AT</th>
+                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>VALUE</th>
+                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>ASSIGNED TO</th>
+                                <th style={{ padding: '14px 20px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'right' }}>ACTIONS</th>
                             </tr>
                         </thead>
                         <tbody>
                             {displayedOrders.length === 0 ? (
                                 <tr>
-                                    <td colSpan={11} style={{ textAlign: 'center', padding: '64px', color: '#64748B', fontWeight: 600 }}>
-                                        <ShoppingCart size={32} style={{ margin: '0 auto 12px', color: '#94A3B8' }} />
+                                    <td colSpan={11} style={{ textAlign: 'center', padding: '64px', color: 'var(--muted-foreground)', fontWeight: 600 }}>
+                                        <ShoppingCart size={32} style={{ margin: '0 auto 12px', color: 'var(--muted-foreground)' }} />
                                         No workflow orders match the selected filters.
                                     </td>
                                 </tr>
                             ) : (
                                 displayedOrders.map((order) => {
                                     const statusStyle = getStatusTextAndStyle(order.status, order.orderType);
-                                    const priorityStyle = PRIORITY_COLORS[order.priority] || { color: '#64748B', bg: '#F1F5F9', border: '#E2E8F0' };
+                                    const priorityStyle = PRIORITY_COLORS[order.priority] || { color: 'var(--muted-foreground)', bg: '#F1F5F9', border: '#E2E8F0' };
                                     
                                     // Make ID format ORD-2024-0517-0011
                                     const orderDate = new Date(order.createdAt);
@@ -935,7 +935,7 @@ export default function AdminOrdersClient() {
 
                                     // Render amount text: negative for refunds, monthly for subscriptions
                                     let amountText = `€${Number(order.amount || 0).toLocaleString()}`;
-                                    let amountStyle: React.CSSProperties = { fontWeight: 700, color: '#0F172A' };
+                                    let amountStyle: React.CSSProperties = { fontWeight: 700, color: 'var(--foreground)' };
 
                                     if (order.orderType === "Refund") {
                                         amountText = `-€${Number(order.amount || 0).toLocaleString()}`;
@@ -945,12 +945,12 @@ export default function AdminOrdersClient() {
                                     }
 
                                     return (
-                                        <tr key={order.id} style={{ borderBottom: '1px solid #F1F5F9', transition: 'background 0.15s ease' }} className={adminStyles.registryRow}>
+                                        <tr key={order.id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.15s ease' }} className={adminStyles.registryRow}>
                                             
                                             {/* Order ID */}
                                             <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
-                                                <div style={{ fontWeight: 700, color: '#0F172A', fontSize: '0.88rem' }}>{orderIdDisplay}</div>
-                                                <div style={{ fontSize: '0.72rem', color: '#94A3B8', fontFamily: 'monospace', marginTop: '2px' }}>{hashDisplay}</div>
+                                                <div style={{ fontWeight: 700, color: 'var(--foreground)', fontSize: '0.88rem' }}>{orderIdDisplay}</div>
+                                                <div style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)', fontFamily: 'monospace', marginTop: '2px' }}>{hashDisplay}</div>
                                             </td>
 
                                             {/* Customer Profile */}
@@ -960,7 +960,7 @@ export default function AdminOrdersClient() {
                                                         width: '28px', 
                                                         height: '28px', 
                                                         borderRadius: '50%', 
-                                                        background: '#0F172A', 
+                                                        background: 'var(--primary)', 
                                                         color: '#FFFFFF', 
                                                         display: 'flex', 
                                                         alignItems: 'center', 
@@ -971,8 +971,8 @@ export default function AdminOrdersClient() {
                                                         {customerInitials}
                                                     </div>
                                                     <div>
-                                                        <div style={{ fontWeight: 600, color: '#0F172A', fontSize: '0.88rem' }}>{order.userName || 'Unknown User'}</div>
-                                                        <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '1px' }}>{order.userEmail || 'no-email@blonk.ai'}</div>
+                                                        <div style={{ fontWeight: 600, color: 'var(--foreground)', fontSize: '0.88rem' }}>{order.userName || 'Unknown User'}</div>
+                                                        <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginTop: '1px' }}>{order.userEmail || 'no-email@blonk.ai'}</div>
                                                     </div>
                                                 </div>
                                             </td>
@@ -993,20 +993,20 @@ export default function AdminOrdersClient() {
                                                         {typeIcon}
                                                     </div>
                                                     <div>
-                                                        <div style={{ fontWeight: 600, color: '#0F172A', fontSize: '0.88rem' }}>{order.orderType || 'Marketplace'}</div>
-                                                        <div style={{ fontSize: '0.72rem', color: '#94A3B8', marginTop: '1px' }}>{order.orderSubType || 'Workflow Purchase'}</div>
+                                                        <div style={{ fontWeight: 600, color: 'var(--foreground)', fontSize: '0.88rem' }}>{order.orderType || 'Marketplace'}</div>
+                                                        <div style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)', marginTop: '1px' }}>{order.orderSubType || 'Workflow Purchase'}</div>
                                                     </div>
                                                 </div>
                                             </td>
 
                                             {/* Item / Workflow */}
                                             <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
-                                                <div style={{ fontWeight: 600, color: '#0F172A', fontSize: '0.88rem' }}>{order.workflowName}</div>
-                                                <div style={{ fontSize: '0.72rem', color: '#94A3B8', marginTop: '1px' }}>v{order.templateVersion || '1.0.0'}</div>
+                                                <div style={{ fontWeight: 600, color: 'var(--foreground)', fontSize: '0.88rem' }}>{order.workflowName}</div>
+                                                <div style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)', marginTop: '1px' }}>v{order.templateVersion || '1.0.0'}</div>
                                             </td>
 
                                             {/* Plan */}
-                                            <td style={{ padding: '16px 20px', verticalAlign: 'middle', fontSize: '0.88rem', color: '#0F172A', fontWeight: 500 }}>
+                                            <td style={{ padding: '16px 20px', verticalAlign: 'middle', fontSize: '0.88rem', color: 'var(--foreground)', fontWeight: 500 }}>
                                                 {order.plan || 'Startup'}
                                             </td>
 
@@ -1052,8 +1052,8 @@ export default function AdminOrdersClient() {
                                                                 position: 'absolute',
                                                                 top: 'calc(100% + 4px)',
                                                                 left: 0,
-                                                                background: '#FFFFFF',
-                                                                border: '1px solid #E2E8F0',
+                                                                background: 'var(--card)',
+                                                                border: '1px solid var(--border)',
                                                                 borderRadius: '8px',
                                                                 boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
                                                                 zIndex: 100,
@@ -1121,7 +1121,7 @@ export default function AdminOrdersClient() {
                                             </td>
 
                                             {/* Created At */}
-                                            <td style={{ padding: '16px 20px', verticalAlign: 'middle', fontSize: '0.82rem', color: '#64748B', fontWeight: 500 }}>
+                                            <td style={{ padding: '16px 20px', verticalAlign: 'middle', fontSize: '0.82rem', color: 'var(--muted-foreground)', fontWeight: 500 }}>
                                                 {fmt(order.createdAt)}
                                             </td>
 
@@ -1137,9 +1137,9 @@ export default function AdminOrdersClient() {
                                                         width: '22px', 
                                                         height: '22px', 
                                                         borderRadius: '50%', 
-                                                        background: '#F1F5F9', 
+                                                        background: 'var(--muted)', 
                                                         border: '1px solid #CBD5E1', 
-                                                        color: '#475569', 
+                                                        color: 'var(--muted-foreground)', 
                                                         display: 'flex', 
                                                         alignItems: 'center', 
                                                         justifyContent: 'center', 
@@ -1149,7 +1149,7 @@ export default function AdminOrdersClient() {
                                                         {operatorInitials}
                                                     </div>
                                                     <div>
-                                                        <div style={{ fontWeight: 600, color: '#0F172A', fontSize: '0.82rem' }}>{order.assignedTo || 'System Auto'}</div>
+                                                        <div style={{ fontWeight: 600, color: 'var(--foreground)', fontSize: '0.82rem' }}>{order.assignedTo || 'System Auto'}</div>
                                                     </div>
                                                 </div>
                                             </td>
@@ -1164,9 +1164,9 @@ export default function AdminOrdersClient() {
                                                             width: '28px',
                                                             height: '28px',
                                                             borderRadius: '6px',
-                                                            border: '1px solid #E2E8F0',
-                                                            background: '#FFFFFF',
-                                                            color: '#64748B',
+                                                            border: '1px solid var(--border)',
+                                                            background: 'var(--card)',
+                                                            color: 'var(--muted-foreground)',
                                                             display: 'flex',
                                                             alignItems: 'center',
                                                             justifyContent: 'center',
@@ -1185,9 +1185,9 @@ export default function AdminOrdersClient() {
                                                             width: '28px',
                                                             height: '28px',
                                                             borderRadius: '6px',
-                                                            border: '1px solid #E2E8F0',
-                                                            background: '#FFFFFF',
-                                                            color: '#64748B',
+                                                            border: '1px solid var(--border)',
+                                                            background: 'var(--card)',
+                                                            color: 'var(--muted-foreground)',
                                                             display: 'flex',
                                                             alignItems: 'center',
                                                             justifyContent: 'center',
@@ -1240,7 +1240,7 @@ export default function AdminOrdersClient() {
                     flexWrap: 'wrap',
                     gap: '12px'
                 }}>
-                    <span style={{ fontSize: '0.88rem', color: '#64748B', fontWeight: 500 }}>
+                    <span style={{ fontSize: '0.88rem', color: 'var(--muted-foreground)', fontWeight: 500 }}>
                         Showing {totalFiltered > 0 ? (currentPage - 1) * rowsPerPage + 1 : 0} to {Math.min(currentPage * rowsPerPage, totalFiltered)} of {totalFiltered} orders
                     </span>
 
@@ -1256,12 +1256,12 @@ export default function AdminOrdersClient() {
                                 }}
                                 style={{
                                     height: '36px',
-                                    background: '#FFFFFF',
-                                    border: '1px solid #E2E8F0',
+                                    background: 'var(--card)',
+                                    border: '1px solid var(--border)',
                                     borderRadius: '6px',
                                     padding: '0 8px',
                                     fontSize: '0.85rem',
-                                    color: '#64748B',
+                                    color: 'var(--muted-foreground)',
                                     outline: 'none',
                                     cursor: 'pointer'
                                 }}
@@ -1281,8 +1281,8 @@ export default function AdminOrdersClient() {
                                     width: '32px',
                                     height: '32px',
                                     borderRadius: '6px',
-                                    border: '1px solid #E2E8F0',
-                                    background: '#FFFFFF',
+                                    border: '1px solid var(--border)',
+                                    background: 'var(--card)',
                                     color: currentPage === 1 ? '#CBD5E1' : '#64748B',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -1320,8 +1320,8 @@ export default function AdminOrdersClient() {
                                     width: '32px',
                                     height: '32px',
                                     borderRadius: '6px',
-                                    border: '1px solid #E2E8F0',
-                                    background: '#FFFFFF',
+                                    border: '1px solid var(--border)',
+                                    background: 'var(--card)',
                                     color: currentPage === totalPages ? '#CBD5E1' : '#64748B',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -1348,7 +1348,7 @@ export default function AdminOrdersClient() {
                 paddingTop: '20px' 
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Status Legend:</span>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Status Legend:</span>
                     {[
                         { label: 'Pending', dot: '#F59E0B' },
                         { label: 'In Progress', dot: '#3B82F6' },
@@ -1358,7 +1358,7 @@ export default function AdminOrdersClient() {
                         { label: 'Refunded', dot: '#8B5CF6' },
                         { label: 'Cancelled', dot: '#EF4444' }
                     ].map(st => (
-                        <div key={st.label} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', color: '#64748B', fontWeight: 500 }}>
+                        <div key={st.label} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', color: 'var(--muted-foreground)', fontWeight: 500 }}>
                             <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: st.dot }} />
                             {st.label}
                         </div>
@@ -1366,14 +1366,14 @@ export default function AdminOrdersClient() {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Order Types:</span>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Order Types:</span>
                     {[
                         { label: 'Marketplace', icon: <ShoppingCart size={12} />, color: '#10B981', bg: '#E6F4EA' },
                         { label: 'Custom Request', icon: <Sparkles size={12} />, color: '#A855F7', bg: '#F3E8FF' },
                         { label: 'Subscription', icon: <CreditCard size={12} />, color: '#3B82F6', bg: '#EFF6FF' },
                         { label: 'Refund', icon: <Undo size={12} />, color: '#EF4444', bg: '#FEF2F2' }
                     ].map(ot => (
-                        <div key={ot.label} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', color: '#64748B', fontWeight: 500 }}>
+                        <div key={ot.label} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', color: 'var(--muted-foreground)', fontWeight: 500 }}>
                             <div style={{ 
                                 width: '20px', 
                                 height: '20px', 
@@ -1395,20 +1395,20 @@ export default function AdminOrdersClient() {
             {/* 7. MANUAL CREATE ORDER MODAL */}
             {showCreateModal && (
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-                    <div style={{ background: '#FFFFFF', borderRadius: '16px', padding: '32px', maxWidth: '550px', width: '90%', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
+                    <div style={{ background: 'var(--card)', borderRadius: '16px', padding: '32px', maxWidth: '550px', width: '90%', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
-                                <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>Create Manual Workflow Order</h2>
-                                <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0' }}>Provision workflow environments manually from the command core.</p>
+                                <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--foreground)', margin: 0 }}>Create Manual Workflow Order</h2>
+                                <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', margin: '4px 0 0' }}>Provision workflow environments manually from the command core.</p>
                             </div>
-                            <button onClick={() => setShowCreateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}>
+                            <button onClick={() => setShowCreateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted-foreground)' }}>
                                 <X size={20} />
                             </button>
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                             <div style={{ gridColumn: 'span 2' }}>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Link Marketplace Template</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', marginBottom: '6px', textTransform: 'uppercase' }}>Link Marketplace Template</label>
                                 <select
                                     value={createData.templateId || ""}
                                     onChange={(e) => {
@@ -1427,7 +1427,7 @@ export default function AdminOrdersClient() {
                                             });
                                         }
                                     }}
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none', background: '#FFFFFF' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none', background: 'var(--card)' }}
                                 >
                                     <option value="">None / Custom Workflow</option>
                                     {templates.map(t => (
@@ -1437,22 +1437,22 @@ export default function AdminOrdersClient() {
                             </div>
 
                             <div style={{ gridColumn: 'span 2' }}>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Workflow / Item Name</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', marginBottom: '6px', textTransform: 'uppercase' }}>Workflow / Item Name</label>
                                 <input
                                     type="text"
                                     placeholder="Invoice Automator, Lead Enrichment Flow, etc."
                                     value={createData.workflowName}
                                     onChange={(e) => setCreateData({ ...createData, workflowName: e.target.value })}
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 12px', fontSize: '0.9rem', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 12px', fontSize: '0.9rem', outline: 'none' }}
                                 />
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Link User Profile</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', marginBottom: '6px', textTransform: 'uppercase' }}>Link User Profile</label>
                                 <select
                                     value={createData.userId}
                                     onChange={(e) => setCreateData({ ...createData, userId: e.target.value })}
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none' }}
                                 >
                                     <option value="">Select User Profile</option>
                                     {users.map(u => (
@@ -1462,11 +1462,11 @@ export default function AdminOrdersClient() {
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Link Team/Org</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', marginBottom: '6px', textTransform: 'uppercase' }}>Link Team/Org</label>
                                 <select
                                     value={createData.teamId}
                                     onChange={(e) => setCreateData({ ...createData, teamId: e.target.value })}
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none' }}
                                 >
                                     <option value="">Select Team/Organization</option>
                                     {teams.map(t => (
@@ -1476,11 +1476,11 @@ export default function AdminOrdersClient() {
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Order Type</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', marginBottom: '6px', textTransform: 'uppercase' }}>Order Type</label>
                                 <select
                                     value={createData.orderType}
                                     onChange={(e) => setCreateData({ ...createData, orderType: e.target.value })}
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none' }}
                                 >
                                     <option value="Marketplace">Marketplace</option>
                                     <option value="Custom Request">Custom Request</option>
@@ -1490,22 +1490,22 @@ export default function AdminOrdersClient() {
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Order Subtype</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', marginBottom: '6px', textTransform: 'uppercase' }}>Order Subtype</label>
                                 <input
                                     type="text"
                                     placeholder="Workflow Purchase, Monthly Plan..."
                                     value={createData.orderSubType}
                                     onChange={(e) => setCreateData({ ...createData, orderSubType: e.target.value })}
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 12px', fontSize: '0.9rem', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 12px', fontSize: '0.9rem', outline: 'none' }}
                                 />
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Plan Name</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', marginBottom: '6px', textTransform: 'uppercase' }}>Plan Name</label>
                                 <select
                                     value={createData.plan}
                                     onChange={(e) => setCreateData({ ...createData, plan: e.target.value })}
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none' }}
                                 >
                                     <option value="Startup">Startup</option>
                                     <option value="Professional">Professional</option>
@@ -1516,21 +1516,21 @@ export default function AdminOrdersClient() {
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Revenue Value (€)</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', marginBottom: '6px', textTransform: 'uppercase' }}>Revenue Value (€)</label>
                                 <input
                                     type="number"
                                     value={createData.amount}
                                     onChange={(e) => setCreateData({ ...createData, amount: Number(e.target.value) })}
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 12px', fontSize: '0.9rem', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 12px', fontSize: '0.9rem', outline: 'none' }}
                                 />
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Priority</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', marginBottom: '6px', textTransform: 'uppercase' }}>Priority</label>
                                 <select
                                     value={createData.priority}
                                     onChange={(e) => setCreateData({ ...createData, priority: e.target.value })}
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none' }}
                                 >
                                     <option value="LOW">LOW</option>
                                     <option value="MEDIUM">MEDIUM</option>
@@ -1539,22 +1539,22 @@ export default function AdminOrdersClient() {
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Assigned Operator</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', marginBottom: '6px', textTransform: 'uppercase' }}>Assigned Operator</label>
                                 <input
                                     type="text"
                                     placeholder="John Carter Admin, etc."
                                     value={createData.assignedTo}
                                     onChange={(e) => setCreateData({ ...createData, assignedTo: e.target.value })}
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 12px', fontSize: '0.9rem', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 12px', fontSize: '0.9rem', outline: 'none' }}
                                 />
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Initial Status</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', marginBottom: '6px', textTransform: 'uppercase' }}>Initial Status</label>
                                 <select
                                     value={createData.status}
                                     onChange={(e) => setCreateData({ ...createData, status: e.target.value })}
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none' }}
                                 >
                                     {STATUS_ORDER.map(st => (
                                         <option key={st} value={st}>{st.replace(/_/g, ' ')}</option>
@@ -1563,11 +1563,11 @@ export default function AdminOrdersClient() {
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Assign VPS Server</label>
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', marginBottom: '6px', textTransform: 'uppercase' }}>Assign VPS Server</label>
                                 <select
                                     value={createData.serverId || ""}
                                     onChange={(e) => setCreateData({ ...createData, serverId: e.target.value || null })}
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 8px', fontSize: '0.9rem', outline: 'none' }}
                                 >
                                     <option value="">None Linked</option>
                                     {nodes.map(n => (
@@ -1584,7 +1584,7 @@ export default function AdminOrdersClient() {
                                 style={{
                                     flex: 1,
                                     height: '48px',
-                                    background: '#0F172A',
+                                    background: 'var(--primary)',
                                     color: '#FFFFFF',
                                     borderRadius: '8px',
                                     border: 'none',
@@ -1603,9 +1603,9 @@ export default function AdminOrdersClient() {
                                     flex: 1,
                                     height: '48px',
                                     background: 'transparent',
-                                    border: '1px solid #E2E8F0',
+                                    border: '1px solid var(--border)',
                                     borderRadius: '8px',
-                                    color: '#64748B',
+                                    color: 'var(--muted-foreground)',
                                     fontWeight: 700,
                                     cursor: 'pointer'
                                 }}
@@ -1620,17 +1620,17 @@ export default function AdminOrdersClient() {
             {/* 8. INSPECT LOGS MODAL */}
             {inspectingOrder && (
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-                    <div style={{ background: '#FFFFFF', borderRadius: '16px', padding: '32px', maxWidth: '680px', width: '90%', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
+                    <div style={{ background: 'var(--card)', borderRadius: '16px', padding: '32px', maxWidth: '680px', width: '90%', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
-                                <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>
+                                <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--foreground)', margin: 0 }}>
                                     {inspectingOrder.orderType === 'Custom Request' ? '✦ Custom Request Details' : 'Provisioning Log Stream'}
                                 </h2>
-                                <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0', fontWeight: 600 }}>
+                                <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', margin: '4px 0 0', fontWeight: 600 }}>
                                     Order #{inspectingOrder.orderNumber ? String(inspectingOrder.orderNumber).padStart(4, '0') : inspectingOrder.id?.slice(0, 8).toUpperCase()} for {inspectingOrder.userName || inspectingOrder.userEmail}
                                 </p>
                             </div>
-                            <button onClick={() => setInspectingOrder(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}>
+                            <button onClick={() => setInspectingOrder(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted-foreground)' }}>
                                 <X size={20} />
                             </button>
                         </div>
@@ -1654,8 +1654,8 @@ export default function AdminOrdersClient() {
 
                                     {/* Description */}
                                     {cd.description && (
-                                        <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '14px 16px' }}>
-                                            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Description / Requirements</div>
+                                        <div style={{ background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: 10, padding: '14px 16px' }}>
+                                            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Description / Requirements</div>
                                             <p style={{ fontSize: '0.88rem', fontWeight: 600, color: '#1E293B', lineHeight: 1.6, margin: 0 }}>{cd.description}</p>
                                         </div>
                                     )}
@@ -1663,35 +1663,35 @@ export default function AdminOrdersClient() {
                                     {/* Grid details */}
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                                         {cd.category && (
-                                            <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '12px 14px' }}>
-                                                <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Category</div>
-                                                <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0F172A' }}>{cd.category}</div>
+                                            <div style={{ background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: 10, padding: '12px 14px' }}>
+                                                <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Category</div>
+                                                <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--foreground)' }}>{cd.category}</div>
                                             </div>
                                         )}
                                         {cd.urgency && (
-                                            <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '12px 14px' }}>
-                                                <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Urgency / Priority</div>
-                                                <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0F172A', textTransform: 'capitalize' }}>{cd.urgency}</div>
+                                            <div style={{ background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: 10, padding: '12px 14px' }}>
+                                                <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Urgency / Priority</div>
+                                                <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--foreground)', textTransform: 'capitalize' }}>{cd.urgency}</div>
                                             </div>
                                         )}
                                         {cd.timeline && (
-                                            <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '12px 14px' }}>
-                                                <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Requested Timeline</div>
-                                                <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0F172A' }}>{cd.timeline}</div>
+                                            <div style={{ background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: 10, padding: '12px 14px' }}>
+                                                <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Requested Timeline</div>
+                                                <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--foreground)' }}>{cd.timeline}</div>
                                             </div>
                                         )}
                                         {inspectingOrder.priority && (
-                                            <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '12px 14px' }}>
-                                                <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Order Priority</div>
-                                                <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0F172A' }}>{inspectingOrder.priority}</div>
+                                            <div style={{ background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: 10, padding: '12px 14px' }}>
+                                                <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Order Priority</div>
+                                                <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--foreground)' }}>{inspectingOrder.priority}</div>
                                             </div>
                                         )}
                                     </div>
 
                                     {/* Tools / Integrations */}
                                     {cd.tools && (
-                                        <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '14px 16px' }}>
-                                            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Requested Integrations / Tools</div>
+                                        <div style={{ background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: 10, padding: '14px 16px' }}>
+                                            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Requested Integrations / Tools</div>
                                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                                                 {cd.tools.split(',').map((tool: string, i: number) => (
                                                     <span key={i} style={{ background: '#EDE9FE', color: '#5B21B6', padding: '4px 10px', borderRadius: 6, fontSize: '0.78rem', fontWeight: 700 }}>{tool.trim()}</span>
@@ -1713,7 +1713,7 @@ export default function AdminOrdersClient() {
                                         )}
                                         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                                             <div style={{ position: 'relative', flex: 1 }}>
-                                                <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: '0.9rem', fontWeight: 700, color: '#64748B' }}>€</span>
+                                                <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: '0.9rem', fontWeight: 700, color: 'var(--muted-foreground)' }}>€</span>
                                                 <input
                                                     type="number"
                                                     min="0"
@@ -1721,7 +1721,7 @@ export default function AdminOrdersClient() {
                                                     defaultValue={inspectingOrder.amount > 0 ? Number(inspectingOrder.amount) : undefined}
                                                     placeholder="Enter quoted price..."
                                                     onChange={(e) => setCustomQuotePrice(parseFloat(e.target.value) || 0)}
-                                                    style={{ width: '100%', height: 44, border: '1.5px solid #CBD5E1', borderRadius: 8, paddingLeft: 28, paddingRight: 12, fontSize: '1rem', fontWeight: 700, outline: 'none', background: '#FFFFFF', boxSizing: 'border-box' }}
+                                                    style={{ width: '100%', height: 44, border: '1.5px solid #CBD5E1', borderRadius: 8, paddingLeft: 28, paddingRight: 12, fontSize: '1rem', fontWeight: 700, outline: 'none', background: 'var(--card)', boxSizing: 'border-box' }}
                                                 />
                                             </div>
                                             <button
@@ -1767,7 +1767,7 @@ export default function AdminOrdersClient() {
                                                 {isSavingPrice ? 'Sending...' : inspectingOrder.amount > 0 ? 'Update Price' : 'Send to Client'}
                                             </button>
                                         </div>
-                                        <p style={{ fontSize: '0.72rem', color: '#64748B', margin: 0, fontWeight: 600 }}>
+                                        <p style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)', margin: 0, fontWeight: 600 }}>
                                             Setting a price will show a payment button on the client's My Workflows page.
                                         </p>
                                     </div>
@@ -1777,10 +1777,10 @@ export default function AdminOrdersClient() {
 
                         {/* Logs Stream */}
                         <div>
-                            <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Provisioning Log Stream</div>
-                            <div style={{ flex: 1, overflowY: 'auto', background: '#0F172A', borderRadius: '12px', padding: '20px', maxHeight: '260px', display: 'flex', flexDirection: 'column', gap: '8px', fontFamily: 'monospace', fontSize: '0.8rem', color: '#E2E8F0' }}>
+                            <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Provisioning Log Stream</div>
+                            <div style={{ flex: 1, overflowY: 'auto', background: 'var(--primary)', borderRadius: '12px', padding: '20px', maxHeight: '260px', display: 'flex', flexDirection: 'column', gap: '8px', fontFamily: 'monospace', fontSize: '0.8rem', color: '#E2E8F0' }}>
                                 {(!inspectingOrder.logs || inspectingOrder.logs.length === 0) ? (
-                                    <div style={{ color: '#64748B', fontStyle: 'italic', textAlign: 'center', padding: '40px 0' }}>No log entries recorded.</div>
+                                    <div style={{ color: 'var(--muted-foreground)', fontStyle: 'italic', textAlign: 'center', padding: '40px 0' }}>No log entries recorded.</div>
                                 ) : (
                                     [...inspectingOrder.logs].reverse().map((log: any, idx: number) => {
                                         let levelColor = '#10B981';
@@ -1789,7 +1789,7 @@ export default function AdminOrdersClient() {
 
                                         return (
                                             <div key={idx} style={{ display: 'flex', gap: '10px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '6px' }}>
-                                                <span style={{ color: '#64748B' }}>[{log.at ? new Date(log.at).toLocaleTimeString() : '—'}]</span>
+                                                <span style={{ color: 'var(--muted-foreground)' }}>[{log.at ? new Date(log.at).toLocaleTimeString() : '—'}]</span>
                                                 <span style={{ color: levelColor, fontWeight: 'bold' }}>{log.level?.toUpperCase() || 'INFO'}</span>
                                                 <span style={{ color: '#FFFFFF' }}>{log.message}</span>
                                             </div>
@@ -1801,7 +1801,7 @@ export default function AdminOrdersClient() {
 
                         {/* Add Log Entry Form */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <label style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B' }}>Add Manual Log Entry</label>
+                            <label style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted-foreground)' }}>Add Manual Log Entry</label>
                             <div style={{ display: 'flex', gap: '8px' }}>
                                 <input
                                     type="text"
@@ -1816,7 +1816,7 @@ export default function AdminOrdersClient() {
                                             }
                                         }
                                     }}
-                                    style={{ flex: 1, height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 12px', fontSize: '0.88rem', outline: 'none' }}
+                                    style={{ flex: 1, height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 12px', fontSize: '0.88rem', outline: 'none' }}
                                 />
                                 <button
                                     onClick={async () => {
@@ -1826,7 +1826,7 @@ export default function AdminOrdersClient() {
                                             input.value = '';
                                         }
                                     }}
-                                    style={{ height: '40px', padding: '0 16px', background: '#0F172A', color: '#FFFFFF', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '0.88rem', cursor: 'pointer' }}
+                                    style={{ height: '40px', padding: '0 16px', background: 'var(--primary)', color: '#FFFFFF', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '0.88rem', cursor: 'pointer' }}
                                 >
                                     Add
                                 </button>
@@ -1834,7 +1834,7 @@ export default function AdminOrdersClient() {
                         </div>
 
                         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
-                            <button onClick={() => setInspectingOrder(null)} style={{ height: '40px', padding: '0 20px', background: 'transparent', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: '8px', fontWeight: 600, fontSize: '0.88rem', cursor: 'pointer' }}>
+                            <button onClick={() => setInspectingOrder(null)} style={{ height: '40px', padding: '0 20px', background: 'transparent', color: 'var(--muted-foreground)', border: '1px solid var(--border)', borderRadius: '8px', fontWeight: 600, fontSize: '0.88rem', cursor: 'pointer' }}>
                                 Close
                             </button>
                         </div>
@@ -1845,22 +1845,22 @@ export default function AdminOrdersClient() {
             {/* 9. EDIT CONFIGURATION DETAILS MODAL */}
             {editingDetailsOrder && (
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-                    <div style={{ background: '#FFFFFF', borderRadius: '16px', padding: '32px', maxWidth: '500px', width: '90%', display: 'flex', flexDirection: 'column', gap: '20px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
+                    <div style={{ background: 'var(--card)', borderRadius: '16px', padding: '32px', maxWidth: '500px', width: '90%', display: 'flex', flexDirection: 'column', gap: '20px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
-                                <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>Configure Order Details</h2>
-                                <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0', fontWeight: 500 }}>
+                                <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--foreground)', margin: 0 }}>Configure Order Details</h2>
+                                <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', margin: '4px 0 0', fontWeight: 500 }}>
                                     Modify attributes for Order #{editingDetailsOrder.orderNumber ? String(editingDetailsOrder.orderNumber).padStart(4, '0') : editingDetailsOrder.id?.slice(0, 8).toUpperCase()}
                                 </p>
                             </div>
-                            <button onClick={() => setEditingDetailsOrder(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}>
+                            <button onClick={() => setEditingDetailsOrder(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted-foreground)' }}>
                                 <X size={20} />
                             </button>
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>Link Marketplace Template</label>
+                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted-foreground)', marginBottom: '4px' }}>Link Marketplace Template</label>
                                 <select
                                     value={editDetailsData.templateId || ""}
                                     onChange={(e) => {
@@ -1879,7 +1879,7 @@ export default function AdminOrdersClient() {
                                             });
                                         }
                                     }}
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.88rem', outline: 'none', background: '#FFFFFF' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 8px', fontSize: '0.88rem', outline: 'none', background: 'var(--card)' }}
                                 >
                                     <option value="">None / Custom Workflow</option>
                                     {templates.map(t => (
@@ -1889,21 +1889,21 @@ export default function AdminOrdersClient() {
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>Workflow Name</label>
+                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted-foreground)', marginBottom: '4px' }}>Workflow Name</label>
                                 <input 
                                     type="text"
                                     value={editDetailsData.workflowName}
                                     onChange={(e) => setEditDetailsData({ ...editDetailsData, workflowName: e.target.value })}
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 12px', fontSize: '0.88rem', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 12px', fontSize: '0.88rem', outline: 'none' }}
                                 />
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>Order Type</label>
+                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted-foreground)', marginBottom: '4px' }}>Order Type</label>
                                 <select
                                     value={editDetailsData.orderType}
                                     onChange={(e) => setEditDetailsData({ ...editDetailsData, orderType: e.target.value })}
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.88rem', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 8px', fontSize: '0.88rem', outline: 'none' }}
                                 >
                                     <option value="Marketplace">Marketplace</option>
                                     <option value="Custom Request">Custom Request</option>
@@ -1913,21 +1913,21 @@ export default function AdminOrdersClient() {
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>Order Subtype</label>
+                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted-foreground)', marginBottom: '4px' }}>Order Subtype</label>
                                 <input 
                                     type="text"
                                     value={editDetailsData.orderSubType}
                                     onChange={(e) => setEditDetailsData({ ...editDetailsData, orderSubType: e.target.value })}
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 12px', fontSize: '0.88rem', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 12px', fontSize: '0.88rem', outline: 'none' }}
                                 />
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>Plan Name</label>
+                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted-foreground)', marginBottom: '4px' }}>Plan Name</label>
                                 <select
                                     value={editDetailsData.plan}
                                     onChange={(e) => setEditDetailsData({ ...editDetailsData, plan: e.target.value })}
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.88rem', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 8px', fontSize: '0.88rem', outline: 'none' }}
                                 >
                                     <option value="Startup">Startup</option>
                                     <option value="Professional">Professional</option>
@@ -1938,11 +1938,11 @@ export default function AdminOrdersClient() {
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>Priority</label>
+                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted-foreground)', marginBottom: '4px' }}>Priority</label>
                                 <select
                                     value={editDetailsData.priority}
                                     onChange={(e) => setEditDetailsData({ ...editDetailsData, priority: e.target.value })}
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.88rem', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 8px', fontSize: '0.88rem', outline: 'none' }}
                                 >
                                     <option value="LOW">LOW</option>
                                     <option value="MEDIUM">MEDIUM</option>
@@ -1951,21 +1951,21 @@ export default function AdminOrdersClient() {
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>Assigned Operator</label>
+                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted-foreground)', marginBottom: '4px' }}>Assigned Operator</label>
                                 <input 
                                     type="text"
                                     value={editDetailsData.assignedTo}
                                     onChange={(e) => setEditDetailsData({ ...editDetailsData, assignedTo: e.target.value })}
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 12px', fontSize: '0.88rem', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 12px', fontSize: '0.88rem', outline: 'none' }}
                                 />
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>Assign VPS Server / Node</label>
+                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted-foreground)', marginBottom: '4px' }}>Assign VPS Server / Node</label>
                                 <select 
                                     value={editDetailsData.serverId || ""}
                                     onChange={(e) => setEditDetailsData({ ...editDetailsData, serverId: e.target.value || null })}
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.88rem', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 8px', fontSize: '0.88rem', outline: 'none' }}
                                 >
                                     <option value="">No Server Linked</option>
                                     {nodes.map(n => (
@@ -1975,33 +1975,33 @@ export default function AdminOrdersClient() {
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>n8n Workflow ID</label>
+                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted-foreground)', marginBottom: '4px' }}>n8n Workflow ID</label>
                                 <input 
                                     type="text"
                                     value={editDetailsData.n8nWorkflowId || ""}
                                     onChange={(e) => setEditDetailsData({ ...editDetailsData, n8nWorkflowId: e.target.value || null })}
                                     placeholder="Enter instance workflow ID..."
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 12px', fontSize: '0.88rem', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 12px', fontSize: '0.88rem', outline: 'none' }}
                                 />
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>Revenue Amount (€)</label>
+                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted-foreground)', marginBottom: '4px' }}>Revenue Amount (€)</label>
                                 <input 
                                     type="number"
                                     value={editDetailsData.amount}
                                     onChange={(e) => setEditDetailsData({ ...editDetailsData, amount: parseFloat(e.target.value) || 0 })}
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 12px', fontSize: '0.88rem', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 12px', fontSize: '0.88rem', outline: 'none' }}
                                 />
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748B', marginBottom: '4px' }}>Advance Status Stage</label>
+                                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted-foreground)', marginBottom: '4px' }}>Advance Status Stage</label>
                                 <select
                                     value={editingDetailsOrder.status}
                                     disabled={updatingId === editingDetailsOrder.id}
                                     onChange={e => updateStatus(editingDetailsOrder.id, e.target.value)}
-                                    style={{ width: '100%', height: '40px', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0 8px', fontSize: '0.88rem', outline: 'none' }}
+                                    style={{ width: '100%', height: '40px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 8px', fontSize: '0.88rem', outline: 'none' }}
                                 >
                                     {STATUS_ORDER.map(s => (
                                         <option key={s} value={s}>
@@ -2016,13 +2016,13 @@ export default function AdminOrdersClient() {
                             <button 
                                 onClick={handleSaveDetails}
                                 disabled={isSavingDetails}
-                                style={{ flex: 1, height: '48px', background: '#0F172A', color: '#FFFFFF', border: 'none', borderRadius: '8px', fontSize: '0.88rem', fontWeight: 700, cursor: isSavingDetails ? 'not-allowed' : 'pointer' }}
+                                style={{ flex: 1, height: '48px', background: 'var(--primary)', color: '#FFFFFF', border: 'none', borderRadius: '8px', fontSize: '0.88rem', fontWeight: 700, cursor: isSavingDetails ? 'not-allowed' : 'pointer' }}
                             >
                                 {isSavingDetails ? 'Saving...' : 'Save Configuration'}
                             </button>
                             <button 
                                 onClick={() => setEditingDetailsOrder(null)}
-                                style={{ flex: 1, height: '48px', background: 'transparent', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '0.88rem', fontWeight: 700, cursor: 'pointer' }}
+                                style={{ flex: 1, height: '48px', background: 'transparent', color: 'var(--muted-foreground)', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '0.88rem', fontWeight: 700, cursor: 'pointer' }}
                             >
                                 Cancel
                             </button>

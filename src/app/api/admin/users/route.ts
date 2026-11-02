@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from "@/lib/db";
 import { logAudit } from "@/lib/audit";
 import bcrypt from "bcryptjs";
+import { getAdminSession } from "@/lib/admin-auth";
 
 async function ensureSchema() {
     await db.execute(`
@@ -14,6 +15,48 @@ async function ensureSchema() {
         ADD COLUMN IF NOT EXISTS "lastActive" TIMESTAMP,
         ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'Active',
         ADD COLUMN IF NOT EXISTS "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    `);
+    await db.execute(`
+        CREATE TABLE IF NOT EXISTS "Team" (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            name VARCHAR(255) NOT NULL,
+            "ownerId" UUID,
+            "firmName" VARCHAR(255),
+            "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+    await db.execute(`
+        ALTER TABLE "Team"
+        ADD COLUMN IF NOT EXISTS "serverId" UUID,
+        ADD COLUMN IF NOT EXISTS "provisioningStatus" VARCHAR(50) DEFAULT 'NOT_STARTED',
+        ADD COLUMN IF NOT EXISTS "assignedAt" TIMESTAMP
+    `);
+    await db.execute(`
+        CREATE TABLE IF NOT EXISTS "ClusterNode" (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            name VARCHAR(255),
+            status VARCHAR(50) DEFAULT 'Active',
+            "teamId" UUID,
+            "lastHeartbeat" TIMESTAMP,
+            "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+    await db.execute(`
+        ALTER TABLE "ClusterNode"
+        ADD COLUMN IF NOT EXISTS "is_assignable" BOOLEAN DEFAULT TRUE,
+        ADD COLUMN IF NOT EXISTS url TEXT,
+        ADD COLUMN IF NOT EXISTS api_key TEXT,
+        ADD COLUMN IF NOT EXISTS max_workflows INTEGER DEFAULT 100,
+        ADD COLUMN IF NOT EXISTS "customerId" TEXT,
+        ADD COLUMN IF NOT EXISTS "customerName" TEXT,
+        ADD COLUMN IF NOT EXISTS "customerEmail" TEXT,
+        ADD COLUMN IF NOT EXISTS "instanceId" TEXT,
+        ADD COLUMN IF NOT EXISTS "provider" TEXT DEFAULT 'manual',
+        ADD COLUMN IF NOT EXISTS "region" TEXT,
+        ADD COLUMN IF NOT EXISTS "ipAddress" TEXT,
+        ADD COLUMN IF NOT EXISTS "sshKeyId" TEXT,
+        ADD COLUMN IF NOT EXISTS "contaboInstanceId" TEXT
     `);
 }
 
@@ -72,6 +115,30 @@ export async function GET(request: Request) {
                 u."lastActive",
                 u.status,
                 u."teamId",
+                u."onboardingStatus",
+                u.industry,
+                u."activationStatus",
+                u."selectedWorkflowId",
+                u."activationStartedAt",
+                u."activationCompletedAt",
+                u."activationState",
+                u."aiEmployee",
+                u."problemDescription",
+                t."serverId" as "assignedServerId",
+                t."provisioningStatus" as "assignmentStatus",
+                n.name as "serverName",
+                n.status as "serverStatus",
+                COALESCE(
+                    (
+                        SELECT json_agg(json_build_object(
+                            'provider', c.provider,
+                            'status', c.status
+                        ))
+                        FROM "credentials" c
+                        WHERE c."user_id" = u.id
+                    ),
+                    '[]'::json
+                ) as "connectedCredentials",
                 COALESCE(
                     (
                         SELECT json_agg(json_build_object(
@@ -79,16 +146,23 @@ export async function GET(request: Request) {
                             'name', w.name,
                             'status', w.status,
                             'progress', w.progress,
-                            'tasksCount', w.tasksCount,
-                            'lastRun', w.lastRun
+                            'tasksCount', w."tasksCount",
+                            'lastRun', w."lastRun"
                         ))
                         FROM "Workflow" w
                         WHERE w."teamId" = u."teamId"
                     ),
                     '[]'::json
                 ) as "workflowsUsed",
+                (
+                    SELECT COUNT(*)::int 
+                    FROM "AIEmployee" 
+                    WHERE "teamId" = u."teamId"
+                ) as "activeEmployeesCount",
                 u."updatedAt" as "createdAt" 
             FROM "User" u
+            LEFT JOIN "Team" t ON u."teamId" = t.id
+            LEFT JOIN "ClusterNode" n ON t."serverId" = n.id
             ORDER BY u."updatedAt" DESC
         `);
         return NextResponse.json(rows);
@@ -101,8 +175,76 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         await ensureSchema();
+        const admin = await getAdminSession();
+        if (!admin) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
         const body = await request.json();
         const { id, role, tier, status, totalSpend, action, subject, title, message, newPassword } = body;
+
+        if (action === 'REASSIGN_SERVER' || tier !== undefined || totalSpend !== undefined) {
+            if (admin.role !== 'SuperAdmin') {
+                return NextResponse.json({ error: "Forbidden: SuperAdmin role required for server/billing access" }, { status: 403 });
+            }
+        }
+
+        if (action === 'REASSIGN_SERVER') {
+            const { targetServerId } = body;
+            if (!id || !targetServerId) return NextResponse.json({ error: "Missing User ID or target server ID" }, { status: 400 });
+
+            const [user] = await db.query('SELECT "teamId" FROM "User" WHERE id = $1 LIMIT 1', [id]) as any[];
+            if (!user || !user.teamId) {
+                return NextResponse.json({ error: "Workspace not found for this user context" }, { status: 404 });
+            }
+            const teamId = user.teamId;
+
+            const [node] = await db.query('SELECT * FROM "ClusterNode" WHERE id = $1 LIMIT 1', [targetServerId]) as any[];
+            if (!node) {
+                return NextResponse.json({ error: "Target server node not found" }, { status: 404 });
+            }
+
+            await db.execute(
+                `UPDATE "Team" SET 
+                    "serverId" = $1, 
+                    "assignedAt" = CURRENT_TIMESTAMP
+                 WHERE id = $2`,
+                [targetServerId, teamId]
+            );
+
+            const { transitionTeamProvisioningStatus } = await import("@/lib/workflow-provision");
+            const { PROVISIONING_STATUS } = await import("@/lib/provisioning-lifecycle");
+            await transitionTeamProvisioningStatus(teamId, PROVISIONING_STATUS.READY);
+
+            await db.execute(
+                'UPDATE "ClusterNode" SET "teamId" = $1 WHERE id = $2 AND "teamId" IS NULL',
+                [teamId, targetServerId]
+            );
+
+            await db.execute(
+                'UPDATE "Workflow" SET "serverId" = $1, "updatedAt" = CURRENT_TIMESTAMP WHERE "teamId" = $2',
+                [targetServerId, teamId]
+            );
+
+            await logAudit(id, 'server_reassigned', `Workspace reassigned to server ${node.name}`, { targetServerId, nodeName: node.name });
+
+            return NextResponse.json({ success: true, serverName: node.name });
+        }
+
+        if (action === 'RESET_ACTIVATION') {
+            if (!id) return NextResponse.json({ error: "Missing ID" }, { status: 400 });
+            await db.execute(
+                `UPDATE "User" SET 
+                    "activationStatus" = 'SUMMARY_READY',
+                    "selectedWorkflowId" = NULL,
+                    "activationCompletedAt" = NULL,
+                    "activationState" = '{}'::jsonb
+                 WHERE id = $1`,
+                [id]
+            );
+            await logAudit(id, 'admin_change', 'Admin reset onboarding activation state');
+            return NextResponse.json({ success: true });
+        }
 
         if (action === 'RESET_PASSWORD') {
             if (!id || !newPassword) return NextResponse.json({ error: "Missing ID or Password" }, { status: 400 });
@@ -167,6 +309,11 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
     try {
         await ensureSchema();
+        const admin = await getAdminSession();
+        if (!admin || admin.role !== 'SuperAdmin') {
+            return NextResponse.json({ error: "Forbidden: SuperAdmin role required" }, { status: 403 });
+        }
+
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
 

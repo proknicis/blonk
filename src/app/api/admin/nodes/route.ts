@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getAdminSession } from "@/lib/admin-auth";
 
 // Ensure proper database schema for customer-server relationships
 async function ensureSchema() {
@@ -162,14 +163,9 @@ export async function GET(request: Request) {
         try {
             nodes = await db.query(`
                 SELECT n.*, 
-                       t.name as tenant_name,
-                       t."firmName" as tenant_firm_name,
-                       u.name as user_name,
-                       u.email as user_email,
-                       (SELECT COUNT(*) FROM "Workflow" w WHERE w."serverId" = n.id) as workflow_count
+                       (SELECT COUNT(*) FROM "Workflow" w WHERE w."serverId" = n.id) as workflow_count,
+                       (SELECT COUNT(*) FROM "Team" tm WHERE tm."serverId" = n.id) as assigned_workspaces_count
                 FROM "ClusterNode" n
-                LEFT JOIN "Team" t ON n."teamId" = t.id
-                LEFT JOIN "User" u ON n."customerId" = u.id::text
                 ORDER BY n."createdAt" DESC
             `) as any[];
             console.log(`[Fleet API] Found ${nodes.length} nodes in database.`);
@@ -251,7 +247,12 @@ export async function GET(request: Request) {
 export async function POST(req: Request) {
     try {
         await ensureSchema();
-        const { name, url, api_key, max_workflows, teamId, customerId, customerName, customerEmail, provider, region, ipAddress } = await req.json();
+        const admin = await getAdminSession();
+        if (!admin || admin.role !== 'SuperAdmin') {
+            return NextResponse.json({ error: "Forbidden: SuperAdmin role required for server access" }, { status: 403 });
+        }
+
+        const { name, url, api_key, max_workflows, teamId, customerId, customerName, customerEmail, provider, region, ipAddress, tier } = await req.json();
         
         if (!name || !url || !api_key) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -281,9 +282,16 @@ export async function POST(req: Request) {
         }
 
         const res = await db.execute(
-            'INSERT INTO "ClusterNode" (name, url, api_key, status, max_workflows, "teamId", "customerId", "customerName", "customerEmail", provider, region, "ipAddress") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *',
-            [name, url, api_key, 'Active', max_workflows || 100, resolvedTeamId, customerId || null, customerName || null, customerEmail || null, provider || 'manual', region || null, ipAddress || null]
+            'INSERT INTO "ClusterNode" (name, url, api_key, status, max_workflows, "teamId", "customerId", "customerName", "customerEmail", provider, region, "ipAddress", "tier") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *',
+            [name, url, api_key, 'Active', max_workflows || 100, resolvedTeamId, customerId || null, customerName || null, customerEmail || null, provider || 'manual', region || null, ipAddress || null, tier || 'Standard']
         );
+
+        if (resolvedTeamId) {
+            await db.execute(
+                'UPDATE "Team" SET "serverId" = $1, "provisioningStatus" = \'READY\', "assignedAt" = CURRENT_TIMESTAMP WHERE id = $2',
+                [res.rows[0].id, resolvedTeamId]
+            );
+        }
 
         return NextResponse.json(res.rows[0]);
     } catch (error: any) {
@@ -294,7 +302,12 @@ export async function POST(req: Request) {
 
 export async function PUT(req: Request) {
     try {
-        const { id, name, url, api_key, max_workflows, teamId } = await req.json();
+        const admin = await getAdminSession();
+        if (!admin || admin.role !== 'SuperAdmin') {
+            return NextResponse.json({ error: "Forbidden: SuperAdmin role required for server access" }, { status: 403 });
+        }
+
+        const { id, name, url, api_key, max_workflows, teamId, tier } = await req.json();
         
         if (!id) {
             return NextResponse.json({ error: "Missing node ID" }, { status: 400 });
@@ -312,11 +325,19 @@ export async function PUT(req: Request) {
         const updatedApiKey = api_key || existing[0].api_key;
         const updatedMaxWorkflows = max_workflows !== undefined ? max_workflows : existing[0].max_workflows;
         const updatedTeamId = teamId !== undefined ? teamId : existing[0].teamId;
+        const updatedTier = tier !== undefined ? tier : existing[0].tier || 'Standard';
 
         const res = await db.execute(
-            'UPDATE "ClusterNode" SET name = $1, url = $2, api_key = $3, max_workflows = $4, "teamId" = $5, status = $6 WHERE id = $7 RETURNING *',
-            [updatedName, updatedUrl, updatedApiKey, updatedMaxWorkflows, updatedTeamId, 'Active', id]
+            'UPDATE "ClusterNode" SET name = $1, url = $2, api_key = $3, max_workflows = $4, "teamId" = $5, status = $6, "tier" = $7 WHERE id = $8 RETURNING *',
+            [updatedName, updatedUrl, updatedApiKey, updatedMaxWorkflows, updatedTeamId, existing[0].status || 'Active', updatedTier, id]
         );
+
+        if (updatedTeamId) {
+            await db.execute(
+                'UPDATE "Team" SET "serverId" = $1, "provisioningStatus" = \'READY\', "assignedAt" = CURRENT_TIMESTAMP WHERE id = $2',
+                [id, updatedTeamId]
+            );
+        }
 
         // Clear cache for this node
         nodeCache = nodeCache.filter(c => c.id !== id);

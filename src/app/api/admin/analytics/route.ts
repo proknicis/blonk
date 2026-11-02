@@ -39,27 +39,101 @@ export async function GET(request: Request) {
             WHERE plan != 'Starter' AND "onboardingStatus" = 'COMPLETED'
         `) as any[];
         const activePaidUsers = parseInt(mrrRes[0].count);
-        const mrr = activePaidUsers * 49.00; // Average institutional license fee
+        const mrr = activePaidUsers * 49.00;
 
-        // 3. EVENT-BASED FUNNEL (Real Event Telemetry)
-        const funnelRes = await db.query(`
-            SELECT 
-                (SELECT COUNT(DISTINCT "visitorId") FROM "Event" WHERE "eventType" = 'page_visit') as visits,
-                (SELECT COUNT(*) FROM "Event" WHERE "eventType" = 'signup') as signups,
-                (SELECT COUNT(*) FROM "Event" WHERE "eventType" = 'payment_completed') as payments
+        // 3. ACTIVATION METRICS (Canonical: activationStatus = 'ACTIVATED')
+        const usersCountRes = await db.query('SELECT COUNT(*) as count FROM "User"') as any[];
+        const totalUsers = parseInt(usersCountRes[0].count || 0);
+
+        const setupCompletedRes = await db.query('SELECT COUNT(*) as count FROM "User" WHERE "onboardingStatus" = \'COMPLETED\'') as any[];
+        const setupCompleted = parseInt(setupCompletedRes[0].count || 0);
+
+        const activationStartedRes = await db.query('SELECT COUNT(*) as count FROM "User" WHERE "activationStartedAt" IS NOT NULL') as any[];
+        const activationStarted = parseInt(activationStartedRes[0].count || 0);
+
+        const activationCompletedRes = await db.query('SELECT COUNT(*) as count FROM "User" WHERE "activationStatus" = \'ACTIVATED\'') as any[];
+        const activationCompleted = parseInt(activationCompletedRes[0].count || 0);
+
+        // Funnel Step Grouping
+        const funnelStepsRes = await db.query(`
+            SELECT "activationStatus", COUNT(*) as count
+            FROM "User"
+            GROUP BY "activationStatus"
         `) as any[];
-        
-        const totalVisitors = parseInt(funnelRes[0].visits || 0);
-        const totalSignups = parseInt(funnelRes[0].signups || 0);
-        const totalPayments = parseInt(funnelRes[0].payments || 0);
 
-        const visitorToSignupRate = totalVisitors > 0 ? (totalSignups / totalVisitors) * 100 : 0;
-        const signupToPaidRate = totalSignups > 0 ? (totalPayments / totalSignups) * 100 : 0;
+        const funnelMap: Record<string, number> = {
+            NOT_STARTED: 0,
+            SUMMARY_READY: 0,
+            WORKFLOW_SELECTED: 0,
+            CONNECTIONS_IN_PROGRESS: 0,
+            READY_FOR_DEPLOY: 0,
+            DEPLOYING: 0,
+            ACTIVATED: 0,
+            CUSTOM_REQUEST_SUBMITTED: 0
+        };
+        funnelStepsRes.forEach(r => {
+            if (r.activationStatus && funnelMap[r.activationStatus] !== undefined) {
+                funnelMap[r.activationStatus] = parseInt(r.count);
+            }
+        });
+
+        // AI Employee Selector counts
+        const rolesRes = await db.query(`
+            SELECT "aiEmployee" as role, COUNT(*) as count
+            FROM "User"
+            WHERE "aiEmployee" IS NOT NULL
+            GROUP BY "aiEmployee"
+            ORDER BY count DESC
+        `) as any[];
+
+        // Blueprints match counts
+        const blueprintRes = await db.query(`
+            SELECT "selectedWorkflowId" as id, COUNT(*) as count
+            FROM "User"
+            WHERE "selectedWorkflowId" IS NOT NULL
+            GROUP BY "selectedWorkflowId"
+            ORDER BY count DESC
+        `) as any[];
+
+        // Missing integrations (Credential status check)
+        const missingCredsRes = await db.query(`
+            SELECT provider, COUNT(*) as count
+            FROM "credentials"
+            WHERE status != 'Connected'
+            GROUP BY provider
+            ORDER BY count DESC
+        `) as any[];
+
+        // Time to deploy (Average minutes from activation start to complete)
+        const timeToDeployRes = await db.query(`
+            SELECT AVG(EXTRACT(EPOCH FROM ("activationCompletedAt" - "activationStartedAt"))) as avg_sec
+            FROM "User"
+            WHERE "activationStatus" = 'ACTIVATED' 
+              AND "activationCompletedAt" IS NOT NULL 
+              AND "activationStartedAt" IS NOT NULL
+        `) as any[];
+        const avgSec = parseFloat(timeToDeployRes[0].avg_sec || 0);
+        const avgTimeToDeployMinutes = Math.round(avgSec / 60);
+
+        // Deployments success vs failure count
+        const deploysRes = await db.query(`
+            SELECT 
+                COUNT(CASE WHEN status = 'COMPLETED' THEN 1 END) as success,
+                COUNT(CASE WHEN status = 'FAILED' THEN 1 END) as failed
+            FROM "WorkflowOrder"
+        `) as any[];
+        const successCount = parseInt(deploysRes[0].success || 0);
+        const failureCount = parseInt(deploysRes[0].failed || 0);
+
+        // Conversions
+        const setupCompletionRate = totalUsers > 0 ? (setupCompleted / totalUsers) * 100 : 0;
+        const activationStartedRate = totalUsers > 0 ? (activationStarted / totalUsers) * 100 : 0;
+        const activationCompletionRate = totalUsers > 0 ? (activationCompleted / totalUsers) * 100 : 0;
 
         // 4. CAC & LTV CALCULATIONS
         const spendRes = await db.query('SELECT COALESCE(SUM(amount), 0) as total FROM "MarketingSpend" WHERE "date" >= $1', [thirtyDaysAgo]) as any[];
         const monthlySpend = parseFloat(spendRes[0].total);
-        const newPaidUsersRes = await db.query('SELECT COUNT(*) as count FROM "Event" WHERE "eventType" = ' + "'payment_completed'" + ' AND "createdAt" >= $1', [thirtyDaysAgo]) as any[];
+        const newPaidUsersRes = await db.query('SELECT COUNT(*) as count FROM "Event" WHERE "eventType" = \'payment_completed\' AND "createdAt" >= $1', [thirtyDaysAgo]) as any[];
         const newPaidCount = parseInt(newPaidUsersRes[0].count || 0);
 
         const cac = newPaidCount > 0 ? monthlySpend / newPaidCount : 0;
@@ -67,17 +141,16 @@ export async function GET(request: Request) {
 
         // 5. STRATEGIC INSIGHTS ENGINE
         const insights = [];
-        if (totalVisitors === 0) {
-            insights.push({ type: 'warning', text: "No traffic data detected yet. Tracking initialized." });
+        if (totalUsers === 0) {
+            insights.push({ type: 'warning', text: "No user enrollment logs detected in cluster ledger." });
         } else {
-            if (totalRevenue === 0) insights.push({ type: 'warning', text: "No revenue generated yet. Focus on conversion and onboarding." });
-            if (cac > ltv && cac > 0) insights.push({ type: 'critical', text: "Negative Unit Economics ($" + (ltv-cac).toFixed(2) + "). Adjust CAC strategy." });
-            if (visitorToSignupRate < 5 && totalVisitors > 10) insights.push({ type: 'warning', text: "Discovery Bottleneck: Landing page conversion below 5%." });
-            if (signupToPaidRate < 10 && totalSignups > 5) insights.push({ type: 'critical', text: "Activation Failure: Review onboarding/pricing friction." });
-            if (ltv > cac * 3 && cac > 0) insights.push({ type: 'healthy', text: "High Efficiency: Unit economics support aggressive scaling." });
+            if (setupCompletionRate < 50) insights.push({ type: 'critical', text: `High intake friction: Only ${setupCompletionRate.toFixed(1)}% completed the onboarding setup.` });
+            if (activationCompletionRate < 30) insights.push({ type: 'warning', text: `Deploy Bottleneck: ${activationCompletionRate.toFixed(1)}% final workspace activation rate.` });
+            if (failureCount > 0) insights.push({ type: 'critical', text: `Infrastructure warnings: ${failureCount} container provisioning faults detected.` });
+            if (activationCompletionRate >= 60) insights.push({ type: 'healthy', text: `High efficiency: Workspace deployment conversion is optimal at ${activationCompletionRate.toFixed(1)}%.` });
         }
 
-        // 6. CHART DATA (Grouped Temporal Queries)
+        // 6. CHART DATA
         const revenueChartRows = await db.query(`
             SELECT DATE_TRUNC('day', "createdAt") as day, SUM(amount) as val
             FROM "Payment" 
@@ -116,11 +189,11 @@ export async function GET(request: Request) {
                     status: ltv > 0 ? 'healthy' : 'warning'
                 },
                 conversion: {
-                    visitorToSignup: `${visitorToSignupRate.toFixed(1)}%`,
-                    signupToPaid: `${signupToPaidRate.toFixed(1)}%`
+                    visitorToSignup: `${setupCompletionRate.toFixed(1)}%`,
+                    signupToPaid: `${activationCompletionRate.toFixed(1)}%`
                 },
                 activeUsers: {
-                    daily: 0, // Requires session duration tracking
+                    daily: 0,
                     monthly: activePaidUsers
                 }
             },
@@ -128,7 +201,25 @@ export async function GET(request: Request) {
             charts: {
                 revenue: [{ name: "Revenue", data: revenueChartRows.map(r => parseFloat(r.val)) }],
                 users: [{ name: "Growth", data: userGrowthRows.map(r => parseInt(r.val)) }],
-                funnel: [totalVisitors, totalSignups, totalPayments]
+                funnel: [
+                    totalUsers,
+                    setupCompleted,
+                    activationStarted,
+                    activationCompleted
+                ]
+            },
+            activationAnalytics: {
+                totalEnrolled: totalUsers,
+                setupCompletionRate,
+                activationStartedRate,
+                activationCompletionRate,
+                avgTimeToDeploy: avgTimeToDeployMinutes,
+                successCount,
+                failureCount,
+                funnel: funnelMap,
+                mostSelectedRoles: rolesRes,
+                mostRecommendedBlueprints: blueprintRes,
+                missingIntegrations: missingCredsRes
             }
         });
 

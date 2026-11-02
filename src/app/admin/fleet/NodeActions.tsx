@@ -103,7 +103,7 @@ export function NodeActions({ nodeId, nodeUrl, nodeName, nodeIndex }: NodeAction
                 className={adminStyles.actionIconBtn} 
                 title="Restart Service"
                 disabled={loading}
-                style={{ color: '#0F172A' }}
+                style={{ color: 'var(--foreground)' }}
             >
                 <RotateCw size={16} className={loading ? adminStyles.spinning : ''} />
             </button>
@@ -139,10 +139,10 @@ export function NodeActions({ nodeId, nodeUrl, nodeName, nodeIndex }: NodeAction
 
             {showDiag && (
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(12px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }} onClick={() => setShowDiag(false)}>
-                    <div style={{ background: '#FFFFFF', border: '1px solid #F3F4F6', borderRadius: '40px', width: '100%', maxWidth: '640px', maxHeight: '85vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 32px 64px rgba(0,0,0,0.1)' }} onClick={e => e.stopPropagation()}>
+                    <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '40px', width: '100%', maxWidth: '640px', maxHeight: '85vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 32px 64px rgba(0,0,0,0.1)' }} onClick={e => e.stopPropagation()}>
                         
                         {/* Header */}
-                        <div style={{ padding: '40px 40px 32px', borderBottom: '1px solid #F3F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div style={{ padding: '40px 40px 32px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                                 <div style={{ width: '56px', height: '56px', borderRadius: '18px', background: diagnostics?.health === 'healthy' ? '#F0FDF4' : '#FFFBEB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     {diagnostics?.health === 'healthy' ? 
@@ -200,17 +200,17 @@ export function NodeActions({ nodeId, nodeUrl, nodeName, nodeIndex }: NodeAction
 
                                     {/* Metrics Grid */}
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-                                        <div style={{ background: '#F9FAFB', borderRadius: '24px', padding: '32px 24px', textAlign: 'center', border: '1px solid #F3F4F6' }}>
+                                        <div style={{ background: '#F9FAFB', borderRadius: '24px', padding: '32px 24px', textAlign: 'center', border: '1px solid var(--border)' }}>
                                             <div style={{ fontSize: '2.5rem', fontWeight: 950, color: '#111827', lineHeight: 1 }}>{diagnostics.workflowCount}</div>
                                             <div style={{ fontSize: '0.65rem', fontWeight: 950, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '12px' }}>Workflows</div>
                                             <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#EF4444', marginTop: '4px' }}>Total Workflows</div>
                                         </div>
-                                        <div style={{ background: '#F9FAFB', borderRadius: '24px', padding: '32px 24px', textAlign: 'center', border: '1px solid #F3F4F6' }}>
+                                        <div style={{ background: '#F9FAFB', borderRadius: '24px', padding: '32px 24px', textAlign: 'center', border: '1px solid var(--border)' }}>
                                             <div style={{ fontSize: '2.5rem', fontWeight: 950, color: '#10B981', lineHeight: 1 }}>{diagnostics.activeWorkflows}</div>
                                             <div style={{ fontSize: '0.65rem', fontWeight: 950, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '12px' }}>Active</div>
                                             <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#EF4444', marginTop: '4px' }}>Active Workflows</div>
                                         </div>
-                                        <div style={{ background: '#F9FAFB', borderRadius: '24px', padding: '32px 24px', textAlign: 'center', border: '1px solid #F3F4F6' }}>
+                                        <div style={{ background: '#F9FAFB', borderRadius: '24px', padding: '32px 24px', textAlign: 'center', border: '1px solid var(--border)' }}>
                                             <div style={{ fontSize: '2.5rem', fontWeight: 950, color: '#EF4444', lineHeight: 1 }}>{diagnostics.recentExecutions}</div>
                                             <div style={{ fontSize: '0.65rem', fontWeight: 950, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '12px' }}>Recent Runs</div>
                                             <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#EF4444', marginTop: '4px' }}>Recent Executions</div>
@@ -227,7 +227,7 @@ export function NodeActions({ nodeId, nodeUrl, nodeName, nodeIndex }: NodeAction
                                                 { id: '3', name: 'ds', active: true },
                                                 { id: '4', name: 'Testing', active: true }
                                             ]).map((wf: any) => (
-                                                <div key={wf.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', background: '#FFFFFF', borderRadius: '20px', border: '1px solid #F3F4F6' }}>
+                                                <div key={wf.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', background: 'var(--card)', borderRadius: '20px', border: '1px solid var(--border)' }}>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                                                         <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: wf.active ? '#10B981' : '#94A3B8' }} />
                                                         <span style={{ fontWeight: 950, fontSize: '1rem', color: '#111827' }}>{wf.name}</span>

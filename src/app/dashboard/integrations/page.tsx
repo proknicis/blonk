@@ -37,8 +37,6 @@ export default async function ConnectionsPage() {
     const teamId = (session.user as any).teamId;
     if (!teamId) redirect("/setup");
 
-    redirect("/dashboard/credentials");
-
     let connections: any[] = [];
 
     try {

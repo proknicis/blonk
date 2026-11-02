@@ -81,7 +81,7 @@ export default function IncidentFeed({ initialIncidents }: { initialIncidents: I
     const displayedIncidents = showAll ? filteredIncidents : filteredIncidents.slice(0, 6);
 
     const getSeverityStyle = (severity: string, status: string) => {
-        if (status === 'Resolved') return { background: 'rgba(100, 116, 139, 0.1)', color: '#64748B' };
+        if (status === 'Resolved') return { background: 'rgba(100, 116, 139, 0.1)', color: 'var(--muted-foreground)' };
         if (severity === 'High') return { background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' };
         if (severity === 'Medium') return { background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B' };
         return { background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' };

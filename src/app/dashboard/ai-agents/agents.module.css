@@ -1,0 +1,361 @@
+.container {
+    padding: 32px 0 60px 0;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.headerSection {
+    margin-bottom: 40px;
+}
+
+.headerSection h1 {
+    font-size: 2.2rem;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    color: #111827;
+    margin: 0 0 8px 0;
+}
+
+.headerSection p {
+    font-size: 0.95rem;
+    color: #6B7280;
+    margin: 0;
+    font-weight: 500;
+}
+
+/* Agents Grid */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 24px;
+}
+
+.card {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 24px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.04);
+    border-color: var(--accent);
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.avatarGroup {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.3rem;
+    color: #FFFFFF;
+}
+
+.name {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #111827;
+    margin: 0 0 4px 0;
+    letter-spacing: -0.02em;
+}
+
+.role {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #9CA3AF;
+}
+
+.statusBadge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.statusDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.bio {
+    font-size: 0.85rem;
+    color: #4B5563;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.cardFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #F3F4F6;
+    padding-top: 16px;
+    margin-top: auto;
+}
+
+.footerStat {
+    display: flex;
+    flex-direction: column;
+}
+
+.statLabel {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #9CA3AF;
+    margin-bottom: 2px;
+}
+
+.statValue {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #374151;
+}
+
+.openBtn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--accent);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.card:hover .openBtn {
+    transform: translateX(4px);
+}
+
+/* Modal details overlay */
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 32px;
+    width: 100%;
+    max-width: 640px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.12);
+    display: flex;
+    flex-direction: column;
+    animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes scaleUp {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.modalHeader {
+    padding: 32px 32px 24px 32px;
+    border-bottom: 1px solid #F3F4F6;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.closeBtn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #F3F4F6;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4B5563;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.closeBtn:hover {
+    background: #E5E7EB;
+    color: #111827;
+}
+
+.modalContent {
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sectionTitle {
+    font-size: 0.72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9CA3AF;
+    margin: 0;
+}
+
+.capabilitiesGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.capabilityCard {
+    background: #F9FAFB;
+    border: 1px solid #F3F4F6;
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.capabilityText {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #374151;
+}
+
+.rulesList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ruleRow {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: #4B5563;
+    line-height: 1.4;
+}
+
+.appIconRow {
+    display: flex;
+    gap: 12px;
+}
+
+.appIcon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #F3F4F6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+}
+
+.decisionRow {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.decisionCard {
+    background: #F9FAFB;
+    border: 1px solid #F3F4F6;
+    border-radius: 16px;
+    padding: 16px;
+}
+
+.decisionHeader {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.decisionText {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.decisionTime {
+    font-size: 0.72rem;
+    color: #9CA3AF;
+    font-weight: 500;
+}
+
+.decisionResult {
+    font-size: 0.78rem;
+    color: #4B5563;
+    margin: 0;
+}
+
+.metricRow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.metricCard {
+    background: #F9FAFB;
+    border: 1px solid #F3F4F6;
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+}
+
+.metricValue {
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: #111827;
+    margin-bottom: 2px;
+}
+
+.metricLabel {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #9CA3AF;
+}

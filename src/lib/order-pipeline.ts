@@ -203,6 +203,20 @@ export async function setOrderStatus(orderId: string, status: string, extras?: {
             break;
     }
 
+    // Log audit events for workflow lifecycle
+    try {
+        const { logAudit } = await import("@/lib/audit");
+        if (status === 'PROVISIONING') {
+            await logAudit(order.userId, 'provisioning_started', order.workflowName, { orderId });
+        } else if (status === 'COMPLETED') {
+            await logAudit(order.userId, 'provisioning_succeeded', order.workflowName, { orderId });
+        } else if (status === 'FAILED') {
+            await logAudit(order.userId, 'provisioning_failed', order.workflowName, { orderId });
+        }
+    } catch (auditErr) {
+        console.error("Non-fatal: Failed to log audit event inside setOrderStatus:", auditErr);
+    }
+
     await appendOrderLog(orderId, logMessage, logLevel);
 }
 

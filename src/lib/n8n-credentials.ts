@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { PROVIDER_REGISTRY } from "./provider-registry";
 
 interface N8nNodeConfig {
     url: string;
@@ -58,103 +59,81 @@ export async function getN8nNodeForTeam(teamId: string): Promise<N8nNodeConfig> 
 export function mapProviderToN8nSchema(provider: string, rawData: any): { type: string; data: any } {
     const p = provider.toLowerCase();
     
-    switch (p) {
-        case 'openai':
-            return {
-                type: 'openAiApi',
-                data: { apiKey: rawData.apiKey || rawData.api_key }
-            };
-        case 'telegram':
-            // n8n Telegram node uses telegramApi (token)
-            return {
-                type: 'telegramApi',
-                data: { accessToken: rawData.botToken || rawData.accessToken || rawData.token }
-            };
-        case 'discord':
-            if (rawData.webhookUrl) {
-                return {
-                    type: 'discordWebhookApi',
-                    data: { webhookUrl: rawData.webhookUrl }
-                };
+    // Find the registry entry
+    const entry = PROVIDER_REGISTRY.find(e => e.provider.toLowerCase() === p);
+
+    // Google Services (legacy/direct support)
+    if (p === 'gmail' || p === 'google' || p === 'google-sheets' || p === 'googlesheets') {
+        const type = p.includes('sheets') ? 'googleSheetsOAuth2Api' : 'gmailOAuth2';
+        return {
+            type,
+            data: {
+                clientId: rawData.clientId || process.env.N8N_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || '',
+                clientSecret: rawData.clientSecret || process.env.N8N_GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET || '',
+                oauthTokenData: {
+                    access_token: rawData.accessToken || rawData.access_token || '',
+                    refresh_token: rawData.refreshToken || rawData.refresh_token || '',
+                    token_type: 'Bearer',
+                    expiry_date: Date.now() + 3600000
+                }
             }
-            return {
-                type: 'discordBotApi',
-                data: { token: rawData.botToken || rawData.token }
-            };
-        case 'slack':
-            return {
-                type: 'slackOAuth2Api',
-                data: { oauthToken: rawData.accessToken || rawData.botToken || rawData.token || rawData.appToken }
-            };
-        case 'stripe':
-            return {
-                type: 'stripeApi',
-                data: { apiKey: rawData.secretKey || rawData.apiKey || rawData.token }
-            };
-        case 'gmail':
-        case 'google':
-        case 'google_auth':
-        case 'google-auth':
-        case 'google_creds':
-        case 'google-creds':
-            return {
-                type: 'gmailOAuth2',
-                data: {
-                    // n8n gmailOAuth2 schema: clientId, clientSecret, oauthTokenData
-                    clientId: rawData.clientId || process.env.N8N_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || '',
-                    clientSecret: rawData.clientSecret || process.env.N8N_GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET || '',
-                    oauthTokenData: {
-                        access_token: rawData.accessToken || rawData.access_token || '',
-                        refresh_token: rawData.refreshToken || rawData.refresh_token || '',
-                        token_type: rawData.tokenType || rawData.token_type || 'Bearer',
-                        expiry_date: rawData.expiry_date || rawData.expiry || (Date.now() + 3600000)
-                    }
-                }
-            };
-        case 'google-sheets':
-        case 'googlesheets':
-            return {
-                type: 'googleSheetsOAuth2Api',
-                data: {
-                    // n8n googleSheetsOAuth2Api schema: clientId, clientSecret, oauthTokenData
-                    clientId: rawData.clientId || process.env.N8N_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || '',
-                    clientSecret: rawData.clientSecret || process.env.N8N_GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET || '',
-                    oauthTokenData: {
-                        access_token: rawData.accessToken || rawData.access_token || '',
-                        refresh_token: rawData.refreshToken || rawData.refresh_token || '',
-                        token_type: rawData.tokenType || rawData.token_type || 'Bearer',
-                        expiry_date: rawData.expiry_date || rawData.expiry || (Date.now() + 3600000)
-                    }
-                }
-            };
-        case 'github':
-            return {
-                type: 'githubApi',
-                data: { 
-                    accessToken: rawData.accessToken || rawData.token || rawData.personalAccessToken,
-                    user: rawData.user || rawData.username || ""
-                }
-            };
-        case 'openrouter':
-            return {
-                type: 'openAiApi',
-                data: { apiKey: rawData.apiKey || rawData.api_key }
-            };
-        case 'twilio':
-            return {
-                type: 'twilioApi',
-                data: {
-                    accountSid: rawData.accountSid,
-                    authToken: rawData.authToken
-                }
-            };
-        default:
-            // Custom fallback
-            return {
-                type: `${p}Api`,
-                data: rawData
-            };
+        };
     }
+
+    // Slack Services (legacy/direct support)
+    if (p === 'slack') {
+        return {
+            type: 'slackOAuth2Api',
+            data: { oauthToken: rawData.oauthToken || rawData.accessToken || rawData.botToken || rawData.token }
+        };
+    }
+
+    if (p === 'twenty') {
+        return {
+            type: 'httpHeaderAuth',
+            data: {
+                name: 'Authorization',
+                value: `Bearer ${rawData.apiKey}`,
+                instanceUrl: rawData.instanceUrl
+            }
+        };
+    }
+
+    if (entry) {
+        const credentialType = entry.n8nCredentialType;
+        const payloadData: any = {};
+
+        // Copy raw fields
+        entry.fields.forEach(f => {
+            if (rawData[f.key] !== undefined) {
+                payloadData[f.key] = rawData[f.key];
+            }
+        });
+
+        // Map authType properties to standard n8n fields
+        if (entry.authType === 'bearerToken') {
+            payloadData.token = rawData.token || rawData.apiKey || rawData.accessToken;
+            payloadData.apiKey = rawData.apiKey || rawData.token || rawData.accessToken;
+            payloadData.accessToken = rawData.accessToken || rawData.token || rawData.apiKey;
+        } else if (entry.authType === 'apiKeyHeader') {
+            payloadData.apiKey = rawData.apiKey || rawData.api_key || rawData.token;
+            payloadData.headerName = rawData.headerName || 'Authorization';
+        } else if (entry.authType === 'apiKeyQuery') {
+            payloadData.apiKey = rawData.apiKey || rawData.api_key || rawData.token || rawData.apiToken;
+            payloadData.queryParamName = rawData.queryParamName || 'api_key';
+        }
+
+        return {
+            type: credentialType,
+            data: { ...rawData, ...payloadData }
+        };
+    }
+
+    // Default fallback
+    return {
+        type: `${p}Api`,
+        data: rawData
+    };
 }
 
 /**
@@ -214,7 +193,7 @@ export async function getN8nNodesForTeam(teamId: string): Promise<Array<{ id: st
             resolvedNodes.push({
                 id: 'env-default',
                 name: 'Environment Default Node',
-                url: (process.env.N8N_URL || 'https://n8n.manadavana.lv').replace(/\/+$/, ''),
+                url: (process.env.N8N_URL || 'http://localhost:3000').replace(/\/+$/, ''),
                 apiKey: process.env.N8N_API_KEY
             });
         }
@@ -245,7 +224,8 @@ export async function syncCredentialToN8n(
 ): Promise<string> {
     const nodes = await getN8nNodesForTeam(teamId);
     if (nodes.length === 0) {
-        throw new Error("No active server nodes are assigned to your team. Please assign a server to your workflows before connecting integrations.");
+        console.log(`[n8n-sync] No server nodes found for team ${teamId}. Storing credential locally for future synchronization.`);
+        return 'local_onboarding_pending';
     }
     let lastCredentialId = '';
     const syncedIds: string[] = [];

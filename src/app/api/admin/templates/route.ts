@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from "@/lib/db";
 import { v4 as uuidv4 } from "uuid";
+import { getAdminSession } from "@/lib/admin-auth";
 
 export async function GET(request: Request) {
     try {
@@ -22,13 +23,30 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
     try {
+        const admin = await getAdminSession();
+        if (!admin || admin.role !== 'SuperAdmin') {
+            return NextResponse.json({ error: "Forbidden: SuperAdmin role required" }, { status: 403 });
+        }
+
         const body = await request.json();
-        const { id, name, sector, description, savings, complexity, icon, color, featured, requirements, setupGuide, productInfo, status, price, purchases, revenue, conversionRate, workflow } = body;
+        const { 
+            id, name, sector, description, savings, complexity, icon, color, 
+            featured, requirements, setupGuide, productInfo, status, price, 
+            purchases, revenue, conversionRate, workflow,
+            category, maps_to_employee_type, template_source, n8n_master_workflow_id
+        } = body;
 
         if (id) {
             // Update existing template
             await db.execute(
-                'UPDATE "WorkflowTemplate" SET name = $1, sector = $2, description = $3, savings = $4, complexity = $5, icon = $6, color = $7, featured = $8, requirements = $9::jsonb, "setupGuide" = $10::jsonb, "productInfo" = $11::jsonb, status = $12, price = $13, purchases = $14, revenue = $15, "conversionRate" = $16, workflow = $17 WHERE id = $18',
+                `UPDATE "WorkflowTemplate" SET 
+                    name = $1, sector = $2, description = $3, savings = $4, complexity = $5, 
+                    icon = $6, color = $7, featured = $8, requirements = $9::jsonb, 
+                    "setupGuide" = $10::jsonb, "productInfo" = $11::jsonb, status = $12, 
+                    price = $13, purchases = $14, revenue = $15, "conversionRate" = $16, 
+                    workflow = $17, category = $18, maps_to_employee_type = $19, 
+                    template_source = $20, n8n_master_workflow_id = $21 
+                 WHERE id = $22`,
                 [
                     name, 
                     sector, 
@@ -47,6 +65,10 @@ export async function POST(request: Request) {
                     revenue || 0,
                     conversionRate || 0,
                     workflow || '',
+                    category || 'productivity',
+                    maps_to_employee_type || 'Support Manager',
+                    template_source || null,
+                    n8n_master_workflow_id || null,
                     id
                 ]
             );
@@ -54,7 +76,12 @@ export async function POST(request: Request) {
         } else {
             // Create new template
             await db.execute(
-                'INSERT INTO "WorkflowTemplate" (id, name, sector, description, savings, complexity, icon, color, featured, requirements, "setupGuide", "productInfo", status, price, purchases, revenue, "conversionRate", workflow) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11::jsonb, $12::jsonb, $13, $14, $15, $16, $17, $18)',
+                `INSERT INTO "WorkflowTemplate" (
+                    id, name, sector, description, savings, complexity, icon, color, 
+                    featured, requirements, "setupGuide", "productInfo", status, price, 
+                    purchases, revenue, "conversionRate", workflow, category, maps_to_employee_type, 
+                    template_source, n8n_master_workflow_id
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11::jsonb, $12::jsonb, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)`,
                 [
                     uuidv4(), 
                     name, 
@@ -73,7 +100,11 @@ export async function POST(request: Request) {
                     purchases || 0,
                     revenue || 0,
                     conversionRate || 0,
-                    workflow || ''
+                    workflow || '',
+                    category || 'productivity',
+                    maps_to_employee_type || 'Support Manager',
+                    template_source || null,
+                    n8n_master_workflow_id || null
                 ]
             );
             return NextResponse.json({ success: true });
@@ -86,6 +117,11 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
     try {
+        const admin = await getAdminSession();
+        if (!admin || admin.role !== 'SuperAdmin') {
+            return NextResponse.json({ error: "Forbidden: SuperAdmin role required" }, { status: 403 });
+        }
+
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
 

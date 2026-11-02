@@ -24,6 +24,7 @@ async function migrate() {
             ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "utmCampaign" VARCHAR(100);
             ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "role" VARCHAR(50) DEFAULT 'MEMBER';
             ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "teamId" UUID;
+            ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "jobTitle" VARCHAR(100);
         `);
 
         // 3. NEW ANALYTICS & FINANCIAL LEDGERS
@@ -76,7 +77,8 @@ async function migrate() {
             'CREATE TABLE IF NOT EXISTS "ChartData" (id SERIAL PRIMARY KEY, day VARCHAR(50) UNIQUE, revenue DECIMAL(15,2) DEFAULT 0.00, expenses DECIMAL(15,2) DEFAULT 0.00, profit DECIMAL(15,2) DEFAULT 0.00, sequence INTEGER)',
             'CREATE TABLE IF NOT EXISTS "Kpi" (label VARCHAR(100) PRIMARY KEY, value VARCHAR(100), "change" VARCHAR(50), positive BOOLEAN DEFAULT TRUE)',
             'CREATE TABLE IF NOT EXISTS "Transaction" ("trxId" VARCHAR(100) PRIMARY KEY, date VARCHAR(100), category VARCHAR(100), status VARCHAR(50) DEFAULT \'Pending\', amount VARCHAR(100), "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP)',
-            'CREATE TABLE IF NOT EXISTS "credentials" (id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), "user_id" UUID NOT NULL REFERENCES "User"(id) ON DELETE CASCADE, provider VARCHAR(50) NOT NULL, "encrypted_data" TEXT NOT NULL, status VARCHAR(50) DEFAULT \'Connected\', "n8n_credential_id" VARCHAR(255), "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, CONSTRAINT unique_user_provider UNIQUE ("user_id", provider))'
+            'CREATE TABLE IF NOT EXISTS "credentials" (id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), "user_id" UUID NOT NULL REFERENCES "User"(id) ON DELETE CASCADE, provider VARCHAR(50) NOT NULL, "encrypted_data" TEXT NOT NULL, status VARCHAR(50) DEFAULT \'Connected\', "n8n_credential_id" VARCHAR(255), "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, CONSTRAINT unique_user_provider UNIQUE ("user_id", provider))',
+            'CREATE TABLE IF NOT EXISTS "ApprovalEvidence" (id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), "workflowLogId" UUID, "workflowId" UUID, "teamId" UUID, "requestedBy" VARCHAR(255), "approvedBy" VARCHAR(255), status VARCHAR(50) DEFAULT \'PENDING\', "outputPreview" TEXT, "approvalRequired" BOOLEAN DEFAULT TRUE, "writtenBack" BOOLEAN DEFAULT FALSE, "decisionRationale" TEXT, "policyName" VARCHAR(255), "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "decidedAt" TIMESTAMP, "writebackAllowed" BOOLEAN DEFAULT FALSE, "writebackTimestamp" TIMESTAMP, "exceptionBypassReason" TEXT)'
         ];
 
         for (const ddl of tables) {
@@ -120,6 +122,62 @@ async function migrate() {
             ALTER TABLE "WorkflowOrder" ADD COLUMN IF NOT EXISTS "userId" UUID;
             ALTER TABLE "WorkflowOrder" ADD COLUMN IF NOT EXISTS "templateId" UUID;
             ALTER TABLE "WorkflowOrder" ADD COLUMN IF NOT EXISTS "stripeSessionId" VARCHAR(255);
+        `);
+
+        // 9. UPDATE APPROVALEVIDENCE TABLE FOR DENSE COMPLIANCE FIELDS
+        console.log('🛡️ Enhancing ApprovalEvidence table...');
+        await client.query(`
+            ALTER TABLE "ApprovalEvidence" ADD COLUMN IF NOT EXISTS "writebackAllowed" BOOLEAN DEFAULT FALSE;
+            ALTER TABLE "ApprovalEvidence" ADD COLUMN IF NOT EXISTS "writebackTimestamp" TIMESTAMP;
+            ALTER TABLE "ApprovalEvidence" ADD COLUMN IF NOT EXISTS "exceptionBypassReason" TEXT;
+        `);
+
+        // 10. HARDEN TEAM AND CLUSTERNODE FOR SERVER-ASSIGNMENT LIFECYCLE MODEL
+        console.log('🏗️ Enhancing Team and ClusterNode tables for assignment model...');
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS "Team" (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                name VARCHAR(255) NOT NULL,
+                "ownerId" UUID,
+                "firmName" VARCHAR(255),
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            ALTER TABLE "Team" ADD COLUMN IF NOT EXISTS "serverId" UUID;
+            ALTER TABLE "Team" ADD COLUMN IF NOT EXISTS "provisioningStatus" VARCHAR(50) DEFAULT 'NOT_STARTED';
+            ALTER TABLE "Team" ADD COLUMN IF NOT EXISTS "assignedAt" TIMESTAMP;
+            ALTER TABLE "ClusterNode" ADD COLUMN IF NOT EXISTS "is_assignable" BOOLEAN DEFAULT TRUE;
+
+            CREATE TABLE IF NOT EXISTS "CompanyProfile" (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                "teamId" UUID NOT NULL,
+                "companyName" VARCHAR(255) DEFAULT 'Blonk SIA',
+                industry VARCHAR(100) DEFAULT '',
+                employees VARCHAR(50) DEFAULT '1-10',
+                countries VARCHAR(100) DEFAULT '',
+                languages VARCHAR(100) DEFAULT 'English',
+                "workingHours" VARCHAR(100) DEFAULT '09:00 - 18:00',
+                timezone VARCHAR(100) DEFAULT 'UTC',
+                "vatCode" VARCHAR(100) DEFAULT '',
+                currencies VARCHAR(100) DEFAULT 'EUR (€)',
+                departments TEXT DEFAULT '',
+                website VARCHAR(255) DEFAULT '',
+                "businessGoals" TEXT DEFAULT '',
+                "primaryBrain" VARCHAR(100) DEFAULT '',
+                "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            ALTER TABLE "CompanyProfile" ADD COLUMN IF NOT EXISTS "website" VARCHAR(255) DEFAULT '';
+            ALTER TABLE "CompanyProfile" ADD COLUMN IF NOT EXISTS "primaryBrain" VARCHAR(100) DEFAULT '';
+
+            CREATE TABLE IF NOT EXISTS "BrainRule" (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                "teamId" UUID NOT NULL,
+                text TEXT NOT NULL,
+                active BOOLEAN DEFAULT TRUE,
+                priority VARCHAR(50) DEFAULT 'High',
+                scope VARCHAR(100) DEFAULT 'Global',
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
         `);
 
         console.log('✅ Fleet migration synchronized. Institutional ledger up-to-date.');

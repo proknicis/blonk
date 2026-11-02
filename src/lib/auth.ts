@@ -55,7 +55,7 @@ export const authOptions: NextAuthOptions = {
                 const email = (user?.email || token.email || '').toLowerCase();
                 if (email) {
                     const existing = await db.query(
-                        'SELECT id, "teamId", role, tier, "onboardingStatus" FROM "User" WHERE LOWER(email) = LOWER($1) LIMIT 1', 
+                        'SELECT id, "teamId", role, tier, "onboardingStatus", status FROM "User" WHERE LOWER(email) = LOWER($1) LIMIT 1', 
                         [email]
                     ) as any[];
                     
@@ -71,6 +71,11 @@ export const authOptions: NextAuthOptions = {
                         token.role = 'OWNER';
                     } else if (existing.length > 0) {
                         const dbUser = existing[0];
+                        if (dbUser.status === 'Suspended' || dbUser.status === 'Disabled') {
+                            token.id = undefined;
+                            token.error = "StaleSession";
+                            return token;
+                        }
                         token.id = dbUser.id;
                         token.role = dbUser.role;
                         token.tier = dbUser.tier || 'Starter';
@@ -78,9 +83,30 @@ export const authOptions: NextAuthOptions = {
                     }
                 }
             }
+
+            // Defensively check if user still exists and is active on subsequent ticks
+            if (token.id) {
+                const existing = await db.query(
+                    'SELECT id, status FROM "User" WHERE id = $1 LIMIT 1',
+                    [token.id]
+                ) as any[];
+                if (existing.length === 0 || existing[0].status === 'Suspended' || existing[0].status === 'Disabled') {
+                    token.id = undefined;
+                    token.error = "StaleSession";
+                }
+            }
+
             return token;
         },
         async session({ session, token }) {
+            if (token.error === "StaleSession" || !token.id) {
+                return {
+                    ...session,
+                    user: null,
+                    error: "StaleSession"
+                } as any;
+            }
+
             if (token && session.user) {
                 (session.user as any).id = token.id;
                 (session.user as any).teamId = token.teamId;
